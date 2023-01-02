@@ -1,0 +1,1 @@
+dart compile exe bin/vid.dart -o build/vid
