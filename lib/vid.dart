@@ -7,6 +7,8 @@ final c = Console();
 var cols = c.cols;
 var rows = c.rows;
 
+var lines = <String>[];
+
 void quit() {
   c.clear();
   c.reset();
@@ -19,19 +21,16 @@ void quit() {
 void draw() {
   c.clear();
   c.foreground = 6;
-  final str0 = 'Hello world';
-  final str1 = 'Press \'q\' to quit';
-  c.move(
-      row: (rows / 2).round() - 1,
-      col: (cols / 2).round() - (str0.length / 2).round());
-  c.append(str0);
-  c.move(
-      row: (rows / 2).round() + 1,
-      col: (cols / 2).round() - (str1.length / 2).round());
-  c.append(str1);
-  final str = 'rows $rows cols $cols';
-  c.move(row: rows + 1, col: cols - str.length);
-  c.append(str);
+
+  // draw lines
+  for (var i = 0; i < lines.length; i++) {
+    //c.move(row: i + 1, col: 1);
+    //c.append(lines[i]);
+    c.append(lines[i]);
+    c.append('\n');
+  }
+  c.move(row: 0, col: 4);
+  c.write('#');
   c.apply();
 }
 
@@ -48,10 +47,23 @@ void resize(signal) {
   draw();
 }
 
+void load(arguments) {
+  if (arguments.isEmpty) {
+    return;
+  }
+  final file = File(arguments[0]);
+  if (!file.existsSync()) {
+    print('File not found');
+  }
+  lines = file.readAsLinesSync();
+  print(lines);
+}
+
 void init(List<String> arguments) {
   c.rawMode = true;
   c.cursor = false;
   c.apply();
+  load(arguments);
   draw();
   c.input.listen(input);
   c.resize.listen(resize);
