@@ -1,2 +1,3 @@
-A sample command-line application with an entrypoint in `bin/`, library code
-in `lib/`, and example unit test in `test/`.
+# vid
+
+A minimal vi-like text-editor for the Terminal written in Dart.
