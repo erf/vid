@@ -13,7 +13,6 @@ void quit() {
   c.clear();
   c.reset();
   c.rawMode = false;
-  c.cursor = true;
   c.apply();
   exit(0);
 }
@@ -30,7 +29,7 @@ void draw() {
     c.append('\n');
   }
   c.move(row: 0, col: 4);
-  c.write('#');
+  c.cursor(visible: true);
   c.apply();
 }
 
@@ -61,7 +60,6 @@ void load(arguments) {
 
 void init(List<String> arguments) {
   c.rawMode = true;
-  c.cursor = false;
   c.apply();
   load(arguments);
   draw();

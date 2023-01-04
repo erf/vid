@@ -47,7 +47,7 @@ class Console {
     append('\x1b[$row;${col}H');
   }
 
-  set cursor(bool visible) {
+  void cursor({required bool visible}) {
     if (visible) {
       append('\x1b[?25h');
     } else {
