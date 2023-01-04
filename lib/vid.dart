@@ -2,12 +2,10 @@ import 'dart:io';
 
 import './console.dart';
 
-final c = Console();
-
-var cols = c.cols;
-var rows = c.rows;
-
+var c = Console();
 var lines = <String>[];
+var cx = 4;
+var cy = 0;
 
 void quit() {
   c.clear();
@@ -23,12 +21,10 @@ void draw() {
 
   // draw lines
   for (var i = 0; i < lines.length; i++) {
-    //c.move(row: i + 1, col: 1);
-    //c.append(lines[i]);
     c.append(lines[i]);
     c.append('\n');
   }
-  c.move(row: 0, col: 4);
+  c.move(x: cx, y: cy);
   c.cursor(visible: true);
   c.apply();
 }
@@ -41,8 +37,6 @@ void input(codes) {
 }
 
 void resize(signal) {
-  cols = c.cols;
-  rows = c.rows;
   draw();
 }
 

@@ -13,11 +13,11 @@ class Console {
     }
   }
 
-  int get cols {
+  int get width {
     return stdout.terminalColumns;
   }
 
-  int get rows {
+  int get height {
     return stdout.terminalLines;
   }
 
@@ -43,8 +43,8 @@ class Console {
     buffer.clear();
   }
 
-  void move({required int row, required int col}) {
-    append('\x1b[$row;${col}H');
+  void move({required int y, required int x}) {
+    append('\x1b[${y};${x}H');
   }
 
   void cursor({required bool visible}) {
