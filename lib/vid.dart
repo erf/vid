@@ -23,8 +23,7 @@ void draw() {
     c.append(lines[i]);
     c.append('\n');
   }
-  c.move(x: cx, y: cy);
-  c.cursor(visible: true);
+  c.cursorMove(x: cx, y: cy);
   c.apply();
 }
 
@@ -53,6 +52,7 @@ void load(arguments) {
 
 void init(List<String> arguments) {
   c.rawMode(true);
+  c.cursorVisible(true);
   load(arguments);
   draw();
   c.input.listen(input);
