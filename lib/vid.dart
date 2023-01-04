@@ -8,15 +8,15 @@ var cx = 4;
 var cy = 0;
 
 void quit() {
-  c.clear();
+  c.erase();
   c.reset();
   c.apply();
-  c.rawMode = false;
+  c.rawMode(false);
   exit(0);
 }
 
 void draw() {
-  c.clear();
+  c.erase();
 
   // draw lines
   for (var i = 0; i < lines.length; i++) {
@@ -52,7 +52,7 @@ void load(arguments) {
 }
 
 void init(List<String> arguments) {
-  c.rawMode = true;
+  c.rawMode(true);
   load(arguments);
   draw();
   c.input.listen(input);

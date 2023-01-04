@@ -3,7 +3,7 @@ import 'dart:io';
 class Console {
   final buffer = StringBuffer();
 
-  set rawMode(bool rawMode) {
+  void rawMode(bool rawMode) {
     if (rawMode) {
       stdin.echoMode = false;
       stdin.lineMode = false;
@@ -29,11 +29,6 @@ class Console {
     return ProcessSignal.sigwinch.watch();
   }
 
-  // should use append / apply  in most cases
-  void write(Object object) {
-    stdout.write(object);
-  }
-
   void append(String str) {
     buffer.write(str);
   }
@@ -44,7 +39,7 @@ class Console {
   }
 
   void move({required int y, required int x}) {
-    append('\x1b[${y};${x}H');
+    append('\x1b[$y;${x}H');
   }
 
   void cursor({required bool visible}) {
@@ -55,8 +50,8 @@ class Console {
     }
   }
 
-  void clear() {
-    append('\x1b[H'); // Go home
+  void erase() {
+    append('\x1b[H'); // home
     append('\x1b[J'); // erase down
   }
 
