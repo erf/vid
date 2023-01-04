@@ -60,11 +60,11 @@ class Console {
     append('\x1b[J'); // erase down
   }
 
-  set foreground(int color) {
+  void foreground(int color) {
     append('\x1b[38;5;${color}m');
   }
 
-  set background(int color) {
+  void background(int color) {
     append('\x1b[48;5;${color}m');
   }
 
