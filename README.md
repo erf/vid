@@ -1,3 +1,3 @@
 # vid
 
-A minimal vi-like text-editor for the Terminal written in Dart.
+A minimal vi-like text editor for the terminal written in Dart.
