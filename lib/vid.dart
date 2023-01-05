@@ -136,6 +136,11 @@ void insert(String str) {
     mode = Mode.normal;
     return;
   }
+
+  if (lines.isEmpty) {
+    lines.add('');
+  }
+
   var line = lines[cy];
   if (line.isEmpty) {
     lines[cy] = str;
