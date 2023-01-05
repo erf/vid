@@ -53,17 +53,12 @@ List<String> wrapLines(List<String> lines) {
           result.add('');
           continue;
         }
-        var lineStart = 0;
-        var lineLength = line.length;
-        var lineEnd = lineLength;
-        while (lineStart < lineLength) {
-          if (lineEnd - lineStart > term.width) {
-            lineEnd = lineStart + term.width;
-          }
-          result.add(line.substring(lineStart, lineEnd));
-          lineStart = lineEnd;
-          lineEnd = lineLength;
+        var subLine = line;
+        while (subLine.length > term.width - 1) {
+          result.add(subLine.substring(0, term.width - 1));
+          subLine = subLine.substring(term.width - 1);
         }
+        result.add(subLine);
       }
       break;
     case LineWrapMode.word:
