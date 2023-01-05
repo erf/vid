@@ -10,11 +10,7 @@ class VT100 {
 
   // cursor visibility
   static String cursorVisible(bool visible) {
-    if (visible) {
-      return '\x1b[?25h';
-    } else {
-      return '\x1b[?25l';
-    }
+    return visible ? '\x1b[?25h' : '\x1b[?25l';
   }
 
   // home and erase down
