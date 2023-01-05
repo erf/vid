@@ -206,6 +206,9 @@ void moveCursor(int dx, int dy) {
 
 void deleteCharacterAtCursorPosition() {
   // if empty file, do nothing
+  if (lines.isEmpty) {
+    return;
+  }
   if (lines.length == 1 && lines[cy].isEmpty) {
     return;
   }
