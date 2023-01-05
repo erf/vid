@@ -2,33 +2,34 @@ import 'dart:io';
 
 import 'terminal.dart';
 import 'vt100.dart';
+import 'vt100_buffer.dart';
 
 var term = Terminal();
-var buf = StringBuffer();
+var vt = VT100Buffer();
 var lines = <String>[];
 var cx = 4;
 var cy = 0;
 
 void quit() {
-  buf.write(VT100.erase());
-  buf.write(VT100.resetStyles());
-  term.write(buf);
-  buf.clear();
+  vt.homeAndErase();
+  vt.resetStyles();
+  term.write(vt);
+  vt.clear();
   term.rawMode = false;
   exit(0);
 }
 
 void draw() {
-  buf.write(VT100.erase());
+  vt.homeAndErase();
 
   // draw lines
   for (var i = 0; i < lines.length; i++) {
-    buf.write(lines[i]);
-    buf.write('\n');
+    vt.write(lines[i]);
+    vt.write('\n');
   }
-  buf.write(VT100.cursorPosition(x: cx, y: cy));
-  term.write(buf);
-  buf.clear();
+  vt.cursorPosition(x: cx, y: cy);
+  term.write(vt);
+  vt.clear();
 }
 
 void input(codes) {
