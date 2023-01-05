@@ -4,9 +4,9 @@ import 'terminal.dart';
 import 'vt100.dart';
 import 'vt100_buffer.dart';
 
-enum LineWrapMode { none, char, word }
-
 enum Mode { normal, insert }
+
+enum LineWrapMode { none, char, word }
 
 var term = Terminal();
 var vt = VT100Buffer();
@@ -15,8 +15,8 @@ var lines = <String>[];
 var renderLines = <String>[];
 var cx = 0;
 var cy = 0;
-var lineWrapMode = LineWrapMode.none;
 var mode = Mode.normal;
+var lineWrapMode = LineWrapMode.none;
 
 void draw() {
   vt.homeAndErase();
@@ -80,7 +80,7 @@ void processLines() {
       }
       break;
     case LineWrapMode.word:
-      // split lines at term.width using word boundaries (regex) and whitespace
+      // split lines at terminal width using word boundaries
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
         if (line.isEmpty) {
@@ -131,8 +131,22 @@ void checkCursorBounds() {
   }
 }
 
-void input(codes) {
-  final str = String.fromCharCodes(codes);
+void insert(String str) {
+  if (str == '\x1b') {
+    mode = Mode.normal;
+    return;
+  }
+  var line = lines[cy];
+  if (line.isEmpty) {
+    lines[cy] = str;
+  } else {
+    lines[cy] = line.replaceRange(cx, cx, str);
+  }
+  cx++;
+  processLines();
+}
+
+void normal(String str) {
   switch (str) {
     case 'q':
       quit();
@@ -158,8 +172,27 @@ void input(codes) {
     case '\$':
       cx = renderLines[cy].length - 1;
       break;
+    case 'i':
+      mode = Mode.insert;
+      break;
+    case 'a':
+      mode = Mode.insert;
+      moveCursor(1, 0);
+      break;
     case 't':
       toggleWordWrap();
+      break;
+  }
+}
+
+void input(List<int> codes) {
+  final str = String.fromCharCodes(codes);
+  switch (mode) {
+    case Mode.insert:
+      insert(str);
+      break;
+    case Mode.normal:
+      normal(str);
       break;
   }
   draw();
@@ -201,7 +234,7 @@ void toggleWordWrap() {
   checkCursorBounds();
 }
 
-void resize(signal) {
+void resize(ProcessSignal signal) {
   processLines();
   checkCursorBounds();
   draw();
