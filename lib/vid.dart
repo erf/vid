@@ -13,7 +13,7 @@ var cy = 0;
 
 enum LineWrapMode { none, char }
 
-var lineWrapMode = LineWrapMode.char;
+var lineWrapMode = LineWrapMode.none;
 
 void quit() {
   vt.homeAndErase();
@@ -50,7 +50,7 @@ List<String> wrapLines(List<String> lines) {
         if (line.length < term.width) {
           result.add(line);
         } else {
-          result.add(line.substring(0, term.width));
+          result.add(line.substring(0, term.width - 1));
         }
       }
       break;
