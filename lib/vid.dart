@@ -8,21 +8,12 @@ var term = Terminal();
 var vt = VT100Buffer();
 var lines = <String>[];
 var renderLines = <String>[];
-var cx = 4;
-var cy = 0;
+var cx = 1;
+var cy = 1;
 
-enum LineWrapMode { none, char }
+enum LineWrapMode { none, char, word }
 
-var lineWrapMode = LineWrapMode.none;
-
-void quit() {
-  vt.homeAndErase();
-  vt.resetStyles();
-  term.write(vt);
-  vt.clear();
-  term.rawMode = false;
-  exit(0);
-}
+var lineWrapMode = LineWrapMode.char;
 
 void draw() {
   vt.homeAndErase();
@@ -71,15 +62,52 @@ List<String> wrapLines(List<String> lines) {
         }
       }
       break;
+    case LineWrapMode.word:
+      // split lines at terminal width at word boundaries
+      break;
   }
   return result;
 }
 
+void quit() {
+  vt.homeAndErase();
+  vt.resetStyles();
+  term.write(vt);
+  vt.clear();
+  term.rawMode = false;
+  exit(0);
+}
+
 void input(codes) {
   final str = String.fromCharCodes(codes);
-  if (str == 'q') {
-    quit();
+  switch (str) {
+    case 'q':
+      quit();
+      break;
+    case 'j':
+      cy++;
+      break;
+    case 'k':
+      cy--;
+      break;
+    case 'h':
+      cx--;
+      break;
+    case 'l':
+      cx++;
+      break;
+    case 'w':
+      // toggle word wrap
+      if (lineWrapMode == LineWrapMode.none) {
+        lineWrapMode = LineWrapMode.char;
+      } else if (lineWrapMode == LineWrapMode.char) {
+        lineWrapMode = LineWrapMode.word;
+      } else {
+        lineWrapMode = LineWrapMode.none;
+      }
+      break;
   }
+  draw();
 }
 
 void resize(signal) {
