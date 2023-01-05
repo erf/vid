@@ -6,6 +6,8 @@ import 'vt100_buffer.dart';
 
 enum LineWrapMode { none, char, word }
 
+enum Mode { normal, insert }
+
 var term = Terminal();
 var vt = VT100Buffer();
 var filename = '[No Name]';
@@ -14,6 +16,7 @@ var renderLines = <String>[];
 var cx = 0;
 var cy = 0;
 var lineWrapMode = LineWrapMode.none;
+var mode = Mode.normal;
 
 void draw() {
   vt.homeAndErase();
