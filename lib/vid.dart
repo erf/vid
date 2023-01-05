@@ -77,6 +77,13 @@ void quit() {
   exit(0);
 }
 
+void checkCursorBounds() {
+  if (cx < 1) cx = 1;
+  if (cy < 1) cy = 1;
+  if (cy > renderLines.length) cy = renderLines.length;
+  if (cx > renderLines[cy - 1].length) cx = renderLines[cy - 1].length;
+}
+
 void input(codes) {
   final str = String.fromCharCodes(codes);
   switch (str) {
@@ -85,19 +92,19 @@ void input(codes) {
       break;
     case 'j':
       cy++;
-      if (cy > renderLines.length) cy = renderLines.length;
+      checkCursorBounds();
       break;
     case 'k':
       cy--;
-      if (cy < 1) cy = 1;
+      checkCursorBounds();
       break;
     case 'h':
       cx--;
-      if (cx < 1) cx = 1;
+      checkCursorBounds();
       break;
     case 'l':
       cx++;
-      if (cx > term.width) cx = term.width;
+      checkCursorBounds();
       break;
     case 'w':
       // toggle word wrap
