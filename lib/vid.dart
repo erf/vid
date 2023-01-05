@@ -13,7 +13,7 @@ var lines = <String>[];
 var renderLines = <String>[];
 var cx = 1;
 var cy = 1;
-var lineWrapMode = LineWrapMode.char;
+var lineWrapMode = LineWrapMode.none;
 
 void draw() {
   vt.homeAndErase();
@@ -153,7 +153,7 @@ void input(codes) {
       cx++;
       checkCursorBounds();
       break;
-    case 'w':
+    case 't':
       // toggle word wrap
       if (lineWrapMode == LineWrapMode.none) {
         lineWrapMode = LineWrapMode.char;
