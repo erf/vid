@@ -11,8 +11,8 @@ var vt = VT100Buffer();
 var filename = '[No Name]';
 var lines = <String>[];
 var renderLines = <String>[];
-var cx = 1;
-var cy = 1;
+var cx = 0;
+var cy = 0;
 var lineWrapMode = LineWrapMode.none;
 
 void draw() {
@@ -31,7 +31,7 @@ void draw() {
   // draw status
   drawStatus();
 
-  vt.cursorPosition(x: cx, y: cy);
+  vt.cursorPosition(x: cx + 1, y: cy + 1);
 
   term.write(vt);
   vt.clear();
@@ -41,7 +41,7 @@ void drawStatus() {
   vt.invert(true);
   vt.cursorPosition(x: 1, y: term.height);
   final status =
-      ' $filename${'$cy, $cx'.padLeft(term.width - filename.length - 2)} ';
+      ' $filename${'${cy + 1}, ${cx + 1}'.padLeft(term.width - filename.length - 2)} ';
   vt.write(status);
   vt.invert(false);
 }
@@ -118,16 +118,14 @@ void quit() {
 }
 
 void checkCursorBounds() {
-  if (cx < 1) cx = 1;
-  if (cy < 1) cy = 1;
-  if (cy > renderLines.length) {
-    cy = renderLines.length;
-    cy = cy == 0 ? 1 : cy;
+  if (cx < 0) cx = 0;
+  if (cy < 0) cy = 0;
+  if (cy >= renderLines.length) {
+    cy = renderLines.length - 1;
   }
-  final lineLength = renderLines.isEmpty ? 0 : renderLines[cy - 1].length;
-  if (cx > lineLength) {
-    cx = lineLength;
-    cx = cx == 0 ? 1 : cx;
+  final lineLength = renderLines.isEmpty ? 0 : renderLines[cy].length;
+  if (cx >= lineLength) {
+    cx = lineLength - 1;
   }
 }
 
