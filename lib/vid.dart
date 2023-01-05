@@ -86,15 +86,19 @@ void input(codes) {
       break;
     case 'j':
       cy++;
+      if (cy > renderLines.length) cy = renderLines.length;
       break;
     case 'k':
       cy--;
+      if (cy < 1) cy = 1;
       break;
     case 'h':
       cx--;
+      if (cx < 1) cx = 1;
       break;
     case 'l':
       cx++;
+      if (cx > term.width) cx = term.width;
       break;
     case 'w':
       // toggle word wrap
