@@ -46,7 +46,7 @@ void drawStatus() {
   vt.invert(false);
 }
 
-void processLine() {
+void processLines() {
   renderLines.clear();
   switch (lineWrapMode) {
     // cut lines at terminal width
@@ -159,7 +159,7 @@ void input(codes) {
       } else {
         lineWrapMode = LineWrapMode.none;
       }
-      processLine();
+      processLines();
       checkCursorBounds();
       break;
   }
@@ -167,7 +167,7 @@ void input(codes) {
 }
 
 void resize(signal) {
-  processLine();
+  processLines();
   checkCursorBounds();
   draw();
 }
@@ -182,7 +182,7 @@ void loadFile(args) {
     print('File not found');
   }
   lines = file.readAsLinesSync();
-  processLine();
+  processLines();
 }
 
 void init(List<String> args) {
