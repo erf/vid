@@ -18,8 +18,6 @@ var lineWrapMode = LineWrapMode.char;
 void draw() {
   vt.homeAndErase();
 
-  renderLines = wrapLines(lines);
-
   // draw lines
   for (var i = 0; i < renderLines.length; i++) {
     vt.writeln(renderLines[i]);
@@ -91,9 +89,13 @@ void quit() {
 void checkCursorBounds() {
   if (cx < 1) cx = 1;
   if (cy < 1) cy = 1;
-  if (cy > renderLines.length) cy = renderLines.length;
-  if (cx > renderLines[cy - 1].length) {
-    cx = renderLines[cy - 1].length;
+  if (cy > renderLines.length) {
+    cy = renderLines.length;
+    cy = cy == 0 ? 1 : cy;
+  }
+  final lineLength = renderLines.isEmpty ? 0 : renderLines[cy - 1].length;
+  if (cx > lineLength) {
+    cx = lineLength;
     cx = cx == 0 ? 1 : cx;
   }
 }
@@ -129,32 +131,36 @@ void input(codes) {
       } else {
         lineWrapMode = LineWrapMode.none;
       }
+      renderLines = wrapLines(lines);
+      checkCursorBounds();
       break;
   }
   draw();
 }
 
 void resize(signal) {
+  renderLines = wrapLines(lines);
+  checkCursorBounds();
   draw();
 }
 
-void loadFile(arguments) {
-  if (arguments.isEmpty) {
+void loadFile(args) {
+  if (args.isEmpty) {
     return;
   }
-  filename = arguments[0];
+  filename = args[0];
   final file = File(filename);
   if (!file.existsSync()) {
     print('File not found');
   }
   lines = file.readAsLinesSync();
-  print(lines);
+  renderLines = wrapLines(lines);
 }
 
-void init(List<String> arguments) {
+void init(List<String> args) {
   term.rawMode = true;
   term.write(VT100.cursorVisible(true));
-  loadFile(arguments);
+  loadFile(args);
   draw();
   term.input.listen(input);
   term.resize.listen(resize);
