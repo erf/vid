@@ -4,6 +4,8 @@ import 'terminal.dart';
 import 'vt100.dart';
 import 'vt100_buffer.dart';
 
+enum LineWrapMode { none, char, word }
+
 var term = Terminal();
 var vt = VT100Buffer();
 var filename = '';
@@ -11,9 +13,6 @@ var lines = <String>[];
 var renderLines = <String>[];
 var cx = 1;
 var cy = 1;
-
-enum LineWrapMode { none, char, word }
-
 var lineWrapMode = LineWrapMode.char;
 
 void draw() {
@@ -93,7 +92,10 @@ void checkCursorBounds() {
   if (cx < 1) cx = 1;
   if (cy < 1) cy = 1;
   if (cy > renderLines.length) cy = renderLines.length;
-  if (cx > renderLines[cy - 1].length) cx = renderLines[cy - 1].length;
+  if (cx > renderLines[cy - 1].length) {
+    cx = renderLines[cy - 1].length;
+    cx = cx == 0 ? 1 : cx;
+  }
 }
 
 void input(codes) {
