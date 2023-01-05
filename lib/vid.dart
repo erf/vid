@@ -19,7 +19,6 @@ void quit() {
 }
 
 void draw() {
-  buf.clear();
   buf.write(VT100.erase());
 
   // draw lines
@@ -29,6 +28,7 @@ void draw() {
   }
   buf.write(VT100.cursorPosition(x: cx, y: cy));
   term.write(buf);
+  buf.clear();
 }
 
 void input(codes) {
