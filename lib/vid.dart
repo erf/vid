@@ -50,6 +50,10 @@ List<String> wrapLines(List<String> lines) {
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
         final lineLength = line.length;
+        if (lineLength == 0) {
+          result.add('');
+          continue;
+        }
         var lineStart = 0;
         var lineEnd = lineLength;
         while (lineStart < lineLength) {
