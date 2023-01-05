@@ -38,7 +38,7 @@ void drawStatus() {
   vt.cursorPosition(x: 2, y: term.height);
   vt.write(filename);
   final cpos = '$cy, $cx';
-  vt.cursorPosition(x: term.width - cpos.length - 0, y: term.height);
+  vt.cursorPosition(x: term.width - cpos.length, y: term.height);
   vt.write(cpos);
 }
 
