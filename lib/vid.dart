@@ -23,6 +23,11 @@ void draw() {
     vt.writeln(renderLines[i]);
   }
 
+  // draw empty lines
+  for (var i = renderLines.length; i < term.height - 1; i++) {
+    vt.writeln('~');
+  }
+
   // draw status
   drawStatus();
 
@@ -33,11 +38,13 @@ void draw() {
 }
 
 void drawStatus() {
+  vt.invert(true);
   vt.cursorPosition(x: 2, y: term.height);
   vt.write(filename);
   final cpos = '$cy, $cx';
   vt.cursorPosition(x: term.width - cpos.length, y: term.height);
   vt.write(cpos);
+  vt.invert(false);
 }
 
 List<String> wrapLines(List<String> lines) {
@@ -79,7 +86,7 @@ List<String> wrapLines(List<String> lines) {
 
 void quit() {
   vt.homeAndErase();
-  vt.resetStyles();
+  vt.reset();
   term.write(vt);
   vt.clear();
   term.rawMode = false;

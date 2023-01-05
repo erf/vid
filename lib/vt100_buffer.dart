@@ -52,8 +52,13 @@ class VT100Buffer {
     _buffer.write(VT100.background(color));
   }
 
+  // set invert
+  void invert(bool invert) {
+    _buffer.write(VT100.invert(invert));
+  }
+
   // reset font and background color
-  void resetStyles() {
-    _buffer.write(VT100.resetStyles());
+  void reset() {
+    _buffer.write(VT100.reset());
   }
 }

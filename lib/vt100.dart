@@ -28,8 +28,13 @@ class VT100 {
     return '\x1b[48;5;${color}m';
   }
 
+  // set invert
+  static String invert(invert) {
+    return invert ? '\x1b[7m' : '\x1b[27m';
+  }
+
   // reset font and background color
-  static String resetStyles() {
+  static String reset() {
     return '\x1b[0m';
   }
 }
