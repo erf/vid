@@ -34,7 +34,7 @@ class Terminal {
   }
 
   // write to stdout
-  void write(String str) {
-    stdout.write(str);
+  void write(Object? object) {
+    stdout.write(object);
   }
 }

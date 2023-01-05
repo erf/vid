@@ -12,7 +12,7 @@ var cy = 0;
 void quit() {
   buf.write(VT100.erase());
   buf.write(VT100.resetStyles());
-  term.write(buf.toString());
+  term.write(buf);
   buf.clear();
   term.rawMode = false;
   exit(0);
@@ -28,7 +28,7 @@ void draw() {
     buf.write('\n');
   }
   buf.write(VT100.cursorPosition(x: cx, y: cy));
-  term.write(buf.toString());
+  term.write(buf);
 }
 
 void input(codes) {
