@@ -39,11 +39,10 @@ void draw() {
 
 void drawStatus() {
   vt.invert(true);
-  vt.cursorPosition(x: 2, y: term.height);
-  vt.write(filename);
-  final cpos = '$cy, $cx';
-  vt.cursorPosition(x: term.width - cpos.length, y: term.height);
-  vt.write(cpos);
+  vt.cursorPosition(x: 1, y: term.height);
+  final status =
+      ' $filename${'$cy, $cx'.padLeft(term.width - filename.length - 2)} ';
+  vt.write(status);
   vt.invert(false);
 }
 
