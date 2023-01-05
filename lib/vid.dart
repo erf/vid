@@ -135,20 +135,16 @@ void input(codes) {
       quit();
       break;
     case 'j':
-      cy++;
-      checkCursorBounds();
+      moveCursor(0, 1);
       break;
     case 'k':
-      cy--;
-      checkCursorBounds();
+      moveCursor(0, -1);
       break;
     case 'h':
-      cx--;
-      checkCursorBounds();
+      moveCursor(-1, 0);
       break;
     case 'l':
-      cx++;
-      checkCursorBounds();
+      moveCursor(1, 0);
       break;
     case 'x':
       // delete character at cursor position
@@ -159,6 +155,12 @@ void input(codes) {
       break;
   }
   draw();
+}
+
+void moveCursor(int dx, int dy) {
+  cx += dx;
+  cy += dy;
+  checkCursorBounds();
 }
 
 void deleteCharacterAtCursorPosition() {
