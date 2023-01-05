@@ -147,8 +147,13 @@ void input(codes) {
       moveCursor(1, 0);
       break;
     case 'x':
-      // delete character at cursor position
       deleteCharacterAtCursorPosition();
+      break;
+    case '0':
+      cx = 0;
+      break;
+    case '\$':
+      cx = renderLines[cy].length - 1;
       break;
     case 't':
       toggleWordWrap();
