@@ -3,7 +3,7 @@ import 'dart:io';
 // provides a simple interface to the terminal
 class Terminal {
   // set raw mode
-  void rawMode(bool rawMode) {
+  set rawMode(bool rawMode) {
     if (rawMode) {
       stdin.echoMode = false;
       stdin.lineMode = false;
@@ -34,7 +34,7 @@ class Terminal {
   }
 
   // write to stdout
-  void write(String str) {
+  write(String str) {
     stdout.write(str);
   }
 }

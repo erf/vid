@@ -14,7 +14,7 @@ void quit() {
   buf.write(VT100.resetStyles());
   term.write(buf.toString());
   buf.clear();
-  term.rawMode(false);
+  term.rawMode = false;
   exit(0);
 }
 
@@ -42,7 +42,7 @@ void resize(signal) {
   draw();
 }
 
-void load(arguments) {
+void loadFile(arguments) {
   if (arguments.isEmpty) {
     return;
   }
@@ -55,9 +55,9 @@ void load(arguments) {
 }
 
 void init(List<String> arguments) {
-  term.rawMode(true);
+  term.rawMode = true;
   buf.write(VT100.cursorVisible(true));
-  load(arguments);
+  loadFile(arguments);
   draw();
   term.input.listen(input);
   term.resize.listen(resize);
