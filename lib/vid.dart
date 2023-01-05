@@ -6,6 +6,7 @@ import 'vt100_buffer.dart';
 
 var term = Terminal();
 var vt = VT100Buffer();
+var filename = '';
 var lines = <String>[];
 var renderLines = <String>[];
 var cx = 1;
@@ -26,9 +27,22 @@ void draw() {
   }
   vt.writeln(lines.length.toString());
   vt.writeln(renderLines.length.toString());
+
+  // draw status
+  drawStatus();
+
   vt.cursorPosition(x: cx, y: cy);
+
   term.write(vt);
   vt.clear();
+}
+
+void drawStatus() {
+  vt.cursorPosition(x: 2, y: term.height);
+  vt.write(filename);
+  final cpos = '$cy, $cx';
+  vt.cursorPosition(x: term.width - cpos.length - 0, y: term.height);
+  vt.write(cpos);
 }
 
 List<String> wrapLines(List<String> lines) {
@@ -128,7 +142,8 @@ void loadFile(arguments) {
   if (arguments.isEmpty) {
     return;
   }
-  final file = File(arguments[0]);
+  filename = arguments[0];
+  final file = File(filename);
   if (!file.existsSync()) {
     print('File not found');
   }
