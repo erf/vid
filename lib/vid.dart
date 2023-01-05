@@ -46,17 +46,17 @@ void drawStatus() {
   vt.invert(false);
 }
 
-List<String> wrapLines(List<String> lines) {
-  final result = <String>[];
+void processLine() {
+  renderLines.clear();
   switch (lineWrapMode) {
     // cut lines at terminal width
     case LineWrapMode.none:
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
         if (line.length < term.width) {
-          result.add(line);
+          renderLines.add(line);
         } else {
-          result.add(line.substring(0, term.width - 1));
+          renderLines.add(line.substring(0, term.width - 1));
         }
       }
       break;
@@ -65,15 +65,15 @@ List<String> wrapLines(List<String> lines) {
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
         if (line.isEmpty) {
-          result.add('');
+          renderLines.add('');
           continue;
         }
         var subLine = line;
         while (subLine.length > term.width - 1) {
-          result.add(subLine.substring(0, term.width - 1));
+          renderLines.add(subLine.substring(0, term.width - 1));
           subLine = subLine.substring(term.width - 1);
         }
-        result.add(subLine);
+        renderLines.add(subLine);
       }
       break;
     case LineWrapMode.word:
@@ -81,31 +81,30 @@ List<String> wrapLines(List<String> lines) {
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
         if (line.isEmpty) {
-          result.add('');
+          renderLines.add('');
           continue;
         }
         var subLine = line;
         while (subLine.length > term.width - 1) {
           final matches = RegExp(r'\w+').allMatches(subLine);
           if (matches.isEmpty) {
-            result.add(subLine.substring(0, term.width - 1));
+            renderLines.add(subLine.substring(0, term.width - 1));
             subLine = subLine.substring(term.width - 1);
             break;
           }
           for (var match in matches) {
             if (match.end > term.width - 1) {
-              result.add(subLine.substring(0, match.start));
+              renderLines.add(subLine.substring(0, match.start));
               subLine = subLine.substring(match.start);
               break;
             }
           }
         }
-        result.add(subLine);
+        renderLines.add(subLine);
       }
 
       break;
   }
-  return result;
 }
 
 void quit() {
@@ -160,7 +159,7 @@ void input(codes) {
       } else {
         lineWrapMode = LineWrapMode.none;
       }
-      renderLines = wrapLines(lines);
+      processLine();
       checkCursorBounds();
       break;
   }
@@ -168,7 +167,7 @@ void input(codes) {
 }
 
 void resize(signal) {
-  renderLines = wrapLines(lines);
+  processLine();
   checkCursorBounds();
   draw();
 }
@@ -183,7 +182,7 @@ void loadFile(args) {
     print('File not found');
   }
   lines = file.readAsLinesSync();
-  renderLines = wrapLines(lines);
+  processLine();
 }
 
 void init(List<String> args) {

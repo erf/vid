@@ -9,4 +9,4 @@ A minimal vi-like text editor for the terminal written in Dart.
 
 ## Example text
 
-Hello emojis 😀😀😀 LOLOLOL this is a very long line with some weird characters in it !
+Emojis 😀😀😀 LOLOLOL this is a line with some weird characters in it ! 😎
