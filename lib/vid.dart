@@ -150,20 +150,45 @@ void input(codes) {
       cx++;
       checkCursorBounds();
       break;
+    case 'x':
+      // delete character at cursor position
+      deleteCharacterAtCursorPosition();
+      break;
     case 't':
-      // toggle word wrap
-      if (lineWrapMode == LineWrapMode.none) {
-        lineWrapMode = LineWrapMode.char;
-      } else if (lineWrapMode == LineWrapMode.char) {
-        lineWrapMode = LineWrapMode.word;
-      } else {
-        lineWrapMode = LineWrapMode.none;
-      }
-      processLines();
-      checkCursorBounds();
+      toggleWordWrap();
       break;
   }
   draw();
+}
+
+void deleteCharacterAtCursorPosition() {
+  // if empty file, do nothing
+  if (lines.length == 1 && lines[cy].isEmpty) {
+    return;
+  }
+
+  // delete character at cursor position or remove line if empty
+  String line = lines[cy];
+  if (line.isEmpty) {
+    lines.removeAt(cy);
+  } else {
+    lines[cy] = line.replaceRange(cx, cx + 1, '');
+  }
+
+  processLines();
+  checkCursorBounds();
+}
+
+void toggleWordWrap() {
+  if (lineWrapMode == LineWrapMode.none) {
+    lineWrapMode = LineWrapMode.char;
+  } else if (lineWrapMode == LineWrapMode.char) {
+    lineWrapMode = LineWrapMode.word;
+  } else {
+    lineWrapMode = LineWrapMode.none;
+  }
+  processLines();
+  checkCursorBounds();
 }
 
 void resize(signal) {
