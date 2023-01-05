@@ -56,7 +56,7 @@ void loadFile(arguments) {
 
 void init(List<String> arguments) {
   term.rawMode = true;
-  buf.write(VT100.cursorVisible(true));
+  term.write(VT100.cursorVisible(true));
   loadFile(arguments);
   draw();
   term.input.listen(input);
