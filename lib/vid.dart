@@ -49,12 +49,12 @@ List<String> wrapLines(List<String> lines) {
     case LineWrapMode.char:
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
-        final lineLength = line.length;
-        if (lineLength == 0) {
+        if (line.isEmpty) {
           result.add('');
           continue;
         }
         var lineStart = 0;
+        var lineLength = line.length;
         var lineEnd = lineLength;
         while (lineStart < lineLength) {
           if (lineEnd - lineStart > term.width) {
