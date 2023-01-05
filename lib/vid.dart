@@ -8,7 +8,7 @@ enum LineWrapMode { none, char, word }
 
 var term = Terminal();
 var vt = VT100Buffer();
-var filename = '';
+var filename = '[No Name]';
 var lines = <String>[];
 var renderLines = <String>[];
 var cx = 1;
