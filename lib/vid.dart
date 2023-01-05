@@ -77,7 +77,32 @@ List<String> wrapLines(List<String> lines) {
       }
       break;
     case LineWrapMode.word:
-      // split lines at terminal width at word boundaries
+      // split lines at term.width using word boundaries (regex) and whitespace
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.isEmpty) {
+          result.add('');
+          continue;
+        }
+        var subLine = line;
+        while (subLine.length > term.width - 1) {
+          final matches = RegExp(r'\w+').allMatches(subLine);
+          if (matches.isEmpty) {
+            result.add(subLine.substring(0, term.width - 1));
+            subLine = subLine.substring(term.width - 1);
+            break;
+          }
+          for (var match in matches) {
+            if (match.end > term.width - 1) {
+              result.add(subLine.substring(0, match.start));
+              subLine = subLine.substring(match.start);
+              break;
+            }
+          }
+        }
+        result.add(subLine);
+      }
+
       break;
   }
   return result;
