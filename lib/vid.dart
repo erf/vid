@@ -4,15 +4,14 @@ import 'terminal.dart';
 import 'vt100.dart';
 
 var term = Terminal();
-var vt100 = VT100();
 var buf = StringBuffer();
 var lines = <String>[];
 var cx = 4;
 var cy = 0;
 
 void quit() {
-  buf.write(vt100.erase());
-  buf.write(vt100.resetStyles());
+  buf.write(VT100.erase());
+  buf.write(VT100.resetStyles());
   term.write(buf.toString());
   buf.clear();
   term.rawMode(false);
@@ -21,14 +20,14 @@ void quit() {
 
 void draw() {
   buf.clear();
-  buf.write(vt100.erase());
+  buf.write(VT100.erase());
 
   // draw lines
   for (var i = 0; i < lines.length; i++) {
     buf.write(lines[i]);
     buf.write('\n');
   }
-  buf.write(vt100.cursorPosition(x: cx, y: cy));
+  buf.write(VT100.cursorPosition(x: cx, y: cy));
   term.write(buf.toString());
 }
 
@@ -57,7 +56,7 @@ void load(arguments) {
 
 void init(List<String> arguments) {
   term.rawMode(true);
-  buf.write(vt100.cursorVisible(true));
+  buf.write(VT100.cursorVisible(true));
   load(arguments);
   draw();
   term.input.listen(input);
