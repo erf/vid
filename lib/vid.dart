@@ -25,8 +25,6 @@ void draw() {
   for (var i = 0; i < renderLines.length; i++) {
     vt.writeln(renderLines[i]);
   }
-  vt.writeln(lines.length.toString());
-  vt.writeln(renderLines.length.toString());
 
   // draw status
   drawStatus();
