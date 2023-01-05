@@ -22,6 +22,11 @@ class VT100Buffer {
     _buffer.write(str);
   }
 
+  // add a string to the buffer and add a newline
+  void writeln([String str = '']) {
+    _buffer.writeln(str);
+  }
+
   // move cursor to x,y
   void cursorPosition({required int x, required int y}) {
     _buffer.write(VT100.cursorPosition(x: x, y: y));
