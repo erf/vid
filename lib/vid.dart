@@ -294,6 +294,13 @@ void normal(String str) {
       lines.insert(cy, '');
       processLines();
       break;
+    case 'g':
+      mode = Mode.operatorPending;
+      operator = str;
+      break;
+    case 'G':
+      cy = lines.length - 1;
+      break;
     case 't':
       toggleWordWrap();
       break;
@@ -380,6 +387,11 @@ void input(List<int> codes) {
 
 void operatorPending(String motion) {
   switch (operator) {
+    case 'g':
+      if (motion == 'g') {
+        cy = 0;
+      }
+      break;
     case 'd':
       if (motion == 'd') {
         // delete line
