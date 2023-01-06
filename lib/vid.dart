@@ -159,7 +159,17 @@ bool insertControlCharacter(String str) {
 
   // backspace
   if (str == '\x7f') {
-    if (cx > 0) {
+    if (cx == 0) {
+      // join lines
+      if (cy > 0) {
+        final aboveLen = lines[cy - 1].length;
+        lines[cy - 1] += lines[cy];
+        lines.removeAt(cy);
+        processLines();
+        --cy;
+        cx = aboveLen;
+      }
+    } else {
       moveCursor(-1, 0);
       deleteCharacterAtCursorPosition();
     }
