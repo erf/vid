@@ -9,6 +9,8 @@ enum Mode { normal, operatorPending, insert }
 
 enum LineWrapMode { none, char, word }
 
+const EPOS = -1;
+
 var term = Terminal();
 var vt = VT100Buffer();
 var filename = '';
@@ -152,7 +154,7 @@ void cursorBounds() {
 void showMessage(String msg) {
   message = msg;
   draw();
-  Timer(const Duration(seconds: 1), () {
+  Timer(Duration(seconds: 2), () {
     message = '';
     draw();
   });
@@ -239,7 +241,8 @@ void normal(String str) {
       moveCursor(1, 0);
       break;
     case 'w':
-      moveCursorWordForward();
+      cx = moveCursorWordForward(cx);
+      cursorBounds();
       break;
     case 'b':
       moveCursorWordBack();
@@ -318,12 +321,11 @@ void save() {
     sink.writeln(line);
   }
   sink.close();
-  showMessage('Saved');
 }
 
 void moveCursorWordEnd() {
   final line = lines[cy];
-  final matches = RegExp(r'\w+').allMatches(line);
+  final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
   }
@@ -339,7 +341,7 @@ void moveCursorWordEnd() {
 
 void moveCursorWordBack() {
   final line = lines[cy];
-  final matches = RegExp(r'\w+').allMatches(line);
+  final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
   }
@@ -353,20 +355,19 @@ void moveCursorWordBack() {
   cx = matches.first.start;
 }
 
-void moveCursorWordForward() {
+int moveCursorWordForward(int start) {
   final line = lines[cy];
-  final matches = RegExp(r'\w+').allMatches(line);
+  //final matches = RegExp(r'\w+?').allMatches(line);
+  final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return;
+    return EPOS;
   }
   for (var match in matches) {
-    if (match.start > cx) {
-      cx = match.start;
-      return;
+    if (match.start > start) {
+      return match.start;
     }
   }
-  cx = matches.last.end;
-  cursorBounds();
+  return matches.last.end;
 }
 
 void input(List<int> codes) {
@@ -385,7 +386,7 @@ void input(List<int> codes) {
   draw();
 }
 
-void operatorPending(String motion) {
+void operatorPending(String motion) async {
   switch (operator) {
     case 'g':
       if (motion == 'g') {
@@ -401,6 +402,19 @@ void operatorPending(String motion) {
       }
       if (motion == 'w') {
         // delete word
+        int start = cx;
+        int end = moveCursorWordForward(start);
+        if (end == EPOS) {
+          return;
+        }
+        if (start > end) {
+          start = end;
+          end = cx;
+        }
+        lines[cy] = lines[cy].replaceRange(start, end, '');
+        cx = start;
+        processLines();
+        cursorBounds();
       }
       break;
     case 'c':
