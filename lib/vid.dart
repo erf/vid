@@ -274,6 +274,16 @@ void normal(String str) {
         cx++;
       }
       break;
+    case 'A':
+      mode = Mode.insert;
+      if (lines.isNotEmpty && lines[cy].isNotEmpty) {
+        cx = lines[cy].length;
+      }
+      break;
+    case 'I':
+      mode = Mode.insert;
+      cx = 0;
+      break;
     case 'o':
       mode = Mode.insert;
       lines.insert(cy + 1, '');
