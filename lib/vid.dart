@@ -321,6 +321,7 @@ void save() {
     sink.writeln(line);
   }
   sink.close();
+  showMessage('Saved');
 }
 
 void moveCursorWordEnd() {
@@ -386,7 +387,7 @@ void input(List<int> codes) {
   draw();
 }
 
-void operatorPending(String motion) async {
+void operatorPending(String motion) {
   switch (operator) {
     case 'g':
       if (motion == 'g') {
