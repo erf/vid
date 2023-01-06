@@ -354,6 +354,7 @@ void moveCursorWordForward() {
     }
   }
   cx = matches.last.end;
+  cursorBounds();
 }
 
 void input(List<int> codes) {
