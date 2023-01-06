@@ -300,11 +300,10 @@ void loadFile(args) {
   }
   filename = args[0];
   final file = File(filename);
-  if (!file.existsSync()) {
-    print('File not found');
+  if (file.existsSync()) {
+    lines = file.readAsLinesSync();
+    processLines();
   }
-  lines = file.readAsLinesSync();
-  processLines();
 }
 
 void init(List<String> args) {
