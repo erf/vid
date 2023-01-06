@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'terminal.dart';
 import 'vt100.dart';
@@ -214,6 +213,9 @@ void normal(String str) {
     case 'q':
       quit();
       break;
+    case 's':
+      save();
+      break;
     case 'j':
       moveCursor(0, 1);
       break;
@@ -261,6 +263,16 @@ void normal(String str) {
       toggleWordWrap();
       break;
   }
+}
+
+void save() {
+  final file = File(filename);
+  final sink = file.openWrite();
+  for (var line in lines) {
+    sink.writeln(line);
+  }
+  sink.close();
+  showMessage('Saved');
 }
 
 void moveCursorWordEnd() {
