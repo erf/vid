@@ -228,16 +228,15 @@ void deleteCharacterAtCursorPosition() {
   if (lines.isEmpty) {
     return;
   }
-  if (lines.length == 1 && lines[cy].isEmpty) {
-    return;
-  }
-
   // delete character at cursor position or remove line if empty
   String line = lines[cy];
-  if (line.isEmpty) {
-    lines.removeAt(cy);
-  } else {
+  if (line.isNotEmpty) {
     lines[cy] = line.replaceRange(cx, cx + 1, '');
+  }
+
+  // if line is empty, remove it
+  if (lines[cy].isEmpty) {
+    lines.removeAt(cy);
   }
 
   processLines();
