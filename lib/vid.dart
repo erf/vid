@@ -134,17 +134,47 @@ void checkCursorBounds() {
   }
 }
 
-void insert(String str) {
+void showMessage(String msg) {
+  message = msg;
+  draw();
+  Timer(const Duration(seconds: 1), () {
+    message = '';
+    draw();
+  });
+}
+
+bool ctrlChar(String str) {
+  // escape
   if (str == '\x1b') {
     mode = Mode.normal;
-    return;
+    return true;
   }
 
+  // backspace
   if (str == '\x7f') {
     if (cx > 0) {
       moveCursor(-1, 0);
       deleteCharacterAtCursorPosition();
     }
+    return true;
+  }
+
+  // enter
+  if (str == '\n') {
+    final lineAfterCursor = lines[cy].substring(cx);
+    lines[cy] = lines[cy].substring(0, cx);
+    lines.insert(cy + 1, lineAfterCursor);
+    processLines();
+    cy += 1;
+    cx = 0;
+    return true;
+  }
+
+  return false;
+}
+
+void insert(String str) {
+  if (ctrlChar(str)) {
     return;
   }
 
