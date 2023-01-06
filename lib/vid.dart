@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'terminal.dart';
 import 'vt100.dart';
@@ -122,22 +123,28 @@ void quit() {
   exit(0);
 }
 
-void checkCursorBounds() {
-  if (cx < 0) cx = 0;
-  if (cy < 0) cy = 0;
+void cursorBounds() {
+  // limit cy to number of lines
   if (cy >= renderLines.length) {
     cy = renderLines.length - 1;
   }
+  if (cy < 0) {
+    cy = 0;
+  }
+  // limit cx to line length
   final lineLength = renderLines.isEmpty ? 0 : renderLines[cy].length;
   if (cx >= lineLength) {
     cx = lineLength - 1;
+  }
+  if (cx < 0) {
+    cx = 0;
   }
 }
 
 void showMessage(String msg) {
   message = msg;
   draw();
-  Timer(const Duration(seconds: 1), () {
+  Timer(const Duration(seconds: 2), () {
     message = '';
     draw();
   });
@@ -253,7 +260,7 @@ void input(List<int> codes) {
 void moveCursor(int dx, int dy) {
   cx += dx;
   cy += dy;
-  checkCursorBounds();
+  cursorBounds();
 }
 
 void deleteCharacterAtCursorPosition() {
@@ -273,7 +280,7 @@ void deleteCharacterAtCursorPosition() {
   }
 
   processLines();
-  checkCursorBounds();
+  cursorBounds();
 }
 
 void toggleWordWrap() {
@@ -285,12 +292,12 @@ void toggleWordWrap() {
     lineWrapMode = LineWrapMode.none;
   }
   processLines();
-  checkCursorBounds();
+  cursorBounds();
 }
 
 void resize(ProcessSignal signal) {
   processLines();
-  checkCursorBounds();
+  cursorBounds();
   draw();
 }
 
