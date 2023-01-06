@@ -192,6 +192,12 @@ void normal(String str) {
       mode = Mode.insert;
       moveCursor(1, 0);
       break;
+    case 'o':
+      mode = Mode.insert;
+      lines.insert(cy + 1, '');
+      processLines();
+      moveCursor(0, 1);
+      break;
     case 't':
       toggleWordWrap();
       break;
