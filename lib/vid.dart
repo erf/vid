@@ -143,7 +143,7 @@ void cursorBounds() {
 void showMessage(String msg) {
   message = msg;
   draw();
-  Timer(const Duration(seconds: 2), () {
+  Timer(const Duration(seconds: 1), () {
     message = '';
     draw();
   });
@@ -282,7 +282,7 @@ void moveCursorWordEnd() {
     return;
   }
   for (var match in matches) {
-    if (match.start > cx) {
+    if (match.end - 1 > cx) {
       cx = match.end - 1;
       return;
     }
