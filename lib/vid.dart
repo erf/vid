@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'terminal.dart';
 import 'vt100.dart';
@@ -162,6 +163,7 @@ bool insertControlCharacter(String str) {
   // escape
   if (str == '\x1b') {
     mode = Mode.normal;
+    cursorBounds();
     return true;
   }
 
@@ -268,7 +270,9 @@ void normal(String str) {
       break;
     case 'a':
       mode = Mode.insert;
-      moveCursor(1, 0);
+      if (lines.isNotEmpty && lines[cy].isNotEmpty) {
+        cx++;
+      }
       break;
     case 'o':
       mode = Mode.insert;
