@@ -232,6 +232,9 @@ void normal(String str) {
     case 'b':
       moveCursorWordBack();
       break;
+    case 'e':
+      moveCursorWordEnd();
+      break;
     case 'x':
       deleteCharacterAtCursorPosition();
       break;
@@ -258,6 +261,22 @@ void normal(String str) {
       toggleWordWrap();
       break;
   }
+}
+
+void moveCursorWordEnd() {
+  final line = lines[cy];
+  final matches = RegExp(r'\w+').allMatches(line);
+  if (matches.isEmpty) {
+    return;
+  }
+  for (var match in matches) {
+    if (match.start > cx) {
+      cx = match.end - 1;
+      return;
+    }
+  }
+  cx = matches.last.end;
+  cursorBounds();
 }
 
 void moveCursorWordBack() {
