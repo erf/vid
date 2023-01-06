@@ -137,6 +137,14 @@ void insert(String str) {
     return;
   }
 
+  if (str == '\x7f') {
+    if (cx > 0) {
+      moveCursor(-1, 0);
+      deleteCharacterAtCursorPosition();
+    }
+    return;
+  }
+
   if (lines.isEmpty) {
     lines.add('');
   }
