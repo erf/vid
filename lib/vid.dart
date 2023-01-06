@@ -143,7 +143,7 @@ void showMessage(String msg) {
   });
 }
 
-bool ctrlChar(String str) {
+bool insertControlCharacter(String str) {
   // escape
   if (str == '\x1b') {
     mode = Mode.normal;
@@ -174,7 +174,7 @@ bool ctrlChar(String str) {
 }
 
 void insert(String str) {
-  if (ctrlChar(str)) {
+  if (insertControlCharacter(str)) {
     return;
   }
 
