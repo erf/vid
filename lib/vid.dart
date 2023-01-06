@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'terminal.dart';
 import 'vt100.dart';
@@ -57,7 +56,7 @@ void drawStatus() {
   }
   final fileStr = filename.isEmpty ? '[No Name]' : filename;
   final status =
-      ' $modeStr$fileStr $message${'${cy + 1}, ${cx + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 6)} ';
+      ' $modeStr$fileStr $message${'${cy + 1}, ${cx + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
   vt.write(status);
   vt.invert(false);
 }
