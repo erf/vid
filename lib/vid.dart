@@ -11,7 +11,7 @@ enum LineWrapMode { none, char, word }
 
 var term = Terminal();
 var vt = VT100Buffer();
-var filename = '[No Name]';
+var filename = '';
 var lines = <String>[];
 var renderLines = <String>[];
 var cx = 0;
@@ -54,8 +54,9 @@ void drawStatus() {
   } else {
     modeStr = 'INSERT >> ';
   }
+  final fileStr = filename.isEmpty ? '[No Name]' : filename;
   final status =
-      ' $modeStr$filename $message${'${cy + 1}, ${cx + 1}'.padLeft(term.width - modeStr.length - filename.length - message.length - 6)} ';
+      ' $modeStr$fileStr $message${'${cy + 1}, ${cx + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 6)} ';
   vt.write(status);
   vt.invert(false);
 }
@@ -282,6 +283,10 @@ void normal(String str) {
 }
 
 void save() {
+  if (filename.isEmpty) {
+    showMessage('No filename');
+    return;
+  }
   final file = File(filename);
   final sink = file.openWrite();
   for (var line in lines) {
