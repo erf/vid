@@ -5,7 +5,7 @@ import 'terminal.dart';
 import 'vt100.dart';
 import 'vt100_buffer.dart';
 
-enum Mode { normal, insert }
+enum Mode { normal, operatorPending, insert }
 
 enum LineWrapMode { none, char, word }
 
@@ -19,6 +19,7 @@ var cy = 0;
 var mode = Mode.normal;
 var lineWrapMode = LineWrapMode.none;
 var message = '';
+var operator = '';
 
 void draw() {
   vt.homeAndErase();
@@ -45,7 +46,14 @@ void draw() {
 void drawStatus() {
   vt.invert(true);
   vt.cursorPosition(x: 1, y: term.height);
-  final modeStr = mode == Mode.normal ? '' : 'INSERT >> ';
+  final String modeStr;
+  if (mode == Mode.normal) {
+    modeStr = '';
+  } else if (mode == Mode.operatorPending) {
+    modeStr = 'PENDING >> ';
+  } else {
+    modeStr = 'INSERT >> ';
+  }
   final status =
       ' $modeStr$filename $message${'${cy + 1}, ${cx + 1}'.padLeft(term.width - modeStr.length - filename.length - message.length - 6)} ';
   vt.write(status);
@@ -237,6 +245,14 @@ void normal(String str) {
     case 'e':
       moveCursorWordEnd();
       break;
+    case 'c':
+      mode = Mode.operatorPending;
+      operator = str;
+      break;
+    case 'd':
+      mode = Mode.operatorPending;
+      operator = str;
+      break;
     case 'x':
       deleteCharacterAtCursorPosition();
       break;
@@ -331,8 +347,33 @@ void input(List<int> codes) {
     case Mode.normal:
       normal(str);
       break;
+    case Mode.operatorPending:
+      operatorPending(str);
+      break;
   }
   draw();
+}
+
+void operatorPending(String motion) {
+  switch (operator) {
+    case 'd':
+      if (motion == 'd') {
+        // delete line
+        lines.removeAt(cy);
+        processLines();
+        cursorBounds();
+      }
+      if (motion == 'w') {
+        // delete word
+      }
+      break;
+    case 'c':
+      if (motion == 'w') {
+        // change word
+      }
+      break;
+  }
+  mode = Mode.normal;
 }
 
 void moveCursor(int dx, int dy) {
