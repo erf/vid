@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'terminal.dart';
@@ -17,6 +18,7 @@ var cx = 0;
 var cy = 0;
 var mode = Mode.normal;
 var lineWrapMode = LineWrapMode.none;
+var message = '';
 
 void draw() {
   vt.homeAndErase();
@@ -43,8 +45,9 @@ void draw() {
 void drawStatus() {
   vt.invert(true);
   vt.cursorPosition(x: 1, y: term.height);
+  final modeStr = mode == Mode.normal ? '' : 'INSERT >> ';
   final status =
-      ' $filename${'${cy + 1}, ${cx + 1}'.padLeft(term.width - filename.length - 2)} ';
+      ' $modeStr$filename $message${'${cy + 1}, ${cx + 1}'.padLeft(term.width - modeStr.length - filename.length - message.length - 6)} ';
   vt.write(status);
   vt.invert(false);
 }
