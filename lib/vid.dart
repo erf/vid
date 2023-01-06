@@ -289,6 +289,11 @@ void normal(String str) {
       processLines();
       moveCursor(0, 1);
       break;
+    case 'O':
+      mode = Mode.insert;
+      lines.insert(cy, '');
+      processLines();
+      break;
     case 't':
       toggleWordWrap();
       break;
