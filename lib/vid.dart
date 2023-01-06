@@ -227,7 +227,10 @@ void normal(String str) {
       moveCursor(1, 0);
       break;
     case 'w':
-      moveCursorWord(1);
+      moveCursorWordForward();
+      break;
+    case 'b':
+      moveCursorWordBack();
       break;
     case 'x':
       deleteCharacterAtCursorPosition();
@@ -257,7 +260,23 @@ void normal(String str) {
   }
 }
 
-void moveCursorWord(int i) {
+void moveCursorWordBack() {
+  final line = lines[cy];
+  final matches = RegExp(r'\w+').allMatches(line);
+  if (matches.isEmpty) {
+    return;
+  }
+  final reversed = matches.toList().reversed;
+  for (var match in reversed) {
+    if (match.start < cx) {
+      cx = match.start;
+      return;
+    }
+  }
+  cx = matches.first.start;
+}
+
+void moveCursorWordForward() {
   final line = lines[cy];
   final matches = RegExp(r'\w+').allMatches(line);
   if (matches.isEmpty) {
