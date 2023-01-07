@@ -9,7 +9,7 @@ enum Mode { normal, operatorPending, insert }
 
 enum LineWrapMode { none, char, word }
 
-const EPOS = -1;
+const epos = -1;
 
 var term = Terminal();
 var vt = VT100Buffer();
@@ -361,7 +361,7 @@ int moveCursorWordForward(int start) {
   //final matches = RegExp(r'\w+?').allMatches(line);
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return EPOS;
+    return epos;
   }
   for (var match in matches) {
     if (match.start > start) {
@@ -405,7 +405,7 @@ void operatorPending(String motion) {
         // delete word
         int start = cx;
         int end = moveCursorWordForward(start);
-        if (end == EPOS) {
+        if (end == epos) {
           return;
         }
         if (start > end) {
