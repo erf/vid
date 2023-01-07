@@ -1,7 +1,7 @@
 // wrapper for the VT100 buffer
 import 'vt100.dart';
 
-extension VT100Buffer on StringBuffer {
+class VT100Buffer extends StringBuffer {
   // move cursor to x,y
   void cursorPosition({required int x, required int y}) {
     write(VT100.cursorPosition(x: x, y: y));
