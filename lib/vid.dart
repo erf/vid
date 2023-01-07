@@ -12,7 +12,7 @@ enum LineWrapMode { none, char, word }
 const EPOS = -1;
 
 var term = Terminal();
-var vt = VT100Buffer();
+var vt = StringBuffer();
 var filename = '';
 var lines = <String>[];
 var renderLines = <String>[];
