@@ -7,7 +7,7 @@ import 'vt100_buffer.dart';
 
 enum Mode { normal, operatorPending, insert }
 
-enum LineWrapMode { none, char, word }
+enum LineWrap { none, char, word }
 
 const epos = -1;
 
@@ -19,7 +19,7 @@ var renderLines = <String>[];
 var cx = 0;
 var cy = 0;
 var mode = Mode.normal;
-var lineWrapMode = LineWrapMode.none;
+var lineWrap = LineWrap.none;
 var message = '';
 var operator = '';
 
@@ -65,9 +65,9 @@ void drawStatus() {
 
 void processLines() {
   renderLines.clear();
-  switch (lineWrapMode) {
+  switch (lineWrap) {
     // cut lines at terminal width
-    case LineWrapMode.none:
+    case LineWrap.none:
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
         if (line.length < term.width) {
@@ -78,7 +78,7 @@ void processLines() {
       }
       break;
     // split lines at terminal width
-    case LineWrapMode.char:
+    case LineWrap.char:
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
         if (line.isEmpty) {
@@ -93,7 +93,7 @@ void processLines() {
         renderLines.add(subLine);
       }
       break;
-    case LineWrapMode.word:
+    case LineWrap.word:
       // split lines at terminal width using word boundaries
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
@@ -454,12 +454,12 @@ void deleteCharacterAtCursorPosition() {
 }
 
 void toggleWordWrap() {
-  if (lineWrapMode == LineWrapMode.none) {
-    lineWrapMode = LineWrapMode.char;
-  } else if (lineWrapMode == LineWrapMode.char) {
-    lineWrapMode = LineWrapMode.word;
+  if (lineWrap == LineWrap.none) {
+    lineWrap = LineWrap.char;
+  } else if (lineWrap == LineWrap.char) {
+    lineWrap = LineWrap.word;
   } else {
-    lineWrapMode = LineWrapMode.none;
+    lineWrap = LineWrap.none;
   }
   processLines();
   cursorBounds();
