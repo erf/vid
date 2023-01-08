@@ -14,7 +14,7 @@ enum LineWrap { none, char, word }
 const epos = -1;
 
 var term = Terminal();
-var vt = VT100Buffer();
+var vtb = VT100Buffer();
 var filename = '';
 var lines = <String>[];
 var renderLines = <String>[];
@@ -28,30 +28,30 @@ var operator = '';
 Position get position => offset.add(cursor);
 
 void draw() {
-  vt.homeAndErase();
+  vtb.homeAndErase();
 
   // draw lines
   for (var i = 0; i < renderLines.length; i++) {
-    vt.writeln(renderLines[i]);
+    vtb.writeln(renderLines[i]);
   }
 
   // draw empty lines
   for (var i = renderLines.length; i < term.height - 1; i++) {
-    vt.writeln('~');
+    vtb.writeln('~');
   }
 
   // draw status
   drawStatus();
 
-  vt.cursorPosition(x: cursor.char + 1, y: cursor.line + 1);
+  vtb.cursorPosition(x: cursor.char + 1, y: cursor.line + 1);
 
-  term.write(vt);
-  vt.clear();
+  term.write(vtb);
+  vtb.clear();
 }
 
 void drawStatus() {
-  vt.invert(true);
-  vt.cursorPosition(x: 1, y: term.height);
+  vtb.invert(true);
+  vtb.cursorPosition(x: 1, y: term.height);
   final String modeStr;
   if (mode == Mode.normal) {
     modeStr = '';
@@ -63,8 +63,8 @@ void drawStatus() {
   final fileStr = filename.isEmpty ? '[No Name]' : filename;
   final status =
       ' $modeStr$fileStr $message${'${position.line + 1}, ${position.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
-  vt.write(status);
-  vt.invert(false);
+  vtb.write(status);
+  vtb.invert(false);
 }
 
 void processLines() {
@@ -137,10 +137,10 @@ void processLines() {
 }
 
 void quit() {
-  vt.homeAndErase();
-  vt.reset();
-  term.write(vt);
-  vt.clear();
+  vtb.homeAndErase();
+  vtb.reset();
+  term.write(vtb);
+  vtb.clear();
   term.rawMode = false;
   exit(0);
 }
