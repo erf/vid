@@ -31,6 +31,8 @@ var lineWrap = LineWrap.none;
 var message = '';
 var operator = '';
 
+Position get pos => Position(cur.x + off.x, cur.y + off.y);
+
 void draw() {
   vt.homeAndErase();
 
@@ -66,7 +68,7 @@ void drawStatus() {
   }
   final fileStr = filename.isEmpty ? '[No Name]' : filename;
   final status =
-      ' $modeStr$fileStr $message${'${cur.y + off.y + 1}, ${cur.x + off.x + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
+      ' $modeStr$fileStr $message${'${pos.y + 1}, ${pos.x + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
   vt.write(status);
   vt.invert(false);
 }
@@ -205,12 +207,11 @@ bool insertControlCharacter(String str) {
 
   // enter
   if (str == '\n') {
-    final lineAfterCursor = lines[cur.y].substring(cur.x);
-    lines[cur.y] = lines[cur.y].substring(0, cur.x);
-    lines.insert(cur.y + 1, lineAfterCursor);
-    processLines();
-    cur.y += 1;
+    final lineAfterCursor = lines[pos.y].substring(pos.x);
+    lines[pos.y] = lines[pos.y].substring(0, pos.x);
+    lines.insert(pos.y + 1, lineAfterCursor);
     cur.x = 0;
+    moveLineDown();
     return true;
   }
 
@@ -245,20 +246,10 @@ void normal(String str) {
       save();
       break;
     case 'j':
-      cur.y++;
-      if (cur.y >= term.height - 1 && off.y <= lines.length - term.height) {
-        off.y++;
-        processLines();
-      }
-      cursorBounds();
+      moveLineDown();
       break;
     case 'k':
-      cur.y--;
-      if (cur.y < 0 && off.y > 0) {
-        off.y--;
-        processLines();
-      }
-      cursorBounds();
+      moveLineUp();
       break;
     case 'h':
       moveCursor(-1, 0);
@@ -337,6 +328,24 @@ void normal(String str) {
       toggleWordWrap();
       break;
   }
+}
+
+void moveLineUp() {
+  cur.y--;
+  if (cur.y < 0 && off.y > 0) {
+    off.y--;
+  }
+  processLines();
+  cursorBounds();
+}
+
+void moveLineDown() {
+  cur.y++;
+  if (cur.y >= term.height - 1 && off.y <= lines.length - term.height) {
+    off.y++;
+  }
+  processLines();
+  cursorBounds();
 }
 
 void save() {
