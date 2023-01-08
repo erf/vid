@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'terminal.dart';
 import 'vt100.dart';
@@ -239,7 +240,6 @@ void normal(String str) {
       save();
       break;
     case 'j':
-      //moveCursor(0, 1);
       cy++;
       if (cy >= term.height - 1 && offsety <= lines.length - term.height) {
         offsety++;
@@ -323,7 +323,10 @@ void normal(String str) {
       operator = str;
       break;
     case 'G':
-      cy = lines.length - 1;
+      cy = min(renderLines.length - 1, term.height - 2);
+      offsety = max(0, lines.length - term.height + 1);
+      showMessage('offsety: $offsety');
+      processLines();
       break;
     case 't':
       toggleWordWrap();
@@ -413,6 +416,8 @@ void operatorPending(String motion) {
     case 'g':
       if (motion == 'g') {
         cy = 0;
+        offsety = 0;
+        processLines();
       }
       break;
     case 'd':
