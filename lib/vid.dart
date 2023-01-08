@@ -188,19 +188,19 @@ bool insertControlCharacter(String str) {
 
   // backspace
   if (str == '\x7f') {
-    if (cur.x == 0) {
+    if (cur.x != 0) {
+      moveCursor(-1, 0);
+      deleteCharacterAtCursorPosition();
+    } else {
       // join lines
-      if (cur.y > 0) {
-        final aboveLen = lines[cur.y - 1].length;
-        lines[cur.y - 1] += lines[cur.y];
-        lines.removeAt(cur.y);
+      if (pos.y > 0) {
+        final aboveLen = lines[pos.y - 1].length;
+        lines[pos.y - 1] += lines[pos.y];
+        lines.removeAt(pos.y);
         processLines();
         --cur.y;
         cur.x = aboveLen;
       }
-    } else {
-      moveCursor(-1, 0);
-      deleteCharacterAtCursorPosition();
     }
     return true;
   }
@@ -227,14 +227,19 @@ void insert(String str) {
     lines.add('');
   }
 
-  var line = lines[cur.y];
+  var line = lines[pos.y];
   if (line.isEmpty) {
-    lines[cur.y] = str;
+    lines[pos.y] = str;
   } else {
-    lines[cur.y] = line.replaceRange(cur.x, cur.x, str);
+    lines[pos.y] = line.replaceRange(pos.x, pos.x, str);
   }
-  cur.x++;
+  moveCharacterForward();
   processLines();
+}
+
+void moveCharacterForward() {
+  // TODO add offset
+  cur.x++;
 }
 
 void normal(String str) {
@@ -289,14 +294,14 @@ void normal(String str) {
       break;
     case 'a':
       mode = Mode.insert;
-      if (lines.isNotEmpty && lines[cur.y].isNotEmpty) {
+      if (lines.isNotEmpty && lines[pos.y].isNotEmpty) {
         cur.x++;
       }
       break;
     case 'A':
       mode = Mode.insert;
-      if (lines.isNotEmpty && lines[cur.y].isNotEmpty) {
-        cur.x = lines[cur.y].length;
+      if (lines.isNotEmpty && lines[pos.y].isNotEmpty) {
+        cur.x = lines[pos.y].length;
       }
       break;
     case 'I':
@@ -305,13 +310,13 @@ void normal(String str) {
       break;
     case 'o':
       mode = Mode.insert;
-      lines.insert(cur.y + 1, '');
+      lines.insert(pos.y + 1, '');
       processLines();
       moveCursor(0, 1);
       break;
     case 'O':
       mode = Mode.insert;
-      lines.insert(cur.y, '');
+      lines.insert(pos.y, '');
       processLines();
       break;
     case 'g':
@@ -321,7 +326,6 @@ void normal(String str) {
     case 'G':
       cur.y = min(renderLines.length - 1, term.height - 2);
       off.y = max(0, lines.length - term.height + 1);
-      showMessage('offset.y: $off.y');
       processLines();
       break;
     case 't':
@@ -363,7 +367,7 @@ void save() {
 }
 
 void moveCursorWordEnd() {
-  final line = lines[cur.y + off.y];
+  final line = lines[pos.y];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
@@ -379,7 +383,7 @@ void moveCursorWordEnd() {
 }
 
 void moveCursorWordBack() {
-  final line = lines[cur.y + off.y];
+  final line = lines[pos.y];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
@@ -395,7 +399,7 @@ void moveCursorWordBack() {
 }
 
 int moveCursorWordForward(int start) {
-  final line = lines[cur.y + off.y];
+  final line = lines[pos.y];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return epos;
@@ -436,22 +440,22 @@ void operatorPending(String motion) {
     case 'd':
       if (motion == 'd') {
         // delete line
-        lines.removeAt(cur.y);
+        lines.removeAt(pos.y);
         processLines();
         cursorBounds();
       }
       if (motion == 'w') {
         // delete word
-        int start = cur.x;
+        int start = pos.x;
         int end = moveCursorWordForward(start);
         if (end == epos) {
           return;
         }
         if (start > end) {
           start = end;
-          end = cur.x;
+          end = pos.x;
         }
-        lines[cur.y] = lines[cur.y].replaceRange(start, end, '');
+        lines[pos.y] = lines[pos.y].replaceRange(start, end, '');
         cur.x = start;
         processLines();
         cursorBounds();
@@ -478,14 +482,14 @@ void deleteCharacterAtCursorPosition() {
     return;
   }
   // delete character at cursor position or remove line if empty
-  String line = lines[cur.y];
+  String line = lines[pos.y];
   if (line.isNotEmpty) {
-    lines[cur.y] = line.replaceRange(cur.x, cur.x + 1, '');
+    lines[pos.y] = line.replaceRange(pos.x, pos.x + 1, '');
   }
 
   // if line is empty, remove it
-  if (lines[cur.y].isEmpty) {
-    lines.removeAt(cur.y);
+  if (lines[pos.y].isEmpty) {
+    lines.removeAt(pos.y);
   }
 
   processLines();
