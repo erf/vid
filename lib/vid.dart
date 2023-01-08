@@ -10,11 +10,43 @@ enum Mode { normal, operatorPending, insert }
 
 enum LineWrap { none, char, word }
 
+// based on:
+// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#position
 class Position {
-  int x;
-  int y;
+  // line position in file (zero based)
+  int line;
 
-  Position(this.x, this.y);
+  // character position in line (zero based)
+  int char;
+
+  Position({
+    required this.line,
+    required this.char,
+  });
+
+  factory Position.zero() {
+    return Position(line: 0, char: 0);
+  }
+
+  factory Position.from(Position pos) {
+    return Position(line: pos.line, char: pos.char);
+  }
+
+  Position add(Position pos) {
+    return Position(line: line + pos.line, char: char + pos.char);
+  }
+}
+
+// based on:
+// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#range
+class Range {
+  Position start;
+  Position end;
+
+  Range({
+    required this.start,
+    required this.end,
+  });
 }
 
 const epos = -1;
@@ -24,14 +56,14 @@ var vt = VT100Buffer();
 var filename = '';
 var lines = <String>[];
 var renderLines = <String>[];
-var cur = Position(0, 0);
-var off = Position(0, 0);
+var cur = Position.zero();
+var off = Position.zero();
 var mode = Mode.normal;
 var lineWrap = LineWrap.none;
 var message = '';
 var operator = '';
 
-Position get pos => Position(cur.x + off.x, cur.y + off.y);
+Position get pos => off.add(cur);
 
 void draw() {
   vt.homeAndErase();
@@ -49,7 +81,7 @@ void draw() {
   // draw status
   drawStatus();
 
-  vt.cursorPosition(x: cur.x + 1, y: cur.y + 1);
+  vt.cursorPosition(x: cur.char + 1, y: cur.line + 1);
 
   term.write(vt);
   vt.clear();
@@ -68,7 +100,7 @@ void drawStatus() {
   }
   final fileStr = filename.isEmpty ? '[No Name]' : filename;
   final status =
-      ' $modeStr$fileStr $message${'${pos.y + 1}, ${pos.x + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
+      ' $modeStr$fileStr $message${'${pos.line + 1}, ${pos.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
   vt.write(status);
   vt.invert(false);
 }
@@ -78,8 +110,8 @@ void processLines() {
   switch (lineWrap) {
     // cut lines at terminal width
     case LineWrap.none:
-      var ystart = off.y;
-      var yend = off.y + term.height - 1;
+      var ystart = off.line;
+      var yend = off.line + term.height - 1;
       if (ystart < 0) {
         ystart = 0;
       }
@@ -153,19 +185,19 @@ void quit() {
 
 void cursorBounds() {
   // limit cursor.y to number of lines
-  if (cur.y >= renderLines.length) {
-    cur.y = renderLines.length - 1;
+  if (cur.line >= renderLines.length) {
+    cur.line = renderLines.length - 1;
   }
-  if (cur.y < 0) {
-    cur.y = 0;
+  if (cur.line < 0) {
+    cur.line = 0;
   }
   // limit cursor.x to line length
-  final lineLength = renderLines.isEmpty ? 0 : renderLines[cur.y].length;
-  if (cur.x >= lineLength) {
-    cur.x = lineLength - 1;
+  final lineLength = renderLines.isEmpty ? 0 : renderLines[cur.line].length;
+  if (cur.char >= lineLength) {
+    cur.char = lineLength - 1;
   }
-  if (cur.x < 0) {
-    cur.x = 0;
+  if (cur.char < 0) {
+    cur.char = 0;
   }
 }
 
@@ -188,18 +220,18 @@ bool insertControlCharacter(String str) {
 
   // backspace
   if (str == '\x7f') {
-    if (cur.x != 0) {
+    if (cur.char != 0) {
       moveCursor(-1, 0);
       deleteCharacterAtCursorPosition();
     } else {
       // join lines
-      if (pos.y > 0) {
-        final aboveLen = lines[pos.y - 1].length;
-        lines[pos.y - 1] += lines[pos.y];
-        lines.removeAt(pos.y);
+      if (pos.line > 0) {
+        final aboveLen = lines[pos.line - 1].length;
+        lines[pos.line - 1] += lines[pos.line];
+        lines.removeAt(pos.line);
         processLines();
-        --cur.y;
-        cur.x = aboveLen;
+        --cur.line;
+        cur.char = aboveLen;
       }
     }
     return true;
@@ -207,10 +239,10 @@ bool insertControlCharacter(String str) {
 
   // enter
   if (str == '\n') {
-    final lineAfterCursor = lines[pos.y].substring(pos.x);
-    lines[pos.y] = lines[pos.y].substring(0, pos.x);
-    lines.insert(pos.y + 1, lineAfterCursor);
-    cur.x = 0;
+    final lineAfterCursor = lines[pos.line].substring(pos.char);
+    lines[pos.line] = lines[pos.line].substring(0, pos.char);
+    lines.insert(pos.line + 1, lineAfterCursor);
+    cur.char = 0;
     moveLineDown();
     return true;
   }
@@ -227,11 +259,11 @@ void insert(String str) {
     lines.add('');
   }
 
-  var line = lines[pos.y];
+  var line = lines[pos.line];
   if (line.isEmpty) {
-    lines[pos.y] = str;
+    lines[pos.line] = str;
   } else {
-    lines[pos.y] = line.replaceRange(pos.x, pos.x, str);
+    lines[pos.line] = line.replaceRange(pos.char, pos.char, str);
   }
   moveCharacterForward();
   processLines();
@@ -239,7 +271,7 @@ void insert(String str) {
 
 void moveCharacterForward() {
   // TODO add offset
-  cur.x++;
+  cur.char++;
 }
 
 void normal(String str) {
@@ -263,7 +295,7 @@ void normal(String str) {
       moveCursor(1, 0);
       break;
     case 'w':
-      cur.x = moveCursorWordForward(cur.x);
+      cur.char = moveCursorWordForward(cur.char);
       cursorBounds();
       break;
     case 'b':
@@ -284,39 +316,39 @@ void normal(String str) {
       deleteCharacterAtCursorPosition();
       break;
     case '0':
-      cur.x = 0;
+      cur.char = 0;
       break;
     case '\$':
-      cur.x = renderLines[cur.y].length - 1;
+      cur.char = renderLines[cur.line].length - 1;
       break;
     case 'i':
       mode = Mode.insert;
       break;
     case 'a':
       mode = Mode.insert;
-      if (lines.isNotEmpty && lines[pos.y].isNotEmpty) {
-        cur.x++;
+      if (lines.isNotEmpty && lines[pos.line].isNotEmpty) {
+        cur.char++;
       }
       break;
     case 'A':
       mode = Mode.insert;
-      if (lines.isNotEmpty && lines[pos.y].isNotEmpty) {
-        cur.x = lines[pos.y].length;
+      if (lines.isNotEmpty && lines[pos.line].isNotEmpty) {
+        cur.char = lines[pos.line].length;
       }
       break;
     case 'I':
       mode = Mode.insert;
-      cur.x = 0;
+      cur.char = 0;
       break;
     case 'o':
       mode = Mode.insert;
-      lines.insert(pos.y + 1, '');
+      lines.insert(pos.line + 1, '');
       processLines();
       moveCursor(0, 1);
       break;
     case 'O':
       mode = Mode.insert;
-      lines.insert(pos.y, '');
+      lines.insert(pos.line, '');
       processLines();
       break;
     case 'g':
@@ -324,8 +356,8 @@ void normal(String str) {
       operator = str;
       break;
     case 'G':
-      cur.y = min(renderLines.length - 1, term.height - 2);
-      off.y = max(0, lines.length - term.height + 1);
+      cur.line = min(renderLines.length - 1, term.height - 2);
+      off.line = max(0, lines.length - term.height + 1);
       processLines();
       break;
     case 't':
@@ -335,18 +367,18 @@ void normal(String str) {
 }
 
 void moveLineUp() {
-  cur.y--;
-  if (cur.y < 0 && off.y > 0) {
-    off.y--;
+  cur.line--;
+  if (cur.line < 0 && off.line > 0) {
+    off.line--;
   }
   processLines();
   cursorBounds();
 }
 
 void moveLineDown() {
-  cur.y++;
-  if (cur.y >= term.height - 1 && off.y <= lines.length - term.height) {
-    off.y++;
+  cur.line++;
+  if (cur.line >= term.height - 1 && off.line <= lines.length - term.height) {
+    off.line++;
   }
   processLines();
   cursorBounds();
@@ -367,39 +399,39 @@ void save() {
 }
 
 void moveCursorWordEnd() {
-  final line = lines[pos.y];
+  final line = lines[pos.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
   }
   for (var match in matches) {
-    if (match.end - 1 > cur.x) {
-      cur.x = match.end - 1;
+    if (match.end - 1 > cur.char) {
+      cur.char = match.end - 1;
       return;
     }
   }
-  cur.x = matches.last.end;
+  cur.char = matches.last.end;
   cursorBounds();
 }
 
 void moveCursorWordBack() {
-  final line = lines[pos.y];
+  final line = lines[pos.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
   }
   final reversed = matches.toList().reversed;
   for (var match in reversed) {
-    if (match.start < cur.x) {
-      cur.x = match.start;
+    if (match.start < cur.char) {
+      cur.char = match.start;
       return;
     }
   }
-  cur.x = matches.first.start;
+  cur.char = matches.first.start;
 }
 
 int moveCursorWordForward(int start) {
-  final line = lines[pos.y];
+  final line = lines[pos.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return epos;
@@ -432,31 +464,31 @@ void operatorPending(String motion) {
   switch (operator) {
     case 'g':
       if (motion == 'g') {
-        cur.y = 0;
-        off.y = 0;
+        cur.line = 0;
+        off.line = 0;
         processLines();
       }
       break;
     case 'd':
       if (motion == 'd') {
         // delete line
-        lines.removeAt(pos.y);
+        lines.removeAt(pos.line);
         processLines();
         cursorBounds();
       }
       if (motion == 'w') {
         // delete word
-        int start = pos.x;
+        int start = pos.char;
         int end = moveCursorWordForward(start);
         if (end == epos) {
           return;
         }
         if (start > end) {
           start = end;
-          end = pos.x;
+          end = pos.char;
         }
-        lines[pos.y] = lines[pos.y].replaceRange(start, end, '');
-        cur.x = start;
+        lines[pos.line] = lines[pos.line].replaceRange(start, end, '');
+        cur.char = start;
         processLines();
         cursorBounds();
       }
@@ -471,8 +503,8 @@ void operatorPending(String motion) {
 }
 
 void moveCursor(int dx, int dy) {
-  cur.x += dx;
-  cur.y += dy;
+  cur.char += dx;
+  cur.line += dy;
   cursorBounds();
 }
 
@@ -482,14 +514,14 @@ void deleteCharacterAtCursorPosition() {
     return;
   }
   // delete character at cursor position or remove line if empty
-  String line = lines[pos.y];
+  String line = lines[pos.line];
   if (line.isNotEmpty) {
-    lines[pos.y] = line.replaceRange(pos.x, pos.x + 1, '');
+    lines[pos.line] = line.replaceRange(pos.char, pos.char + 1, '');
   }
 
   // if line is empty, remove it
-  if (lines[pos.y].isEmpty) {
-    lines.removeAt(pos.y);
+  if (lines[pos.line].isEmpty) {
+    lines.removeAt(pos.line);
   }
 
   processLines();
