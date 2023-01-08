@@ -18,6 +18,8 @@ var lines = <String>[];
 var renderLines = <String>[];
 var cx = 0;
 var cy = 0;
+var offsetx = 0;
+var offsety = 0;
 var mode = Mode.normal;
 var lineWrap = LineWrap.none;
 var message = '';
@@ -58,7 +60,7 @@ void drawStatus() {
   }
   final fileStr = filename.isEmpty ? '[No Name]' : filename;
   final status =
-      ' $modeStr$fileStr $message${'${cy + 1}, ${cx + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
+      ' $modeStr$fileStr $message${'${cy + offsety + 1}, ${cx + offsetx + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
   vt.write(status);
   vt.invert(false);
 }
@@ -68,7 +70,15 @@ void processLines() {
   switch (lineWrap) {
     // cut lines at terminal width
     case LineWrap.none:
-      for (var i = 0; i < lines.length; i++) {
+      var ystart = offsety;
+      var yend = offsety + term.height - 1;
+      if (ystart < 0) {
+        ystart = 0;
+      }
+      if (yend > lines.length) {
+        yend = lines.length;
+      }
+      for (var i = ystart; i < yend; i++) {
         final line = lines[i];
         if (line.length < term.width) {
           renderLines.add(line);
@@ -229,10 +239,21 @@ void normal(String str) {
       save();
       break;
     case 'j':
-      moveCursor(0, 1);
+      //moveCursor(0, 1);
+      cy++;
+      if (cy >= term.height - 1 && offsety <= lines.length - term.height) {
+        offsety++;
+        processLines();
+      }
+      cursorBounds();
       break;
     case 'k':
-      moveCursor(0, -1);
+      cy--;
+      if (cy < 0 && offsety > 0) {
+        offsety--;
+        processLines();
+      }
+      cursorBounds();
       break;
     case 'h':
       moveCursor(-1, 0);
