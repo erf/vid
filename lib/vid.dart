@@ -10,6 +10,13 @@ enum Mode { normal, operatorPending, insert }
 
 enum LineWrap { none, char, word }
 
+class Position {
+  int x;
+  int y;
+
+  Position(this.x, this.y);
+}
+
 const epos = -1;
 
 var term = Terminal();
@@ -17,10 +24,8 @@ var vt = VT100Buffer();
 var filename = '';
 var lines = <String>[];
 var renderLines = <String>[];
-var cx = 0;
-var cy = 0;
-var offsetx = 0;
-var offsety = 0;
+var cur = Position(0, 0);
+var off = Position(0, 0);
 var mode = Mode.normal;
 var lineWrap = LineWrap.none;
 var message = '';
@@ -42,7 +47,7 @@ void draw() {
   // draw status
   drawStatus();
 
-  vt.cursorPosition(x: cx + 1, y: cy + 1);
+  vt.cursorPosition(x: cur.x + 1, y: cur.y + 1);
 
   term.write(vt);
   vt.clear();
@@ -61,7 +66,7 @@ void drawStatus() {
   }
   final fileStr = filename.isEmpty ? '[No Name]' : filename;
   final status =
-      ' $modeStr$fileStr $message${'${cy + offsety + 1}, ${cx + offsetx + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
+      ' $modeStr$fileStr $message${'${cur.y + off.y + 1}, ${cur.x + off.x + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
   vt.write(status);
   vt.invert(false);
 }
@@ -71,8 +76,8 @@ void processLines() {
   switch (lineWrap) {
     // cut lines at terminal width
     case LineWrap.none:
-      var ystart = offsety;
-      var yend = offsety + term.height - 1;
+      var ystart = off.y;
+      var yend = off.y + term.height - 1;
       if (ystart < 0) {
         ystart = 0;
       }
@@ -145,20 +150,20 @@ void quit() {
 }
 
 void cursorBounds() {
-  // limit cy to number of lines
-  if (cy >= renderLines.length) {
-    cy = renderLines.length - 1;
+  // limit cursor.y to number of lines
+  if (cur.y >= renderLines.length) {
+    cur.y = renderLines.length - 1;
   }
-  if (cy < 0) {
-    cy = 0;
+  if (cur.y < 0) {
+    cur.y = 0;
   }
-  // limit cx to line length
-  final lineLength = renderLines.isEmpty ? 0 : renderLines[cy].length;
-  if (cx >= lineLength) {
-    cx = lineLength - 1;
+  // limit cursor.x to line length
+  final lineLength = renderLines.isEmpty ? 0 : renderLines[cur.y].length;
+  if (cur.x >= lineLength) {
+    cur.x = lineLength - 1;
   }
-  if (cx < 0) {
-    cx = 0;
+  if (cur.x < 0) {
+    cur.x = 0;
   }
 }
 
@@ -181,15 +186,15 @@ bool insertControlCharacter(String str) {
 
   // backspace
   if (str == '\x7f') {
-    if (cx == 0) {
+    if (cur.x == 0) {
       // join lines
-      if (cy > 0) {
-        final aboveLen = lines[cy - 1].length;
-        lines[cy - 1] += lines[cy];
-        lines.removeAt(cy);
+      if (cur.y > 0) {
+        final aboveLen = lines[cur.y - 1].length;
+        lines[cur.y - 1] += lines[cur.y];
+        lines.removeAt(cur.y);
         processLines();
-        --cy;
-        cx = aboveLen;
+        --cur.y;
+        cur.x = aboveLen;
       }
     } else {
       moveCursor(-1, 0);
@@ -200,12 +205,12 @@ bool insertControlCharacter(String str) {
 
   // enter
   if (str == '\n') {
-    final lineAfterCursor = lines[cy].substring(cx);
-    lines[cy] = lines[cy].substring(0, cx);
-    lines.insert(cy + 1, lineAfterCursor);
+    final lineAfterCursor = lines[cur.y].substring(cur.x);
+    lines[cur.y] = lines[cur.y].substring(0, cur.x);
+    lines.insert(cur.y + 1, lineAfterCursor);
     processLines();
-    cy += 1;
-    cx = 0;
+    cur.y += 1;
+    cur.x = 0;
     return true;
   }
 
@@ -221,13 +226,13 @@ void insert(String str) {
     lines.add('');
   }
 
-  var line = lines[cy];
+  var line = lines[cur.y];
   if (line.isEmpty) {
-    lines[cy] = str;
+    lines[cur.y] = str;
   } else {
-    lines[cy] = line.replaceRange(cx, cx, str);
+    lines[cur.y] = line.replaceRange(cur.x, cur.x, str);
   }
-  cx++;
+  cur.x++;
   processLines();
 }
 
@@ -240,17 +245,17 @@ void normal(String str) {
       save();
       break;
     case 'j':
-      cy++;
-      if (cy >= term.height - 1 && offsety <= lines.length - term.height) {
-        offsety++;
+      cur.y++;
+      if (cur.y >= term.height - 1 && off.y <= lines.length - term.height) {
+        off.y++;
         processLines();
       }
       cursorBounds();
       break;
     case 'k':
-      cy--;
-      if (cy < 0 && offsety > 0) {
-        offsety--;
+      cur.y--;
+      if (cur.y < 0 && off.y > 0) {
+        off.y--;
         processLines();
       }
       cursorBounds();
@@ -262,7 +267,7 @@ void normal(String str) {
       moveCursor(1, 0);
       break;
     case 'w':
-      cx = moveCursorWordForward(cx);
+      cur.x = moveCursorWordForward(cur.x);
       cursorBounds();
       break;
     case 'b':
@@ -283,39 +288,39 @@ void normal(String str) {
       deleteCharacterAtCursorPosition();
       break;
     case '0':
-      cx = 0;
+      cur.x = 0;
       break;
     case '\$':
-      cx = renderLines[cy].length - 1;
+      cur.x = renderLines[cur.y].length - 1;
       break;
     case 'i':
       mode = Mode.insert;
       break;
     case 'a':
       mode = Mode.insert;
-      if (lines.isNotEmpty && lines[cy].isNotEmpty) {
-        cx++;
+      if (lines.isNotEmpty && lines[cur.y].isNotEmpty) {
+        cur.x++;
       }
       break;
     case 'A':
       mode = Mode.insert;
-      if (lines.isNotEmpty && lines[cy].isNotEmpty) {
-        cx = lines[cy].length;
+      if (lines.isNotEmpty && lines[cur.y].isNotEmpty) {
+        cur.x = lines[cur.y].length;
       }
       break;
     case 'I':
       mode = Mode.insert;
-      cx = 0;
+      cur.x = 0;
       break;
     case 'o':
       mode = Mode.insert;
-      lines.insert(cy + 1, '');
+      lines.insert(cur.y + 1, '');
       processLines();
       moveCursor(0, 1);
       break;
     case 'O':
       mode = Mode.insert;
-      lines.insert(cy, '');
+      lines.insert(cur.y, '');
       processLines();
       break;
     case 'g':
@@ -323,9 +328,9 @@ void normal(String str) {
       operator = str;
       break;
     case 'G':
-      cy = min(renderLines.length - 1, term.height - 2);
-      offsety = max(0, lines.length - term.height + 1);
-      showMessage('offsety: $offsety');
+      cur.y = min(renderLines.length - 1, term.height - 2);
+      off.y = max(0, lines.length - term.height + 1);
+      showMessage('offset.y: $off.y');
       processLines();
       break;
     case 't':
@@ -349,40 +354,39 @@ void save() {
 }
 
 void moveCursorWordEnd() {
-  final line = lines[cy];
+  final line = lines[cur.y + off.y];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
   }
   for (var match in matches) {
-    if (match.end - 1 > cx) {
-      cx = match.end - 1;
+    if (match.end - 1 > cur.x) {
+      cur.x = match.end - 1;
       return;
     }
   }
-  cx = matches.last.end;
+  cur.x = matches.last.end;
   cursorBounds();
 }
 
 void moveCursorWordBack() {
-  final line = lines[cy];
+  final line = lines[cur.y + off.y];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return;
   }
   final reversed = matches.toList().reversed;
   for (var match in reversed) {
-    if (match.start < cx) {
-      cx = match.start;
+    if (match.start < cur.x) {
+      cur.x = match.start;
       return;
     }
   }
-  cx = matches.first.start;
+  cur.x = matches.first.start;
 }
 
 int moveCursorWordForward(int start) {
-  final line = lines[cy];
-  //final matches = RegExp(r'\w+?').allMatches(line);
+  final line = lines[cur.y + off.y];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return epos;
@@ -415,31 +419,31 @@ void operatorPending(String motion) {
   switch (operator) {
     case 'g':
       if (motion == 'g') {
-        cy = 0;
-        offsety = 0;
+        cur.y = 0;
+        off.y = 0;
         processLines();
       }
       break;
     case 'd':
       if (motion == 'd') {
         // delete line
-        lines.removeAt(cy);
+        lines.removeAt(cur.y);
         processLines();
         cursorBounds();
       }
       if (motion == 'w') {
         // delete word
-        int start = cx;
+        int start = cur.x;
         int end = moveCursorWordForward(start);
         if (end == epos) {
           return;
         }
         if (start > end) {
           start = end;
-          end = cx;
+          end = cur.x;
         }
-        lines[cy] = lines[cy].replaceRange(start, end, '');
-        cx = start;
+        lines[cur.y] = lines[cur.y].replaceRange(start, end, '');
+        cur.x = start;
         processLines();
         cursorBounds();
       }
@@ -454,8 +458,8 @@ void operatorPending(String motion) {
 }
 
 void moveCursor(int dx, int dy) {
-  cx += dx;
-  cy += dy;
+  cur.x += dx;
+  cur.y += dy;
   cursorBounds();
 }
 
@@ -465,14 +469,14 @@ void deleteCharacterAtCursorPosition() {
     return;
   }
   // delete character at cursor position or remove line if empty
-  String line = lines[cy];
+  String line = lines[cur.y];
   if (line.isNotEmpty) {
-    lines[cy] = line.replaceRange(cx, cx + 1, '');
+    lines[cur.y] = line.replaceRange(cur.x, cur.x + 1, '');
   }
 
   // if line is empty, remove it
-  if (lines[cy].isEmpty) {
-    lines.removeAt(cy);
+  if (lines[cur.y].isEmpty) {
+    lines.removeAt(cur.y);
   }
 
   processLines();
