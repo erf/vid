@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'position.dart';
 import 'terminal.dart';
 import 'vt100.dart';
 import 'vt100_buffer.dart';
@@ -9,45 +10,6 @@ import 'vt100_buffer.dart';
 enum Mode { normal, operatorPending, insert }
 
 enum LineWrap { none, char, word }
-
-// based on:
-// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#position
-class Position {
-  // line position in file (zero based)
-  int line;
-
-  // character position in line (zero based)
-  int char;
-
-  Position({
-    required this.line,
-    required this.char,
-  });
-
-  factory Position.zero() {
-    return Position(line: 0, char: 0);
-  }
-
-  factory Position.from(Position pos) {
-    return Position(line: pos.line, char: pos.char);
-  }
-
-  Position add(Position pos) {
-    return Position(line: line + pos.line, char: char + pos.char);
-  }
-}
-
-// based on:
-// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#range
-class Range {
-  Position start;
-  Position end;
-
-  Range({
-    required this.start,
-    required this.end,
-  });
-}
 
 const epos = -1;
 
