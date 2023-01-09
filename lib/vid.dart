@@ -183,8 +183,8 @@ bool insertControlCharacter(String str) {
   // backspace
   if (str == '\x7f') {
     if (cursor.char != 0) {
-      moveCharacterBack();
-      deleteCharacterAtCursorPosition();
+      cursorCharPrev();
+      deleteCharNext();
     } else {
       // join lines
       if (position.line > 0) {
@@ -205,7 +205,7 @@ bool insertControlCharacter(String str) {
     lines[position.line] = lines[position.line].substring(0, position.char);
     lines.insert(position.line + 1, lineAfterCursor);
     cursor.char = 0;
-    moveLineDown();
+    cursorLineDown();
     return true;
   }
 
@@ -227,11 +227,11 @@ void insert(String str) {
   } else {
     lines[position.line] = line.replaceRange(position.char, position.char, str);
   }
-  moveCharacterForward();
+  cursorCharNext();
   processLines();
 }
 
-void moveCharacterForward() {
+void cursorCharNext() {
   cursor.char++;
   if (cursor.char >= term.width - 1 &&
       offset.char < lines[position.line].length) {
@@ -249,26 +249,26 @@ void normal(String str) {
       save();
       break;
     case 'j':
-      moveLineDown();
+      cursorLineDown();
       break;
     case 'k':
-      moveLineUp();
+      cursorLineUp();
       break;
     case 'h':
-      moveCharacterBack();
+      cursorCharPrev();
       break;
     case 'l':
-      moveCharacterForward();
+      cursorCharNext();
       break;
     case 'w':
-      cursor.char = moveCursorWordForward(cursor.char);
+      cursor.char = cursorWordNext(cursor.char);
       cursorBounds();
       break;
     case 'b':
-      moveCursorWordBack();
+      cursorWordPrev();
       break;
     case 'e':
-      moveCursorWordEnd();
+      cursorWordEnd();
       break;
     case 'c':
       mode = Mode.operatorPending;
@@ -279,52 +279,37 @@ void normal(String str) {
       operator = str;
       break;
     case 'x':
-      deleteCharacterAtCursorPosition();
+      deleteCharNext();
       break;
     case '0':
-      cursor.char = 0;
+      cursorLineStart();
       break;
     case '\$':
-      cursor.char = renderLines[cursor.line].length - 1;
+      cursorLineEnd();
       break;
     case 'i':
-      mode = Mode.insert;
+      insertCharPrev();
       break;
     case 'a':
-      mode = Mode.insert;
-      if (lines.isNotEmpty && lines[position.line].isNotEmpty) {
-        cursor.char++;
-      }
+      appendCharNext();
       break;
     case 'A':
-      mode = Mode.insert;
-      if (lines.isNotEmpty && lines[position.line].isNotEmpty) {
-        cursor.char = lines[position.line].length;
-      }
+      appendLineEnd();
       break;
     case 'I':
-      mode = Mode.insert;
-      cursor.char = 0;
+      insertLineStart();
       break;
     case 'o':
-      mode = Mode.insert;
-      lines.insert(position.line + 1, '');
-      processLines();
-      moveLineDown();
+      openLineBelow();
       break;
     case 'O':
-      mode = Mode.insert;
-      lines.insert(position.line, '');
-      processLines();
+      openLineAbove();
       break;
     case 'g':
-      mode = Mode.operatorPending;
-      operator = str;
+      cursorLine(str);
       break;
     case 'G':
-      cursor.line = min(renderLines.length - 1, term.height - 2);
-      offset.line = max(0, lines.length - term.height + 1);
-      processLines();
+      cursorLineBottom();
       break;
     case 't':
       toggleWordWrap();
@@ -332,7 +317,60 @@ void normal(String str) {
   }
 }
 
-void moveCharacterBack() {
+void cursorLineBottom() {
+  cursor.line = min(renderLines.length - 1, term.height - 2);
+  offset.line = max(0, lines.length - term.height + 1);
+  processLines();
+}
+
+void cursorLine(String str) {
+  mode = Mode.operatorPending;
+  operator = str;
+}
+
+void openLineAbove() {
+  mode = Mode.insert;
+  lines.insert(position.line, '');
+  processLines();
+}
+
+void openLineBelow() {
+  mode = Mode.insert;
+  lines.insert(position.line + 1, '');
+  processLines();
+  cursorLineDown();
+}
+
+void insertCharPrev() {
+  mode = Mode.insert;
+}
+
+void insertLineStart() {
+  mode = Mode.insert;
+  cursor.char = 0;
+}
+
+void appendLineEnd() {
+  mode = Mode.insert;
+  if (lines.isNotEmpty && lines[position.line].isNotEmpty) {
+    cursor.char = lines[position.line].length;
+  }
+}
+
+void appendCharNext() {
+  mode = Mode.insert;
+  if (lines.isNotEmpty && lines[position.line].isNotEmpty) {
+    cursor.char++;
+  }
+}
+
+void cursorLineEnd() {
+  cursor.char = renderLines[cursor.line].length - 1;
+}
+
+int cursorLineStart() => cursor.char = 0;
+
+void cursorCharPrev() {
   cursor.char--;
   if (cursor.char < 0 && offset.char > 0) {
     offset.char--;
@@ -340,7 +378,7 @@ void moveCharacterBack() {
   cursorBounds();
 }
 
-void moveLineUp() {
+void cursorLineUp() {
   cursor.line--;
   if (cursor.line < 0 && offset.line > 0) {
     offset.line--;
@@ -349,7 +387,7 @@ void moveLineUp() {
   cursorBounds();
 }
 
-void moveLineDown() {
+void cursorLineDown() {
   cursor.line++;
   if (cursor.line >= term.height - 1 &&
       offset.line <= lines.length - term.height) {
@@ -373,7 +411,7 @@ void save() {
   showMessage('Saved');
 }
 
-void moveCursorWordEnd() {
+void cursorWordEnd() {
   final line = lines[position.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
@@ -389,7 +427,7 @@ void moveCursorWordEnd() {
   cursorBounds();
 }
 
-void moveCursorWordBack() {
+void cursorWordPrev() {
   final line = lines[position.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
@@ -405,7 +443,7 @@ void moveCursorWordBack() {
   cursor.char = matches.first.start;
 }
 
-int moveCursorWordForward(int start) {
+int cursorWordNext(int start) {
   final line = lines[position.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
@@ -435,42 +473,39 @@ void input(List<int> codes) {
   draw();
 }
 
-void operatorPending(String motion) {
+void deleteWord() {
+  int start = position.char;
+  int end = cursorWordNext(start);
+  if (end == epos) {
+    return;
+  }
+  if (start > end) {
+    start = end;
+    end = position.char;
+  }
+  lines[position.line] = lines[position.line].replaceRange(start, end, '');
+  cursor.char = start;
+  processLines();
+  cursorBounds();
+}
+
+void operatorPending(String str) {
   switch (operator) {
     case 'g':
-      if (motion == 'g') {
-        cursor.line = 0;
-        offset.line = 0;
-        processLines();
+      if (str == 'g') {
+        cursorLineBegin();
       }
       break;
     case 'd':
-      if (motion == 'd') {
-        // delete line
-        lines.removeAt(position.line);
-        processLines();
-        cursorBounds();
+      if (str == 'd') {
+        deleteLine();
       }
-      if (motion == 'w') {
-        // delete word
-        int start = position.char;
-        int end = moveCursorWordForward(start);
-        if (end == epos) {
-          return;
-        }
-        if (start > end) {
-          start = end;
-          end = position.char;
-        }
-        lines[position.line] =
-            lines[position.line].replaceRange(start, end, '');
-        cursor.char = start;
-        processLines();
-        cursorBounds();
+      if (str == 'w') {
+        deleteWord();
       }
       break;
     case 'c':
-      if (motion == 'w') {
+      if (str == 'w') {
         // change word
       }
       break;
@@ -478,7 +513,20 @@ void operatorPending(String motion) {
   mode = Mode.normal;
 }
 
-void deleteCharacterAtCursorPosition() {
+void deleteLine() {
+  // delete line
+  lines.removeAt(position.line);
+  processLines();
+  cursorBounds();
+}
+
+void cursorLineBegin() {
+  cursor = Position.zero();
+  offset = Position.zero();
+  processLines();
+}
+
+void deleteCharNext() {
   // if empty file, do nothing
   if (lines.isEmpty) {
     return;
