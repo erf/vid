@@ -9,8 +9,6 @@ import 'vt100_buffer.dart';
 
 enum Mode { normal, operatorPending, insert }
 
-enum LineWrap { none, char, word }
-
 const epos = -1;
 
 var term = Terminal();
@@ -21,7 +19,6 @@ var renderLines = <String>[];
 var cursor = Position.zero();
 var offset = Position.zero();
 var mode = Mode.normal;
-var lineWrap = LineWrap.none;
 var message = '';
 var operator = '';
 
@@ -69,70 +66,21 @@ void drawStatus() {
 
 void processLines() {
   renderLines.clear();
-  switch (lineWrap) {
-    // cut lines at terminal width
-    case LineWrap.none:
-      var ystart = offset.line;
-      var yend = offset.line + term.height - 1;
-      if (ystart < 0) {
-        ystart = 0;
-      }
-      if (yend > lines.length) {
-        yend = lines.length;
-      }
-      for (var i = ystart; i < yend; i++) {
-        final line = lines[i];
-        if (line.length < term.width) {
-          renderLines.add(line);
-        } else {
-          renderLines.add(line.substring(0, term.width - 1));
-        }
-      }
-      break;
-    // split lines at terminal width
-    case LineWrap.char:
-      for (var i = 0; i < lines.length; i++) {
-        final line = lines[i];
-        if (line.isEmpty) {
-          renderLines.add('');
-          continue;
-        }
-        var subLine = line;
-        while (subLine.length > term.width - 1) {
-          renderLines.add(subLine.substring(0, term.width - 1));
-          subLine = subLine.substring(term.width - 1);
-        }
-        renderLines.add(subLine);
-      }
-      break;
-    case LineWrap.word:
-      // split lines at terminal width using word boundaries
-      for (var i = 0; i < lines.length; i++) {
-        final line = lines[i];
-        if (line.isEmpty) {
-          renderLines.add('');
-          continue;
-        }
-        var subLine = line;
-        while (subLine.length > term.width - 1) {
-          final matches = RegExp(r'\w+').allMatches(subLine);
-          if (matches.isEmpty) {
-            renderLines.add(subLine.substring(0, term.width - 1));
-            subLine = subLine.substring(term.width - 1);
-            break;
-          }
-          for (var match in matches) {
-            if (match.end > term.width - 1) {
-              renderLines.add(subLine.substring(0, match.start));
-              subLine = subLine.substring(match.start);
-              break;
-            }
-          }
-        }
-        renderLines.add(subLine);
-      }
-
-      break;
+  var ystart = offset.line;
+  var yend = offset.line + term.height - 1;
+  if (ystart < 0) {
+    ystart = 0;
+  }
+  if (yend > lines.length) {
+    yend = lines.length;
+  }
+  for (var i = ystart; i < yend; i++) {
+    final line = lines[i];
+    if (line.length < term.width) {
+      renderLines.add(line);
+    } else {
+      renderLines.add(line.substring(0, term.width - 1));
+    }
   }
 }
 
@@ -310,9 +258,6 @@ void normal(String str) {
       break;
     case 'G':
       cursorLineBottom();
-      break;
-    case 't':
-      toggleWordWrap();
       break;
   }
 }
@@ -543,18 +488,6 @@ void deleteCharNext() {
     lines.removeAt(position.line);
   }
 
-  processLines();
-  cursorBounds();
-}
-
-void toggleWordWrap() {
-  if (lineWrap == LineWrap.none) {
-    lineWrap = LineWrap.char;
-  } else if (lineWrap == LineWrap.char) {
-    lineWrap = LineWrap.word;
-  } else {
-    lineWrap = LineWrap.none;
-  }
   processLines();
   cursorBounds();
 }
