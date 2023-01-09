@@ -15,7 +15,6 @@ var term = Terminal();
 var vtb = VT100Buffer();
 var filename = '';
 var lines = <String>[];
-var renderLines = <String>[];
 var cursor = Position.zero();
 var offset = Position.zero();
 var mode = Mode.normal;
@@ -27,13 +26,26 @@ Position get position => offset.add(cursor);
 void draw() {
   vtb.homeAndErase();
 
+  var ystart = offset.line;
+  var yend = offset.line + term.height - 1;
+  if (ystart < 0) {
+    ystart = 0;
+  }
+  if (yend > lines.length) {
+    yend = lines.length;
+  }
   // draw lines
-  for (var i = 0; i < renderLines.length; i++) {
-    vtb.writeln(renderLines[i]);
+  for (var i = ystart; i < yend; i++) {
+    final line = lines[i];
+    if (line.length < term.width) {
+      vtb.writeln(line);
+    } else {
+      vtb.writeln(line.substring(offset.char, term.width - 1));
+    }
   }
 
   // draw empty lines
-  for (var i = renderLines.length; i < term.height - 1; i++) {
+  for (var i = yend; i < term.height - 1; i++) {
     vtb.writeln('~');
   }
 
@@ -64,26 +76,6 @@ void drawStatus() {
   vtb.invert(false);
 }
 
-void processLines() {
-  renderLines.clear();
-  var ystart = offset.line;
-  var yend = offset.line + term.height - 1;
-  if (ystart < 0) {
-    ystart = 0;
-  }
-  if (yend > lines.length) {
-    yend = lines.length;
-  }
-  for (var i = ystart; i < yend; i++) {
-    final line = lines[i];
-    if (line.length < term.width) {
-      renderLines.add(line);
-    } else {
-      renderLines.add(line.substring(0, term.width - 1));
-    }
-  }
-}
-
 void quit() {
   vtb.homeAndErase();
   vtb.reset();
@@ -94,15 +86,18 @@ void quit() {
 }
 
 void cursorBounds() {
-  // limit cursor.y to number of lines
-  if (cursor.line >= renderLines.length) {
-    cursor.line = renderLines.length - 1;
+  // limit cursor.line inside viewport
+  if (cursor.line >= term.height - 1) {
+    cursor.line = term.height - 2;
+  }
+  if (cursor.line >= lines.length) {
+    cursor.line = lines.length - 1;
   }
   if (cursor.line < 0) {
     cursor.line = 0;
   }
-  // limit cursor.x to line length
-  final lineLength = renderLines.isEmpty ? 0 : renderLines[cursor.line].length;
+  // limit cursor.char to line length
+  final lineLength = lines.isEmpty ? 0 : lines[position.line].length;
   if (cursor.char >= lineLength) {
     cursor.char = lineLength - 1;
   }
@@ -139,7 +134,6 @@ bool insertControlCharacter(String str) {
         final aboveLen = lines[position.line - 1].length;
         lines[position.line - 1] += lines[position.line];
         lines.removeAt(position.line);
-        processLines();
         --cursor.line;
         cursor.char = aboveLen;
       }
@@ -176,7 +170,6 @@ void insert(String str) {
     lines[position.line] = line.replaceRange(position.char, position.char, str);
   }
   cursorCharNext();
-  processLines();
 }
 
 void cursorCharNext() {
@@ -263,9 +256,8 @@ void normal(String str) {
 }
 
 void cursorLineBottom() {
-  cursor.line = min(renderLines.length - 1, term.height - 2);
+  cursor.line = min(lines.length - 1, term.height - 2);
   offset.line = max(0, lines.length - term.height + 1);
-  processLines();
 }
 
 void cursorLine(String str) {
@@ -276,13 +268,11 @@ void cursorLine(String str) {
 void openLineAbove() {
   mode = Mode.insert;
   lines.insert(position.line, '');
-  processLines();
 }
 
 void openLineBelow() {
   mode = Mode.insert;
   lines.insert(position.line + 1, '');
-  processLines();
   cursorLineDown();
 }
 
@@ -310,7 +300,7 @@ void appendCharNext() {
 }
 
 void cursorLineEnd() {
-  cursor.char = renderLines[cursor.line].length - 1;
+  cursor.char = lines[position.line].length - 1;
 }
 
 int cursorLineStart() => cursor.char = 0;
@@ -328,7 +318,6 @@ void cursorLineUp() {
   if (cursor.line < 0 && offset.line > 0) {
     offset.line--;
   }
-  processLines();
   cursorBounds();
 }
 
@@ -338,7 +327,6 @@ void cursorLineDown() {
       offset.line <= lines.length - term.height) {
     offset.line++;
   }
-  processLines();
   cursorBounds();
 }
 
@@ -430,7 +418,6 @@ void deleteWord() {
   }
   lines[position.line] = lines[position.line].replaceRange(start, end, '');
   cursor.char = start;
-  processLines();
   cursorBounds();
 }
 
@@ -461,14 +448,12 @@ void pending(String str) {
 void deleteLine() {
   // delete line
   lines.removeAt(position.line);
-  processLines();
   cursorBounds();
 }
 
 void cursorLineBegin() {
   cursor = Position.zero();
   offset = Position.zero();
-  processLines();
 }
 
 void deleteCharNext() {
@@ -488,12 +473,10 @@ void deleteCharNext() {
     lines.removeAt(position.line);
   }
 
-  processLines();
   cursorBounds();
 }
 
 void resize(ProcessSignal signal) {
-  processLines();
   cursorBounds();
   draw();
 }
@@ -506,7 +489,6 @@ void loadFile(args) {
   final file = File(filename);
   if (file.existsSync()) {
     lines = file.readAsLinesSync();
-    processLines();
   }
 }
 
