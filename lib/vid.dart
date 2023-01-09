@@ -36,11 +36,18 @@ void draw() {
   }
   // draw lines
   for (var i = ystart; i < yend; i++) {
-    final line = lines[i];
+    var line = lines[i];
+    if (offset.char > 0) {
+      if (offset.char < line.length) {
+        line = line.replaceRange(0, offset.char, '');
+      } else {
+        line = '';
+      }
+    }
     if (line.length < term.width) {
       vtb.writeln(line);
     } else {
-      vtb.writeln(line.substring(offset.char, term.width - 1));
+      vtb.writeln(line.substring(0, term.width - 1));
     }
   }
 
