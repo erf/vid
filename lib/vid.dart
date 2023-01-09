@@ -7,7 +7,7 @@ import 'terminal.dart';
 import 'vt100.dart';
 import 'vt100_buffer.dart';
 
-enum Mode { normal, operatorPending, insert }
+enum Mode { normal, pending, insert }
 
 const epos = -1;
 
@@ -52,7 +52,7 @@ void drawStatus() {
   final String modeStr;
   if (mode == Mode.normal) {
     modeStr = '';
-  } else if (mode == Mode.operatorPending) {
+  } else if (mode == Mode.pending) {
     modeStr = 'PENDING >> ';
   } else {
     modeStr = 'INSERT >> ';
@@ -219,11 +219,11 @@ void normal(String str) {
       cursorWordEnd();
       break;
     case 'c':
-      mode = Mode.operatorPending;
+      mode = Mode.pending;
       operator = str;
       break;
     case 'd':
-      mode = Mode.operatorPending;
+      mode = Mode.pending;
       operator = str;
       break;
     case 'x':
@@ -269,7 +269,7 @@ void cursorLineBottom() {
 }
 
 void cursorLine(String str) {
-  mode = Mode.operatorPending;
+  mode = Mode.pending;
   operator = str;
 }
 
@@ -411,8 +411,8 @@ void input(List<int> codes) {
     case Mode.normal:
       normal(str);
       break;
-    case Mode.operatorPending:
-      operatorPending(str);
+    case Mode.pending:
+      pending(str);
       break;
   }
   draw();
@@ -434,7 +434,7 @@ void deleteWord() {
   cursorBounds();
 }
 
-void operatorPending(String str) {
+void pending(String str) {
   switch (operator) {
     case 'g':
       if (str == 'g') {
