@@ -16,10 +16,6 @@ class Position {
     return Position(line: 0, char: 0);
   }
 
-  factory Position.from(Position pos) {
-    return Position(line: pos.line, char: pos.char);
-  }
-
   Position add(Position pos) {
     return Position(line: line + pos.line, char: char + pos.char);
   }
