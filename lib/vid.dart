@@ -93,7 +93,7 @@ void quit() {
 }
 
 void cursorBounds() {
-  // limit cursor.line inside viewport
+  // limit cursor.line to term height
   if (cursor.line >= term.height - 1) {
     cursor.line = term.height - 2;
   }
@@ -103,10 +103,9 @@ void cursorBounds() {
   if (cursor.line < 0) {
     cursor.line = 0;
   }
-  // limit cursor.char to line length
-  final lineLength = lines.isEmpty ? 0 : lines[position.line].length;
-  if (cursor.char >= lineLength) {
-    cursor.char = lineLength - 1;
+  // limit cursor.char to term width
+  if (cursor.char >= term.width - 2) {
+    cursor.char = term.width - 2;
   }
   if (cursor.char < 0) {
     cursor.char = 0;
@@ -154,6 +153,7 @@ bool insertControlCharacter(String str) {
     lines[position.line] = lines[position.line].substring(0, position.char);
     lines.insert(position.line + 1, lineAfterCursor);
     cursor.char = 0;
+    offset.char = 0;
     cursorLineDown();
     return true;
   }
@@ -308,9 +308,13 @@ void appendCharNext() {
 
 void cursorLineEnd() {
   cursor.char = lines[position.line].length - 1;
+  offset.char = lines[position.line].length - 1 - term.width;
 }
 
-int cursorLineStart() => cursor.char = 0;
+void cursorLineStart() {
+  cursor.char = 0;
+  offset.char = 0;
+}
 
 void cursorCharPrev() {
   cursor.char--;
@@ -468,6 +472,7 @@ void deleteCharNext() {
   if (lines.isEmpty) {
     return;
   }
+
   // delete character at cursor position or remove line if empty
   String line = lines[position.line];
   if (line.isNotEmpty) {
