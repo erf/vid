@@ -324,16 +324,25 @@ void cursorLineStart() {
 }
 
 void cursorLineUp() {
-  cursor.line = max(0, cursor.line - 1);
-  if (cursor.char > lines[cursor.line].length) {
+  cursor.line--;
+  if (cursor.line < 0) {
+    cursor.line = 0;
+  }
+  if (lines.isNotEmpty && cursor.char > lines[cursor.line].length) {
     cursor.char = lines[cursor.line].length;
   }
   updateOffset();
 }
 
 void cursorLineDown() {
-  cursor.line = min(cursor.line + 1, lines.length - 1);
-  if (cursor.char > lines[cursor.line].length) {
+  cursor.line++;
+  if (cursor.line > lines.length - 1) {
+    cursor.line = lines.length - 1;
+  }
+  if (cursor.line < 0) {
+    cursor.line = 0;
+  }
+  if (lines.isNotEmpty && cursor.char > lines[cursor.line].length) {
     cursor.char = lines[cursor.line].length;
   }
   updateOffset();
