@@ -491,6 +491,10 @@ void deleteCharNext() {
   if (lines[cursor.line].isEmpty) {
     lines.removeAt(cursor.line);
   }
+
+  cursor.char = min(cursor.char, lines[cursor.line].length - 1);
+
+  updateOffset();
 }
 
 void resize(ProcessSignal signal) {
