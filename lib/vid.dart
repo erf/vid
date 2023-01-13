@@ -212,8 +212,7 @@ void normal(String str) {
       cursorCharNext();
       break;
     case 'w':
-      cursor.char = cursorWordNext(cursor.char);
-      cursorBounds();
+      cursorWordNext();
       break;
     case 'b':
       cursorWordPrev();
@@ -390,7 +389,7 @@ void cursorWordPrev() {
   cursor.char = matches.first.start;
 }
 
-int cursorWordNext(int start) {
+int motionWordNext(int start) {
   final line = lines[position.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
@@ -402,6 +401,15 @@ int cursorWordNext(int start) {
     }
   }
   return matches.last.end;
+}
+
+void cursorWordNext() {
+  cursor.char = motionWordNext(cursor.char);
+  if (cursor.char >= term.width) {
+    offset.char = cursor.char - term.width;
+    cursor.char = term.width - 1;
+  }
+  cursorBounds();
 }
 
 void input(List<int> codes) {
@@ -422,7 +430,7 @@ void input(List<int> codes) {
 
 void deleteWord() {
   int start = position.char;
-  int end = cursorWordNext(start);
+  int end = motionWordNext(start);
   if (end == epos) {
     return;
   }
