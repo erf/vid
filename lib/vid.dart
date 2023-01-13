@@ -321,7 +321,9 @@ void cursorLineStart() {
 
 void cursorLineUp() {
   cursor.line = max(0, cursor.line - 1);
-  cursor.char = min(cursor.char, lines[cursor.line].length - 1);
+  if (cursor.char > lines[cursor.line].length) {
+    cursor.char = lines[cursor.line].length;
+  }
   updateOffset();
 }
 
