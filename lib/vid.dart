@@ -107,6 +107,9 @@ void cursorBounds() {
   if (cursor.char >= term.width - 2) {
     cursor.char = term.width - 2;
   }
+  if (cursor.char >= lines[cursor.line].length) {
+    cursor.char = lines[cursor.line].length - 1;
+  }
   if (cursor.char < 0) {
     cursor.char = 0;
   }
