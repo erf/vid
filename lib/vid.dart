@@ -108,6 +108,9 @@ bool insertCtrlChar(String str) {
   // escape
   if (str == '\x1b') {
     mode = Mode.normal;
+    if (cursor.char > lines[cursor.line].length - 1) {
+      cursor.char = lines[cursor.line].length - 1;
+    }
     return true;
   }
 
@@ -159,7 +162,8 @@ void insert(String str) {
   } else {
     lines[cursor.line] = line.replaceRange(cursor.char, cursor.char, str);
   }
-  cursorCharNext();
+  cursor.char++;
+  updateOffset();
 }
 
 // limit offset / view based on cursor position
@@ -180,8 +184,8 @@ void updateOffset() {
 
 void cursorCharNext() {
   cursor.char++;
-  if (cursor.char > lines[cursor.line].length) {
-    cursor.char = lines[cursor.line].length;
+  if (cursor.char > lines[cursor.line].length - 1) {
+    cursor.char = lines[cursor.line].length - 1;
   }
   updateOffset();
 }

@@ -10,7 +10,7 @@
 			"type": "dart",
 			"program": "bin/vid.dart",
 			"console": "terminal",
-			"args": ["README.md"]
+			"args": []
 		}
 	]
 }
