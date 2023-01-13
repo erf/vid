@@ -487,12 +487,12 @@ void deleteCharNext() {
     lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, '');
   }
 
+  cursor.char = min(cursor.char, lines[cursor.line].length - 1);
+
   // if line is empty, remove it
   if (lines[cursor.line].isEmpty) {
     lines.removeAt(cursor.line);
   }
-
-  cursor.char = min(cursor.char, lines[cursor.line].length - 1);
 
   updateOffset();
 }
