@@ -179,7 +179,10 @@ void updateOffset() {
 }
 
 void cursorCharNext() {
-  cursor.char = min(cursor.char + 1, lines[cursor.line].length - 1);
+  cursor.char++;
+  if (cursor.char > lines[cursor.line].length) {
+    cursor.char = lines[cursor.line].length;
+  }
   updateOffset();
 }
 
@@ -324,7 +327,9 @@ void cursorLineUp() {
 
 void cursorLineDown() {
   cursor.line = min(cursor.line + 1, lines.length - 1);
-  cursor.char = min(cursor.char, lines[cursor.line].length - 1);
+  if (cursor.char > lines[cursor.line].length) {
+    cursor.char = lines[cursor.line].length;
+  }
   updateOffset();
 }
 
