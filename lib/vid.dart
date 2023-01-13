@@ -285,7 +285,11 @@ void openLineAbove() {
 
 void openLineBelow() {
   mode = Mode.insert;
-  lines.insert(cursor.line + 1, '');
+  if (cursor.line + 1 >= lines.length) {
+    lines.add('');
+  } else {
+    lines.insert(cursor.line + 1, '');
+  }
   cursorLineDown();
 }
 
