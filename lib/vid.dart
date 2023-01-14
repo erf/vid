@@ -147,7 +147,9 @@ void escape() {
 }
 
 void backspace() {
-  if (cursor.char == 0) {
+  if (cursor.char != 0) {
+    deleteCharPrev();
+  } else {
     // join lines
     if (cursor.line > 0) {
       final aboveLen = lines[cursor.line - 1].length;
@@ -157,10 +159,6 @@ void backspace() {
       cursor.char = aboveLen;
       updateOffset();
     }
-  } else {
-    //cursor.char = max(0, cursor.char - 1);
-    //updateOffset();
-    deleteCharPrev();
   }
 }
 
@@ -183,7 +181,7 @@ void insert(String str) {
   updateOffset();
 }
 
-// clamp view based on cursor position
+// clamp view on cursor position
 void updateOffset() {
   offset.line = clamp(offset.line, cursor.line, cursor.line - term.height + 2);
   offset.char = clamp(offset.char, cursor.char, cursor.char - term.width + 2);
