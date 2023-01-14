@@ -281,6 +281,8 @@ void cursorLine(String str) {
 void openLineAbove() {
   mode = Mode.insert;
   lines.insert(cursor.line, '');
+  cursor.char = 0;
+  updateOffset();
 }
 
 void openLineBelow() {
