@@ -190,7 +190,7 @@ void updateCursorFromLines() {
   }
 }
 
-// clamp view on cursor position
+// clamp view on cursor position (could add padding)
 void updateViewFromCursor() {
   view.line = clamp(view.line, cursor.line, cursor.line - term.height + 2);
   view.char = clamp(view.char, cursor.char, cursor.char - term.width + 2);
