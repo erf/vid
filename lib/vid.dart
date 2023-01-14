@@ -11,11 +11,14 @@ enum Mode { normal, pending, insert }
 
 const epos = -1;
 
-var term = Terminal();
-var vtb = VT100Buffer();
+final term = Terminal();
+final vtb = VT100Buffer();
 var filename = '';
+// file lines
 var lines = <String>[];
+// cursor position in file
 var cursor = Position();
+// view offset in file
 var offset = Position();
 var mode = Mode.normal;
 var message = '';
