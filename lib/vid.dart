@@ -239,12 +239,10 @@ void normal(String str) {
       cursorWordEnd();
       break;
     case 'c':
-      mode = Mode.pending;
-      operator = str;
+      changeAction(str);
       break;
     case 'd':
-      mode = Mode.pending;
-      operator = str;
+      deleteAction(str);
       break;
     case 'x':
       deleteCharNext();
@@ -280,6 +278,16 @@ void normal(String str) {
       cursorLineBottom();
       break;
   }
+}
+
+void deleteAction(String str) {
+  mode = Mode.pending;
+  operator = str;
+}
+
+void changeAction(String str) {
+  mode = Mode.pending;
+  operator = str;
 }
 
 void cursorLineBottom() {
@@ -478,7 +486,7 @@ void pending(String str) {
         deleteLine();
       }
       if (str == 'w') {
-        // use generic function for deleting range from motion
+        // TODO use generic function for deleting range from motion
         deleteWord();
       }
       break;
