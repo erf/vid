@@ -142,7 +142,7 @@ void enter() {
 
 void escape() {
   mode = Mode.normal;
-  clampCursor();
+  updateCursorFromLines();
 }
 
 void backspace() {
@@ -180,7 +180,7 @@ void insert(String str) {
   updateViewFromCursor();
 }
 
-void clampCursor() {
+void updateCursorFromLines() {
   if (lines.isEmpty) {
     cursor.line = 0;
     cursor.char = 0;
