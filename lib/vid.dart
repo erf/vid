@@ -32,20 +32,22 @@ int clamp(int value, int val0, int val1) {
 void draw() {
   vtb.homeAndErase();
 
-  final ystart = offset.line;
-  final yend = offset.line + term.height - 1;
+  final lineStart = offset.line;
+  final lineEnd = offset.line + term.height - 1;
 
   // draw lines
-  for (var i = ystart; i < yend; i++) {
-    if (i > lines.length - 1) {
+  for (var l = lineStart; l < lineEnd; l++) {
+    if (l > lines.length - 1) {
       vtb.writeln('~');
       continue;
     }
-    var line = lines[i];
+    var line = lines[l];
     if (offset.char > 0) {
-      line = offset.char < line.length
-          ? line.replaceRange(0, offset.char, '')
-          : '';
+      if (offset.char >= line.length) {
+        line = '';
+      } else {
+        line = line.replaceRange(0, offset.char, '');
+      }
     }
     if (line.length < term.width) {
       vtb.writeln(line);
