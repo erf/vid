@@ -262,7 +262,7 @@ void normal(String str) {
 }
 
 void cursorLineBottom() {
-  cursor.line = min(lines.length - 1, term.height - 2);
+  cursor.line = max(0, lines.length - 1);
   cursor.char = 0;
   updateOffset();
 }
