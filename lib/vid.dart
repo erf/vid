@@ -334,6 +334,7 @@ void appendCharNext() {
 }
 
 void cursorLineEnd() {
+  if (lines.isEmpty) return;
   cursor.char = lines[cursor.line].length - 1;
   updateViewFromCursor();
 }
