@@ -142,11 +142,7 @@ void enter() {
 
 void escape() {
   mode = Mode.normal;
-  if (lines.isEmpty) {
-    cursor.char = 0;
-  } else {
-    cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
-  }
+  clampCursor();
 }
 
 void backspace() {
