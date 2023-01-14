@@ -121,16 +121,20 @@ bool insertCtrlChar(String str) {
 
   // enter
   if (str == '\n') {
-    final lineAfterCursor = lines[cursor.line].substring(cursor.char);
-    lines[cursor.line] = lines[cursor.line].substring(0, cursor.char);
-    lines.insert(cursor.line + 1, lineAfterCursor);
-    cursor.char = 0;
-    offset.char = 0;
-    cursorLineDown();
+    enter();
     return true;
   }
 
   return false;
+}
+
+void enter() {
+  final lineAfterCursor = lines[cursor.line].substring(cursor.char);
+  lines[cursor.line] = lines[cursor.line].substring(0, cursor.char);
+  lines.insert(cursor.line + 1, lineAfterCursor);
+  cursor.char = 0;
+  offset.char = 0;
+  cursorLineDown();
 }
 
 void escape() {
