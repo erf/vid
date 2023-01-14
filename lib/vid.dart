@@ -563,6 +563,7 @@ void resize(ProcessSignal signal) {
 
 void loadFile(args) {
   if (args.isEmpty) {
+    lines = [""];
     return;
   }
   filename = args[0];
