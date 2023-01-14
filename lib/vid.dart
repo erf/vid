@@ -19,7 +19,7 @@ var lines = <String>[];
 // cursor position in file
 var cursor = Position();
 // view offset in file
-var offset = Position();
+var view = Position();
 var mode = Mode.normal;
 var message = '';
 var operator = '';
@@ -35,8 +35,8 @@ int clamp(int value, int val0, int val1) {
 void draw() {
   vtb.homeAndErase();
 
-  final lineStart = offset.line;
-  final lineEnd = offset.line + term.height - 1;
+  final lineStart = view.line;
+  final lineEnd = view.line + term.height - 1;
 
   // draw lines
   for (var l = lineStart; l < lineEnd; l++) {
@@ -45,11 +45,11 @@ void draw() {
       continue;
     }
     var line = lines[l];
-    if (offset.char > 0) {
-      if (offset.char >= line.length) {
+    if (view.char > 0) {
+      if (view.char >= line.length) {
         line = '';
       } else {
-        line = line.replaceRange(0, offset.char, '');
+        line = line.replaceRange(0, view.char, '');
       }
     }
     if (line.length < term.width) {
@@ -64,8 +64,8 @@ void draw() {
 
   // draw cursor
   final termPos = Position(
-    line: cursor.line - offset.line + 1,
-    char: cursor.char - offset.char + 1,
+    line: cursor.line - view.line + 1,
+    char: cursor.char - view.char + 1,
   );
   vtb.cursorPosition(x: termPos.char, y: termPos.line);
 
@@ -136,7 +136,7 @@ void enter() {
   lines[cursor.line] = lines[cursor.line].substring(0, cursor.char);
   lines.insert(cursor.line + 1, lineAfterCursor);
   cursor.char = 0;
-  offset.char = 0;
+  view.char = 0;
   cursorLineDown();
 }
 
@@ -160,7 +160,7 @@ void backspace() {
       lines.removeAt(cursor.line);
       --cursor.line;
       cursor.char = aboveLen;
-      updateOffset();
+      updateViewFromCursor();
     }
   }
 }
@@ -181,23 +181,33 @@ void insert(String str) {
     lines[cursor.line] = line.replaceRange(cursor.char, cursor.char, str);
   }
   cursor.char++;
-  updateOffset();
+  updateViewFromCursor();
+}
+
+void clampCursor() {
+  if (lines.isEmpty) {
+    cursor.line = 0;
+    cursor.char = 0;
+  } else {
+    cursor.line = clamp(cursor.line, 0, lines.length - 1);
+    cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
+  }
 }
 
 // clamp view on cursor position
-void updateOffset() {
-  offset.line = clamp(offset.line, cursor.line, cursor.line - term.height + 2);
-  offset.char = clamp(offset.char, cursor.char, cursor.char - term.width + 2);
+void updateViewFromCursor() {
+  view.line = clamp(view.line, cursor.line, cursor.line - term.height + 2);
+  view.char = clamp(view.char, cursor.char, cursor.char - term.width + 2);
 }
 
 void cursorCharNext() {
   cursor.char = clamp(cursor.char + 1, 0, lines[cursor.line].length - 1);
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void cursorCharPrev() {
   cursor.char = max(0, cursor.char - 1);
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void normal(String str) {
@@ -276,7 +286,7 @@ void normal(String str) {
 void cursorLineBottom() {
   cursor.line = max(0, lines.length - 1);
   cursor.char = 0;
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void cursorLine(String str) {
@@ -288,7 +298,7 @@ void openLineAbove() {
   mode = Mode.insert;
   lines.insert(cursor.line, '');
   cursor.char = 0;
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void openLineBelow() {
@@ -326,13 +336,13 @@ void appendCharNext() {
 
 void cursorLineEnd() {
   cursor.char = lines[cursor.line].length - 1;
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void cursorLineStart() {
   cursor.char = 0;
-  offset.char = 0;
-  updateOffset();
+  view.char = 0;
+  updateViewFromCursor();
 }
 
 void cursorLineUp() {
@@ -340,7 +350,7 @@ void cursorLineUp() {
   if (lines.isNotEmpty && cursor.char > lines[cursor.line].length) {
     cursor.char = lines[cursor.line].length;
   }
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void cursorLineDown() {
@@ -348,7 +358,7 @@ void cursorLineDown() {
   if (lines.isNotEmpty && cursor.char > lines[cursor.line].length) {
     cursor.char = lines[cursor.line].length;
   }
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void save() {
@@ -410,17 +420,17 @@ int motionWordPrev(int start) {
 
 void cursorWordNext() {
   cursor.char = motionWordNext(cursor.char);
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void cursorWordEnd() {
   cursor.char = motionWordEnd(cursor.char);
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void cursorWordPrev() {
   cursor.char = motionWordPrev(cursor.char);
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void input(List<int> codes) {
@@ -451,7 +461,7 @@ void deleteWord() {
   }
   lines[cursor.line] = lines[cursor.line].replaceRange(start, end, '');
   cursor.char = start;
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void pending(String str) {
@@ -485,12 +495,12 @@ void deleteLine() {
   }
   lines.removeAt(cursor.line);
   cursor.line = clamp(cursor.line, 0, lines.length - 1);
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void cursorLineBegin() {
   cursor = Position();
-  offset = Position();
+  view = Position();
 }
 
 void deleteCharPrev() {
@@ -512,7 +522,7 @@ void deleteCharPrev() {
     lines.removeAt(cursor.line);
   }
 
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void deleteCharNext() {
@@ -534,7 +544,7 @@ void deleteCharNext() {
     lines.removeAt(cursor.line);
   }
 
-  updateOffset();
+  updateViewFromCursor();
 }
 
 void resize(ProcessSignal signal) {
