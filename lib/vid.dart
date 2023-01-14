@@ -32,34 +32,26 @@ int clamp(int value, int val0, int val1) {
 void draw() {
   vtb.homeAndErase();
 
-  var ystart = offset.line;
-  var yend = offset.line + term.height - 1;
-  if (ystart < 0) {
-    ystart = 0;
-  }
-  if (yend > lines.length) {
-    yend = lines.length;
-  }
+  final ystart = offset.line;
+  final yend = offset.line + term.height - 1;
+
   // draw lines
   for (var i = ystart; i < yend; i++) {
+    if (i > lines.length - 1) {
+      vtb.writeln('~');
+      continue;
+    }
     var line = lines[i];
     if (offset.char > 0) {
-      if (offset.char < line.length) {
-        line = line.replaceRange(0, offset.char, '');
-      } else {
-        line = '';
-      }
+      line = offset.char < line.length
+          ? line.replaceRange(0, offset.char, '')
+          : '';
     }
     if (line.length < term.width) {
       vtb.writeln(line);
     } else {
       vtb.writeln(line.substring(0, term.width - 1));
     }
-  }
-
-  // draw empty lines
-  for (var i = yend; i < term.height - 1; i++) {
-    vtb.writeln('~');
   }
 
   // draw status
@@ -467,6 +459,7 @@ void pending(String str) {
         deleteLine();
       }
       if (str == 'w') {
+        // use generic function for deleting range from motion
         deleteWord();
       }
       break;
