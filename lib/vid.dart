@@ -480,7 +480,12 @@ void pending(String str) {
 }
 
 void deleteLine() {
+  if (lines.isEmpty) {
+    return;
+  }
   lines.removeAt(cursor.line);
+  cursor.line = clamp(cursor.line, 0, lines.length - 1);
+  updateOffset();
 }
 
 void cursorLineBegin() {
