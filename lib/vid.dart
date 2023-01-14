@@ -197,6 +197,9 @@ void updateViewFromCursor() {
 }
 
 void cursorCharNext() {
+  if (lines.isEmpty) {
+    return;
+  }
   cursor.char = clamp(cursor.char + 1, 0, lines[cursor.line].length - 1);
   updateViewFromCursor();
 }
