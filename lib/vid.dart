@@ -115,27 +115,13 @@ void showMessage(String msg) {
 bool insertCtrlChar(String str) {
   // escape
   if (str == '\x1b') {
-    mode = Mode.normal;
-    cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
+    escape();
     return true;
   }
 
   // backspace
   if (str == '\x7f') {
-    if (cursor.char == 0) {
-      // join lines
-      if (cursor.line > 0) {
-        final aboveLen = lines[cursor.line - 1].length;
-        lines[cursor.line - 1] += lines[cursor.line];
-        lines.removeAt(cursor.line);
-        --cursor.line;
-        cursor.char = aboveLen;
-        updateOffset();
-      }
-    } else {
-      cursorCharPrev();
-      deleteCharNext();
-    }
+    backspace();
     return true;
   }
 
@@ -151,6 +137,33 @@ bool insertCtrlChar(String str) {
   }
 
   return false;
+}
+
+void escape() {
+  mode = Mode.normal;
+  if (lines.isEmpty) {
+    cursor.char = 0;
+  } else {
+    cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
+  }
+}
+
+void backspace() {
+  if (cursor.char == 0) {
+    // join lines
+    if (cursor.line > 0) {
+      final aboveLen = lines[cursor.line - 1].length;
+      lines[cursor.line - 1] += lines[cursor.line];
+      lines.removeAt(cursor.line);
+      --cursor.line;
+      cursor.char = aboveLen;
+      updateOffset();
+    }
+  } else {
+    //cursor.char = max(0, cursor.char - 1);
+    //updateOffset();
+    deleteCharPrev();
+  }
 }
 
 void insert(String str) {
@@ -473,6 +486,28 @@ void deleteLine() {
 void cursorLineBegin() {
   cursor = Position();
   offset = Position();
+}
+
+void deleteCharPrev() {
+  // if empty file, do nothing
+  if (lines.isEmpty) {
+    return;
+  }
+
+  // delete character at cursor position or remove line if empty
+  String line = lines[cursor.line];
+  if (line.isNotEmpty) {
+    lines[cursor.line] = line.replaceRange(cursor.char - 1, cursor.char, '');
+  }
+
+  cursor.char = clamp(cursor.char - 1, 0, lines[cursor.line].length);
+
+  // if line is empty, remove it
+  if (lines[cursor.line].isEmpty) {
+    lines.removeAt(cursor.line);
+  }
+
+  updateOffset();
 }
 
 void deleteCharNext() {
