@@ -172,20 +172,10 @@ void insert(String str) {
   updateOffset();
 }
 
-// limit offset / view based on cursor position
+// clamp view based on cursor position
 void updateOffset() {
-  if (offset.line > cursor.line) {
-    offset.line = cursor.line;
-  }
-  if (offset.line < cursor.line - term.height + 2) {
-    offset.line = cursor.line - term.height + 2;
-  }
-  if (offset.char > cursor.char) {
-    offset.char = cursor.char;
-  }
-  if (offset.char < cursor.char - term.width + 2) {
-    offset.char = cursor.char - term.width + 2;
-  }
+  offset.line = clamp(offset.line, cursor.line, cursor.line - term.height + 2);
+  offset.char = clamp(offset.char, cursor.char, cursor.char - term.width + 2);
 }
 
 void cursorCharNext() {
