@@ -503,6 +503,7 @@ void deleteCharNext() {
   }
 
   cursor.char = min(cursor.char, lines[cursor.line].length - 1);
+  cursor.char = max(cursor.char, 0);
 
   // if line is empty, remove it
   if (lines[cursor.line].isEmpty) {
