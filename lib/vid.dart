@@ -13,16 +13,14 @@ const epos = -1;
 
 final term = Terminal();
 final vtb = VT100Buffer();
-var filename = '';
-// file lines
+
+String? filename;
 var lines = <String>[];
-// cursor position in file
 var cursor = Position();
-// view offset in file
 var view = Position();
 var mode = Mode.normal;
-var message = '';
-var operator = '';
+var msg = '';
+var op = '';
 
 int clamp(int value, int val0, int val1) {
   if (val0 > val1) {
@@ -39,7 +37,7 @@ void draw() {
   final lineEnd = view.line + term.height - 1;
 
   // draw lines
-  for (var l = lineStart; l < lineEnd; l++) {
+  for (int l = lineStart; l < lineEnd; l++) {
     if (l > lines.length - 1) {
       vtb.writeln('~');
       continue;
@@ -84,9 +82,9 @@ void drawStatus() {
   } else {
     modeStr = 'INSERT >> ';
   }
-  final fileStr = filename.isEmpty ? '[No Name]' : filename;
+  final fileStr = filename ?? '[No Name]';
   final status =
-      ' $modeStr$fileStr $message${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - message.length - 3)} ';
+      ' $modeStr$fileStr $msg${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - msg.length - 3)} ';
   vtb.write(status);
   vtb.invert(false);
 }
@@ -100,11 +98,11 @@ void quit() {
   exit(0);
 }
 
-void showMessage(String msg) {
-  message = msg;
+void showMessage(String message) {
+  msg = message;
   draw();
   Timer(Duration(seconds: 2), () {
-    message = '';
+    msg = '';
     draw();
   });
 }
@@ -282,12 +280,12 @@ void normal(String str) {
 
 void deleteAction(String str) {
   mode = Mode.pending;
-  operator = str;
+  op = str;
 }
 
 void changeAction(String str) {
   mode = Mode.pending;
-  operator = str;
+  op = str;
 }
 
 void cursorLineBottom() {
@@ -298,7 +296,7 @@ void cursorLineBottom() {
 
 void cursorLine(String str) {
   mode = Mode.pending;
-  operator = str;
+  op = str;
 }
 
 void openLineAbove() {
@@ -372,11 +370,11 @@ void cursorLineDown() {
 }
 
 void save() {
-  if (filename.isEmpty) {
+  if (filename == null) {
     showMessage('No filename');
     return;
   }
-  final file = File(filename);
+  final file = File(filename!);
   final sink = file.openWrite();
   for (var line in lines) {
     sink.writeln(line);
@@ -475,7 +473,7 @@ void deleteWord() {
 }
 
 void pending(String str) {
-  switch (operator) {
+  switch (op) {
     case 'g':
       if (str == 'g') {
         cursorLineBegin();
@@ -567,7 +565,7 @@ void loadFile(args) {
     return;
   }
   filename = args[0];
-  final file = File(filename);
+  final file = File(filename!);
   if (file.existsSync()) {
     lines = file.readAsLinesSync();
   }
