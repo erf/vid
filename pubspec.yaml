@@ -1,11 +1,10 @@
 name: vid
-description: a vi-like text editor written in Dart
+description: A sample command-line application.
 version: 1.0.0
 # homepage: https://www.example.com
 
 environment:
-  sdk: '>=3.0.0-151.0.dev <4.0.0'
-
+  sdk: '>=2.18.6 <3.0.0'
 
 # dependencies:
 #   path: ^1.8.0
