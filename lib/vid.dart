@@ -31,6 +31,31 @@ int clamp(int value, int val0, int val1) {
   }
 }
 
+final normalModeActions = <String, Function>{
+  'q': quit,
+  's': save,
+  'j': cursorLineDown,
+  'k': cursorLineUp,
+  'h': cursorCharPrev,
+  'l': cursorCharNext,
+  'w': cursorWordNext,
+  'b': cursorWordPrev,
+  'e': cursorWordEnd,
+  'c': setPendingMode,
+  'd': setPendingMode,
+  'x': deleteCharNext,
+  '0': cursorLineStart,
+  '\$': cursorLineEnd,
+  'i': setInsertMode,
+  'a': appendCharNext,
+  'A': appendLineEnd,
+  'I': insertLineStart,
+  'o': openLineBelow,
+  'O': openLineAbove,
+  'g': cursorLine,
+  'G': cursorLineBottom,
+};
+
 void draw() {
   buf.write(VT100.erase());
 
@@ -206,85 +231,8 @@ void cursorCharPrev() {
   updateViewFromCursor();
 }
 
-void normal(String str) {
-  switch (str) {
-    case 'q':
-      quit();
-      break;
-    case 's':
-      save();
-      break;
-    case 'j':
-      cursorLineDown();
-      break;
-    case 'k':
-      cursorLineUp();
-      break;
-    case 'h':
-      cursorCharPrev();
-      break;
-    case 'l':
-      cursorCharNext();
-      break;
-    case 'w':
-      cursorWordNext();
-      break;
-    case 'b':
-      cursorWordPrev();
-      break;
-    case 'e':
-      cursorWordEnd();
-      break;
-    case 'c':
-      changeAction(str);
-      break;
-    case 'd':
-      deleteAction(str);
-      break;
-    case 'x':
-      deleteCharNext();
-      break;
-    case '0':
-      cursorLineStart();
-      break;
-    case '\$':
-      cursorLineEnd();
-      break;
-    case 'i':
-      insertCharPrev();
-      break;
-    case 'a':
-      appendCharNext();
-      break;
-    case 'A':
-      appendLineEnd();
-      break;
-    case 'I':
-      insertLineStart();
-      break;
-    case 'o':
-      openLineBelow();
-      break;
-    case 'O':
-      openLineAbove();
-      break;
-    case 'g':
-      cursorLine(str);
-      break;
-    case 'G':
-      cursorLineBottom();
-      break;
-  }
-}
-
-void deleteAction(String str) {
+void setPendingMode() {
   mode = Mode.pending;
-  op = str;
-}
-
-void changeAction(String str) {
-  mode = Mode.pending;
-  op = str;
 }
 
 void cursorLineBottom() {
@@ -293,9 +241,8 @@ void cursorLineBottom() {
   updateViewFromCursor();
 }
 
-void cursorLine(String str) {
+void cursorLine() {
   mode = Mode.pending;
-  op = str;
 }
 
 void openLineAbove() {
@@ -315,7 +262,7 @@ void openLineBelow() {
   cursorLineDown();
 }
 
-void insertCharPrev() {
+void setInsertMode() {
   mode = Mode.insert;
 }
 
@@ -447,7 +394,8 @@ void input(List<int> codes) {
       insert(str);
       break;
     case Mode.normal:
-      normal(str);
+      op = str;
+      normalModeActions[str]?.call();
       break;
     case Mode.pending:
       pending(str);
