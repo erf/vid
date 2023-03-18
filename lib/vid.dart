@@ -2,17 +2,18 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:characters/characters.dart';
+
 import 'position.dart';
 import 'terminal.dart';
 import 'vt100.dart';
-import 'vt100_buffer.dart';
 
 enum Mode { normal, pending, insert }
 
 const epos = -1;
 
 final term = Terminal();
-final vtb = VT100Buffer();
+final buf = StringBuffer();
 
 String? filename;
 var lines = <String>[];
@@ -31,7 +32,7 @@ int clamp(int value, int val0, int val1) {
 }
 
 void draw() {
-  vtb.homeAndErase();
+  buf.write(VT100.erase());
 
   final lineStart = view.line;
   final lineEnd = view.line + term.height - 1;
@@ -39,7 +40,7 @@ void draw() {
   // draw lines
   for (int l = lineStart; l < lineEnd; l++) {
     if (l > lines.length - 1) {
-      vtb.writeln('~');
+      buf.writeln('~');
       continue;
     }
     var line = lines[l];
@@ -51,9 +52,9 @@ void draw() {
       }
     }
     if (line.length < term.width) {
-      vtb.writeln(line);
+      buf.writeln(line);
     } else {
-      vtb.writeln(line.substring(0, term.width - 1));
+      buf.writeln(line.substring(0, term.width - 1));
     }
   }
 
@@ -65,15 +66,15 @@ void draw() {
     line: cursor.line - view.line + 1,
     char: cursor.char - view.char + 1,
   );
-  vtb.cursorPosition(x: termPos.char, y: termPos.line);
+  buf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
 
-  term.write(vtb);
-  vtb.clear();
+  term.write(buf);
+  buf.clear();
 }
 
 void drawStatus() {
-  vtb.invert(true);
-  vtb.cursorPosition(x: 1, y: term.height);
+  buf.write(VT100.invert(true));
+  buf.write(VT100.cursorPosition(x: 1, y: term.height));
   final String modeStr;
   if (mode == Mode.normal) {
     modeStr = '';
@@ -85,15 +86,15 @@ void drawStatus() {
   final fileStr = filename ?? '[No Name]';
   final status =
       ' $modeStr$fileStr $msg${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - msg.length - 3)} ';
-  vtb.write(status);
-  vtb.invert(false);
+  buf.write(status);
+  buf.write(VT100.invert(false));
 }
 
 void quit() {
-  vtb.homeAndErase();
-  vtb.reset();
-  term.write(vtb);
-  vtb.clear();
+  buf.write(VT100.erase());
+  buf.write(VT100.reset());
+  term.write(buf);
+  buf.clear();
   term.rawMode = false;
   exit(0);
 }
@@ -163,11 +164,9 @@ void insert(String str) {
   if (insertCtrlChar(str)) {
     return;
   }
-
   if (lines.isEmpty) {
     lines.add('');
   }
-
   var line = lines[cursor.line];
   if (line.isEmpty) {
     lines[cursor.line] = str;
