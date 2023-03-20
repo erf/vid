@@ -53,16 +53,14 @@ final normalActions = <String, Function>{
 };
 
 final pendingActions = <String, Function>{
-  'c': pendingActionChangeRange,
-  'd': pendingActionDeleteRange,
+  'c': pendingActionChange,
+  'd': pendingActionDelete,
   'g': pendingActionGo,
 };
 
 final motionActions = <String, Function>{
   // TODO replace with motions
   /*
-  '0': actionCursorLineStart,
-  '\$': actionCursorLineEnd,
   'j': actionCursorLineDown,
   'k': actionCursorLineUp,
   'h': actionCursorCharPrev,
@@ -74,7 +72,9 @@ final motionActions = <String, Function>{
   'd': motionCurrentLine,
   'w': motionWordNext,
   'b': motionWordPrev,
-  'e': actionCursorWordEnd,
+  'e': motionWordEnd,
+  '0': motionLineStart,
+  '\$': motionLineEnd,
 };
 
 Range motionFirstLine() {
@@ -331,16 +331,31 @@ void actionAppendCharNext() {
   }
 }
 
+Range motionLineEnd() {
+  return Range(
+    start: Position.from(cursor),
+    end: Position(
+      line: cursor.line,
+      char: lines[cursor.line].length - 1,
+    ),
+  ).normalized();
+}
+
 void actionCursorLineEnd() {
-  if (lines.isEmpty) {
-    return;
-  }
-  cursor.char = lines[cursor.line].length - 1;
+  if (lines.isEmpty) return;
+  cursor = motionLineEnd().end;
   updateViewFromCursor();
 }
 
+Range motionLineStart() {
+  return Range(
+    start: cursor,
+    end: Position(line: cursor.line, char: 0),
+  ).normalized();
+}
+
 void actionCursorLineStart() {
-  cursor.char = 0;
+  cursor = motionLineStart().start;
   view.char = 0;
   updateViewFromCursor();
 }
@@ -405,7 +420,10 @@ Range motionWordEnd() {
   }
   for (var match in matches) {
     if (match.end - 1 > start) {
-      return Range(start: cursor, end: cursor..char = match.end - 1);
+      return Range(
+        start: Position.from(cursor),
+        end: cursor..char = match.end - 1,
+      );
     }
   }
   return Range(start: cursor, end: cursor..char = matches.last.end);
@@ -490,8 +508,8 @@ void normal(String str) {
   }
 }
 
-void pendingActionChangeRange(Range range) {
-  pendingActionDeleteRange(range);
+void pendingActionChange(Range range) {
+  pendingActionDelete(range);
   mode = Mode.insert;
 }
 
@@ -507,7 +525,7 @@ void deleteRange(Range r) {
   }
 }
 
-void pendingActionDeleteRange(Range range) {
+void pendingActionDelete(Range range) {
   deleteRange(range);
   cursor = range.start;
   updateViewFromCursor();

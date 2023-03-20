@@ -4,4 +4,8 @@ class Position {
   int char;
 
   Position({this.line = 0, this.char = 0});
+
+  factory Position.from(Position cursor) {
+    return Position(line: cursor.line, char: cursor.char);
+  }
 }
