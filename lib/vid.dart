@@ -2,9 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:characters/characters.dart';
-
 import 'position.dart';
+import 'range.dart';
 import 'terminal.dart';
 import 'vt100.dart';
 
@@ -21,7 +20,7 @@ var cursor = Position();
 var view = Position();
 var mode = Mode.normal;
 var msg = '';
-var op = '';
+Function? currentPendingAction;
 
 int clamp(int value, int val0, int val1) {
   if (val0 > val1) {
@@ -31,7 +30,7 @@ int clamp(int value, int val0, int val1) {
   }
 }
 
-final normalModeActions = <String, Function>{
+final normalImmediateActions = <String, Function>{
   'q': quit,
   's': save,
   'j': cursorLineDown,
@@ -41,8 +40,6 @@ final normalModeActions = <String, Function>{
   'w': cursorWordNext,
   'b': cursorWordPrev,
   'e': cursorWordEnd,
-  'c': setPendingMode,
-  'd': setPendingMode,
   'x': deleteCharNext,
   '0': cursorLineStart,
   '\$': cursorLineEnd,
@@ -52,9 +49,42 @@ final normalModeActions = <String, Function>{
   'I': insertLineStart,
   'o': openLineBelow,
   'O': openLineAbove,
-  'g': cursorLine,
   'G': cursorLineBottom,
 };
+
+final normalModePendingActions = <String, Function>{
+  'c': changeRange,
+  'd': deleteRange,
+  'g': goto,
+};
+
+final pendingModeMotions = <String, Function>{
+  // TODO replace with motions
+  'w': cursorWordNext,
+  'b': cursorWordPrev,
+  'e': cursorWordEnd,
+  '0': cursorLineStart,
+  '\$': cursorLineEnd,
+  'j': cursorLineDown,
+  'k': cursorLineUp,
+  'h': cursorCharPrev,
+  'l': cursorCharNext,
+  'G': cursorLineBottom,
+  // new motions
+  'g': motionStart,
+  'd': motionCurrentLine,
+};
+
+Range motionStart() {
+  return Range(start: Position(), end: Position());
+}
+
+Range motionCurrentLine() {
+  return Range(
+    start: Position(line: cursor.line, char: 0),
+    end: Position(line: cursor.line, char: lines[cursor.line].length),
+  );
+}
 
 void draw() {
   buf.write(VT100.erase());
@@ -241,8 +271,10 @@ void cursorLineBottom() {
   updateViewFromCursor();
 }
 
-void cursorLine() {
-  mode = Mode.pending;
+void goto(Range range) {
+  mode = Mode.normal;
+  cursor.char = range.end.char;
+  cursor.line = range.end.line;
 }
 
 void openLineAbove() {
@@ -394,8 +426,7 @@ void input(List<int> codes) {
       insert(str);
       break;
     case Mode.normal:
-      op = str;
-      normalModeActions[str]?.call();
+      normal(str);
       break;
     case Mode.pending:
       pending(str);
@@ -419,7 +450,47 @@ void deleteWord() {
   updateViewFromCursor();
 }
 
+void normal(String str) {
+  Function? imAction = normalImmediateActions[str];
+  if (imAction != null) {
+    imAction.call();
+    return;
+  }
+  Function? pendingAction = normalModePendingActions[str];
+  if (pendingAction != null) {
+    mode = Mode.pending;
+    currentPendingAction = pendingAction;
+  }
+}
+
+void changeRange(Range range) {
+  deleteRange(range);
+  mode = Mode.insert;
+}
+
+void deleteRange(Range range) {
+  if (range.start.line == range.end.line) {
+    lines[range.start.line] = lines[range.start.line]
+        .replaceRange(range.start.char, range.end.char, '');
+  } else {
+    lines[range.start.line] =
+        lines[range.start.line].replaceRange(range.start.char, epos, '');
+    lines[range.end.line] =
+        lines[range.end.line].replaceRange(0, range.end.char, '');
+    lines.removeRange(range.start.line + 1, range.end.line);
+  }
+  cursor = range.start;
+  updateViewFromCursor();
+}
+
 void pending(String str) {
+  Function? motion = pendingModeMotions[str];
+  if (motion != null && currentPendingAction != null) {
+    Range range = motion.call();
+    currentPendingAction!.call(range);
+  }
+
+/*
   switch (op) {
     case 'g':
       if (str == 'g') {
@@ -442,6 +513,7 @@ void pending(String str) {
       break;
   }
   mode = Mode.normal;
+  */
 }
 
 void deleteLine() {
