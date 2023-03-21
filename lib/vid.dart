@@ -338,7 +338,7 @@ Range motionLineEnd() {
       line: cursor.line,
       char: lines[cursor.line].length - 1,
     ),
-  ).normalized();
+  );
 }
 
 void actionCursorLineEnd() {
@@ -349,13 +349,13 @@ void actionCursorLineEnd() {
 
 Range motionLineStart() {
   return Range(
-    start: cursor,
+    start: Position.from(cursor),
     end: Position(line: cursor.line, char: 0),
-  ).normalized();
+  );
 }
 
 void actionCursorLineStart() {
-  cursor = motionLineStart().start;
+  cursor = motionLineStart().end;
   view.char = 0;
   updateViewFromCursor();
 }
@@ -395,18 +395,21 @@ Range motionWordNext() {
   final line = lines[cursor.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Range(start: cursor, end: cursor);
+    return Range(
+      start: Position.from(cursor),
+      end: Position.from(cursor),
+    );
   }
   for (var match in matches) {
     if (match.start > start) {
       return Range(
-        start: cursor,
+        start: Position.from(cursor),
         end: Position(char: match.start, line: cursor.line),
       );
     }
   }
   return Range(
-    start: cursor,
+    start: Position.from(cursor),
     end: Position(char: matches.last.end, line: cursor.line),
   );
 }
@@ -416,7 +419,10 @@ Range motionWordEnd() {
   final line = lines[cursor.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Range(start: cursor, end: cursor..char = start);
+    return Range(
+      start: Position.from(cursor),
+      end: cursor..char = start,
+    );
   }
   for (var match in matches) {
     if (match.end - 1 > start) {
@@ -426,7 +432,10 @@ Range motionWordEnd() {
       );
     }
   }
-  return Range(start: cursor, end: cursor..char = matches.last.end);
+  return Range(
+    start: Position.from(cursor),
+    end: cursor..char = matches.last.end,
+  );
 }
 
 Range motionWordPrev() {
@@ -434,17 +443,22 @@ Range motionWordPrev() {
   final line = lines[cursor.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Range(start: cursor, end: Position(char: start, line: cursor.line));
+    return Range(
+      start: Position.from(cursor),
+      end: Position(char: start, line: cursor.line),
+    );
   }
   final reversed = matches.toList().reversed;
   for (var match in reversed) {
     if (match.start < start) {
       return Range(
-          start: cursor, end: Position(char: match.start, line: cursor.line));
+        start: Position.from(cursor),
+        end: Position(char: match.start, line: cursor.line),
+      );
     }
   }
   return Range(
-      start: cursor,
+      start: Position.from(cursor),
       end: Position(char: matches.first.start, line: cursor.line));
 }
 

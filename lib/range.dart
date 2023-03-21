@@ -10,14 +10,4 @@ class Range {
     required this.start,
     required this.end,
   });
-
-  Range normalized() {
-    if (start.line > end.line) {
-      return Range(start: end, end: start);
-    } else if (start.line == end.line && start.char > end.char) {
-      return Range(start: end, end: start);
-    } else {
-      return this;
-    }
-  }
 }
