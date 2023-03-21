@@ -30,7 +30,12 @@ int clamp(int value, int val0, int val1) {
   }
 }
 
-final normalActions = <String, Function>{
+typedef Action = void Function();
+typedef PendingAction = void Function(Range);
+typedef Motion = Position Function(Position);
+typedef TextObject = Range Function(Position);
+
+final normalActions = <String, Action>{
   'q': actionQuit,
   's': actionSave,
   'j': actionCursorLineDown,
@@ -52,24 +57,19 @@ final normalActions = <String, Function>{
   'G': actionCursorLineBottom,
 };
 
-final pendingActions = <String, Function>{
+final pendingActions = <String, PendingAction>{
   'c': pendingActionChange,
   'd': pendingActionDelete,
   'g': pendingActionGo,
 };
 
-final motionActions = <String, Function>{
-  // TODO replace with motions
-  /*
-  'j': actionCursorLineDown,
-  'k': actionCursorLineUp,
-  'h': actionCursorCharPrev,
-  'l': actionCursorCharNext,
-  */
-  // new motions
+final motionActions = <String, Motion>{
+  'j': motionLineDown,
+  'k': motionLineUp,
+  'h': motionCharPrev,
+  'l': motionCharNext,
   'g': motionFirstLine,
   'G': motionBottomLine,
-  'd': motionCurrentLine,
   'w': motionWordNext,
   'b': motionWordPrev,
   'e': motionWordEnd,
@@ -77,14 +77,18 @@ final motionActions = <String, Function>{
   '\$': motionLineEnd,
 };
 
-Range motionFirstLine() {
-  return Range(start: Position(), end: Position());
+final textObjects = <String, TextObject>{
+  'd': objectCurrentLine,
+};
+
+Position motionFirstLine(Position position) {
+  return Position(line: 0, char: 0);
 }
 
-Range motionCurrentLine() {
+Range objectCurrentLine(Position position) {
   return Range(
-    start: Position(line: cursor.line, char: 0),
-    end: Position(line: cursor.line, char: lines[cursor.line].length),
+    start: Position(line: position.line, char: 0),
+    end: Position(line: position.line, char: lines[position.line].length),
   );
 }
 
@@ -250,16 +254,27 @@ void updateViewFromCursor() {
   view.char = clamp(view.char, cursor.char, cursor.char - term.width + 2);
 }
 
+Position motionCharNext(Position position) {
+  return Position(
+    line: position.line,
+    char: clamp(position.char + 1, 0, lines[position.line].length - 1),
+  );
+}
+
 void actionCursorCharNext() {
-  if (lines.isEmpty) {
-    return;
-  }
-  cursor.char = clamp(cursor.char + 1, 0, lines[cursor.line].length - 1);
+  cursor = motionCharNext(cursor);
   updateViewFromCursor();
 }
 
+Position motionCharPrev(Position position) {
+  return Position(
+    line: position.line,
+    char: max(0, position.char - 1),
+  );
+}
+
 void actionCursorCharPrev() {
-  cursor.char = max(0, cursor.char - 1);
+  cursor = motionCharPrev(cursor);
   updateViewFromCursor();
 }
 
@@ -267,21 +282,15 @@ void setPendingMode() {
   mode = Mode.pending;
 }
 
-Range motionBottomLine() {
-  return Range(
-    start: Position(
-      line: cursor.line,
-      char: cursor.char,
-    ),
-    end: Position(
-      line: max(0, lines.length - 1),
-      char: 0,
-    ),
+Position motionBottomLine(Position position) {
+  return Position(
+    line: max(0, lines.length - 1),
+    char: 0,
   );
 }
 
 void actionCursorLineBottom() {
-  cursor = motionBottomLine().end;
+  cursor = motionBottomLine(cursor);
   updateViewFromCursor();
 }
 
@@ -331,48 +340,48 @@ void actionAppendCharNext() {
   }
 }
 
-Range motionLineEnd() {
-  return Range(
-    start: cursor.clone(),
-    end: Position(
-      line: cursor.line,
-      char: lines[cursor.line].length - 1,
-    ),
+Position motionLineEnd(Position cursor) {
+  return Position(
+    line: cursor.line,
+    char: lines[cursor.line].length - 1,
   );
 }
 
 void actionCursorLineEnd() {
   if (lines.isEmpty) return;
-  cursor = motionLineEnd().end;
+  cursor = motionLineEnd(cursor);
   updateViewFromCursor();
 }
 
-Range motionLineStart() {
-  return Range(
-    start: cursor.clone(),
-    end: Position(line: cursor.line, char: 0),
-  );
+Position motionLineStart(Position cursor) {
+  return Position(line: cursor.line, char: 0);
 }
 
 void actionCursorLineStart() {
-  cursor = motionLineStart().end;
+  cursor = motionLineStart(cursor);
   view.char = 0;
   updateViewFromCursor();
 }
 
+Position motionLineUp(Position p) {
+  final line = clamp(p.line - 1, 0, lines.length - 1);
+  final char = clamp(p.char, 0, lines[line].length - 1);
+  return Position(line: line, char: char);
+}
+
 void actionCursorLineUp() {
-  cursor.line = max(0, cursor.line - 1);
-  if (lines.isNotEmpty && cursor.char > lines[cursor.line].length) {
-    cursor.char = lines[cursor.line].length;
-  }
+  cursor = motionLineUp(cursor);
   updateViewFromCursor();
 }
 
+Position motionLineDown(Position p) {
+  final line = clamp(p.line + 1, 0, lines.length - 1);
+  final char = clamp(p.char, 0, lines[line].length - 1);
+  return Position(line: line, char: char);
+}
+
 void actionCursorLineDown() {
-  cursor.line = clamp(cursor.line + 1, 0, lines.length - 1);
-  if (lines.isNotEmpty && cursor.char > lines[cursor.line].length) {
-    cursor.char = lines[cursor.line].length;
-  }
+  cursor = motionLineDown(cursor);
   updateViewFromCursor();
 }
 
@@ -390,90 +399,64 @@ void actionSave() {
   showMessage('Saved');
 }
 
-Range motionWordNext() {
+Position motionWordNext(Position position) {
   int start = cursor.char;
   final line = lines[cursor.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Range(
-      start: cursor.clone(),
-      end: cursor.clone(),
-    );
+    return position;
   }
   for (var match in matches) {
     if (match.start > start) {
-      return Range(
-        start: cursor.clone(),
-        end: Position(char: match.start, line: cursor.line),
-      );
+      return Position(char: match.start, line: cursor.line);
     }
   }
-  return Range(
-    start: cursor.clone(),
-    end: Position(char: matches.last.end, line: cursor.line),
-  );
+  return Position(char: matches.last.end, line: cursor.line);
 }
 
-Range motionWordEnd() {
+Position motionWordEnd(Position position) {
   final start = cursor.char;
   final line = lines[cursor.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Range(
-      start: cursor.clone(),
-      end: cursor..char = start,
-    );
+    return Position(line: position.line, char: start);
   }
   for (var match in matches) {
     if (match.end - 1 > start) {
-      return Range(
-        start: cursor.clone(),
-        end: cursor..char = match.end - 1,
-      );
+      return Position(line: position.line, char: match.end - 1);
     }
   }
-  return Range(
-    start: cursor.clone(),
-    end: cursor..char = matches.last.end,
-  );
+  return Position(line: position.line, char: matches.last.end);
 }
 
-Range motionWordPrev() {
+Position motionWordPrev(Position position) {
   final start = cursor.char;
   final line = lines[cursor.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Range(
-      start: cursor.clone(),
-      end: Position(char: start, line: cursor.line),
-    );
+    return Position(char: start, line: cursor.line);
   }
   final reversed = matches.toList().reversed;
   for (var match in reversed) {
     if (match.start < start) {
-      return Range(
-        start: cursor.clone(),
-        end: Position(char: match.start, line: cursor.line),
-      );
+      return Position(char: match.start, line: cursor.line);
     }
   }
-  return Range(
-      start: cursor.clone(),
-      end: Position(char: matches.first.start, line: cursor.line));
+  return Position(char: matches.first.start, line: cursor.line);
 }
 
 void actionCursorWordNext() {
-  cursor = motionWordNext().end;
+  cursor = motionWordNext(cursor);
   updateViewFromCursor();
 }
 
 void actionCursorWordEnd() {
-  cursor = motionWordEnd().end;
+  cursor = motionWordEnd(cursor);
   updateViewFromCursor();
 }
 
 void actionCursorWordPrev() {
-  cursor = motionWordPrev().end;
+  cursor = motionWordPrev(cursor);
   updateViewFromCursor();
 }
 
@@ -495,8 +478,8 @@ void input(List<int> codes) {
 
 void deleteWord() {
   int start = cursor.char;
-  Range wordRange = motionWordNext();
-  int end = wordRange.end.char;
+  Position newPos = motionWordNext(cursor);
+  int end = newPos.char;
   if (end == epos) {
     return;
   }
@@ -547,10 +530,22 @@ void pendingActionDelete(Range range) {
 }
 
 void pending(String str) {
-  Function? motion = motionActions[str];
-  if (motion != null && currentPendingAction != null) {
-    Range range = motion.call();
+  if (currentPendingAction == null) {
+    return;
+  }
+
+  TextObject? textObject = textObjects[str];
+  if (textObject != null) {
+    Range range = textObject.call(cursor);
     currentPendingAction!.call(range);
+    return;
+  }
+
+  Motion? motion = motionActions[str];
+  if (motion != null) {
+    Position newPosition = motion.call(cursor);
+    currentPendingAction!.call(Range(start: cursor, end: newPosition));
+    return;
   }
 }
 
