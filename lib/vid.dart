@@ -7,6 +7,8 @@ import 'range.dart';
 import 'terminal.dart';
 import 'vt100.dart';
 
+// https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+
 enum Mode { normal, pending, insert }
 
 const epos = -1;
