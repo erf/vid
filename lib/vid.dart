@@ -333,7 +333,7 @@ void actionAppendCharNext() {
 
 Range motionLineEnd() {
   return Range(
-    start: Position.from(cursor),
+    start: cursor.clone(),
     end: Position(
       line: cursor.line,
       char: lines[cursor.line].length - 1,
@@ -349,7 +349,7 @@ void actionCursorLineEnd() {
 
 Range motionLineStart() {
   return Range(
-    start: Position.from(cursor),
+    start: cursor.clone(),
     end: Position(line: cursor.line, char: 0),
   );
 }
@@ -396,20 +396,20 @@ Range motionWordNext() {
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return Range(
-      start: Position.from(cursor),
-      end: Position.from(cursor),
+      start: cursor.clone(),
+      end: cursor.clone(),
     );
   }
   for (var match in matches) {
     if (match.start > start) {
       return Range(
-        start: Position.from(cursor),
+        start: cursor.clone(),
         end: Position(char: match.start, line: cursor.line),
       );
     }
   }
   return Range(
-    start: Position.from(cursor),
+    start: cursor.clone(),
     end: Position(char: matches.last.end, line: cursor.line),
   );
 }
@@ -420,20 +420,20 @@ Range motionWordEnd() {
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return Range(
-      start: Position.from(cursor),
+      start: cursor.clone(),
       end: cursor..char = start,
     );
   }
   for (var match in matches) {
     if (match.end - 1 > start) {
       return Range(
-        start: Position.from(cursor),
+        start: cursor.clone(),
         end: cursor..char = match.end - 1,
       );
     }
   }
   return Range(
-    start: Position.from(cursor),
+    start: cursor.clone(),
     end: cursor..char = matches.last.end,
   );
 }
@@ -444,7 +444,7 @@ Range motionWordPrev() {
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
     return Range(
-      start: Position.from(cursor),
+      start: cursor.clone(),
       end: Position(char: start, line: cursor.line),
     );
   }
@@ -452,13 +452,13 @@ Range motionWordPrev() {
   for (var match in reversed) {
     if (match.start < start) {
       return Range(
-        start: Position.from(cursor),
+        start: cursor.clone(),
         end: Position(char: match.start, line: cursor.line),
       );
     }
   }
   return Range(
-      start: Position.from(cursor),
+      start: cursor.clone(),
       end: Position(char: matches.first.start, line: cursor.line));
 }
 

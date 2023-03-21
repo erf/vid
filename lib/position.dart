@@ -5,7 +5,11 @@ class Position {
 
   Position({this.line = 0, this.char = 0});
 
-  factory Position.from(Position cursor) {
-    return Position(line: cursor.line, char: cursor.char);
+  factory Position.from(Position position) {
+    return Position(line: position.line, char: position.char);
+  }
+
+  Position clone() {
+    return Position.from(this);
   }
 }
