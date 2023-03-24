@@ -15,7 +15,7 @@ final term = Terminal();
 final buf = StringBuffer();
 
 String? filename;
-var lines = <String>[];
+var lines = [""];
 var cursor = Position();
 var view = Position();
 var mode = Mode.normal;
@@ -206,28 +206,28 @@ void escape() {
   clampCursor();
 }
 
+void joinLines() {
+  if (lines.length > 1 && cursor.line > 0) {
+    final aboveLen = lines[cursor.line - 1].length;
+    lines[cursor.line - 1] += lines[cursor.line];
+    lines.removeAt(cursor.line);
+    --cursor.line;
+    cursor.char = aboveLen;
+    updateViewFromCursor();
+  }
+}
+
 void backspace() {
-  if (cursor.char != 0) {
-    deleteCharPrev();
+  if (cursor.char == 0) {
+    joinLines();
   } else {
-    // join lines
-    if (cursor.line > 0) {
-      final aboveLen = lines[cursor.line - 1].length;
-      lines[cursor.line - 1] += lines[cursor.line];
-      lines.removeAt(cursor.line);
-      --cursor.line;
-      cursor.char = aboveLen;
-      updateViewFromCursor();
-    }
+    deleteCharPrev();
   }
 }
 
 void insert(String str) {
   if (checkControlChars(str)) {
     return;
-  }
-  if (lines.isEmpty) {
-    lines.add('');
   }
   String line = lines[cursor.line];
   if (line.isEmpty) {
@@ -241,14 +241,8 @@ void insert(String str) {
 
 void replace(String str) {
   mode = Mode.normal;
-  if (lines.isEmpty || cursor.line >= lines.length) {
-    return;
-  }
   String line = lines[cursor.line];
   if (line.isEmpty) {
-    return;
-  }
-  if (cursor.char >= line.length) {
     return;
   }
   lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, str);
@@ -256,13 +250,8 @@ void replace(String str) {
 
 // clamp cursor position to valid range
 void clampCursor() {
-  if (lines.isEmpty) {
-    cursor.line = 0;
-    cursor.char = 0;
-  } else {
-    cursor.line = clamp(cursor.line, 0, lines.length - 1);
-    cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
-  }
+  cursor.line = clamp(cursor.line, 0, lines.length - 1);
+  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
 }
 
 // clamp view on cursor position (could add padding)
@@ -552,20 +541,20 @@ void deleteRange(Range range) {
 
 void pendingActionDelete(Range range) {
   deleteRange(range);
+
+  // move cursor to the start of the range depending on the direction
   if (range.p0.char <= range.p1.char) {
     cursor.char = range.p0.char;
   } else {
     cursor.char = range.p1.char;
   }
-  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
 
-  if (lines[cursor.line].isEmpty) {
+  // if the line is empty, delete it, unless it's the last line
+  if (lines[cursor.line].isEmpty && lines.length > 1) {
     lines.removeAt(cursor.line);
-    cursor.line = clamp(cursor.line, 0, lines.length - 1);
   }
-  if (lines.isEmpty) {
-    lines.add('');
-  }
+
+  clampCursor();
   updateViewFromCursor();
   mode = Mode.normal;
 }
@@ -592,7 +581,7 @@ void pending(String str) {
 
 void deleteCharPrev() {
   // if empty file, do nothing
-  if (lines.isEmpty) {
+  if (lines.length == 1 && lines[0].isEmpty) {
     return;
   }
 
@@ -602,19 +591,22 @@ void deleteCharPrev() {
     lines[cursor.line] = line.replaceRange(cursor.char - 1, cursor.char, '');
   }
 
-  cursor.char = clamp(cursor.char - 1, 0, lines[cursor.line].length);
-
-  // if line is empty, remove it
-  if (lines[cursor.line].isEmpty) {
+  // if line is empty, remove it, unless it's the last line
+  if (lines[cursor.line].isEmpty && lines.length > 1) {
     lines.removeAt(cursor.line);
   }
 
+  clampCursor();
   updateViewFromCursor();
+}
+
+String replaceCharAt(String line, int index, String char) {
+  return line.replaceRange(index, index + 1, char);
 }
 
 void actionDeleteCharNext() {
   // if empty file, do nothing
-  if (lines.isEmpty) {
+  if (lines.length == 1 && lines[0].isEmpty) {
     return;
   }
 
@@ -622,11 +614,11 @@ void actionDeleteCharNext() {
   String line = lines[cursor.line];
 
   if (line.isNotEmpty) {
-    lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, '');
+    lines[cursor.line] = replaceCharAt(line, cursor.char, '');
   }
 
-  // if line is empty, remove it
-  if (lines[cursor.line].isEmpty) {
+  // if line is empty, remove it, unless it's the last line
+  if (lines[cursor.line].isEmpty && lines.length > 1) {
     lines.removeAt(cursor.line);
   }
 
