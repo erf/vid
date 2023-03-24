@@ -83,14 +83,14 @@ final textObjects = <String, TextObject>{
   'd': objectCurrentLine,
 };
 
-Position motionFirstLine(Position position) {
+Position motionFirstLine(Position p) {
   return Position(line: 0, char: 0);
 }
 
-Range objectCurrentLine(Position position) {
+Range objectCurrentLine(Position p) {
   return Range(
-    start: Position(line: position.line, char: 0),
-    end: Position(line: position.line, char: lines[position.line].length),
+    p0: Position(line: p.line, char: 0),
+    p1: Position(line: p.line, char: lines[p.line].length),
   );
 }
 
@@ -256,10 +256,10 @@ void updateViewFromCursor() {
   view.char = clamp(view.char, cursor.char, cursor.char - term.width + 2);
 }
 
-Position motionCharNext(Position position) {
+Position motionCharNext(Position p) {
   return Position(
-    line: position.line,
-    char: clamp(position.char + 1, 0, lines[position.line].length - 1),
+    line: p.line,
+    char: clamp(p.char + 1, 0, lines[p.line].length - 1),
   );
 }
 
@@ -268,11 +268,8 @@ void actionCursorCharNext() {
   updateViewFromCursor();
 }
 
-Position motionCharPrev(Position position) {
-  return Position(
-    line: position.line,
-    char: max(0, position.char - 1),
-  );
+Position motionCharPrev(Position p) {
+  return Position(line: p.line, char: max(0, p.char - 1));
 }
 
 void actionCursorCharPrev() {
@@ -298,8 +295,8 @@ void actionCursorLineBottom() {
 
 void pendingActionGo(Range range) {
   mode = Mode.normal;
-  cursor.char = range.end.char;
-  cursor.line = range.end.line;
+  cursor.char = range.p1.char;
+  cursor.line = range.p1.line;
 }
 
 void actionOpenLineAbove() {
@@ -342,11 +339,8 @@ void actionAppendCharNext() {
   }
 }
 
-Position motionLineEnd(Position cursor) {
-  return Position(
-    line: cursor.line,
-    char: lines[cursor.line].length - 1,
-  );
+Position motionLineEnd(Position p) {
+  return Position(line: p.line, char: lines[p.line].length - 1);
 }
 
 void actionCursorLineEnd() {
@@ -355,8 +349,8 @@ void actionCursorLineEnd() {
   updateViewFromCursor();
 }
 
-Position motionLineStart(Position cursor) {
-  return Position(line: cursor.line, char: 0);
+Position motionLineStart(Position p) {
+  return Position(line: p.line, char: 0);
 }
 
 void actionCursorLineStart() {
@@ -401,50 +395,50 @@ void actionSave() {
   showMessage('Saved');
 }
 
-Position motionWordNext(Position position) {
-  int start = cursor.char;
-  final line = lines[cursor.line];
+Position motionWordNext(Position p) {
+  int start = p.char;
+  final line = lines[p.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return position;
+    return p;
   }
   for (var match in matches) {
     if (match.start > start) {
-      return Position(char: match.start, line: cursor.line);
+      return Position(char: match.start, line: p.line);
     }
   }
-  return Position(char: matches.last.end, line: cursor.line);
+  return Position(char: matches.last.end, line: p.line);
 }
 
-Position motionWordEnd(Position position) {
-  final start = cursor.char;
-  final line = lines[cursor.line];
+Position motionWordEnd(Position p) {
+  final start = p.char;
+  final line = lines[p.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Position(line: position.line, char: start);
+    return Position(line: p.line, char: start);
   }
   for (var match in matches) {
     if (match.end - 1 > start) {
-      return Position(line: position.line, char: match.end - 1);
+      return Position(line: p.line, char: match.end - 1);
     }
   }
-  return Position(line: position.line, char: matches.last.end);
+  return Position(line: p.line, char: matches.last.end);
 }
 
-Position motionWordPrev(Position position) {
-  final start = cursor.char;
-  final line = lines[cursor.line];
+Position motionWordPrev(Position p) {
+  final start = p.char;
+  final line = lines[p.line];
   final matches = RegExp(r'\S+').allMatches(line);
   if (matches.isEmpty) {
-    return Position(char: start, line: cursor.line);
+    return Position(char: start, line: p.line);
   }
   final reversed = matches.toList().reversed;
   for (var match in reversed) {
     if (match.start < start) {
-      return Position(char: match.start, line: cursor.line);
+      return Position(char: match.start, line: p.line);
     }
   }
-  return Position(char: matches.first.start, line: cursor.line);
+  return Position(char: matches.first.start, line: p.line);
 }
 
 void actionCursorWordNext() {
@@ -514,34 +508,32 @@ void pendingActionChange(Range range) {
 
 Range normalizedRange(Range range) {
   Range r = Range.from(range);
-  if (r.start.line > r.end.line) {
-    final tmp = r.start;
-    r.start = r.end;
-    r.end = tmp;
-  } else if (r.start.line == r.end.line && r.start.char > r.end.char) {
-    final tmp = r.start.char;
-    r.start.char = r.end.char;
-    r.end.char = tmp;
+  if (r.p0.line > r.p1.line) {
+    final tmp = r.p0;
+    r.p0 = r.p1;
+    r.p1 = tmp;
+  } else if (r.p0.line == r.p1.line && r.p0.char > r.p1.char) {
+    final tmp = r.p0.char;
+    r.p0.char = r.p1.char;
+    r.p1.char = tmp;
   }
   return r;
 }
 
 void deleteRange(Range range) {
   Range r = normalizedRange(range);
-  if (r.start.line == r.end.line) {
-    lines[r.start.line] =
-        lines[r.start.line].replaceRange(r.start.char, r.end.char, '');
+  if (r.p0.line == r.p1.line) {
+    lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, '');
   } else {
-    lines[r.start.line] =
-        lines[r.start.line].replaceRange(r.start.char, null, '');
-    lines[r.end.line] = lines[r.end.line].replaceRange(0, r.end.char, '');
-    lines.removeRange(r.start.line + 1, r.end.line);
+    lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, '');
+    lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, '');
+    lines.removeRange(r.p0.line + 1, r.p1.line);
   }
 }
 
 void pendingActionDelete(Range range) {
   deleteRange(range);
-  cursor = range.start;
+  cursor = range.p0;
   cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
   if (lines[cursor.line].isEmpty) {
     lines.removeAt(cursor.line);
@@ -569,7 +561,7 @@ void pending(String str) {
   Motion? motion = motionActions[str];
   if (motion != null) {
     Position newPosition = motion.call(cursor);
-    currentPendingAction!.call(Range(start: cursor, end: newPosition));
+    currentPendingAction!.call(Range(p0: cursor, p1: newPosition));
     return;
   }
 }
