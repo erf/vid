@@ -625,6 +625,11 @@ void deleteCharPrev() {
   updateViewFromCursor();
 }
 
+void clampCursor() {
+  cursor.line = clamp(cursor.line, 0, lines.length - 1);
+  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
+}
+
 void actionDeleteCharNext() {
   // if empty file, do nothing
   if (lines.isEmpty) {
@@ -633,17 +638,17 @@ void actionDeleteCharNext() {
 
   // delete character at cursor position or remove line if empty
   String line = lines[cursor.line];
+
   if (line.isNotEmpty) {
     lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, '');
   }
-
-  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
 
   // if line is empty, remove it
   if (lines[cursor.line].isEmpty) {
     lines.removeAt(cursor.line);
   }
 
+  clampCursor();
   updateViewFromCursor();
 }
 
