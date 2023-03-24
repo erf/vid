@@ -512,7 +512,7 @@ void pendingActionChange(Range range) {
   mode = Mode.insert;
 }
 
-Range normalizeRange(Range range) {
+Range normalizedRange(Range range) {
   Range r = Range.from(range);
   if (r.start.line > r.end.line) {
     final tmp = r.start;
@@ -527,7 +527,7 @@ Range normalizeRange(Range range) {
 }
 
 void deleteRange(Range range) {
-  Range r = normalizeRange(range);
+  Range r = normalizedRange(range);
   if (r.start.line == r.end.line) {
     lines[r.start.line] =
         lines[r.start.line].replaceRange(r.start.char, r.end.char, '');
