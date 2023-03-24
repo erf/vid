@@ -97,7 +97,7 @@ Range objectCurrentLine(Position p) {
 
 void draw() {
   buf.clear();
-  buf.write(VT100.erase());
+  buf.write(VT100.erase);
 
   final lineStart = view.line;
   final lineEnd = view.line + term.height - 1;
@@ -155,8 +155,8 @@ void drawStatus() {
 }
 
 void actionQuit() {
-  buf.write(VT100.erase());
-  buf.write(VT100.reset());
+  buf.write(VT100.erase);
+  buf.write(VT100.reset);
   term.write(buf);
   buf.clear();
   term.rawMode = false;
