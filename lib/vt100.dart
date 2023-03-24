@@ -1,6 +1,5 @@
-// a static class to return VT100 escape codes
+// VT100 escape codes
 class VT100 {
-  // private constructor
   VT100._();
 
   // move cursor to x,y
