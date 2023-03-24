@@ -579,9 +579,12 @@ void pending(String str) {
   }
 }
 
+bool emptyFile() {
+  return lines.length == 1 && lines[0].isEmpty;
+}
+
 void deleteCharPrev() {
-  // if empty file, do nothing
-  if (lines.length == 1 && lines[0].isEmpty) {
+  if (emptyFile()) {
     return;
   }
 
@@ -589,14 +592,11 @@ void deleteCharPrev() {
   String line = lines[cursor.line];
   if (line.isNotEmpty) {
     lines[cursor.line] = line.replaceRange(cursor.char - 1, cursor.char, '');
+    cursor.char--;
   }
 
-  // if line is empty, remove it, unless it's the last line
-  if (lines[cursor.line].isEmpty && lines.length > 1) {
-    lines.removeAt(cursor.line);
-  }
+  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length);
 
-  clampCursor();
   updateViewFromCursor();
 }
 
@@ -605,8 +605,7 @@ String replaceCharAt(String line, int index, String char) {
 }
 
 void actionDeleteCharNext() {
-  // if empty file, do nothing
-  if (lines.length == 1 && lines[0].isEmpty) {
+  if (emptyFile()) {
     return;
   }
 
