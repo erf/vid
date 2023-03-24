@@ -512,13 +512,28 @@ void pendingActionChange(Range range) {
   mode = Mode.insert;
 }
 
-void deleteRange(Range r) {
+Range normalizeRange(Range range) {
+  Range r = Range.from(range);
+  if (r.start.line > r.end.line) {
+    final tmp = r.start;
+    r.start = r.end;
+    r.end = tmp;
+  } else if (r.start.line == r.end.line && r.start.char > r.end.char) {
+    final tmp = r.start.char;
+    r.start.char = r.end.char;
+    r.end.char = tmp;
+  }
+  return r;
+}
+
+void deleteRange(Range range) {
+  Range r = normalizeRange(range);
   if (r.start.line == r.end.line) {
     lines[r.start.line] =
         lines[r.start.line].replaceRange(r.start.char, r.end.char, '');
   } else {
     lines[r.start.line] =
-        lines[r.start.line].replaceRange(r.start.char, epos, '');
+        lines[r.start.line].replaceRange(r.start.char, null, '');
     lines[r.end.line] = lines[r.end.line].replaceRange(0, r.end.char, '');
     lines.removeRange(r.start.line + 1, r.end.line);
   }

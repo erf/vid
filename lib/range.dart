@@ -10,4 +10,11 @@ class Range {
     required this.start,
     required this.end,
   });
+
+  static Range from(Range range) {
+    return Range(
+      start: Position.from(range.start),
+      end: Position.from(range.end),
+    );
+  }
 }
