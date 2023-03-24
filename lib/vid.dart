@@ -11,8 +11,6 @@ import 'vt100.dart';
 
 enum Mode { normal, pending, insert, replace }
 
-const epos = -1;
-
 final term = Terminal();
 final buf = StringBuffer();
 
@@ -495,9 +493,6 @@ void deleteWord() {
   int start = cursor.char;
   Position newPos = motionWordNext(cursor);
   int end = newPos.char;
-  if (end == epos) {
-    return;
-  }
   if (start > end) {
     start = end;
     end = cursor.char;
