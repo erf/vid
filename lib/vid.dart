@@ -595,7 +595,7 @@ void deleteLine() {
     return;
   }
   lines.removeAt(cursor.line);
-  cursor.line = clamp(cursor.line, 0, lines.length - 1);
+  clampCursor();
   updateViewFromCursor();
 }
 
@@ -654,6 +654,7 @@ void resize(ProcessSignal signal) {
 
 void loadFile(args) {
   if (args.isEmpty) {
+    // always have at least one line with empty string to avoid index out of bounds
     lines = [""];
     return;
   }
@@ -661,6 +662,9 @@ void loadFile(args) {
   final file = File(filename!);
   if (file.existsSync()) {
     lines = file.readAsLinesSync();
+    if (lines.isEmpty) {
+      lines = [""];
+    }
   }
 }
 
