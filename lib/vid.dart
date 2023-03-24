@@ -590,20 +590,6 @@ void pending(String str) {
   }
 }
 
-void deleteLine() {
-  if (lines.isEmpty) {
-    return;
-  }
-  lines.removeAt(cursor.line);
-  clampCursor();
-  updateViewFromCursor();
-}
-
-void cursorLineBegin() {
-  cursor = Position();
-  view = Position();
-}
-
 void deleteCharPrev() {
   // if empty file, do nothing
   if (lines.isEmpty) {
