@@ -527,6 +527,7 @@ void deleteRange(Range r) {
 void pendingActionDelete(Range range) {
   deleteRange(range);
   cursor = range.start;
+  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
   if (lines[cursor.line].isEmpty) {
     lines.removeAt(cursor.line);
     cursor.line = clamp(cursor.line, 0, lines.length - 1);
