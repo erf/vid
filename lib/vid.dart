@@ -9,7 +9,7 @@ import 'vt100.dart';
 
 // https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
-enum Mode { normal, pending, insert }
+enum Mode { normal, pending, insert, replace }
 
 const epos = -1;
 
@@ -57,6 +57,7 @@ final normalActions = <String, Action>{
   'o': actionOpenLineBelow,
   'O': actionOpenLineAbove,
   'G': actionCursorLineBottom,
+  'r': actionReplaceMode,
 };
 
 final pendingActions = <String, PendingAction>{
@@ -230,7 +231,7 @@ void insert(String str) {
   if (lines.isEmpty) {
     lines.add('');
   }
-  var line = lines[cursor.line];
+  String line = lines[cursor.line];
   if (line.isEmpty) {
     lines[cursor.line] = str;
   } else {
@@ -238,6 +239,21 @@ void insert(String str) {
   }
   cursor.char++;
   updateViewFromCursor();
+}
+
+void replace(String str) {
+  mode = Mode.normal;
+  if (lines.isEmpty || cursor.line >= lines.length) {
+    return;
+  }
+  String line = lines[cursor.line];
+  if (line.isEmpty) {
+    return;
+  }
+  if (cursor.char >= line.length) {
+    return;
+  }
+  lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, str);
 }
 
 void updateCursorFromLines() {
@@ -383,7 +399,7 @@ void actionCursorLineDown() {
 
 void actionSave() {
   if (filename == null) {
-    showMessage('No filename');
+    showMessage('Error: No filename');
     return;
   }
   final file = File(filename!);
@@ -468,6 +484,9 @@ void input(List<int> codes) {
     case Mode.pending:
       pending(str);
       break;
+    case Mode.replace:
+      replace(str);
+      break;
   }
   draw();
 }
@@ -494,16 +513,20 @@ void normal(String str) {
     imAction.call();
     return;
   }
-  Function? pendingAction = pendingActions[str];
-  if (pendingAction != null) {
+  Function? pdAction = pendingActions[str];
+  if (pdAction != null) {
     mode = Mode.pending;
-    currentPendingAction = pendingAction;
+    currentPendingAction = pdAction;
   }
 }
 
 void pendingActionChange(Range range) {
   pendingActionDelete(range);
   mode = Mode.insert;
+}
+
+void actionReplaceMode() {
+  mode = Mode.replace;
 }
 
 Range normalizedRange(Range range) {
