@@ -587,21 +587,18 @@ void deleteCharPrev() {
   if (emptyFile()) {
     return;
   }
-
-  // delete character at cursor position or remove line if empty
-  String line = lines[cursor.line];
-  if (line.isNotEmpty) {
-    lines[cursor.line] = line.replaceRange(cursor.char - 1, cursor.char, '');
-    cursor.char--;
-  }
-
-  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length);
+  lines[cursor.line] = deleteCharAt(lines[cursor.line], cursor.char - 1);
+  cursor.char = max(0, cursor.char - 1);
 
   updateViewFromCursor();
 }
 
 String replaceCharAt(String line, int index, String char) {
   return line.replaceRange(index, index + 1, char);
+}
+
+String deleteCharAt(String line, int index) {
+  return replaceCharAt(line, index, '');
 }
 
 void actionDeleteCharNext() {
@@ -613,7 +610,7 @@ void actionDeleteCharNext() {
   String line = lines[cursor.line];
 
   if (line.isNotEmpty) {
-    lines[cursor.line] = replaceCharAt(line, cursor.char, '');
+    lines[cursor.line] = deleteCharAt(line, cursor.char);
   }
 
   // if line is empty, remove it, unless it's the last line
