@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:js_util';
 import 'dart:math';
 
 import 'position.dart';
