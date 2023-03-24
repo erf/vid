@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:js_util';
 import 'dart:math';
 
 import 'position.dart';
@@ -203,7 +204,7 @@ void enter() {
 
 void escape() {
   mode = Mode.normal;
-  updateCursorFromLines();
+  clampCursor();
 }
 
 void backspace() {
@@ -254,7 +255,8 @@ void replace(String str) {
   lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, str);
 }
 
-void updateCursorFromLines() {
+// clamp cursor position to valid range
+void clampCursor() {
   if (lines.isEmpty) {
     cursor.line = 0;
     cursor.char = 0;
@@ -623,11 +625,6 @@ void deleteCharPrev() {
   }
 
   updateViewFromCursor();
-}
-
-void clampCursor() {
-  cursor.line = clamp(cursor.line, 0, lines.length - 1);
-  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
 }
 
 void actionDeleteCharNext() {
