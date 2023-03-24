@@ -95,6 +95,7 @@ Range objectCurrentLine(Position p) {
 }
 
 void draw() {
+  buf.clear();
   buf.write(VT100.erase());
 
   final lineStart = view.line;
@@ -132,7 +133,6 @@ void draw() {
   buf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
 
   term.write(buf);
-  buf.clear();
 }
 
 void drawStatus() {
@@ -533,8 +533,13 @@ void deleteRange(Range range) {
 
 void pendingActionDelete(Range range) {
   deleteRange(range);
-  cursor = range.p0;
+  if (range.p0.char <= range.p1.char) {
+    cursor.char = range.p0.char;
+  } else {
+    cursor.char = range.p1.char;
+  }
   cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
+
   if (lines[cursor.line].isEmpty) {
     lines.removeAt(cursor.line);
     cursor.line = clamp(cursor.line, 0, lines.length - 1);
