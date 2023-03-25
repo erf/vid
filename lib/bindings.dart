@@ -24,6 +24,7 @@ final normalActions = <String, Action>{
   'O': actionOpenLineAbove,
   'G': actionCursorLineBottom,
   'r': actionReplaceMode,
+  'D': actionDeleteLineEnd,
 };
 
 final pendingActions = <String, PendingAction>{
