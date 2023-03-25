@@ -1,6 +1,6 @@
 import 'file_buffer.dart';
 import 'range.dart';
-import 'text.dart';
+import 'text_utils.dart';
 import 'vid.dart';
 
 typedef PendingAction = void Function(Range);
@@ -24,6 +24,10 @@ void pendingActionDelete(Range range) {
     cursor.char = range.p0.char;
   } else {
     cursor.char = range.p1.char;
+  }
+
+  if (lines.isEmpty) {
+    lines.add('');
   }
 
   clampCursor();

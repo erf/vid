@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'actions_motion.dart';
 import 'file_buffer.dart';
-import 'text.dart';
+import 'text_utils.dart';
 import 'vid.dart';
 
 typedef InsertAction = void Function();

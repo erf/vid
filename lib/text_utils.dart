@@ -1,6 +1,15 @@
+import 'dart:math';
+
 import 'file_buffer.dart';
 import 'range.dart';
-import 'utils.dart';
+
+int clamp(int value, int val0, int val1) {
+  if (val0 > val1) {
+    return clamp(value, val1, val0);
+  } else {
+    return min(max(value, val0), val1);
+  }
+}
 
 Range normalizedRange(Range range) {
   Range r = Range.from(range);

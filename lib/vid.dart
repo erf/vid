@@ -10,18 +10,18 @@ import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
-import 'utils.dart';
+import 'text_utils.dart';
 import 'vt100.dart';
 
 // https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
 final term = Terminal();
-final buf = StringBuffer();
+final rbuf = StringBuffer();
 String msg = '';
 
 void draw() {
-  buf.clear();
-  buf.write(VT100.erase);
+  rbuf.clear();
+  rbuf.write(VT100.erase);
 
   final lineStart = view.line;
   final lineEnd = view.line + term.height - 1;
@@ -29,7 +29,7 @@ void draw() {
   // draw lines
   for (int l = lineStart; l < lineEnd; l++) {
     if (l > lines.length - 1) {
-      buf.writeln('~');
+      rbuf.writeln('~');
       continue;
     }
     var line = lines[l];
@@ -41,9 +41,9 @@ void draw() {
       }
     }
     if (line.length < term.width) {
-      buf.writeln(line);
+      rbuf.writeln(line);
     } else {
-      buf.writeln(line.substring(0, term.width - 1));
+      rbuf.writeln(line.substring(0, term.width - 1));
     }
   }
 
@@ -55,14 +55,14 @@ void draw() {
     line: cursor.line - view.line + 1,
     char: cursor.char - view.char + 1,
   );
-  buf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
+  rbuf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
 
-  term.write(buf);
+  term.write(rbuf);
 }
 
 void drawStatus() {
-  buf.write(VT100.invert(true));
-  buf.write(VT100.cursorPosition(x: 1, y: term.height));
+  rbuf.write(VT100.invert(true));
+  rbuf.write(VT100.cursorPosition(x: 1, y: term.height));
   final String modeStr;
   if (mode == Mode.normal) {
     modeStr = '';
@@ -74,8 +74,8 @@ void drawStatus() {
   final fileStr = filename ?? '[No Name]';
   final status =
       ' $modeStr$fileStr $msg${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - msg.length - 3)} ';
-  buf.write(status);
-  buf.write(VT100.invert(false));
+  rbuf.write(status);
+  rbuf.write(VT100.invert(false));
 }
 
 void showMessage(String message) {

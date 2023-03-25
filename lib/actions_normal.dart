@@ -4,7 +4,7 @@ import 'actions_motion.dart';
 import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
-import 'text.dart';
+import 'text_utils.dart';
 import 'vid.dart';
 import 'vt100.dart';
 
@@ -35,10 +35,10 @@ final normalActions = <String, NormalAction>{
 };
 
 void actionQuit() {
-  buf.write(VT100.erase);
-  buf.write(VT100.reset);
-  term.write(buf);
-  buf.clear();
+  rbuf.write(VT100.erase);
+  rbuf.write(VT100.reset);
+  term.write(rbuf);
+  rbuf.clear();
   term.rawMode = false;
   exit(0);
 }
