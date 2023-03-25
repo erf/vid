@@ -2,9 +2,15 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'actions.dart';
+import 'bindings.dart';
+import 'motions.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
+import 'text.dart';
+import 'text_objects.dart';
+import 'utils.dart';
 import 'vt100.dart';
 
 // https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
@@ -21,77 +27,6 @@ var view = Position();
 var mode = Mode.normal;
 var msg = '';
 Function? currentPendingAction;
-
-int clamp(int value, int val0, int val1) {
-  if (val0 > val1) {
-    return clamp(value, val1, val0);
-  } else {
-    return min(max(value, val0), val1);
-  }
-}
-
-typedef Action = void Function();
-typedef PendingAction = void Function(Range);
-typedef Motion = Position Function(Position);
-typedef TextObject = Range Function(Position);
-
-final normalActions = <String, Action>{
-  'q': actionQuit,
-  's': actionSave,
-  'j': actionCursorLineDown,
-  'k': actionCursorLineUp,
-  'h': actionCursorCharPrev,
-  'l': actionCursorCharNext,
-  'w': actionCursorWordNext,
-  'b': actionCursorWordPrev,
-  'e': actionCursorWordEnd,
-  'x': actionDeleteCharNext,
-  '0': actionCursorLineStart,
-  '\$': actionCursorLineEnd,
-  'i': actionInsert,
-  'a': actionAppendCharNext,
-  'A': actionAppendLineEnd,
-  'I': actionInsertLineStart,
-  'o': actionOpenLineBelow,
-  'O': actionOpenLineAbove,
-  'G': actionCursorLineBottom,
-  'r': actionReplaceMode,
-};
-
-final pendingActions = <String, PendingAction>{
-  'c': pendingActionChange,
-  'd': pendingActionDelete,
-  'g': pendingActionGo,
-};
-
-final motionActions = <String, Motion>{
-  'j': motionLineDown,
-  'k': motionLineUp,
-  'h': motionCharPrev,
-  'l': motionCharNext,
-  'g': motionFirstLine,
-  'G': motionBottomLine,
-  'w': motionWordNext,
-  'b': motionWordPrev,
-  'e': motionWordEnd,
-  '0': motionLineStart,
-  '\$': motionLineEnd,
-};
-
-final textObjects = <String, TextObject>{
-  'd': objectCurrentLine,
-};
-
-Position motionFirstLine(Position p) {
-  return Position(line: 0, char: 0);
-}
-
-Range objectCurrentLine(Position p) {
-  return Range(
-    p0: Position(line: p.line, char: 0),
-    p1: Position(line: p.line, char: lines[p.line].length),
-  );
-}
 
 void draw() {
   buf.clear();
@@ -150,15 +85,6 @@ void drawStatus() {
       ' $modeStr$fileStr $msg${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - msg.length - 3)} ';
   buf.write(status);
   buf.write(VT100.invert(false));
-}
-
-void actionQuit() {
-  buf.write(VT100.erase);
-  buf.write(VT100.reset);
-  term.write(buf);
-  buf.clear();
-  term.rawMode = false;
-  exit(0);
 }
 
 void showMessage(String message) {
@@ -260,206 +186,6 @@ void updateViewFromCursor() {
   view.char = clamp(view.char, cursor.char, cursor.char - term.width + 2);
 }
 
-Position motionCharNext(Position p) {
-  return Position(
-    line: p.line,
-    char: clamp(p.char + 1, 0, lines[p.line].length - 1),
-  );
-}
-
-void actionCursorCharNext() {
-  cursor = motionCharNext(cursor);
-  updateViewFromCursor();
-}
-
-Position motionCharPrev(Position p) {
-  return Position(line: p.line, char: max(0, p.char - 1));
-}
-
-void actionCursorCharPrev() {
-  cursor = motionCharPrev(cursor);
-  updateViewFromCursor();
-}
-
-void setPendingMode() {
-  mode = Mode.pending;
-}
-
-Position motionBottomLine(Position position) {
-  return Position(
-    line: max(0, lines.length - 1),
-    char: 0,
-  );
-}
-
-void actionCursorLineBottom() {
-  cursor = motionBottomLine(cursor);
-  updateViewFromCursor();
-}
-
-void pendingActionGo(Range range) {
-  mode = Mode.normal;
-  cursor.char = range.p1.char;
-  cursor.line = range.p1.line;
-}
-
-void actionOpenLineAbove() {
-  mode = Mode.insert;
-  lines.insert(cursor.line, '');
-  cursor.char = 0;
-  updateViewFromCursor();
-}
-
-void actionOpenLineBelow() {
-  mode = Mode.insert;
-  if (cursor.line + 1 >= lines.length) {
-    lines.add('');
-  } else {
-    lines.insert(cursor.line + 1, '');
-  }
-  actionCursorLineDown();
-}
-
-void actionInsert() {
-  mode = Mode.insert;
-}
-
-void actionInsertLineStart() {
-  mode = Mode.insert;
-  cursor.char = 0;
-}
-
-void actionAppendLineEnd() {
-  mode = Mode.insert;
-  if (lines.isNotEmpty && lines[cursor.line].isNotEmpty) {
-    cursor.char = lines[cursor.line].length;
-  }
-}
-
-void actionAppendCharNext() {
-  mode = Mode.insert;
-  if (lines.isNotEmpty && lines[cursor.line].isNotEmpty) {
-    cursor.char++;
-  }
-}
-
-Position motionLineEnd(Position p) {
-  return Position(line: p.line, char: lines[p.line].length - 1);
-}
-
-void actionCursorLineEnd() {
-  if (lines.isEmpty) return;
-  cursor = motionLineEnd(cursor);
-  updateViewFromCursor();
-}
-
-Position motionLineStart(Position p) {
-  return Position(line: p.line, char: 0);
-}
-
-void actionCursorLineStart() {
-  cursor = motionLineStart(cursor);
-  view.char = 0;
-  updateViewFromCursor();
-}
-
-Position motionLineUp(Position p) {
-  final line = clamp(p.line - 1, 0, lines.length - 1);
-  final char = clamp(p.char, 0, lines[line].length - 1);
-  return Position(line: line, char: char);
-}
-
-void actionCursorLineUp() {
-  cursor = motionLineUp(cursor);
-  updateViewFromCursor();
-}
-
-Position motionLineDown(Position p) {
-  final line = clamp(p.line + 1, 0, lines.length - 1);
-  final char = clamp(p.char, 0, lines[line].length - 1);
-  return Position(line: line, char: char);
-}
-
-void actionCursorLineDown() {
-  cursor = motionLineDown(cursor);
-  updateViewFromCursor();
-}
-
-void actionSave() {
-  if (filename == null) {
-    showMessage('Error: No filename');
-    return;
-  }
-  final file = File(filename!);
-  final sink = file.openWrite();
-  for (var line in lines) {
-    sink.writeln(line);
-  }
-  sink.close();
-  showMessage('Saved');
-}
-
-Position motionWordNext(Position p) {
-  int start = p.char;
-  final line = lines[p.line];
-  final matches = RegExp(r'\S+').allMatches(line);
-  if (matches.isEmpty) {
-    return p;
-  }
-  for (var match in matches) {
-    if (match.start > start) {
-      return Position(char: match.start, line: p.line);
-    }
-  }
-  return Position(char: matches.last.end, line: p.line);
-}
-
-Position motionWordEnd(Position p) {
-  final start = p.char;
-  final line = lines[p.line];
-  final matches = RegExp(r'\S+').allMatches(line);
-  if (matches.isEmpty) {
-    return Position(line: p.line, char: start);
-  }
-  for (var match in matches) {
-    if (match.end - 1 > start) {
-      return Position(line: p.line, char: match.end - 1);
-    }
-  }
-  return Position(line: p.line, char: matches.last.end);
-}
-
-Position motionWordPrev(Position p) {
-  final start = p.char;
-  final line = lines[p.line];
-  final matches = RegExp(r'\S+').allMatches(line);
-  if (matches.isEmpty) {
-    return Position(char: start, line: p.line);
-  }
-  final reversed = matches.toList().reversed;
-  for (var match in reversed) {
-    if (match.start < start) {
-      return Position(char: match.start, line: p.line);
-    }
-  }
-  return Position(char: matches.first.start, line: p.line);
-}
-
-void actionCursorWordNext() {
-  cursor = motionWordNext(cursor);
-  updateViewFromCursor();
-}
-
-void actionCursorWordEnd() {
-  cursor = motionWordEnd(cursor);
-  updateViewFromCursor();
-}
-
-void actionCursorWordPrev() {
-  cursor = motionWordPrev(cursor);
-  updateViewFromCursor();
-}
-
 void input(List<int> codes) {
   final str = String.fromCharCodes(codes);
   switch (mode) {
@@ -479,19 +205,6 @@ void input(List<int> codes) {
   draw();
 }
 
-void deleteWord() {
-  int start = cursor.char;
-  Position newPos = motionWordNext(cursor);
-  int end = newPos.char;
-  if (start > end) {
-    start = end;
-    end = cursor.char;
-  }
-  lines[cursor.line] = lines[cursor.line].replaceRange(start, end, '');
-  cursor.char = start;
-  updateViewFromCursor();
-}
-
 void normal(String str) {
   Function? imAction = normalActions[str];
   if (imAction != null) {
@@ -503,60 +216,6 @@ void normal(String str) {
     mode = Mode.pending;
     currentPendingAction = pdAction;
   }
-}
-
-void pendingActionChange(Range range) {
-  pendingActionDelete(range);
-  mode = Mode.insert;
-}
-
-void actionReplaceMode() {
-  mode = Mode.replace;
-}
-
-Range normalizedRange(Range range) {
-  Range r = Range.from(range);
-  if (r.p0.line > r.p1.line) {
-    final tmp = r.p0;
-    r.p0 = r.p1;
-    r.p1 = tmp;
-  } else if (r.p0.line == r.p1.line && r.p0.char > r.p1.char) {
-    final tmp = r.p0.char;
-    r.p0.char = r.p1.char;
-    r.p1.char = tmp;
-  }
-  return r;
-}
-
-void deleteRange(Range range) {
-  Range r = normalizedRange(range);
-  if (r.p0.line == r.p1.line) {
-    lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, '');
-  } else {
-    lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, '');
-    lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, '');
-    lines.removeRange(r.p0.line + 1, r.p1.line);
-  }
-}
-
-void pendingActionDelete(Range range) {
-  deleteRange(range);
-
-  // move cursor to the start of the range depending on the direction
-  if (range.p0.char <= range.p1.char) {
-    cursor.char = range.p0.char;
-  } else {
-    cursor.char = range.p1.char;
-  }
-
-  // if the line is empty, delete it, unless it's the last line
-  if (lines[cursor.line].isEmpty && lines.length > 1) {
-    lines.removeAt(cursor.line);
-  }
-
-  clampCursor();
-  updateViewFromCursor();
-  mode = Mode.normal;
 }
 
 void pending(String str) {
@@ -590,35 +249,6 @@ void deleteCharPrev() {
   lines[cursor.line] = deleteCharAt(lines[cursor.line], cursor.char - 1);
   cursor.char = max(0, cursor.char - 1);
 
-  updateViewFromCursor();
-}
-
-String replaceCharAt(String line, int index, String char) {
-  return line.replaceRange(index, index + 1, char);
-}
-
-String deleteCharAt(String line, int index) {
-  return replaceCharAt(line, index, '');
-}
-
-void actionDeleteCharNext() {
-  if (emptyFile()) {
-    return;
-  }
-
-  // delete character at cursor position or remove line if empty
-  String line = lines[cursor.line];
-
-  if (line.isNotEmpty) {
-    lines[cursor.line] = deleteCharAt(line, cursor.char);
-  }
-
-  // if line is empty, remove it, unless it's the last line
-  if (lines[cursor.line].isEmpty && lines.length > 1) {
-    lines.removeAt(cursor.line);
-  }
-
-  clampCursor();
   updateViewFromCursor();
 }
 
