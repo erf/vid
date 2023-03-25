@@ -20,11 +20,6 @@ void pendingActionDelete(Range range) {
     cursor.char = range.p1.char;
   }
 
-  // if the line is empty, delete it, unless it's the last line
-  if (lines[cursor.line].isEmpty && lines.length > 1) {
-    lines.removeAt(cursor.line);
-  }
-
   clampCursor();
   updateViewFromCursor();
   mode = Mode.normal;

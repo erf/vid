@@ -23,6 +23,9 @@ void deleteRange(Range range) {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, '');
     lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, '');
     lines.removeRange(r.p0.line + 1, r.p1.line);
+    if (lines.first.isEmpty) {
+      lines.removeAt(0);
+    }
   }
 }
 
