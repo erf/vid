@@ -41,3 +41,7 @@ String replaceCharAt(String line, int index, String char) {
 String deleteCharAt(String line, int index) {
   return replaceCharAt(line, index, '');
 }
+
+bool emptyFile() {
+  return lines.length == 1 && lines[0].isEmpty;
+}

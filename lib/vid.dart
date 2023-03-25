@@ -230,10 +230,6 @@ void pending(String str) {
   }
 }
 
-bool emptyFile() {
-  return lines.length == 1 && lines[0].isEmpty;
-}
-
 void deleteCharPrev() {
   if (emptyFile()) {
     return;
