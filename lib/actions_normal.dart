@@ -1,15 +1,38 @@
 import 'dart:io';
 
-import 'package:vid/position.dart';
-
-import 'file_buffer.dart';
 import 'actions_motion.dart';
+import 'file_buffer.dart';
+import 'position.dart';
 import 'range.dart';
 import 'text.dart';
 import 'vid.dart';
 import 'vt100.dart';
 
-typedef Action = void Function();
+typedef NormalAction = void Function();
+
+final normalActions = <String, NormalAction>{
+  'q': actionQuit,
+  's': actionSave,
+  'j': actionCursorLineDown,
+  'k': actionCursorLineUp,
+  'h': actionCursorCharPrev,
+  'l': actionCursorCharNext,
+  'w': actionCursorWordNext,
+  'b': actionCursorWordPrev,
+  'e': actionCursorWordEnd,
+  'x': actionDeleteCharNext,
+  '0': actionCursorLineStart,
+  '\$': actionCursorLineEnd,
+  'i': actionInsert,
+  'a': actionAppendCharNext,
+  'A': actionAppendLineEnd,
+  'I': actionInsertLineStart,
+  'o': actionOpenLineBelow,
+  'O': actionOpenLineAbove,
+  'G': actionCursorLineBottom,
+  'r': actionReplaceMode,
+  'D': actionDeleteLineEnd,
+};
 
 void actionQuit() {
   buf.write(VT100.erase);

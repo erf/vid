@@ -1,9 +1,12 @@
-
 import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
 
 typedef TextObject = Range Function(Position);
+
+final textObjects = <String, TextObject>{
+  'd': objectCurrentLine,
+};
 
 Range objectCurrentLine(Position p) {
   return Range(

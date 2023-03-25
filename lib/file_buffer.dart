@@ -13,4 +13,4 @@ Position view = Position();
 
 Mode mode = Mode.normal;
 
-Function? pendingAction;
+Function? currentPending;

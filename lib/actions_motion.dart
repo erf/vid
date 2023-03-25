@@ -6,6 +6,20 @@ import 'utils.dart';
 
 typedef Motion = Position Function(Position);
 
+final motionActions = <String, Motion>{
+  'j': motionLineDown,
+  'k': motionLineUp,
+  'h': motionCharPrev,
+  'l': motionCharNext,
+  'g': motionFirstLine,
+  'G': motionBottomLine,
+  'w': motionWordNext,
+  'b': motionWordPrev,
+  'e': motionWordEnd,
+  '0': motionLineStart,
+  '\$': motionLineEnd,
+};
+
 Position motionCharNext(Position p) {
   return Position(
     line: p.line,

@@ -5,6 +5,12 @@ import 'vid.dart';
 
 typedef PendingAction = void Function(Range);
 
+final pendingActions = <String, PendingAction>{
+  'c': pendingActionChange,
+  'd': pendingActionDelete,
+  'g': pendingActionGo,
+};
+
 void pendingActionChange(Range range) {
   pendingActionDelete(range);
   mode = Mode.insert;

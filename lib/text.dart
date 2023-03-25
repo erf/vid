@@ -1,5 +1,6 @@
 import 'file_buffer.dart';
 import 'range.dart';
+import 'utils.dart';
 
 Range normalizedRange(Range range) {
   Range r = Range.from(range);
@@ -44,4 +45,10 @@ String deleteCharAt(String line, int index) {
 
 bool emptyFile() {
   return lines.length == 1 && lines[0].isEmpty;
+}
+
+// clamp cursor position to valid range
+void clampCursor() {
+  cursor.line = clamp(cursor.line, 0, lines.length - 1);
+  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
 }

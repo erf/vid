@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
+import 'actions_insert.dart';
 import 'actions_motion.dart';
-import 'actions_normal.dart';
+import 'actions_pending.dart';
 import 'actions_text_objects.dart';
-import 'bindings.dart';
+import 'actions_normal.dart';
 import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
-import 'text.dart';
 import 'utils.dart';
 import 'vt100.dart';
 
@@ -88,65 +87,13 @@ void showMessage(String message) {
   });
 }
 
-bool checkControlChars(String str) {
-  // escape
-  if (str == '\x1b') {
-    escape();
-    return true;
-  }
-
-  // backspace
-  if (str == '\x7f') {
-    backspace();
-    return true;
-  }
-
-  // enter
-  if (str == '\n') {
-    enter();
-    return true;
-  }
-
-  return false;
-}
-
-void enter() {
-  final lineAfterCursor = lines[cursor.line].substring(cursor.char);
-  lines[cursor.line] = lines[cursor.line].substring(0, cursor.char);
-  lines.insert(cursor.line + 1, lineAfterCursor);
-  cursor.char = 0;
-  view.char = 0;
-  actionCursorLineDown();
-}
-
-void escape() {
-  mode = Mode.normal;
-  clampCursor();
-}
-
-void joinLines() {
-  if (lines.length > 1 && cursor.line > 0) {
-    final aboveLen = lines[cursor.line - 1].length;
-    lines[cursor.line - 1] += lines[cursor.line];
-    lines.removeAt(cursor.line);
-    --cursor.line;
-    cursor.char = aboveLen;
-    updateViewFromCursor();
-  }
-}
-
-void backspace() {
-  if (cursor.char == 0) {
-    joinLines();
-  } else {
-    deleteCharPrev();
-  }
-}
-
 void insert(String str) {
-  if (checkControlChars(str)) {
+  InsertAction? insertAction = insertActions[str];
+  if (insertAction != null) {
+    insertAction();
     return;
   }
+
   String line = lines[cursor.line];
   if (line.isEmpty) {
     lines[cursor.line] = str;
@@ -166,13 +113,7 @@ void replace(String str) {
   lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, str);
 }
 
-// clamp cursor position to valid range
-void clampCursor() {
-  cursor.line = clamp(cursor.line, 0, lines.length - 1);
-  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
-}
-
-// clamp view on cursor position (could add padding)
+// clamp view on cursor position
 void updateViewFromCursor() {
   view.line = clamp(view.line, cursor.line, cursor.line - term.height + 2);
   view.char = clamp(view.char, cursor.char, cursor.char - term.width + 2);
@@ -198,46 +139,36 @@ void input(List<int> codes) {
 }
 
 void normal(String str) {
-  Function? imAction = normalActions[str];
-  if (imAction != null) {
-    imAction.call();
+  NormalAction? action = normalActions[str];
+  if (action != null) {
+    action.call();
     return;
   }
-  Function? pdAction = pendingActions[str];
-  if (pdAction != null) {
+  PendingAction? pending = pendingActions[str];
+  if (pending != null) {
     mode = Mode.pending;
-    pendingAction = pdAction;
+    currentPending = pending;
   }
 }
 
 void pending(String str) {
-  if (pendingAction == null) {
+  if (currentPending == null) {
     return;
   }
 
   TextObject? textObject = textObjects[str];
   if (textObject != null) {
     Range range = textObject.call(cursor);
-    pendingAction!.call(range);
+    currentPending!.call(range);
     return;
   }
 
   Motion? motion = motionActions[str];
   if (motion != null) {
     Position newPosition = motion.call(cursor);
-    pendingAction!.call(Range(p0: cursor, p1: newPosition));
+    currentPending!.call(Range(p0: cursor, p1: newPosition));
     return;
   }
-}
-
-void deleteCharPrev() {
-  if (emptyFile()) {
-    return;
-  }
-  lines[cursor.line] = deleteCharAt(lines[cursor.line], cursor.char - 1);
-  cursor.char = max(0, cursor.char - 1);
-
-  updateViewFromCursor();
 }
 
 void resize(ProcessSignal signal) {
