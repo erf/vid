@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:vid/position.dart';
 
 import 'file_buffer.dart';
-import 'motions.dart';
+import 'actions_motion.dart';
 import 'range.dart';
 import 'text.dart';
 import 'vid.dart';

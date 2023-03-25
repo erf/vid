@@ -1,7 +1,7 @@
-import 'actions.dart';
-import 'motions.dart';
-import 'pending.dart';
-import 'text_objects.dart';
+import 'actions_motion.dart';
+import 'actions_normal.dart';
+import 'actions_pending.dart';
+import 'actions_text_objects.dart';
 
 final normalActions = <String, Action>{
   'q': actionQuit,

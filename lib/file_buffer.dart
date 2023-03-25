@@ -4,12 +4,13 @@ enum Mode { normal, pending, insert, replace }
 
 String? filename;
 
-var lines = [""]; // always have at least one line with one empty string
+// always have at least one line with one empty string
+List<String> lines = [""];
 
-var cursor = Position();
+Position cursor = Position();
 
-var view = Position();
+Position view = Position();
 
-var mode = Mode.normal;
+Mode mode = Mode.normal;
 
-Function? currentPendingAction;
+Function? pendingAction;

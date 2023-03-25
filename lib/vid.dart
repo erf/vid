@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'actions.dart';
+import 'actions_motion.dart';
+import 'actions_normal.dart';
+import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'file_buffer.dart';
-import 'motions.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
 import 'text.dart';
-import 'text_objects.dart';
 import 'utils.dart';
 import 'vt100.dart';
 
@@ -206,26 +206,26 @@ void normal(String str) {
   Function? pdAction = pendingActions[str];
   if (pdAction != null) {
     mode = Mode.pending;
-    currentPendingAction = pdAction;
+    pendingAction = pdAction;
   }
 }
 
 void pending(String str) {
-  if (currentPendingAction == null) {
+  if (pendingAction == null) {
     return;
   }
 
   TextObject? textObject = textObjects[str];
   if (textObject != null) {
     Range range = textObject.call(cursor);
-    currentPendingAction!.call(range);
+    pendingAction!.call(range);
     return;
   }
 
   Motion? motion = motionActions[str];
   if (motion != null) {
     Position newPosition = motion.call(cursor);
-    currentPendingAction!.call(Range(p0: cursor, p1: newPosition));
+    pendingAction!.call(Range(p0: cursor, p1: newPosition));
     return;
   }
 }
