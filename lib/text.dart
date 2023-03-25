@@ -17,14 +17,19 @@ Range normalizedRange(Range range) {
 
 void deleteRange(Range range) {
   Range r = normalizedRange(range);
+
+  // delete the range
   if (r.p0.line == r.p1.line) {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, '');
   } else {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, '');
     lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, '');
-    lines.removeRange(r.p0.line + 1, r.p1.line);
-    if (lines.first.isEmpty) {
-      lines.removeAt(0);
+  }
+
+  // iterate and delete empty lines in the range
+  for (int i = r.p0.line; i <= r.p1.line; i++) {
+    if (lines[i].isEmpty) {
+      lines.removeAt(i);
     }
   }
 }
