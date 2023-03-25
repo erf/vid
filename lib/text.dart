@@ -1,5 +1,5 @@
+import 'file_buffer.dart';
 import 'range.dart';
-import 'vid.dart';
 
 Range normalizedRange(Range range) {
   Range r = Range.from(range);

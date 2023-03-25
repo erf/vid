@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'actions.dart';
 import 'bindings.dart';
+import 'file_buffer.dart';
 import 'motions.dart';
 import 'position.dart';
 import 'range.dart';
@@ -15,18 +16,9 @@ import 'vt100.dart';
 
 // https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
-enum Mode { normal, pending, insert, replace }
-
 final term = Terminal();
 final buf = StringBuffer();
-
-String? filename;
-var lines = [""]; // always have at least one line with one empty string
-var cursor = Position();
-var view = Position();
-var mode = Mode.normal;
-var msg = '';
-Function? currentPendingAction;
+String msg = '';
 
 void draw() {
   buf.clear();
