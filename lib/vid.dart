@@ -100,7 +100,6 @@ void insert(String str) {
     lines[cursor.line] = line.replaceRange(cursor.char, cursor.char, str);
   }
   cursor.char++;
-  updateViewFromCursor();
 }
 
 void replace(String str) {
@@ -134,6 +133,7 @@ void input(List<int> codes) {
       replace(str);
       break;
   }
+  updateViewFromCursor();
   draw();
 }
 

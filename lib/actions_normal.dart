@@ -58,24 +58,20 @@ void actionSave() {
 
 void actionCursorCharNext() {
   cursor = motionCharNext(cursor);
-  updateViewFromCursor();
 }
 
 void actionCursorCharPrev() {
   cursor = motionCharPrev(cursor);
-  updateViewFromCursor();
 }
 
 void actionCursorLineBottom() {
   cursor = motionLastLine(cursor);
-  updateViewFromCursor();
 }
 
 void actionOpenLineAbove() {
   mode = Mode.insert;
   lines.insert(cursor.line, '');
   cursor.char = 0;
-  updateViewFromCursor();
 }
 
 void actionOpenLineBelow() {
@@ -114,38 +110,31 @@ void actionAppendCharNext() {
 void actionCursorLineEnd() {
   if (lines.isEmpty) return;
   cursor = motionLineEnd(cursor);
-  updateViewFromCursor();
 }
 
 void actionCursorLineStart() {
   cursor = motionLineStart(cursor);
   view.char = 0;
-  updateViewFromCursor();
 }
 
 void actionCursorCharUp() {
   cursor = motionCharUp(cursor);
-  updateViewFromCursor();
 }
 
 void actionCursorCharDown() {
   cursor = motionCharDown(cursor);
-  updateViewFromCursor();
 }
 
 void actionCursorWordNext() {
   cursor = motionWordNext(cursor);
-  updateViewFromCursor();
 }
 
 void actionCursorWordEnd() {
   cursor = motionWordEnd(cursor);
-  updateViewFromCursor();
 }
 
 void actionCursorWordPrev() {
   cursor = motionWordPrev(cursor);
-  updateViewFromCursor();
 }
 
 void actionDeleteCharNext() {
@@ -164,9 +153,7 @@ void actionDeleteCharNext() {
   if (lines[cursor.line].isEmpty && lines.length > 1) {
     lines.removeAt(cursor.line);
   }
-
   clampCursor();
-  updateViewFromCursor();
 }
 
 void actionReplaceMode() {
@@ -177,15 +164,10 @@ void actionDeleteLineEnd() {
   if (emptyFile()) {
     return;
   }
-
   final lineEnd = motionLineEnd(cursor);
-  deleteRange(
-    Range(
-      p0: cursor,
-      p1: Position(line: lineEnd.line, char: lineEnd.char + 1),
-    ),
-  );
-
+  deleteRange(Range(
+    p0: cursor,
+    p1: Position(line: lineEnd.line, char: lineEnd.char + 1),
+  ));
   clampCursor();
-  updateViewFromCursor();
 }

@@ -26,7 +26,6 @@ void insertActionEnter() {
   cursor.char = 0;
   view.char = 0;
   cursor = motionCharDown(cursor);
-  updateViewFromCursor();
 }
 
 void joinLines() {
@@ -36,7 +35,6 @@ void joinLines() {
     lines.removeAt(cursor.line);
     --cursor.line;
     cursor.char = aboveLen;
-    updateViewFromCursor();
   }
 }
 
@@ -46,8 +44,6 @@ void deleteCharPrev() {
   }
   lines[cursor.line] = deleteCharAt(lines[cursor.line], cursor.char - 1);
   cursor.char = max(0, cursor.char - 1);
-
-  updateViewFromCursor();
 }
 
 void insertActionBackspace() {

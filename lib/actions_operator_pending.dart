@@ -31,7 +31,6 @@ void pendingActionDelete(Range range) {
   }
 
   clampCursor();
-  updateViewFromCursor();
   mode = Mode.normal;
 }
 
