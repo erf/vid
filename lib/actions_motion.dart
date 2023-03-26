@@ -61,18 +61,19 @@ Position motionLineEnd(Position p) {
 }
 
 Position motionWordNext(Position p) {
-  int start = p.char;
   final line = lines[p.line];
   final matches = RegExp(r'\S+').allMatches(line);
-  if (matches.isEmpty) {
-    return p;
-  }
-  for (var match in matches) {
-    if (match.start > start) {
+  for (final match in matches) {
+    if (match.start > p.char) {
       return Position(char: match.start, line: p.line);
     }
   }
-  return Position(char: matches.last.end, line: p.line);
+  // either move to next line or stay on last char
+  if (p.line < lines.length - 1) {
+    return Position(char: 0, line: p.line + 1);
+  } else {
+    return Position(char: lines[p.line].length - 1, line: p.line);
+  }
 }
 
 Position motionWordEnd(Position p) {
