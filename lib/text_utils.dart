@@ -25,6 +25,10 @@ Range normalizedRange(Range range) {
   return r;
 }
 
+bool insideRange(int line, Range range) {
+  return line > range.p0.line && line < range.p1.line;
+}
+
 void deleteRange(Range range) {
   Range r = normalizedRange(range);
 
@@ -35,11 +39,13 @@ void deleteRange(Range range) {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, '');
     lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, '');
   }
-
-  // iterate and delete empty lines in the range
+  // iterate over the lines in range and remove empty lines
+  int line = 0;
   for (int i = r.p0.line; i <= r.p1.line; i++) {
-    if (lines[i].isEmpty) {
-      lines.removeAt(i);
+    if (lines[line].isEmpty || insideRange(i, r)) {
+      lines.removeAt(line);
+    } else {
+      line++;
     }
   }
 }
