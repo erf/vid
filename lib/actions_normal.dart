@@ -68,7 +68,7 @@ void actionCursorCharPrev() {
 }
 
 void actionCursorLineBottom() {
-  cursor = motionBottomLine(cursor);
+  cursor = motionLastLine(cursor);
   updateViewFromCursor();
 }
 

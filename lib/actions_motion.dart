@@ -12,7 +12,7 @@ final motionActions = <String, Motion>{
   'h': motionCharPrev,
   'l': motionCharNext,
   'g': motionFirstLine,
-  'G': motionBottomLine,
+  'G': motionLastLine,
   'w': motionWordNext,
   'b': motionWordPrev,
   'e': motionWordEnd,
@@ -35,7 +35,7 @@ Position motionFirstLine(Position p) {
   return Position(line: 0, char: 0);
 }
 
-Position motionBottomLine(Position position) {
+Position motionLastLine(Position position) {
   return Position(line: max(0, lines.length - 1), char: 0);
 }
 
