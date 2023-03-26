@@ -121,7 +121,7 @@ void updateViewFromCursor() {
 }
 
 void input(List<int> codes) {
-  final str = String.fromCharCodes(codes);
+  final str = utf8.decode(codes);
 
   switch (mode) {
     case Mode.insert:
