@@ -7,10 +7,10 @@ import 'types.dart';
 typedef Motion = Position Function(Position);
 
 final motionActions = <String, Motion>{
-  'j': motionLineDown,
-  'k': motionLineUp,
   'h': motionCharPrev,
   'l': motionCharNext,
+  'j': motionCharDown,
+  'k': motionCharUp,
   'g': motionFirstLine,
   'G': motionLastLine,
   'w': motionWordNext,
@@ -31,6 +31,18 @@ Position motionCharPrev(Position p) {
   return Position(line: p.line, char: max(0, p.char - 1));
 }
 
+Position motionCharUp(Position p) {
+  final line = max(p.line - 1, 0);
+  final char = min(p.char, lines[line].length - 1);
+  return Position(line: line, char: char);
+}
+
+Position motionCharDown(Position p) {
+  final line = min(p.line + 1, lines.length - 1);
+  final char = min(p.char, lines[line].length - 1);
+  return Position(line: line, char: char);
+}
+
 Position motionFirstLine(Position p) {
   return Position(line: 0, char: 0);
 }
@@ -45,18 +57,6 @@ Position motionLineStart(Position p) {
 
 Position motionLineEnd(Position p) {
   return Position(line: p.line, char: lines[p.line].length);
-}
-
-Position motionLineUp(Position p) {
-  final line = clamp(p.line - 1, 0, lines.length - 1);
-  final char = clamp(p.char, 0, lines[line].length - 1);
-  return Position(line: line, char: char);
-}
-
-Position motionLineDown(Position p) {
-  final line = clamp(p.line + 1, 0, lines.length - 1);
-  final char = clamp(p.char, 0, lines[line].length - 1);
-  return Position(line: line, char: char);
 }
 
 Position motionWordNext(Position p) {

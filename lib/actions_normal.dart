@@ -124,12 +124,12 @@ void actionCursorLineStart() {
 }
 
 void actionCursorLineUp() {
-  cursor = motionLineUp(cursor);
+  cursor = motionCharUp(cursor);
   updateViewFromCursor();
 }
 
 void actionCursorLineDown() {
-  cursor = motionLineDown(cursor);
+  cursor = motionCharDown(cursor);
   updateViewFromCursor();
 }
 

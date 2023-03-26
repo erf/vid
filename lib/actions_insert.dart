@@ -25,7 +25,7 @@ void actionEnter() {
   lines.insert(cursor.line + 1, lineAfterCursor);
   cursor.char = 0;
   view.char = 0;
-  cursor = motionLineDown(cursor);
+  cursor = motionCharDown(cursor);
   updateViewFromCursor();
 }
 
