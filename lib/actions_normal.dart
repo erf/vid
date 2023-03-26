@@ -163,17 +163,9 @@ void actionDeleteCharNext() {
   if (emptyFile()) {
     return;
   }
-
-  // delete character at cursor position or remove line if empty
   String line = lines[cursor.line];
-
   if (line.isNotEmpty) {
     lines[cursor.line] = deleteCharAt(line, cursor.char);
-  }
-
-  // if line is empty, remove it, unless it's the last line
-  if (lines[cursor.line].isEmpty && lines.length > 1) {
-    lines.removeAt(cursor.line);
   }
   clampCursor();
 }
