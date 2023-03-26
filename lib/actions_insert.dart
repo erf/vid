@@ -9,17 +9,17 @@ import 'vid.dart';
 typedef InsertAction = void Function();
 
 final insertActions = <String, InsertAction>{
-  '\x1b': actionEscape,
-  '\x7f': actionBackspace,
-  '\n': actionEnter,
+  '\x1b': insertActionEscape,
+  '\x7f': insertActionBackspace,
+  '\n': insertActionEnter,
 };
 
-void actionEscape() {
+void insertActionEscape() {
   mode = Mode.normal;
   clampCursor();
 }
 
-void actionEnter() {
+void insertActionEnter() {
   final lineAfterCursor = lines[cursor.line].substring(cursor.char);
   lines[cursor.line] = lines[cursor.line].substring(0, cursor.char);
   lines.insert(cursor.line + 1, lineAfterCursor);
@@ -50,7 +50,7 @@ void deleteCharPrev() {
   updateViewFromCursor();
 }
 
-void actionBackspace() {
+void insertActionBackspace() {
   if (cursor.char == 0) {
     joinLines();
   } else {
