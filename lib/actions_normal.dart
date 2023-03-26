@@ -110,20 +110,19 @@ void actionInsertLineStart() {
 
 void actionAppendLineEnd() {
   mode = Mode.insert;
-  if (lines.isNotEmpty && lines[cursor.line].isNotEmpty) {
+  if (lines[cursor.line].isNotEmpty) {
     cursor.char = lines[cursor.line].length;
   }
 }
 
 void actionAppendCharNext() {
   mode = Mode.insert;
-  if (lines.isNotEmpty && lines[cursor.line].isNotEmpty) {
+  if (lines[cursor.line].isNotEmpty) {
     cursor.char++;
   }
 }
 
 void actionCursorLineEnd() {
-  if (lines.isEmpty) return;
   cursor = motionLineEnd(cursor);
 }
 
