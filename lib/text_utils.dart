@@ -32,14 +32,15 @@ bool insideRange(int line, Range range) {
 void deleteRange(Range range) {
   Range r = normalizedRange(range);
 
-  // delete the range
+  // delete text in range at the start and end lines
   if (r.p0.line == r.p1.line) {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, '');
   } else {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, '');
     lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, '');
   }
-  // iterate over the lines in range and remove empty lines
+
+  // iterate remove empty lines and lines inside range
   int line = 0;
   for (int i = r.p0.line; i <= r.p1.line; i++) {
     if (lines[line].isEmpty || insideRange(i, r)) {
