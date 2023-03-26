@@ -1,3 +1,5 @@
+import 'package:vid/actions_operator_pending.dart';
+
 import 'types.dart';
 
 String? filename;
@@ -11,4 +13,4 @@ Position view = Position();
 
 Mode mode = Mode.normal;
 
-Function? currentPending;
+PendingAction? currentPending;
