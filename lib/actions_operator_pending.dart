@@ -11,10 +11,11 @@ final operatorActions = <String, OperatorPendingAction>{
   'y': pendingActionYank,
 };
 
-void yankRange(Range range) {
+void yankRange(Range r) {
+  final range = normalizedRange(r);
   final sublist = lines.sublist(range.p0.line, range.p1.line + 1);
   if (sublist.length == 1) {
-    yankBuffer = sublist.first.substring(range.p0.char, range.p1.char);
+    yankBuffer = sublist.first.substring(range.p0.char, range.p1.char + 1);
     return;
   }
   // get text in range from the first and last element
