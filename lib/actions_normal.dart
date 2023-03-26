@@ -32,7 +32,19 @@ final normalActions = <String, NormalAction>{
   'r': actionReplaceMode,
   'D': actionDeleteLineEnd,
   'p': actionPasteAfter,
+  '\u0004': actionMoveDownHalfPage,
+  '\u0015': actionMoveUpHalfPage,
 };
+
+void actionMoveDownHalfPage() {
+  cursor.line += term.height ~/ 2;
+  clampCursor();
+}
+
+void actionMoveUpHalfPage() {
+  cursor.line -= term.height ~/ 2;
+  clampCursor();
+}
 
 void insertText(String text, Position pos) {
   String insertedText = lines[pos.line].substring(0, pos.char) +

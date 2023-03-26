@@ -119,6 +119,7 @@ void updateViewFromCursor() {
 
 void input(List<int> codes) {
   final str = String.fromCharCodes(codes);
+
   switch (mode) {
     case Mode.insert:
       insert(str);
