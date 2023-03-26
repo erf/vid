@@ -31,7 +31,22 @@ final normalActions = <String, NormalAction>{
   'G': actionCursorLineBottom,
   'r': actionReplaceMode,
   'D': actionDeleteLineEnd,
+  'p': actionPasteAfter,
 };
+
+void insertText(String text, Position pos) {
+  String insertedText = lines[pos.line].substring(0, pos.char) +
+      text +
+      lines[pos.line].substring(pos.char);
+  final newLines = insertedText.split('\n');
+  lines.removeAt(pos.line);
+  lines.insertAll(pos.line, newLines);
+}
+
+void actionPasteAfter() {
+  if (yankBuffer == null) return;
+  insertText(yankBuffer!, cursor);
+}
 
 void actionQuit() {
   rbuf.write(VT100.erase);
