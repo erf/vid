@@ -12,10 +12,10 @@ typedef NormalAction = void Function();
 final normalActions = <String, NormalAction>{
   'q': actionQuit,
   's': actionSave,
-  'j': actionCursorLineDown,
-  'k': actionCursorLineUp,
   'h': actionCursorCharPrev,
   'l': actionCursorCharNext,
+  'j': actionCursorCharDown,
+  'k': actionCursorCharUp,
   'w': actionCursorWordNext,
   'b': actionCursorWordPrev,
   'e': actionCursorWordEnd,
@@ -85,7 +85,7 @@ void actionOpenLineBelow() {
   } else {
     lines.insert(cursor.line + 1, '');
   }
-  actionCursorLineDown();
+  actionCursorCharDown();
 }
 
 void actionInsert() {
@@ -123,12 +123,12 @@ void actionCursorLineStart() {
   updateViewFromCursor();
 }
 
-void actionCursorLineUp() {
+void actionCursorCharUp() {
   cursor = motionCharUp(cursor);
   updateViewFromCursor();
 }
 
-void actionCursorLineDown() {
+void actionCursorCharDown() {
   cursor = motionCharDown(cursor);
   updateViewFromCursor();
 }

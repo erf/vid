@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/actions_motion.dart';
+
 import 'file_buffer.dart';
 import 'types.dart';
 
@@ -9,6 +11,8 @@ final textObjects = <String, TextObject>{
   'd': objectCurrentLine,
   'k': objectLineUp,
   'j': objectLineDown,
+  'g': objectFirstLine,
+  'G': objectLastLine,
 };
 
 Range objectCurrentLine(Position p) {
@@ -31,5 +35,17 @@ Range objectLineDown(Position p) {
     line: endLine,
     char: lines[endLine].length,
   );
+  return Range(p0: p0, p1: p1);
+}
+
+Range objectFirstLine(Position p) {
+  final p0 = Position(line: p.line, char: lines[p.line].length);
+  final p1 = motionFirstLine(p);
+  return Range(p0: p0, p1: p1);
+}
+
+Range objectLastLine(Position p) {
+  final p0 = Position(line: p.line, char: 0);
+  final p1 = motionLastLine(p);
   return Range(p0: p0, p1: p1);
 }
