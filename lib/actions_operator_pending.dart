@@ -9,6 +9,7 @@ final pendingActions = <String, PendingAction>{
   'c': pendingActionChange,
   'd': pendingActionDelete,
   'g': pendingActionGo,
+  '\x1b': pendingActionEscape,
 };
 
 void pendingActionChange(Range range) {
@@ -39,4 +40,9 @@ void pendingActionGo(Range range) {
   mode = Mode.normal;
   cursor.char = range.p1.char;
   cursor.line = range.p1.line;
+}
+
+void pendingActionEscape(Range range) {
+  mode = Mode.normal;
+  clampCursor();
 }
