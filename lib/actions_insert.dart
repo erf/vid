@@ -28,13 +28,14 @@ void insertActionEnter() {
 }
 
 void joinLines() {
-  if (lines.length > 1 && cursor.line > 0) {
-    final aboveLen = lines[cursor.line - 1].length;
-    lines[cursor.line - 1] += lines[cursor.line];
-    lines.removeAt(cursor.line);
-    --cursor.line;
-    cursor.char = aboveLen;
+  if (lines.length <= 1 || cursor.line <= 0) {
+    return;
   }
+  final aboveLen = lines[cursor.line - 1].length;
+  lines[cursor.line - 1] += lines[cursor.line];
+  lines.removeAt(cursor.line);
+  --cursor.line;
+  cursor.char = aboveLen;
 }
 
 void deleteCharPrev() {
