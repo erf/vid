@@ -3,14 +3,13 @@ import 'dart:io';
 
 import 'actions_insert.dart';
 import 'actions_motion.dart';
-import 'actions_pending.dart';
-import 'actions_text_objects.dart';
 import 'actions_normal.dart';
+import 'actions_operator_pending.dart';
+import 'actions_text_objects.dart';
 import 'file_buffer.dart';
-import 'position.dart';
-import 'range.dart';
 import 'terminal.dart';
 import 'text_utils.dart';
+import 'types.dart';
 import 'vt100.dart';
 
 // https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
@@ -66,7 +65,7 @@ void drawStatus() {
   final String modeStr;
   if (mode == Mode.normal) {
     modeStr = '';
-  } else if (mode == Mode.pending) {
+  } else if (mode == Mode.operatorPending) {
     modeStr = 'PENDING >> ';
   } else {
     modeStr = 'INSERT >> ';
@@ -128,8 +127,8 @@ void input(List<int> codes) {
     case Mode.normal:
       normal(str);
       break;
-    case Mode.pending:
-      pending(str);
+    case Mode.operatorPending:
+      operatorPending(str);
       break;
     case Mode.replace:
       replace(str);
@@ -146,12 +145,12 @@ void normal(String str) {
   }
   PendingAction? pending = pendingActions[str];
   if (pending != null) {
-    mode = Mode.pending;
+    mode = Mode.operatorPending;
     currentPending = pending;
   }
 }
 
-void pending(String str) {
+void operatorPending(String str) {
   if (currentPending == null) {
     return;
   }

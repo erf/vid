@@ -1,6 +1,6 @@
 import 'file_buffer.dart';
-import 'range.dart';
 import 'text_utils.dart';
+import 'types.dart';
 import 'vid.dart';
 
 typedef PendingAction = void Function(Range);

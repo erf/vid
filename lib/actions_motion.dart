@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'file_buffer.dart';
-import 'position.dart';
 import 'text_utils.dart';
+import 'types.dart';
 
 typedef Motion = Position Function(Position);
 

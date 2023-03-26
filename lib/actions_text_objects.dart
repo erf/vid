@@ -1,6 +1,5 @@
 import 'file_buffer.dart';
-import 'position.dart';
-import 'range.dart';
+import 'types.dart';
 
 typedef TextObject = Range Function(Position);
 

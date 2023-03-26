@@ -1,6 +1,4 @@
-import 'position.dart';
-
-enum Mode { normal, pending, insert, replace }
+import 'types.dart';
 
 String? filename;
 

@@ -2,9 +2,8 @@ import 'dart:io';
 
 import 'actions_motion.dart';
 import 'file_buffer.dart';
-import 'position.dart';
-import 'range.dart';
 import 'text_utils.dart';
+import 'types.dart';
 import 'vid.dart';
 import 'vt100.dart';
 

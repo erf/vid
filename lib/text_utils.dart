@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'file_buffer.dart';
-import 'range.dart';
+import 'types.dart';
 
 int clamp(int value, int val0, int val1) {
   if (val0 > val1) {
