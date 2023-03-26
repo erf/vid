@@ -36,7 +36,7 @@ Position motionFirstLine(Position p) {
 }
 
 Position motionLastLine(Position position) {
-  return Position(line: max(0, lines.length - 1), char: 0);
+  return Position(line: max(0, lines.length - 1), char: lines.last.length);
 }
 
 Position motionLineStart(Position p) {
