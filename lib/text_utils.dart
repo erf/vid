@@ -26,7 +26,7 @@ Range normalizedRange(Range range) {
 }
 
 bool insideRange(int line, Range range) {
-  return line >= range.p0.line && line < range.p1.line;
+  return line > range.p0.line && line < range.p1.line;
 }
 
 void deleteRange(Range range) {
@@ -41,7 +41,7 @@ void deleteRange(Range range) {
   }
 
   // iterate remove empty lines and lines inside range
-  int line = 0;
+  int line = r.p0.line;
   for (int i = r.p0.line; i <= r.p1.line; i++) {
     if (lines[line].isEmpty || insideRange(i, r)) {
       lines.removeAt(line);
