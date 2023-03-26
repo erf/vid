@@ -105,7 +105,7 @@ Position motionWordPrev(Position p) {
   if (p.line > 0) {
     return motionWordPrev(Position(
       line: p.line - 1,
-      char: lines[p.line].length,
+      char: lines[p.line - 1].length,
     ));
   } else {
     return Position(char: 0, line: p.line);
