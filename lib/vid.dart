@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:characters/characters.dart';
 
 import 'actions_insert.dart';
 import 'actions_motion.dart';
@@ -19,7 +22,6 @@ final rbuf = StringBuffer();
 String msg = '';
 
 void draw() {
-  rbuf.clear();
   rbuf.write(VT100.erase);
 
   final lineStart = view.line;
@@ -57,6 +59,7 @@ void draw() {
   rbuf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
 
   term.write(rbuf);
+  rbuf.clear();
 }
 
 void drawStatus() {
