@@ -1,3 +1,6 @@
+import 'package:characters/characters.dart';
+import 'package:vid/characters_ext.dart';
+
 import 'file_buffer.dart';
 import 'text_utils.dart';
 import 'types.dart';
@@ -19,17 +22,17 @@ void yankRange(Range r) {
     return;
   }
   // get text in range from the first and last element
-  final text = StringBuffer();
+  var text = Characters('');
   for (int i = range.p0.line; i <= range.p1.line; i++) {
     if (i == range.p0.line) {
-      text.writeln(lines[i].substring(range.p0.char));
+      text += lines[i].substring(range.p0.char);
     } else if (i == range.p1.line) {
-      text.writeln(lines[i].substring(0, range.p1.char));
+      text += lines[i].substring(0, range.p1.char);
     } else {
-      text.writeln(lines[i]);
+      text += lines[i];
     }
   }
-  yankBuffer = text.toString();
+  yankBuffer = text;
 }
 
 void pendingActionYank(Range range) {

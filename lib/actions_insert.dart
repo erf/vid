@@ -19,8 +19,8 @@ void insertActionEscape() {
 }
 
 void insertActionEnter() {
-  final lineAfterCursor = lines[cursor.line].substring(cursor.char);
-  lines[cursor.line] = lines[cursor.line].substring(0, cursor.char);
+  final lineAfterCursor = lines[cursor.line].skip(cursor.char);
+  lines[cursor.line] = lines[cursor.line].take(cursor.char);
   lines.insert(cursor.line + 1, lineAfterCursor);
   cursor.char = 0;
   view.char = 0;

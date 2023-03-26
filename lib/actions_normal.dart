@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:characters/characters.dart';
+import 'package:vid/characters_ext.dart';
+
 import 'actions_motion.dart';
 import 'file_buffer.dart';
 import 'text_utils.dart';
@@ -46,9 +49,9 @@ void actionMoveUpHalfPage() {
   clampCursor();
 }
 
-void insertText(String text, Position pos) {
+void insertText(Characters text, Position pos) {
   final newText = lines[pos.line].replaceRange(pos.char, pos.char, text);
-  lines.replaceRange(pos.line, pos.line + 1, newText.split('\n'));
+  lines.replaceRange(pos.line, pos.line + 1, newText.split('\n'.characters));
 }
 
 void actionPasteAfter() {
@@ -93,16 +96,16 @@ void actionCursorLineBottom() {
 
 void actionOpenLineAbove() {
   mode = Mode.insert;
-  lines.insert(cursor.line, '');
+  lines.insert(cursor.line, ''.characters);
   cursor.char = 0;
 }
 
 void actionOpenLineBelow() {
   mode = Mode.insert;
   if (cursor.line + 1 >= lines.length) {
-    lines.add('');
+    lines.add(''.characters);
   } else {
-    lines.insert(cursor.line + 1, '');
+    lines.insert(cursor.line + 1, ''.characters);
   }
   actionCursorCharDown();
 }
@@ -163,7 +166,7 @@ void actionDeleteCharNext() {
   if (emptyFile()) {
     return;
   }
-  String line = lines[cursor.line];
+  Characters line = lines[cursor.line];
   if (line.isNotEmpty) {
     lines[cursor.line] = deleteCharAt(line, cursor.char);
   }

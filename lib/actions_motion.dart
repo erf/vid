@@ -61,7 +61,7 @@ Position motionLineEnd(Position p) {
 }
 
 Position motionWordNext(Position p) {
-  final matches = RegExp(r'\S+').allMatches(lines[p.line]);
+  final matches = RegExp(r'\S+').allMatches(lines[p.line].string);
   for (final match in matches) {
     if (match.start > p.char) {
       return Position(char: match.start, line: p.line);
@@ -76,7 +76,7 @@ Position motionWordNext(Position p) {
 }
 
 Position motionWordEnd(Position p) {
-  final matches = RegExp(r'\S+').allMatches(lines[p.line]);
+  final matches = RegExp(r'\S+').allMatches(lines[p.line].string);
   for (final match in matches) {
     if (match.end - 1 > p.char) {
       return Position(line: p.line, char: match.end - 1);
@@ -91,7 +91,7 @@ Position motionWordEnd(Position p) {
 
 Position motionWordPrev(Position p) {
   final line = lines[p.line];
-  final matches = RegExp(r'\S+').allMatches(line);
+  final matches = RegExp(r'\S+').allMatches(line.string);
   if (matches.isEmpty) {
     return Position(char: p.char, line: p.line);
   }

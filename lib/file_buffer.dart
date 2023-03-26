@@ -1,19 +1,21 @@
+import 'package:characters/characters.dart';
+
 import 'actions_operator_pending.dart';
 import 'types.dart';
 
 String? filename;
 
 // always have at least one line with one empty string
-List<String> lines = [""];
+List<Characters> lines = ["".characters];
 
-Position cursor = Position();
+var cursor = Position();
 
-Position view = Position();
+var view = Position();
 
-Mode mode = Mode.normal;
+var mode = Mode.normal;
 
 OperatorPendingAction? currentPending;
 
 int? count;
 
-String? yankBuffer;
+Characters? yankBuffer;

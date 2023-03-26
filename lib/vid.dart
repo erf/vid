@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/characters_ext.dart';
 
 import 'actions_insert.dart';
 import 'actions_motion.dart';
@@ -36,9 +37,9 @@ void draw() {
     var line = lines[l];
     if (view.char > 0) {
       if (view.char >= line.length) {
-        line = '';
+        line = ''.characters;
       } else {
-        line = line.replaceRange(0, view.char, '');
+        line = line.replaceRange(0, view.char, ''.characters);
       }
     }
     if (line.length < term.width) {
@@ -89,14 +90,14 @@ void showMessage(String message) {
   });
 }
 
-void insert(String str) {
-  InsertAction? insertAction = insertActions[str];
+void insert(Characters str) {
+  InsertAction? insertAction = insertActions[str.string];
   if (insertAction != null) {
     insertAction();
     return;
   }
 
-  String line = lines[cursor.line];
+  Characters line = lines[cursor.line];
   if (line.isEmpty) {
     lines[cursor.line] = str;
   } else {
@@ -105,9 +106,9 @@ void insert(String str) {
   cursor.char++;
 }
 
-void replace(String str) {
+void replace(Characters str) {
   mode = Mode.normal;
-  String line = lines[cursor.line];
+  Characters line = lines[cursor.line];
   if (line.isEmpty) {
     return;
   }
@@ -121,7 +122,7 @@ void updateViewFromCursor() {
 }
 
 void input(List<int> codes) {
-  final str = utf8.decode(codes);
+  Characters str = utf8.decode(codes).characters;
 
   switch (mode) {
     case Mode.insert:
@@ -141,38 +142,38 @@ void input(List<int> codes) {
   draw();
 }
 
-void normal(String str) {
-  final maybeInt = int.tryParse(str);
+void normal(Characters str) {
+  final maybeInt = int.tryParse(str.string);
   if (maybeInt != null && maybeInt > 0) {
     count = maybeInt;
     return;
   }
 
-  NormalAction? action = normalActions[str];
+  NormalAction? action = normalActions[str.string];
   if (action != null) {
     action.call();
     return;
   }
-  OperatorPendingAction? pending = operatorActions[str];
+  OperatorPendingAction? pending = operatorActions[str.string];
   if (pending != null) {
     mode = Mode.operatorPending;
     currentPending = pending;
   }
 }
 
-void operatorPending(String str) {
+void operatorPending(Characters str) {
   if (currentPending == null) {
     return;
   }
 
-  TextObject? textObject = textObjects[str];
+  TextObject? textObject = textObjects[str.string];
   if (textObject != null) {
     Range range = textObject.call(cursor);
     currentPending?.call(range);
     return;
   }
 
-  Motion? motion = motionActions[str];
+  Motion? motion = motionActions[str.string];
   if (motion != null) {
     Position newPosition = motion.call(cursor);
     currentPending?.call(Range(p0: cursor, p1: newPosition));
@@ -187,15 +188,15 @@ void resize(ProcessSignal signal) {
 void loadFile(args) {
   if (args.isEmpty) {
     // always have at least one line with empty string to avoid index out of bounds
-    lines = [""];
+    lines = ["".characters];
     return;
   }
   filename = args[0];
   final file = File(filename!);
   if (file.existsSync()) {
-    lines = file.readAsLinesSync();
+    lines = file.readAsLinesSync().map((e) => e.characters).toList();
     if (lines.isEmpty) {
-      lines = [""];
+      lines = ["".characters];
     }
   }
 }
