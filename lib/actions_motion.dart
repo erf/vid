@@ -82,7 +82,7 @@ Position motionWordEnd(Position p) {
   final matches = RegExp(r'\S+').allMatches(line);
   for (var match in matches) {
     if (match.end - 1 > start) {
-      return Position(line: p.line, char: match.end - 1);
+      return Position(line: p.line, char: match.end);
     }
   }
   if (p.line < lines.length - 1) {
