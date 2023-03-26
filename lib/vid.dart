@@ -143,7 +143,7 @@ void normal(String str) {
     action.call();
     return;
   }
-  PendingAction? pending = pendingActions[str];
+  OperatorPendingAction? pending = operatorActions[str];
   if (pending != null) {
     mode = Mode.operatorPending;
     currentPending = pending;

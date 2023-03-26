@@ -12,4 +12,4 @@ Position view = Position();
 
 Mode mode = Mode.normal;
 
-PendingAction? currentPending;
+OperatorPendingAction? currentPending;

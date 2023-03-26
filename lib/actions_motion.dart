@@ -18,6 +18,7 @@ final motionActions = <String, Motion>{
   'e': motionWordEnd,
   '0': motionLineStart,
   '\$': motionLineEnd,
+  '\x1b': motionEscape,
 };
 
 Position motionCharNext(Position p) {
@@ -103,4 +104,10 @@ Position motionWordPrev(Position p) {
     }
   }
   return Position(char: matches.first.start, line: p.line);
+}
+
+Position motionEscape(Position p) {
+  mode = Mode.normal;
+  currentPending = null;
+  return p;
 }
