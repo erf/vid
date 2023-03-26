@@ -26,7 +26,7 @@ Range normalizedRange(Range range) {
 }
 
 bool insideRange(int line, Range range) {
-  return line > range.p0.line && line < range.p1.line;
+  return line >= range.p0.line && line < range.p1.line;
 }
 
 void deleteRange(Range range) {
