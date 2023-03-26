@@ -44,7 +44,7 @@ Position motionLineStart(Position p) {
 }
 
 Position motionLineEnd(Position p) {
-  return Position(line: p.line, char: lines[p.line].length - 1);
+  return Position(line: p.line, char: lines[p.line].length);
 }
 
 Position motionLineUp(Position p) {
