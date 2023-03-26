@@ -13,3 +13,5 @@ Position view = Position();
 Mode mode = Mode.normal;
 
 OperatorPendingAction? currentPending;
+
+int? count;

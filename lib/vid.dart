@@ -138,6 +138,12 @@ void input(List<int> codes) {
 }
 
 void normal(String str) {
+  final maybeInt = int.tryParse(str);
+  if (maybeInt != null) {
+    count = maybeInt;
+    return;
+  }
+
   NormalAction? action = normalActions[str];
   if (action != null) {
     action.call();
