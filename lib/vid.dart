@@ -139,7 +139,7 @@ void input(List<int> codes) {
 
 void normal(String str) {
   final maybeInt = int.tryParse(str);
-  if (maybeInt != null) {
+  if (maybeInt != null && maybeInt > 0) {
     count = maybeInt;
     return;
   }
