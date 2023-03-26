@@ -52,10 +52,6 @@ void pendingActionDelete(Range range) {
     cursor.char = range.p1.char;
   }
 
-  if (lines.isEmpty) {
-    lines.add('');
-  }
-
   clampCursor();
   mode = Mode.normal;
 }

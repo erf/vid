@@ -29,18 +29,28 @@ bool insideRange(int line, Range range) {
   return line > range.p0.line && line < range.p1.line;
 }
 
-void deleteRange(Range range) {
+void deleteRange(Range range, [bool removeEmptyLines = true]) {
   Range r = normalizedRange(range);
 
   // delete text in range at the start and end lines
   if (r.p0.line == r.p1.line) {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, '');
+    if (removeEmptyLines) {
+      removeEmptyLinesInRange(r);
+    }
   } else {
     lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, '');
     lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, '');
+    removeEmptyLinesInRange(r);
   }
 
-  // iterate remove empty lines and lines inside range
+  if (lines.isEmpty) {
+    lines.add('');
+  }
+}
+
+// iterate remove empty lines and lines inside range
+void removeEmptyLinesInRange(Range r) {
   int line = r.p0.line;
   for (int i = r.p0.line; i <= r.p1.line; i++) {
     if (lines[line].isEmpty || insideRange(i, r)) {

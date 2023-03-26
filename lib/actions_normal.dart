@@ -187,9 +187,12 @@ void actionDeleteLineEnd() {
     return;
   }
   final lineEnd = motionLineEnd(cursor);
-  deleteRange(Range(
-    p0: cursor,
-    p1: Position(line: lineEnd.line, char: lineEnd.char + 1),
-  ));
+  deleteRange(
+    Range(
+      p0: cursor,
+      p1: Position(line: lineEnd.line, char: lineEnd.char + 1),
+    ),
+    false,
+  );
   clampCursor();
 }
