@@ -70,7 +70,7 @@ Position motionWordNext(Position p) {
   }
   // either move to next line or stay on last char
   if (p.line < lines.length - 1) {
-    return Position(char: 0, line: p.line + 1);
+    return motionWordNext(Position(char: -1, line: p.line + 1));
   } else {
     return Position(char: lines[p.line].length - 1, line: p.line);
   }
@@ -104,7 +104,15 @@ Position motionWordPrev(Position p) {
       return Position(char: match.start, line: p.line);
     }
   }
-  return Position(char: matches.first.start, line: p.line);
+  // either move to previous line or stay on the first char
+  if (p.line > 0) {
+    return motionWordPrev(Position(
+      line: p.line - 1,
+      char: lines[p.line].length,
+    ));
+  } else {
+    return Position(char: 0, line: p.line);
+  }
 }
 
 Position motionEscape(Position p) {
