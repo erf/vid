@@ -33,14 +33,14 @@ Position motionCharPrev(Position p) {
 }
 
 Position motionCharUp(Position p) {
-  final line = max(p.line - 1, 0);
-  final char = min(p.char, lines[line].length - 1);
+  final line = clamp(p.line - 1, 0, lines.length - 1);
+  final char = clamp(p.char, 0, lines[line].length - 1);
   return Position(line: line, char: char);
 }
 
 Position motionCharDown(Position p) {
-  final line = min(p.line + 1, lines.length - 1);
-  final char = min(p.char, lines[line].length - 1);
+  final line = clamp(p.line + 1, 0, lines.length - 1);
+  final char = clamp(p.char, 0, lines[line].length - 1);
   return Position(line: line, char: char);
 }
 
