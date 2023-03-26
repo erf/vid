@@ -47,12 +47,8 @@ void actionMoveUpHalfPage() {
 }
 
 void insertText(String text, Position pos) {
-  String insertedText = lines[pos.line].substring(0, pos.char) +
-      text +
-      lines[pos.line].substring(pos.char);
-  final newLines = insertedText.split('\n');
-  lines.removeAt(pos.line);
-  lines.insertAll(pos.line, newLines);
+  final newText = lines[pos.line].replaceRange(pos.char, pos.char, text);
+  lines.replaceRange(pos.line, pos.line + 1, newText.split('\n'));
 }
 
 void actionPasteAfter() {
