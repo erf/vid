@@ -15,3 +15,5 @@ Mode mode = Mode.normal;
 OperatorPendingAction? currentPending;
 
 int? count;
+
+String? yankBuffer;

@@ -8,7 +8,33 @@ final operatorActions = <String, OperatorPendingAction>{
   'c': pendingActionChange,
   'd': pendingActionDelete,
   'g': pendingActionGo,
+  'y': pendingActionYank,
 };
+
+void yankRange(Range range) {
+  final sublist = lines.sublist(range.p0.line, range.p1.line + 1);
+  if (sublist.length == 1) {
+    yankBuffer = sublist.first.substring(range.p0.char, range.p1.char);
+    return;
+  }
+  // get text in range from the first and last element
+  final text = StringBuffer();
+  for (int i = range.p0.line; i <= range.p1.line; i++) {
+    if (i == range.p0.line) {
+      text.writeln(lines[i].substring(range.p0.char));
+    } else if (i == range.p1.line) {
+      text.writeln(lines[i].substring(0, range.p1.char));
+    } else {
+      text.writeln(lines[i]);
+    }
+  }
+  yankBuffer = text.toString();
+}
+
+void pendingActionYank(Range range) {
+  yankRange(range);
+  mode = Mode.normal;
+}
 
 void pendingActionChange(Range range) {
   pendingActionDelete(range);
