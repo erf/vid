@@ -8,6 +8,7 @@ typedef TextObject = Range Function(Position);
 
 final textObjects = <String, TextObject>{
   'd': objectCurrentLine,
+  'y': objectCurrentLine,
   'k': objectLineUp,
   'j': objectLineDown,
   'g': objectFirstLine,
