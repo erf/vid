@@ -158,14 +158,14 @@ void operatorPending(String str) {
   TextObject? textObject = textObjects[str];
   if (textObject != null) {
     Range range = textObject.call(cursor);
-    currentPending!.call(range);
+    currentPending?.call(range);
     return;
   }
 
   Motion? motion = motionActions[str];
   if (motion != null) {
     Position newPosition = motion.call(cursor);
-    currentPending!.call(Range(p0: cursor, p1: newPosition));
+    currentPending?.call(Range(p0: cursor, p1: newPosition));
     return;
   }
 }
