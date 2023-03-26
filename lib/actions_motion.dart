@@ -57,7 +57,7 @@ Position motionLineStart(Position p) {
 }
 
 Position motionLineEnd(Position p) {
-  return Position(line: p.line, char: lines[p.line].length);
+  return Position(line: p.line, char: lines[p.line].length - 1);
 }
 
 Position motionWordNext(Position p) {
