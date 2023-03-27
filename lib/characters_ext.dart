@@ -6,6 +6,6 @@ extension CharactersExt on Characters {
   }
 
   Characters replaceRange(int start, int? end, Characters replacement) {
-    return take(start) + replacement + skip(end ?? length);
+    return substring(0, start) + replacement + substring(end ?? length);
   }
 }
