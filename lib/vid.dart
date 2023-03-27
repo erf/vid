@@ -188,7 +188,7 @@ void resize(ProcessSignal signal) {
 void loadFile(args) {
   if (args.isEmpty) {
     // always have at least one line with empty string to avoid index out of bounds
-    lines = ["".characters];
+    lines = [Characters.empty];
     return;
   }
   filename = args[0];
@@ -196,7 +196,7 @@ void loadFile(args) {
   if (file.existsSync()) {
     lines = file.readAsLinesSync().map((e) => e.characters).toList();
     if (lines.isEmpty) {
-      lines = ["".characters];
+      lines = [Characters.empty];
     }
   }
 }
