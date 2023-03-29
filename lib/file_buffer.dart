@@ -6,8 +6,9 @@ import 'types.dart';
 String? filename;
 
 // always have at least one line with one empty string
-List<Characters> lines = [Characters.empty];
+var lines = [Characters.empty];
 
+// the current cursor position (0 based, in human-readable symbol space as opposed to byte space)
 var cursor = Position();
 
 var view = Position();

@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:characters/characters.dart';
+import 'package:vid/characters_ext.dart';
+
 import 'file_buffer.dart';
 import 'text_utils.dart';
 import 'types.dart';
@@ -61,31 +64,37 @@ Position motionLineEnd(Position p) {
 }
 
 Position motionWordNext(Position p) {
-  final matches = RegExp(r'\S+').allMatches(lines[p.line].string);
+  final line = lines[p.line];
+  final charPos = line.byteLength(symbolLength: p.char);
+  final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
-    if (match.start > p.char) {
-      return Position(char: match.start, line: p.line);
+    if (match.start > charPos) {
+      final symbolPos = line.symbolLength(byteLength: match.start);
+      return Position(char: symbolPos, line: p.line);
     }
   }
   // either move to next line or stay on last char
   if (p.line < lines.length - 1) {
     return motionWordNext(Position(char: -1, line: p.line + 1));
   } else {
-    return Position(char: lines[p.line].length - 1, line: p.line);
+    return Position(char: line.length - 1, line: p.line);
   }
 }
 
 Position motionWordEnd(Position p) {
-  final matches = RegExp(r'\S+').allMatches(lines[p.line].string);
+  final line = lines[p.line];
+  final charPos = line.byteLength(symbolLength: p.char);
+  final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
-    if (match.end - 1 > p.char) {
-      return Position(line: p.line, char: match.end - 1);
+    if (match.end - 1 > charPos) {
+      final symbolPos = line.symbolLength(byteLength: match.start);
+      return Position(char: symbolPos - 1, line: p.line);
     }
   }
   if (p.line < lines.length - 1) {
     return motionWordEnd(Position(char: 0, line: p.line + 1));
   } else {
-    return Position(char: lines[p.line].length - 1, line: p.line);
+    return Position(char: line.length - 1, line: p.line);
   }
 }
 
@@ -95,10 +104,12 @@ Position motionWordPrev(Position p) {
   if (matches.isEmpty) {
     return Position(char: p.char, line: p.line);
   }
+  final charPos = line.byteLength(symbolLength: p.char);
   final reversed = matches.toList().reversed;
   for (final match in reversed) {
-    if (match.start < p.char) {
-      return Position(char: match.start, line: p.line);
+    if (match.start < charPos) {
+      final symbolPos = line.symbolLength(byteLength: match.start);
+      return Position(char: symbolPos, line: p.line);
     }
   }
   // either move to previous line or stay on the first char

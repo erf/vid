@@ -16,8 +16,6 @@ import 'text_utils.dart';
 import 'types.dart';
 import 'vt100.dart';
 
-// https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
-
 final term = Terminal();
 final rbuf = StringBuffer();
 String msg = '';
@@ -52,10 +50,13 @@ void draw() {
   // draw status
   drawStatus();
 
+  final renderedCursorPosition =
+      lines[cursor.line].renderLength(symbolLength: cursor.char);
+
   // draw cursor
   final termPos = Position(
     line: cursor.line - view.line + 1,
-    char: cursor.char - view.char + 1,
+    char: renderedCursorPosition - view.char + 1,
   );
   rbuf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
 
@@ -208,4 +209,30 @@ void init(List<String> args) {
   draw();
   term.input.listen(input);
   term.resize.listen(resize);
+
+/*
+  print('🇲🇽');
+  print('🇲🇽'.length);
+  print('🇲🇽'.codeUnits.length);
+  print('🇲🇽'.runes.length);
+  print('🇲🇽'.characters.length);
+
+  print('❤️');
+  print('❤️'.length);
+  print('❤️'.codeUnits.length);
+  print('❤️'.runes.length);
+  print('❤️'.characters.length);
+
+  print('😎');
+  print('😎'.length);
+  print('😎'.codeUnits.length);
+  print('😎'.runes.length);
+  print('😎'.characters.length);
+
+  print('👋🏽');
+  print('👋🏽'.length);
+  print('👋🏽'.codeUnits.length);
+  print('👋🏽'.runes.length);
+  print('👋🏽'.characters.length);
+  */
 }

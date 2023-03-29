@@ -1,4 +1,5 @@
-// VT100 escape codes
+// https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+
 class VT100 {
   VT100._();
 
