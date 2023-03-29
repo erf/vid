@@ -1,7 +1,5 @@
 import 'package:characters/characters.dart';
 
-import 'text_utils.dart';
-
 extension CharactersExt on Characters {
   Characters substring(int start, [int? end]) {
     return skip(start).take((end ?? length) - start);
@@ -26,9 +24,10 @@ extension CharactersExt on Characters {
 
   // get the byte length given the symbol length
   int byteLength({required int symbolLength}) {
-    if (symbolLength < 0) {
+    if (symbolLength <= 0) {
       return symbolLength;
+    } else {
+      return substring(0, symbolLength).string.length;
     }
-    return substring(0, symbolLength).string.length;
   }
 }
