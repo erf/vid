@@ -65,11 +65,11 @@ Position motionLineEnd(Position p) {
 
 Position motionWordNext(Position p) {
   final line = lines[p.line];
-  final charPos = line.byteLength(symbolLength: p.char);
+  final charPos = line.symbolToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
     if (match.start > charPos) {
-      final symbolPos = line.symbolLength(byteLength: match.start);
+      final symbolPos = line.byteToSymbolLength(match.start);
       return Position(char: symbolPos, line: p.line);
     }
   }
@@ -83,11 +83,11 @@ Position motionWordNext(Position p) {
 
 Position motionWordEnd(Position p) {
   final line = lines[p.line];
-  final charPos = line.byteLength(symbolLength: p.char);
+  final charPos = line.symbolToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
     if (match.end - 1 > charPos) {
-      final symbolPos = line.symbolLength(byteLength: match.start);
+      final symbolPos = line.byteToSymbolLength(match.start);
       return Position(char: symbolPos - 1, line: p.line);
     }
   }
@@ -104,11 +104,11 @@ Position motionWordPrev(Position p) {
   if (matches.isEmpty) {
     return Position(char: p.char, line: p.line);
   }
-  final charPos = line.byteLength(symbolLength: p.char);
+  final charPos = line.symbolToByteLength(p.char);
   final reversed = matches.toList().reversed;
   for (final match in reversed) {
     if (match.start < charPos) {
-      final symbolPos = line.symbolLength(byteLength: match.start);
+      final symbolPos = line.byteToSymbolLength(match.start);
       return Position(char: symbolPos, line: p.line);
     }
   }

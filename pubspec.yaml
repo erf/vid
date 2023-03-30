@@ -1,5 +1,5 @@
 name: vid
-description: A sample command-line application.
+description: A vim-like text editor written in Dart
 version: 1.0.0
 # homepage: https://www.example.com
 

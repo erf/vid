@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/characters_ext.dart';
 
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator_pending.dart';
 import 'actions_text_objects.dart';
+import 'characters_ext.dart';
 import 'file_buffer.dart';
 import 'terminal.dart';
 import 'text_utils.dart';
@@ -50,13 +50,12 @@ void draw() {
   // draw status
   drawStatus();
 
-  final renderedCursorPosition =
-      lines[cursor.line].renderLength(symbolLength: cursor.char);
+  final cursorPos = lines[cursor.line].symbolToRenderLength(cursor.char);
 
   // draw cursor
   final termPos = Position(
     line: cursor.line - view.line + 1,
-    char: renderedCursorPosition - view.char + 1,
+    char: cursorPos - view.char + 1,
   );
   rbuf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
 
@@ -211,28 +210,18 @@ void init(List<String> args) {
   term.resize.listen(resize);
 
 /*
-  print('🇲🇽');
-  print('🇲🇽'.length);
-  print('🇲🇽'.codeUnits.length);
-  print('🇲🇽'.runes.length);
-  print('🇲🇽'.characters.length);
-
   print('❤️');
   print('❤️'.length);
   print('❤️'.codeUnits.length);
   print('❤️'.runes.length);
   print('❤️'.characters.length);
+  print('❤️'.renderWidth);
 
-  print('😎');
-  print('😎'.length);
-  print('😎'.codeUnits.length);
-  print('😎'.runes.length);
-  print('😎'.characters.length);
-
-  print('👋🏽');
-  print('👋🏽'.length);
-  print('👋🏽'.codeUnits.length);
-  print('👋🏽'.runes.length);
-  print('👋🏽'.characters.length);
+  print('👩‍👩‍👦‍👦');
+  print('👩‍👩‍👦‍👦'.length);
+  print('👩‍👩‍👦‍👦'.codeUnits.length);
+  print('👩‍👩‍👦‍👦'.runes.length);
+  print('👩‍👩‍👦‍👦'.characters.length);
+  print('👩‍👩‍👦‍👦'.renderWidth);
   */
 }
