@@ -96,16 +96,16 @@ void actionCursorLineBottom() {
 
 void actionOpenLineAbove() {
   mode = Mode.insert;
-  lines.insert(cursor.line, ''.characters);
+  lines.insert(cursor.line, Characters.empty);
   cursor.char = 0;
 }
 
 void actionOpenLineBelow() {
   mode = Mode.insert;
   if (cursor.line + 1 >= lines.length) {
-    lines.add(''.characters);
+    lines.add(Characters.empty);
   } else {
-    lines.insert(cursor.line + 1, ''.characters);
+    lines.insert(cursor.line + 1, Characters.empty);
   }
   actionCursorCharDown();
 }

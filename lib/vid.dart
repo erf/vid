@@ -35,9 +35,9 @@ void draw() {
     var line = lines[l];
     if (view.char > 0) {
       if (view.char >= line.length) {
-        line = ''.characters;
+        line = Characters.empty;
       } else {
-        line = line.replaceRange(0, view.char, ''.characters);
+        line = line.replaceRange(0, view.char, Characters.empty);
       }
     }
     if (line.length < term.width) {

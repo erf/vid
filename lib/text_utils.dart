@@ -34,23 +34,24 @@ void deleteRange(Range range, [bool removeEmptyLines = true]) {
   // delete text in range at the start and end lines
   if (r.p0.line == r.p1.line) {
     lines[r.p0.line] =
-        lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, ''.characters);
+        lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, Characters.empty);
     if (removeEmptyLines) {
       removeEmptyLinesInRange(r);
     }
   } else {
     lines[r.p0.line] =
-        lines[r.p0.line].replaceRange(r.p0.char, null, ''.characters);
+        lines[r.p0.line].replaceRange(r.p0.char, null, Characters.empty);
     lines[r.p1.line] =
-        lines[r.p1.line].replaceRange(0, r.p1.char, ''.characters);
+        lines[r.p1.line].replaceRange(0, r.p1.char, Characters.empty);
     removeEmptyLinesInRange(r);
   }
 
   if (lines.isEmpty) {
-    lines.add(''.characters);
+    lines.add(Characters.empty);
   }
 }
 
+// check if line is inside range
 bool insideRange(int line, Range range) {
   return line > range.p0.line && line < range.p1.line;
 }
@@ -72,7 +73,7 @@ Characters replaceCharAt(Characters line, int index, Characters char) {
 }
 
 Characters deleteCharAt(Characters line, int index) {
-  return replaceCharAt(line, index, ''.characters);
+  return replaceCharAt(line, index, Characters.empty);
 }
 
 bool emptyFile() {
