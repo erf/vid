@@ -1,13 +1,14 @@
 name: vid
 description: A vim-like text editor written in Dart
 version: 1.0.0
-# homepage: https://www.example.com
+homepage: https://github.com/erf/vid
 
 environment:
   sdk: ">=2.19.1 <3.0.0"
 
 dependencies:
   characters: ^1.3.0
+  string_width: ^0.1.3
 
 dev_dependencies:
   lints: ^2.0.0
