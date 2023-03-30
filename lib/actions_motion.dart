@@ -74,7 +74,7 @@ Position motionWordNext(Position p) {
   }
   // either move to next line or stay on last char
   if (p.line < lines.length - 1) {
-    return motionWordNext(Position(char: -1, line: p.line + 1));
+    return Position(char: 0, line: p.line + 1);
   } else {
     return Position(char: max(line.length - 1, 0), line: p.line);
   }
@@ -91,7 +91,7 @@ Position motionWordEnd(Position p) {
     }
   }
   if (p.line < lines.length - 1) {
-    return motionWordEnd(Position(char: 0, line: p.line + 1));
+    return Position(char: 0, line: p.line + 1);
   } else {
     return Position(char: max(line.length - 1, 0), line: p.line);
   }
@@ -99,11 +99,8 @@ Position motionWordEnd(Position p) {
 
 Position motionWordPrev(Position p) {
   final line = lines[p.line];
-  final matches = RegExp(r'\S+').allMatches(line.string);
-  if (matches.isEmpty) {
-    return Position(char: p.char, line: p.line);
-  }
   final charPos = line.symbolToByteLength(p.char);
+  final matches = RegExp(r'\S+').allMatches(line.string);
   final reversed = matches.toList().reversed;
   for (final match in reversed) {
     if (match.start < charPos) {
@@ -113,10 +110,7 @@ Position motionWordPrev(Position p) {
   }
   // either move to previous line or stay on the first char
   if (p.line > 0) {
-    return motionWordPrev(Position(
-      line: p.line - 1,
-      char: lines[p.line - 1].length,
-    ));
+    return Position(char: lines[p.line - 1].length, line: p.line - 1);
   } else {
     return Position(char: 0, line: p.line);
   }
