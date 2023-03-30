@@ -28,10 +28,6 @@ Range normalizedRange(Range range) {
   return r;
 }
 
-bool insideRange(int line, Range range) {
-  return line > range.p0.line && line < range.p1.line;
-}
-
 void deleteRange(Range range, [bool removeEmptyLines = true]) {
   Range r = normalizedRange(range);
 
@@ -53,6 +49,10 @@ void deleteRange(Range range, [bool removeEmptyLines = true]) {
   if (lines.isEmpty) {
     lines.add(''.characters);
   }
+}
+
+bool insideRange(int line, Range range) {
+  return line > range.p0.line && line < range.p1.line;
 }
 
 // iterate remove empty lines and lines inside range
