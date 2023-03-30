@@ -168,7 +168,7 @@ void actionDeleteCharNext() {
   }
   Characters line = lines[cursor.line];
   if (line.isNotEmpty) {
-    lines[cursor.line] = deleteCharAt(line, cursor.char);
+    lines[cursor.line] = line.deleteCharAt(cursor.char);
   }
   clampCursor();
 }

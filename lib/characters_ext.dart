@@ -12,6 +12,14 @@ extension CharactersExt on Characters {
     return substring(0, start) + replacement + substring(end ?? length);
   }
 
+  Characters replaceCharAt(int index, Characters char) {
+    return replaceRange(index, index + 1, char);
+  }
+
+  Characters deleteCharAt(int index) {
+    return replaceCharAt(index, Characters.empty);
+  }
+
   // get the cursor position for the rendered line, taking into account multi-characters
   int symbolToRenderLength(int symbolLength) {
     return take(symbolLength).fold(0, (prev, curr) => prev + curr.renderWidth);

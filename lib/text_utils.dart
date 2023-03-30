@@ -68,14 +68,6 @@ void removeEmptyLinesInRange(Range r) {
   }
 }
 
-Characters replaceCharAt(Characters line, int index, Characters char) {
-  return line.replaceRange(index, index + 1, char);
-}
-
-Characters deleteCharAt(Characters line, int index) {
-  return replaceCharAt(line, index, Characters.empty);
-}
-
 bool emptyFile() {
   return lines.length == 1 && lines[0].isEmpty;
 }

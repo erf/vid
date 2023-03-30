@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/characters_ext.dart';
+
 import 'actions_motion.dart';
 import 'file_buffer.dart';
 import 'text_utils.dart';
@@ -41,7 +43,7 @@ void deleteCharPrev() {
   if (emptyFile()) {
     return;
   }
-  lines[cursor.line] = deleteCharAt(lines[cursor.line], cursor.char - 1);
+  lines[cursor.line] = lines[cursor.line].deleteCharAt(cursor.char - 1);
   cursor.char = max(0, cursor.char - 1);
 }
 
