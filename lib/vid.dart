@@ -210,20 +210,4 @@ void init(List<String> args) {
   draw();
   term.input.listen(input);
   term.resize.listen(resize);
-
-/*
-  print('❤️');
-  print('❤️'.length);
-  print('❤️'.codeUnits.length);
-  print('❤️'.runes.length);
-  print('❤️'.characters.length);
-  print('❤️'.renderWidth);
-
-  print('👩‍👩‍👦‍👦');
-  print('👩‍👩‍👦‍👦'.length);
-  print('👩‍👩‍👦‍👦'.codeUnits.length);
-  print('👩‍👩‍👦‍👦'.runes.length);
-  print('👩‍👩‍👦‍👦'.characters.length);
-  print('👩‍👩‍👦‍👦'.renderWidth);
-  */
 }
