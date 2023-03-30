@@ -11,9 +11,11 @@ import 'actions_operator_pending.dart';
 import 'actions_text_objects.dart';
 import 'characters_ext.dart';
 import 'file_buffer.dart';
+import 'modes.dart';
+import 'position.dart';
+import 'range.dart';
 import 'terminal.dart';
 import 'text_utils.dart';
-import 'types.dart';
 import 'vt100.dart';
 
 final term = Terminal();

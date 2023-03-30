@@ -4,7 +4,7 @@ import 'package:characters/characters.dart';
 import 'package:vid/characters_ext.dart';
 
 import 'file_buffer.dart';
-import 'types.dart';
+import 'range.dart';
 
 int clamp(int value, int val0, int val1) {
   if (val0 > val1) {

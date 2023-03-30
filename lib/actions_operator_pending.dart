@@ -2,8 +2,9 @@ import 'package:characters/characters.dart';
 import 'package:vid/characters_ext.dart';
 
 import 'file_buffer.dart';
+import 'modes.dart';
 import 'text_utils.dart';
-import 'types.dart';
+import 'range.dart';
 
 typedef OperatorPendingAction = void Function(Range);
 

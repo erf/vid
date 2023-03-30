@@ -1,11 +1,10 @@
 import 'dart:math';
 
-import 'package:characters/characters.dart';
-import 'package:vid/characters_ext.dart';
-
+import 'characters_ext.dart';
 import 'file_buffer.dart';
+import 'modes.dart';
+import 'position.dart';
 import 'text_utils.dart';
-import 'types.dart';
 
 typedef Motion = Position Function(Position);
 

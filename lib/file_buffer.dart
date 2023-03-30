@@ -1,7 +1,8 @@
 import 'package:characters/characters.dart';
 
 import 'actions_operator_pending.dart';
-import 'types.dart';
+import 'modes.dart';
+import 'position.dart';
 
 String? filename;
 

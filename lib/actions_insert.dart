@@ -4,8 +4,9 @@ import 'package:vid/characters_ext.dart';
 
 import 'actions_motion.dart';
 import 'file_buffer.dart';
+import 'modes.dart';
+import 'position.dart';
 import 'text_utils.dart';
-import 'types.dart';
 
 typedef InsertAction = void Function();
 
