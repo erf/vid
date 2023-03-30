@@ -93,7 +93,7 @@ Position motionWordEnd(Position p) {
   if (p.line < lines.length - 1) {
     return motionWordEnd(Position(char: 0, line: p.line + 1));
   } else {
-    return Position(char: line.length - 1, line: p.line);
+    return Position(char: max(line.length - 1, 0), line: p.line);
   }
 }
 
