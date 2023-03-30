@@ -76,7 +76,7 @@ Position motionWordNext(Position p) {
   if (p.line < lines.length - 1) {
     return motionWordNext(Position(char: -1, line: p.line + 1));
   } else {
-    return Position(char: line.length - 1, line: p.line);
+    return Position(char: max(line.length - 1, 0), line: p.line);
   }
 }
 
