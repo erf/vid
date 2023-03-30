@@ -86,7 +86,7 @@ Position motionWordEnd(Position p) {
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
     if (match.end - 1 > charPos) {
-      final symbolPos = line.byteToSymbolLength(match.start);
+      final symbolPos = line.byteToSymbolLength(match.end);
       return Position(char: symbolPos - 1, line: p.line);
     }
   }
