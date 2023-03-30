@@ -16,18 +16,18 @@ final operatorActions = <String, OperatorPendingAction>{
 
 void yankRange(Range r) {
   final range = normalizedRange(r);
-  final sublist = lines.sublist(range.p0.line, range.p1.line + 1);
+  final sublist = lines.sublist(range.start.line, range.end.line + 1);
   if (sublist.length == 1) {
-    yankBuffer = sublist.first.substring(range.p0.char, range.p1.char + 1);
+    yankBuffer = sublist.first.substring(range.start.char, range.end.char + 1);
     return;
   }
   // get text in range from the first and last element
-  var text = Characters('');
-  for (int i = range.p0.line; i <= range.p1.line; i++) {
-    if (i == range.p0.line) {
-      text += lines[i].substring(range.p0.char);
-    } else if (i == range.p1.line) {
-      text += lines[i].substring(0, range.p1.char);
+  var text = Characters.empty;
+  for (int i = range.start.line; i <= range.end.line; i++) {
+    if (i == range.start.line) {
+      text += lines[i].substring(range.start.char);
+    } else if (i == range.end.line) {
+      text += lines[i].substring(0, range.end.char);
     } else {
       text += lines[i];
     }
@@ -49,10 +49,10 @@ void pendingActionDelete(Range range) {
   deleteRange(range);
 
   // move cursor to the start of the range depending on the direction
-  if (range.p0.char <= range.p1.char) {
-    cursor.char = range.p0.char;
+  if (range.start.char <= range.end.char) {
+    cursor.char = range.start.char;
   } else {
-    cursor.char = range.p1.char;
+    cursor.char = range.end.char;
   }
 
   clampCursor();
@@ -61,6 +61,6 @@ void pendingActionDelete(Range range) {
 
 void pendingActionGo(Range range) {
   mode = Mode.normal;
-  cursor.char = range.p1.char;
-  cursor.line = range.p1.line;
+  cursor.char = range.end.char;
+  cursor.line = range.end.line;
 }

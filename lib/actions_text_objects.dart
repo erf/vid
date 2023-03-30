@@ -17,35 +17,32 @@ final textObjects = <String, TextObject>{
 
 Range objectCurrentLine(Position p) {
   return Range(
-    p0: Position(line: p.line, char: 0),
-    p1: Position(line: p.line, char: lines[p.line].length),
+    start: Position(line: p.line, char: 0),
+    end: Position(line: p.line, char: lines[p.line].length),
   );
 }
 
 Range objectLineUp(Position p) {
-  final p0 = Position(line: max(p.line - 1, 0), char: 0);
-  final p1 = Position(line: p.line, char: lines[p.line].length);
-  return Range(p0: p0, p1: p1);
+  final start = Position(line: max(p.line - 1, 0), char: 0);
+  final end = Position(line: p.line, char: lines[p.line].length);
+  return Range(start: start, end: end);
 }
 
 Range objectLineDown(Position p) {
-  final p0 = Position(line: p.line, char: 0);
+  final start = Position(line: p.line, char: 0);
   final endLine = min(p.line + 1, lines.length - 1);
-  final p1 = Position(
-    line: endLine,
-    char: lines[endLine].length,
-  );
-  return Range(p0: p0, p1: p1);
+  final end = Position(line: endLine, char: lines[endLine].length);
+  return Range(start: start, end: end);
 }
 
 Range objectFirstLine(Position p) {
-  final p0 = Position(line: p.line, char: lines[p.line].length);
-  final p1 = motionFirstLine(p);
-  return Range(p0: p0, p1: p1);
+  final start = Position(line: p.line, char: lines[p.line].length);
+  final end = motionFirstLine(p);
+  return Range(start: start, end: end);
 }
 
 Range objectLastLine(Position p) {
-  final p0 = Position(line: p.line, char: 0);
-  final p1 = motionLastLine(p);
-  return Range(p0: p0, p1: p1);
+  final start = Position(line: p.line, char: 0);
+  final end = motionLastLine(p);
+  return Range(start: start, end: end);
 }

@@ -176,7 +176,7 @@ void operatorPending(Characters str) {
   Motion? motion = motionActions[str.string];
   if (motion != null) {
     Position newPosition = motion.call(cursor);
-    currentPending?.call(Range(p0: cursor, p1: newPosition));
+    currentPending?.call(Range(start: cursor, end: newPosition));
     return;
   }
 }
