@@ -62,7 +62,7 @@ class Editor {
         if (view.x >= line.length) {
           line = ''.ch;
         } else {
-          line = line.removeRange(0, view.x);
+          line = line.skip(view.x);
         }
       }
       if (line.length < terminal.width) {
