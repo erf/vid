@@ -9,7 +9,7 @@ typedef ReplaceAction = void Function(FileBuffer, Characters);
 void defaultReplace(FileBuffer f, Characters s) {
   final p = f.cursor;
   f.mode = Mode.normal;
-  Characters line = f.lines[p.line];
+  final line = f.lines[p.line];
   if (line.isEmpty) return;
   f.lines[p.line] = line.replaceCharAt(p.char, s);
 }

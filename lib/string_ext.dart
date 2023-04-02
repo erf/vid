@@ -1,10 +1,10 @@
 import 'package:string_width/string_width.dart';
 
-import 'config.dart';
-
 extension StringExt on String {
+  static const usingLatestUnicodeVersion = true;
+
   int get renderWidth {
-    if (Config.useLatestUnicodeVersion) {
+    if (usingLatestUnicodeVersion) {
       return stringWidth(this);
     } else {
       // https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane
