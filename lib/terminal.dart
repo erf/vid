@@ -37,16 +37,4 @@ class Terminal {
   void write(Object? object) {
     stdout.write(object);
   }
-
-  void writeln(Object? object) {
-    stdout.writeln(object);
-  }
-
-  void writeAll(Iterable<dynamic> objects) {
-    stdout.writeAll(objects);
-  }
-
-  void writeCharCode(int charCode) {
-    stdout.writeCharCode(charCode);
-  }
 }
