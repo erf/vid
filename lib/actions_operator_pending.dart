@@ -47,15 +47,9 @@ void pendingActionChange(Range range) {
 }
 
 void pendingActionDelete(Range range) {
-  deleteRange(range);
-
-  // move cursor to the start of the range depending on the direction
-  if (range.start.char <= range.end.char) {
-    cursor.char = range.start.char;
-  } else {
-    cursor.char = range.end.char;
-  }
-
+  Range rNorm = normalizedRange(range);
+  deleteRange(rNorm);
+  cursor = rNorm.start.clone();
   clampCursor();
   mode = Mode.normal;
 }

@@ -28,9 +28,7 @@ Range normalizedRange(Range range) {
   return r;
 }
 
-void deleteRange(Range range, [bool removeEmptyLines = true]) {
-  Range r = normalizedRange(range);
-
+void deleteRange(Range r, [bool removeEmptyLines = true]) {
   // delete text in range at the start and end lines
   if (r.start.line == r.end.line) {
     lines[r.start.line] = lines[r.start.line]
@@ -45,7 +43,6 @@ void deleteRange(Range range, [bool removeEmptyLines = true]) {
         lines[r.end.line].replaceRange(0, r.end.char, Characters.empty);
     removeEmptyLinesInRange(r);
   }
-
   if (lines.isEmpty) {
     lines.add(Characters.empty);
   }
