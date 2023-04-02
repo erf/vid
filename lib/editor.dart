@@ -32,9 +32,9 @@ class Editor {
     terminal.rawMode = true;
     terminal.write(VT100.cursorVisible(true));
     fileBuffer.load(args);
-    draw();
     terminal.input.listen(input);
     terminal.resize.listen(resize);
+    draw();
   }
 
   void resize(ProcessSignal signal) {
@@ -75,9 +75,9 @@ class Editor {
     // draw status
     drawStatus();
 
+    // draw cursor
     final cursorPos = lines[cursor.y].renderedLength(cursor.x);
 
-    // draw cursor
     final termPos = Position(
       y: cursor.y - view.y + 1,
       x: cursorPos - view.x + 1,
