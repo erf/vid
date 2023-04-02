@@ -93,9 +93,8 @@ class Editor {
     renderBuffer.write(VT100.invert(true));
     renderBuffer.write(VT100.cursorPosition(x: 1, y: terminal.height));
 
-    String modeStr = getModeStatusStr(fileBuffer.mode);
-
     final nameStr = fileBuffer.filename ?? '[No Name]';
+    final modeStr = getModeStatusStr(fileBuffer.mode);
     final left = ' $modeStr$nameStr $message ';
     final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
     final padLeft = terminal.width - left.length - 1;
