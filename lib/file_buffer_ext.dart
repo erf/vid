@@ -34,18 +34,16 @@ extension FileBufferExt on FileBuffer {
   }
 
   void deleteRange(Range r, [bool removeEmptyLines = true]) {
-    // delete text in range at the start and end lines
     if (r.start.line == r.end.line) {
       lines[r.start.line] = lines[r.start.line]
           .replaceRange(r.start.char, r.end.char, Characters.empty);
-      if (removeEmptyLines) {
-        removeEmptyLinesInRange(r);
-      }
     } else {
       lines[r.start.line] = lines[r.start.line]
           .replaceRange(r.start.char, null, Characters.empty);
       lines[r.end.line] =
           lines[r.end.line].replaceRange(0, r.end.char, Characters.empty);
+    }
+    if (removeEmptyLines) {
       removeEmptyLinesInRange(r);
     }
     if (lines.isEmpty) {
