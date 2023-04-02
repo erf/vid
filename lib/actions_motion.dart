@@ -64,12 +64,12 @@ Position motionLineEnd(Position p) {
 
 Position motionWordNext(Position p) {
   final line = lines[p.line];
-  final charPos = line.symbolToByteLength(p.char);
+  final start = line.charsToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
-    if (match.start > charPos) {
-      final symbolPos = line.byteToSymbolLength(match.start);
-      return Position(char: symbolPos, line: p.line);
+    if (match.start > start) {
+      final charPos = line.byteToCharsLength(match.start);
+      return Position(char: charPos, line: p.line);
     }
   }
   // either move to next line or stay on last char
@@ -82,12 +82,12 @@ Position motionWordNext(Position p) {
 
 Position motionWordEnd(Position p) {
   final line = lines[p.line];
-  final charPos = line.symbolToByteLength(p.char);
+  final start = line.charsToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
-    if (match.end - 1 > charPos) {
-      final symbolPos = line.byteToSymbolLength(match.end);
-      return Position(char: symbolPos - 1, line: p.line);
+    if (match.end - 1 > start) {
+      final charPos = line.byteToCharsLength(match.end);
+      return Position(char: charPos - 1, line: p.line);
     }
   }
   if (p.line < lines.length - 1) {
@@ -99,13 +99,13 @@ Position motionWordEnd(Position p) {
 
 Position motionWordPrev(Position p) {
   final line = lines[p.line];
-  final charPos = line.symbolToByteLength(p.char);
+  final start = line.charsToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   final reversed = matches.toList().reversed;
   for (final match in reversed) {
-    if (match.start < charPos) {
-      final symbolPos = line.byteToSymbolLength(match.start);
-      return Position(char: symbolPos, line: p.line);
+    if (match.start < start) {
+      final charPos = line.byteToCharsLength(match.start);
+      return Position(char: charPos, line: p.line);
     }
   }
   // either move to previous line or stay on the first char

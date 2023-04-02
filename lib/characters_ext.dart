@@ -20,21 +20,22 @@ extension CharactersExt on Characters {
     return replaceCharAt(index, Characters.empty);
   }
 
-  // get the cursor position for the rendered line, taking into account multi-characters
-  int symbolToRenderLength(int symbolLength) {
-    return take(symbolLength).fold(0, (prev, curr) => prev + curr.renderWidth);
+  // get cursor position for the rendered line
+  int charsToRenderLength(int charsLen) {
+    return take(charsLen).fold(0, (prev, curr) => prev + curr.renderWidth);
   }
 
   // get the symbol length given the byte length
-  int byteToSymbolLength(int byteLength) {
+  int byteToCharsLength(int byteLength) {
     return string.substring(0, byteLength).characters.length;
   }
 
-  // get the byte length given the symbol length
-  int symbolToByteLength(int symbolLength) {
-    if (symbolLength <= 0) {
-      return symbolLength;
+  // get the byte length given the character length
+  int charsToByteLength(int charsLen) {
+    if (charsLen <= 0) {
+      return charsLen;
+    } else {
+      return substring(0, charsLen).string.length;
     }
-    return substring(0, symbolLength).string.length;
   }
 }
