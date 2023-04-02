@@ -76,11 +76,10 @@ class Editor {
     drawStatus();
 
     // draw cursor
-    final cursorPos = lines[cursor.y].renderedLength(cursor.x);
-
+    final renderPos = lines[cursor.y].renderedLength(cursor.x);
     final termPos = Position(
       y: cursor.y - view.y + 1,
-      x: cursorPos - view.x + 1,
+      x: renderPos - view.x + 1,
     );
     renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
 
@@ -104,8 +103,12 @@ class Editor {
       modeStr = 'INSERT >> ';
     }
     final fileStr = filename ?? '[No Name]';
+    final padLeft =
+        terminal.width - modeStr.length - fileStr.length - message.length - 3;
+    final line = cursor.y + 1;
+    final char = cursor.x + 1;
     final status =
-        ' $modeStr$fileStr $message${'${cursor.y + 1}, ${cursor.x + 1}'.padLeft(terminal.width - modeStr.length - fileStr.length - message.length - 3)} ';
+        ' $modeStr$fileStr $message${'$line, $char'.padLeft(padLeft)} ';
     renderBuffer.write(status);
     renderBuffer.write(VT100.invert(false));
   }
