@@ -12,6 +12,10 @@ extension CharactersExt on Characters {
     return substring(0, start) + replacement + substring(end ?? length);
   }
 
+  Characters removeRange(int start, [int? end]) {
+    return replaceRange(start, end, ''.ch);
+  }
+
   Characters replaceCharAt(int index, Characters char) {
     return replaceRange(index, index + 1, char);
   }
