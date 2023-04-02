@@ -1,4 +1,5 @@
 import 'package:characters/characters.dart';
+import 'package:string_width/string_width.dart';
 import 'package:vid/string_ext.dart';
 
 extension CharactersExt on Characters {
@@ -25,8 +26,12 @@ extension CharactersExt on Characters {
   }
 
   // get cursor position for the rendered line
-  int renderedLength(int charIndex) {
-    return take(charIndex).fold(0, (prev, curr) => prev + curr.renderWidth);
+  int renderedLength(int charIndex, {bool usingLatestUnicodeVersion = true}) {
+    if (usingLatestUnicodeVersion) {
+      return stringWidth(take(charIndex).string);
+    } else {
+      return take(charIndex).fold(0, (prev, curr) => prev + curr.renderWidth);
+    }
   }
 
   // get the symbol length given the byte length
