@@ -6,49 +6,49 @@ import 'modes.dart';
 import 'position.dart';
 import 'text_utils.dart';
 
-typedef Motion = Position Function(Position);
+typedef Motion = Position Function(FileBuffer, Position);
 
-Position motionCharNext(Position p) {
+Position motionCharNext(FileBuffer f, Position p) {
   return Position(
     line: p.line,
-    char: clamp(p.char + 1, 0, lines[p.line].length - 1),
+    char: clamp(p.char + 1, 0, f.lines[p.line].length - 1),
   );
 }
 
-Position motionCharPrev(Position p) {
+Position motionCharPrev(FileBuffer f, Position p) {
   return Position(line: p.line, char: max(0, p.char - 1));
 }
 
-Position motionCharUp(Position p) {
-  final line = clamp(p.line - 1, 0, lines.length - 1);
-  final char = clamp(p.char, 0, lines[line].length - 1);
+Position motionCharUp(FileBuffer f, Position p) {
+  final line = clamp(p.line - 1, 0, f.lines.length - 1);
+  final char = clamp(p.char, 0, f.lines[line].length - 1);
   return Position(line: line, char: char);
 }
 
-Position motionCharDown(Position p) {
-  final line = clamp(p.line + 1, 0, lines.length - 1);
-  final char = clamp(p.char, 0, lines[line].length - 1);
+Position motionCharDown(FileBuffer f, Position p) {
+  final line = clamp(p.line + 1, 0, f.lines.length - 1);
+  final char = clamp(p.char, 0, f.lines[line].length - 1);
   return Position(line: line, char: char);
 }
 
-Position motionFirstLine(Position p) {
+Position motionFirstLine(FileBuffer f, Position p) {
   return Position(line: 0, char: 0);
 }
 
-Position motionLastLine(Position position) {
-  return Position(line: max(0, lines.length - 1), char: lines.last.length);
+Position motionLastLine(FileBuffer f, Position position) {
+  return Position(line: max(0, f.lines.length - 1), char: f.lines.last.length);
 }
 
-Position motionLineStart(Position p) {
+Position motionLineStart(FileBuffer f, Position p) {
   return Position(line: p.line, char: 0);
 }
 
-Position motionLineEnd(Position p) {
-  return Position(line: p.line, char: lines[p.line].length - 1);
+Position motionLineEnd(FileBuffer f, Position p) {
+  return Position(line: p.line, char: f.lines[p.line].length - 1);
 }
 
-Position motionWordNext(Position p) {
-  final line = lines[p.line];
+Position motionWordNext(FileBuffer f, Position p) {
+  final line = f.lines[p.line];
   final start = line.charsToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
@@ -58,15 +58,15 @@ Position motionWordNext(Position p) {
     }
   }
   // either move to next line or stay on last char
-  if (p.line < lines.length - 1) {
+  if (p.line < f.lines.length - 1) {
     return Position(char: 0, line: p.line + 1);
   } else {
     return Position(char: max(line.length - 1, 0), line: p.line);
   }
 }
 
-Position motionWordEnd(Position p) {
-  final line = lines[p.line];
+Position motionWordEnd(FileBuffer f, Position p) {
+  final line = f.lines[p.line];
   final start = line.charsToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
@@ -75,15 +75,15 @@ Position motionWordEnd(Position p) {
       return Position(char: charPos - 1, line: p.line);
     }
   }
-  if (p.line < lines.length - 1) {
+  if (p.line < f.lines.length - 1) {
     return Position(char: 0, line: p.line + 1);
   } else {
     return Position(char: max(line.length - 1, 0), line: p.line);
   }
 }
 
-Position motionWordPrev(Position p) {
-  final line = lines[p.line];
+Position motionWordPrev(FileBuffer f, Position p) {
+  final line = f.lines[p.line];
   final start = line.charsToByteLength(p.char);
   final matches = RegExp(r'\S+').allMatches(line.string);
   final reversed = matches.toList().reversed;
@@ -95,14 +95,15 @@ Position motionWordPrev(Position p) {
   }
   // either move to previous line or stay on the first char
   if (p.line > 0) {
-    return Position(char: lines[p.line - 1].length, line: p.line - 1);
+    return Position(char: f.lines[p.line - 1].length, line: p.line - 1);
   } else {
     return Position(char: 0, line: p.line);
   }
 }
 
-Position motionEscape(Position p) {
-  mode = Mode.normal;
-  currentPending = null;
+// TODO not a motion, but a command
+Position motionEscape(FileBuffer f, Position p) {
+  f.mode = Mode.normal;
+  f.currentPending = null;
   return p;
 }

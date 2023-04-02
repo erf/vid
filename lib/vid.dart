@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/file_buffer.dart';
 
 import 'actions_insert.dart';
 import 'actions_motion.dart';
@@ -11,7 +12,6 @@ import 'actions_operator_pending.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_ext.dart';
-import 'file_buffer.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
@@ -20,11 +20,15 @@ import 'text_utils.dart';
 import 'vt100.dart';
 
 final term = Terminal();
-final rbuf = StringBuffer();
+final rb = StringBuffer();
 String msg = '';
 
 void draw() {
-  rbuf.write(VT100.erase);
+  rb.write(VT100.erase);
+
+  final lines = fileBuffer.lines;
+  final cursor = fileBuffer.cursor;
+  final view = fileBuffer.view;
 
   final lineStart = view.line;
   final lineEnd = view.line + term.height - 1;
@@ -32,7 +36,7 @@ void draw() {
   // draw lines
   for (int l = lineStart; l < lineEnd; l++) {
     if (l > lines.length - 1) {
-      rbuf.writeln('~');
+      rb.writeln('~');
       continue;
     }
     var line = lines[l];
@@ -44,9 +48,9 @@ void draw() {
       }
     }
     if (line.length < term.width) {
-      rbuf.writeln(line);
+      rb.writeln(line);
     } else {
-      rbuf.writeln(line.substring(0, term.width - 1));
+      rb.writeln(line.substring(0, term.width - 1));
     }
   }
 
@@ -60,15 +64,19 @@ void draw() {
     line: cursor.line - view.line + 1,
     char: cursorPos - view.char + 1,
   );
-  rbuf.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
+  rb.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
 
-  term.write(rbuf);
-  rbuf.clear();
+  term.write(rb);
+  rb.clear();
 }
 
 void drawStatus() {
-  rbuf.write(VT100.invert(true));
-  rbuf.write(VT100.cursorPosition(x: 1, y: term.height));
+  final mode = fileBuffer.mode;
+  final cursor = fileBuffer.cursor;
+  final filename = fileBuffer.filename;
+
+  rb.write(VT100.invert(true));
+  rb.write(VT100.cursorPosition(x: 1, y: term.height));
   final String modeStr;
   if (mode == Mode.normal) {
     modeStr = '';
@@ -80,8 +88,8 @@ void drawStatus() {
   final fileStr = filename ?? '[No Name]';
   final status =
       ' $modeStr$fileStr $msg${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(term.width - modeStr.length - fileStr.length - msg.length - 3)} ';
-  rbuf.write(status);
-  rbuf.write(VT100.invert(false));
+  rb.write(status);
+  rb.write(VT100.invert(false));
 }
 
 void showMessage(String message) {
@@ -94,9 +102,12 @@ void showMessage(String message) {
 }
 
 void insert(Characters str) {
+  final lines = fileBuffer.lines;
+  final cursor = fileBuffer.cursor;
+
   InsertAction? insertAction = insertActions[str.string];
   if (insertAction != null) {
-    insertAction();
+    insertAction(fileBuffer);
     return;
   }
 
@@ -110,16 +121,21 @@ void insert(Characters str) {
 }
 
 void replace(Characters str) {
-  mode = Mode.normal;
+  final lines = fileBuffer.lines;
+  final cursor = fileBuffer.cursor;
+  fileBuffer.mode = Mode.normal;
   Characters line = lines[cursor.line];
   if (line.isEmpty) {
     return;
   }
-  lines[cursor.line] = line.replaceRange(cursor.char, cursor.char + 1, str);
+  fileBuffer.lines[cursor.line] =
+      line.replaceRange(cursor.char, cursor.char + 1, str);
 }
 
 // clamp view on cursor position
 void updateViewFromCursor() {
+  final cursor = fileBuffer.cursor;
+  final view = fileBuffer.view;
   view.line = clamp(view.line, cursor.line, cursor.line - term.height + 2);
   view.char = clamp(view.char, cursor.char, cursor.char - term.width + 2);
 }
@@ -127,7 +143,7 @@ void updateViewFromCursor() {
 void input(List<int> codes) {
   Characters str = utf8.decode(codes).characters;
 
-  switch (mode) {
+  switch (fileBuffer.mode) {
     case Mode.insert:
       insert(str);
       break;
@@ -148,38 +164,39 @@ void input(List<int> codes) {
 void normal(Characters str) {
   final maybeInt = int.tryParse(str.string);
   if (maybeInt != null && maybeInt > 0) {
-    count = maybeInt;
+    fileBuffer.count = maybeInt;
     return;
   }
 
   NormalAction? action = normalActions[str.string];
   if (action != null) {
-    action.call();
+    action.call(fileBuffer);
     return;
   }
   OperatorPendingAction? pending = operatorActions[str.string];
   if (pending != null) {
-    mode = Mode.operatorPending;
-    currentPending = pending;
+    fileBuffer.mode = Mode.operatorPending;
+    fileBuffer.currentPending = pending;
   }
 }
 
 void operatorPending(Characters str) {
-  if (currentPending == null) {
+  if (fileBuffer.currentPending == null) {
     return;
   }
 
   TextObject? textObject = textObjects[str.string];
   if (textObject != null) {
-    Range range = textObject.call(cursor);
-    currentPending?.call(range);
+    Range range = textObject.call(fileBuffer, fileBuffer.cursor);
+    fileBuffer.currentPending?.call(fileBuffer, range);
     return;
   }
 
   Motion? motion = motionActions[str.string];
   if (motion != null) {
-    Position newPosition = motion.call(cursor);
-    currentPending?.call(Range(start: cursor, end: newPosition));
+    Position newPosition = motion.call(fileBuffer, fileBuffer.cursor);
+    fileBuffer.currentPending
+        ?.call(fileBuffer, Range(start: fileBuffer.cursor, end: newPosition));
     return;
   }
 }
@@ -191,15 +208,15 @@ void resize(ProcessSignal signal) {
 void loadFile(args) {
   if (args.isEmpty) {
     // always have at least one line with empty string to avoid index out of bounds
-    lines = [Characters.empty];
+    fileBuffer.lines = [Characters.empty];
     return;
   }
-  filename = args[0];
-  final file = File(filename!);
+  fileBuffer.filename = args[0];
+  final file = File(fileBuffer.filename!);
   if (file.existsSync()) {
-    lines = file.readAsLinesSync().map((e) => e.characters).toList();
-    if (lines.isEmpty) {
-      lines = [Characters.empty];
+    fileBuffer.lines = file.readAsLinesSync().map((e) => e.characters).toList();
+    if (fileBuffer.lines.isEmpty) {
+      fileBuffer.lines = [Characters.empty];
     }
   }
 }

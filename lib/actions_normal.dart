@@ -12,157 +12,158 @@ import 'range.dart';
 import 'vid.dart';
 import 'vt100.dart';
 
-typedef NormalAction = void Function();
+typedef NormalAction = void Function(FileBuffer);
 
-void actionMoveDownHalfPage() {
-  cursor.line += term.height ~/ 2;
-  clampCursor();
+void actionMoveDownHalfPage(FileBuffer f) {
+  f.cursor.line += term.height ~/ 2;
+  clampCursor(f);
 }
 
-void actionMoveUpHalfPage() {
-  cursor.line -= term.height ~/ 2;
-  clampCursor();
+void actionMoveUpHalfPage(FileBuffer f) {
+  f.cursor.line -= term.height ~/ 2;
+  clampCursor(f);
 }
 
-void insertText(Characters text, Position pos) {
-  final newText = lines[pos.line].replaceRange(pos.char, pos.char, text);
-  lines.replaceRange(pos.line, pos.line + 1, newText.split('\n'.characters));
+void insertText(FileBuffer f, Characters text, Position pos) {
+  final newText = f.lines[pos.line].replaceRange(pos.char, pos.char, text);
+  f.lines.replaceRange(pos.line, pos.line + 1, newText.split('\n'.characters));
 }
 
-void actionPasteAfter() {
-  if (yankBuffer == null) return;
-  insertText(yankBuffer!, cursor);
+void actionPasteAfter(FileBuffer f) {
+  if (f.yankBuffer == null) return;
+  insertText(f, f.yankBuffer!, f.cursor);
 }
 
-void actionQuit() {
-  rbuf.write(VT100.erase);
-  rbuf.write(VT100.reset);
-  term.write(rbuf);
-  rbuf.clear();
+void actionQuit(FileBuffer f) {
+  rb.write(VT100.erase);
+  rb.write(VT100.reset);
+  term.write(rb);
+  rb.clear();
   term.rawMode = false;
   exit(0);
 }
 
-void actionSave() {
-  if (filename == null) {
+void actionSave(FileBuffer f) {
+  if (f.filename == null) {
     showMessage('Error: No filename');
     return;
   }
-  final file = File(filename!);
+  final file = File(f.filename!);
   final sink = file.openWrite();
-  for (var line in lines) {
+  for (var line in f.lines) {
     sink.writeln(line);
   }
   sink.close();
   showMessage('Saved');
 }
 
-void actionCursorCharNext() {
-  cursor = motionCharNext(cursor);
+void actionCursorCharNext(FileBuffer f) {
+  f.cursor = motionCharNext(f, f.cursor);
 }
 
-void actionCursorCharPrev() {
-  cursor = motionCharPrev(cursor);
+void actionCursorCharPrev(FileBuffer f) {
+  f.cursor = motionCharPrev(f, f.cursor);
 }
 
-void actionCursorLineBottom() {
-  cursor = motionLastLine(cursor);
+void actionCursorLineBottom(FileBuffer f) {
+  f.cursor = motionLastLine(f, f.cursor);
 }
 
-void actionOpenLineAbove() {
-  mode = Mode.insert;
-  lines.insert(cursor.line, Characters.empty);
-  cursor.char = 0;
+void actionOpenLineAbove(FileBuffer f) {
+  f.mode = Mode.insert;
+  f.lines.insert(f.cursor.line, Characters.empty);
+  f.cursor.char = 0;
 }
 
-void actionOpenLineBelow() {
-  mode = Mode.insert;
-  if (cursor.line + 1 >= lines.length) {
-    lines.add(Characters.empty);
+void actionOpenLineBelow(FileBuffer f) {
+  f.mode = Mode.insert;
+  if (f.cursor.line + 1 >= f.lines.length) {
+    f.lines.add(Characters.empty);
   } else {
-    lines.insert(cursor.line + 1, Characters.empty);
+    f.lines.insert(f.cursor.line + 1, Characters.empty);
   }
-  actionCursorCharDown();
+  actionCursorCharDown(f);
 }
 
-void actionInsert() {
-  mode = Mode.insert;
+void actionInsert(FileBuffer f) {
+  f.mode = Mode.insert;
 }
 
-void actionInsertLineStart() {
-  mode = Mode.insert;
-  cursor.char = 0;
+void actionInsertLineStart(FileBuffer f) {
+  f.mode = Mode.insert;
+  f.cursor.char = 0;
 }
 
-void actionAppendLineEnd() {
-  mode = Mode.insert;
-  if (lines[cursor.line].isNotEmpty) {
-    cursor.char = lines[cursor.line].length;
-  }
-}
-
-void actionAppendCharNext() {
-  mode = Mode.insert;
-  if (lines[cursor.line].isNotEmpty) {
-    cursor.char++;
+void actionAppendLineEnd(FileBuffer f) {
+  f.mode = Mode.insert;
+  if (f.lines[f.cursor.line].isNotEmpty) {
+    f.cursor.char = f.lines[f.cursor.line].length;
   }
 }
 
-void actionCursorLineEnd() {
-  cursor = motionLineEnd(cursor);
+void actionAppendCharNext(FileBuffer f) {
+  f.mode = Mode.insert;
+  if (f.lines[f.cursor.line].isNotEmpty) {
+    f.cursor.char++;
+  }
 }
 
-void actionCursorLineStart() {
-  cursor = motionLineStart(cursor);
-  view.char = 0;
+void actionCursorLineEnd(FileBuffer f) {
+  f.cursor = motionLineEnd(f, f.cursor);
 }
 
-void actionCursorCharUp() {
-  cursor = motionCharUp(cursor);
+void actionCursorLineStart(FileBuffer f) {
+  f.cursor = motionLineStart(f, f.cursor);
+  f.view.char = 0;
 }
 
-void actionCursorCharDown() {
-  cursor = motionCharDown(cursor);
+void actionCursorCharUp(FileBuffer f) {
+  f.cursor = motionCharUp(f, f.cursor);
 }
 
-void actionCursorWordNext() {
-  cursor = motionWordNext(cursor);
+void actionCursorCharDown(FileBuffer f) {
+  f.cursor = motionCharDown(f, f.cursor);
 }
 
-void actionCursorWordEnd() {
-  cursor = motionWordEnd(cursor);
+void actionCursorWordNext(FileBuffer f) {
+  f.cursor = motionWordNext(f, f.cursor);
 }
 
-void actionCursorWordPrev() {
-  cursor = motionWordPrev(cursor);
+void actionCursorWordEnd(FileBuffer f) {
+  f.cursor = motionWordEnd(f, f.cursor);
 }
 
-void actionDeleteCharNext() {
-  if (emptyFile()) {
+void actionCursorWordPrev(FileBuffer f) {
+  f.cursor = motionWordPrev(f, f.cursor);
+}
+
+void actionDeleteCharNext(FileBuffer f) {
+  if (emptyFile(f)) {
     return;
   }
-  Characters line = lines[cursor.line];
+  Characters line = f.lines[f.cursor.line];
   if (line.isNotEmpty) {
-    lines[cursor.line] = line.deleteCharAt(cursor.char);
+    f.lines[f.cursor.line] = line.deleteCharAt(f.cursor.char);
   }
-  clampCursor();
+  clampCursor(f);
 }
 
-void actionReplaceMode() {
-  mode = Mode.replace;
+void actionReplaceMode(FileBuffer f) {
+  f.mode = Mode.replace;
 }
 
-void actionDeleteLineEnd() {
-  if (emptyFile()) {
+void actionDeleteLineEnd(FileBuffer f) {
+  if (emptyFile(f)) {
     return;
   }
-  final lineEnd = motionLineEnd(cursor);
+  final lineEnd = motionLineEnd(f, f.cursor);
   deleteRange(
+    f,
     Range(
-      start: cursor,
+      start: f.cursor,
       end: Position(line: lineEnd.line, char: lineEnd.char + 1),
     ),
     false,
   );
-  clampCursor();
+  clampCursor(f);
 }

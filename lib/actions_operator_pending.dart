@@ -6,49 +6,50 @@ import 'modes.dart';
 import 'text_utils.dart';
 import 'range.dart';
 
-typedef OperatorPendingAction = void Function(Range);
+typedef OperatorPendingAction = void Function(FileBuffer f, Range);
 
-void yankRange(Range r) {
+void yankRange(FileBuffer f, Range r) {
   final range = normalizedRange(r);
-  final sublist = lines.sublist(range.start.line, range.end.line + 1);
+  final sublist = f.lines.sublist(range.start.line, range.end.line + 1);
   if (sublist.length == 1) {
-    yankBuffer = sublist.first.substring(range.start.char, range.end.char + 1);
+    f.yankBuffer =
+        sublist.first.substring(range.start.char, range.end.char + 1);
     return;
   }
   // get text in range from the first and last element
   var text = Characters.empty;
   for (int i = range.start.line; i <= range.end.line; i++) {
     if (i == range.start.line) {
-      text += lines[i].substring(range.start.char);
+      text += f.lines[i].substring(range.start.char);
     } else if (i == range.end.line) {
-      text += lines[i].substring(0, range.end.char);
+      text += f.lines[i].substring(0, range.end.char);
     } else {
-      text += lines[i];
+      text += f.lines[i];
     }
   }
-  yankBuffer = text;
+  f.yankBuffer = text;
 }
 
-void pendingActionYank(Range range) {
-  yankRange(range);
-  mode = Mode.normal;
+void pendingActionYank(FileBuffer f, Range range) {
+  yankRange(f, range);
+  f.mode = Mode.normal;
 }
 
-void pendingActionChange(Range range) {
-  pendingActionDelete(range);
-  mode = Mode.insert;
+void pendingActionChange(FileBuffer f, Range range) {
+  pendingActionDelete(f, range);
+  f.mode = Mode.insert;
 }
 
-void pendingActionDelete(Range range) {
+void pendingActionDelete(FileBuffer f, Range range) {
   Range rNorm = normalizedRange(range);
-  deleteRange(rNorm);
-  cursor = rNorm.start.clone();
-  clampCursor();
-  mode = Mode.normal;
+  deleteRange(f, rNorm);
+  f.cursor = rNorm.start.clone();
+  clampCursor(f);
+  f.mode = Mode.normal;
 }
 
-void pendingActionGo(Range range) {
-  mode = Mode.normal;
-  cursor.char = range.end.char;
-  cursor.line = range.end.line;
+void pendingActionGo(FileBuffer f, Range range) {
+  f.mode = Mode.normal;
+  f.cursor.char = range.end.char;
+  f.cursor.line = range.end.line;
 }

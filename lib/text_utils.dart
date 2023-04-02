@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:characters/characters.dart';
@@ -28,20 +29,21 @@ Range normalizedRange(Range range) {
   return r;
 }
 
-void deleteRange(Range r, [bool removeEmptyLines = true]) {
+void deleteRange(FileBuffer f, Range r, [bool removeEmptyLines = true]) {
+  final lines = f.lines;
   // delete text in range at the start and end lines
   if (r.start.line == r.end.line) {
     lines[r.start.line] = lines[r.start.line]
         .replaceRange(r.start.char, r.end.char, Characters.empty);
     if (removeEmptyLines) {
-      removeEmptyLinesInRange(r);
+      removeEmptyLinesInRange(f, r);
     }
   } else {
     lines[r.start.line] =
         lines[r.start.line].replaceRange(r.start.char, null, Characters.empty);
     lines[r.end.line] =
         lines[r.end.line].replaceRange(0, r.end.char, Characters.empty);
-    removeEmptyLinesInRange(r);
+    removeEmptyLinesInRange(f, r);
   }
   if (lines.isEmpty) {
     lines.add(Characters.empty);
@@ -54,23 +56,23 @@ bool insideRange(int line, Range range) {
 }
 
 // iterate remove empty lines and lines inside range
-void removeEmptyLinesInRange(Range r) {
+void removeEmptyLinesInRange(FileBuffer f, Range r) {
   int line = r.start.line;
   for (int i = r.start.line; i <= r.end.line; i++) {
-    if (lines[line].isEmpty || insideRange(i, r)) {
-      lines.removeAt(line);
+    if (f.lines[line].isEmpty || insideRange(i, r)) {
+      f.lines.removeAt(line);
     } else {
       line++;
     }
   }
 }
 
-bool emptyFile() {
-  return lines.length == 1 && lines[0].isEmpty;
+bool emptyFile(FileBuffer f) {
+  return f.lines.length == 1 && f.lines[0].isEmpty;
 }
 
 // clamp cursor position to valid range
-void clampCursor() {
-  cursor.line = clamp(cursor.line, 0, lines.length - 1);
-  cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
+void clampCursor(FileBuffer f) {
+  f.cursor.line = clamp(f.cursor.line, 0, f.lines.length - 1);
+  f.cursor.char = clamp(f.cursor.char, 0, f.lines[f.cursor.line].length - 1);
 }

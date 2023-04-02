@@ -5,36 +5,36 @@ import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
 
-typedef TextObject = Range Function(Position);
+typedef TextObject = Range Function(FileBuffer, Position);
 
-Range objectCurrentLine(Position p) {
+Range objectCurrentLine(FileBuffer f, Position p) {
   return Range(
     start: Position(line: p.line, char: 0),
-    end: Position(line: p.line, char: lines[p.line].length),
+    end: Position(line: p.line, char: f.lines[p.line].length),
   );
 }
 
-Range objectLineUp(Position p) {
+Range objectLineUp(FileBuffer f, Position p) {
   final start = Position(line: max(p.line - 1, 0), char: 0);
-  final end = Position(line: p.line, char: lines[p.line].length);
+  final end = Position(line: p.line, char: f.lines[p.line].length);
   return Range(start: start, end: end);
 }
 
-Range objectLineDown(Position p) {
+Range objectLineDown(FileBuffer f, Position p) {
   final start = Position(line: p.line, char: 0);
-  final endLine = min(p.line + 1, lines.length - 1);
-  final end = Position(line: endLine, char: lines[endLine].length);
+  final endLine = min(p.line + 1, f.lines.length - 1);
+  final end = Position(line: endLine, char: f.lines[endLine].length);
   return Range(start: start, end: end);
 }
 
-Range objectFirstLine(Position p) {
-  final start = Position(line: p.line, char: lines[p.line].length);
-  final end = motionFirstLine(p);
+Range objectFirstLine(FileBuffer f, Position p) {
+  final start = Position(line: p.line, char: f.lines[p.line].length);
+  final end = motionFirstLine(f, p);
   return Range(start: start, end: end);
 }
 
-Range objectLastLine(Position p) {
+Range objectLastLine(FileBuffer f, Position p) {
   final start = Position(line: p.line, char: 0);
-  final end = motionLastLine(p);
+  final end = motionLastLine(f, p);
   return Range(start: start, end: end);
 }

@@ -4,20 +4,24 @@ import 'actions_operator_pending.dart';
 import 'modes.dart';
 import 'position.dart';
 
-String? filename;
+class FileBuffer {
+  String? filename;
 
 // always have at least one line with one empty string
-var lines = [Characters.empty];
+  var lines = [Characters.empty];
 
 // the current cursor position (0 based, in human-readable symbol space as opposed to byte space)
-var cursor = Position();
+  var cursor = Position();
 
-var view = Position();
+  var view = Position();
 
-var mode = Mode.normal;
+  var mode = Mode.normal;
 
-OperatorPendingAction? currentPending;
+  OperatorPendingAction? currentPending;
 
-int? count;
+  int? count;
 
-Characters? yankBuffer;
+  Characters? yankBuffer;
+}
+
+final fileBuffer = FileBuffer();
