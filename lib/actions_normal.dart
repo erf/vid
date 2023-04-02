@@ -133,7 +133,7 @@ void actionCursorWordPrev(Editor e, FileBuffer f) {
 }
 
 void actionDeleteCharNext(Editor e, FileBuffer f) {
-  if (f.emptyFile()) {
+  if (f.empty()) {
     return;
   }
   Characters line = f.lines[f.cursor.line];
@@ -148,7 +148,7 @@ void actionReplaceMode(Editor e, FileBuffer f) {
 }
 
 void actionDeleteLineEnd(Editor e, FileBuffer f) {
-  if (f.emptyFile()) return;
+  if (f.empty()) return;
   final lineEnd = motionLineEnd(f, f.cursor);
   f.deleteRange(
       Range(

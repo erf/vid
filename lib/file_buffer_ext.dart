@@ -69,7 +69,7 @@ extension FileBufferExt on FileBuffer {
     }
   }
 
-  bool emptyFile() {
+  bool empty() {
     return lines.length == 1 && lines[0].isEmpty;
   }
 
