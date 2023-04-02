@@ -35,10 +35,10 @@ extension FileBufferExt on FileBuffer {
 
   void deleteRange(Range r, [bool removeEmptyLines = true]) {
     if (r.p0.y == r.p1.y) {
-      lines[r.p0.y] = lines[r.p0.y].replaceRange(r.p0.x, r.p1.x, ''.ch);
+      lines[r.p0.y] = lines[r.p0.y].removeRange(r.p0.x, r.p1.x);
     } else {
-      lines[r.p0.y] = lines[r.p0.y].replaceRange(r.p0.x, null, ''.ch);
-      lines[r.p1.y] = lines[r.p1.y].replaceRange(0, r.p1.x, ''.ch);
+      lines[r.p0.y] = lines[r.p0.y].removeRange(r.p0.x);
+      lines[r.p1.y] = lines[r.p1.y].removeRange(0, r.p1.x);
     }
     if (removeEmptyLines) {
       removeEmptyLinesInRange(r);
