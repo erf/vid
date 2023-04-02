@@ -23,5 +23,3 @@ class FileBuffer {
 
   Characters? yankBuffer;
 }
-
-final fileBuffer = FileBuffer();

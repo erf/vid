@@ -101,7 +101,7 @@ Position motionWordPrev(FileBuffer f, Position p) {
   }
 }
 
-// TODO not a motion, but a command
+// TODO not a motion, but a command ?
 Position motionEscape(FileBuffer f, Position p) {
   f.mode = Mode.normal;
   f.currentPending = null;
