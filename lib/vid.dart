@@ -18,7 +18,6 @@ import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
-import 'utils.dart';
 import 'vt100.dart';
 
 class Editor {
@@ -26,6 +25,19 @@ class Editor {
   final fileBuffer = FileBuffer();
   final renderBuffer = StringBuffer();
   String msg = '';
+
+  void init(List<String> args) {
+    terminal.rawMode = true;
+    terminal.write(VT100.cursorVisible(true));
+    fileBuffer.load(args);
+    draw();
+    terminal.input.listen(input);
+    terminal.resize.listen(resize);
+  }
+
+  void resize(ProcessSignal signal) {
+    draw();
+  }
 
   void draw() {
     renderBuffer.write(VT100.erase);
@@ -105,6 +117,27 @@ class Editor {
     });
   }
 
+  void input(List<int> codes) {
+    Characters str = utf8.decode(codes).characters;
+
+    switch (fileBuffer.mode) {
+      case Mode.insert:
+        insert(str);
+        break;
+      case Mode.normal:
+        normal(str);
+        break;
+      case Mode.operatorPending:
+        pending(str);
+        break;
+      case Mode.replace:
+        replace(str);
+        break;
+    }
+    fileBuffer.clampView(terminal);
+    draw();
+  }
+
   void insert(Characters str) {
     final lines = fileBuffer.lines;
     final cursor = fileBuffer.cursor;
@@ -122,40 +155,6 @@ class Editor {
       lines[cursor.line] = line.replaceRange(cursor.char, cursor.char, str);
     }
     cursor.char++;
-  }
-
-  void replace(Characters str) {
-    defaultReplace(fileBuffer, str);
-  }
-
-// clamp view on cursor position
-  void updateViewFromCursor() {
-    final cursor = fileBuffer.cursor;
-    final view = fileBuffer.view;
-    view.line =
-        clamp(view.line, cursor.line, cursor.line - terminal.height + 2);
-    view.char = clamp(view.char, cursor.char, cursor.char - terminal.width + 2);
-  }
-
-  void input(List<int> codes) {
-    Characters str = utf8.decode(codes).characters;
-
-    switch (fileBuffer.mode) {
-      case Mode.insert:
-        insert(str);
-        break;
-      case Mode.normal:
-        normal(str);
-        break;
-      case Mode.operatorPending:
-        operatorPending(str);
-        break;
-      case Mode.replace:
-        replace(str);
-        break;
-    }
-    updateViewFromCursor();
-    draw();
   }
 
   void normal(Characters str) {
@@ -177,7 +176,7 @@ class Editor {
     }
   }
 
-  void operatorPending(Characters str) {
+  void pending(Characters str) {
     if (fileBuffer.currentPending == null) {
       return;
     }
@@ -198,16 +197,7 @@ class Editor {
     }
   }
 
-  void resize(ProcessSignal signal) {
-    draw();
-  }
-
-  void init(List<String> args) {
-    terminal.rawMode = true;
-    terminal.write(VT100.cursorVisible(true));
-    fileBuffer.load(args);
-    draw();
-    terminal.input.listen(input);
-    terminal.resize.listen(resize);
+  void replace(Characters str) {
+    defaultReplace(fileBuffer, str);
   }
 }

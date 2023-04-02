@@ -6,6 +6,7 @@ import 'characters_ext.dart';
 import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
+import 'terminal.dart';
 import 'utils.dart';
 
 extension FileBufferExt on FileBuffer {
@@ -76,5 +77,11 @@ extension FileBufferExt on FileBuffer {
   void clampCursor() {
     cursor.line = clamp(cursor.line, 0, lines.length - 1);
     cursor.char = clamp(cursor.char, 0, lines[cursor.line].length - 1);
+  }
+
+// clamp view on cursor position
+  void clampView(Terminal t) {
+    view.line = clamp(view.line, cursor.line, cursor.line - t.height + 2);
+    view.char = clamp(view.char, cursor.char, cursor.char - t.width + 2);
   }
 }
