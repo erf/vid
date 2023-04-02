@@ -26,7 +26,7 @@ class Editor {
   final fileBuffer = FileBuffer();
   final renderBuffer = StringBuffer();
   String message = '';
-  final messageTimeInMs = 2000;
+  static const messageTimeInMs = 2000;
 
   void init(List<String> args) {
     terminal.rawMode = true;
