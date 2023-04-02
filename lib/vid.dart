@@ -26,6 +26,7 @@ class Editor {
   final fileBuffer = FileBuffer();
   final renderBuffer = StringBuffer();
   String message = '';
+  final messageTimeInMs = 2000;
 
   void init(List<String> args) {
     terminal.rawMode = true;
@@ -112,7 +113,7 @@ class Editor {
   void showMessage(String text) {
     message = text;
     draw();
-    Timer(Duration(seconds: 2), () {
+    Timer(Duration(milliseconds: messageTimeInMs), () {
       message = '';
       draw();
     });
