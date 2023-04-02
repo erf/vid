@@ -11,18 +11,18 @@ typedef OperatorPendingAction = void Function(FileBuffer f, Range);
 
 void yankRange(FileBuffer f, Range range) {
   final r = range.normalized();
-  final sublist = f.lines.sublist(r.start.line, r.end.line + 1);
+  final sublist = f.lines.sublist(r.p0.line, r.p1.line + 1);
   if (sublist.length == 1) {
-    f.yankBuffer = sublist.first.substring(r.start.char, r.end.char + 1);
+    f.yankBuffer = sublist.first.substring(r.p0.char, r.p1.char + 1);
     return;
   }
   // get text in range from the first and last element
   var text = Characters.empty;
-  for (int i = r.start.line; i <= r.end.line; i++) {
-    if (i == r.start.line) {
-      text += f.lines[i].substring(r.start.char);
-    } else if (i == r.end.line) {
-      text += f.lines[i].substring(0, r.end.char);
+  for (int i = r.p0.line; i <= r.p1.line; i++) {
+    if (i == r.p0.line) {
+      text += f.lines[i].substring(r.p0.char);
+    } else if (i == r.p1.line) {
+      text += f.lines[i].substring(0, r.p1.char);
     } else {
       text += f.lines[i];
     }
@@ -43,13 +43,13 @@ void pendingActionChange(FileBuffer f, Range range) {
 void pendingActionDelete(FileBuffer f, Range range) {
   Range r = range.normalized();
   f.deleteRange(r);
-  f.cursor = r.start.clone();
+  f.cursor = r.p0.clone();
   f.clampCursor();
   f.mode = Mode.normal;
 }
 
 void pendingActionGo(FileBuffer f, Range range) {
   f.mode = Mode.normal;
-  f.cursor.char = range.end.char;
-  f.cursor.line = range.end.line;
+  f.cursor.char = range.p1.char;
+  f.cursor.line = range.p1.line;
 }

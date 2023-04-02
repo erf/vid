@@ -34,14 +34,11 @@ extension FileBufferExt on FileBuffer {
   }
 
   void deleteRange(Range r, [bool removeEmptyLines = true]) {
-    if (r.start.line == r.end.line) {
-      lines[r.start.line] = lines[r.start.line]
-          .replaceRange(r.start.char, r.end.char, Characters.empty);
+    if (r.p0.line == r.p1.line) {
+      lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, r.p1.char, Characters.empty);
     } else {
-      lines[r.start.line] = lines[r.start.line]
-          .replaceRange(r.start.char, null, Characters.empty);
-      lines[r.end.line] =
-          lines[r.end.line].replaceRange(0, r.end.char, Characters.empty);
+      lines[r.p0.line] = lines[r.p0.line].replaceRange(r.p0.char, null, Characters.empty);
+      lines[r.p1.line] = lines[r.p1.line].replaceRange(0, r.p1.char, Characters.empty);
     }
     if (removeEmptyLines) {
       removeEmptyLinesInRange(r);
@@ -53,13 +50,13 @@ extension FileBufferExt on FileBuffer {
 
 // check if line is inside range
   bool insideRange(int line, Range range) {
-    return line > range.start.line && line < range.end.line;
+    return line > range.p0.line && line < range.p1.line;
   }
 
 // iterate remove empty lines and lines inside range
   void removeEmptyLinesInRange(Range r) {
-    int line = r.start.line;
-    for (int i = r.start.line; i <= r.end.line; i++) {
+    int line = r.p0.line;
+    for (int i = r.p0.line; i <= r.p1.line; i++) {
       if (lines[line].isEmpty || insideRange(i, r)) {
         lines.removeAt(line);
       } else {

@@ -192,7 +192,7 @@ class Editor {
     if (motion != null) {
       Position newPosition = motion.call(fileBuffer, fileBuffer.cursor);
       fileBuffer.currentPending
-          ?.call(fileBuffer, Range(start: fileBuffer.cursor, end: newPosition));
+          ?.call(fileBuffer, Range(p0: fileBuffer.cursor, p1: newPosition));
       return;
     }
   }

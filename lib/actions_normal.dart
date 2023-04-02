@@ -152,8 +152,8 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
   final lineEnd = motionLineEnd(f, f.cursor);
   f.deleteRange(
       Range(
-        start: f.cursor,
-        end: Position(line: lineEnd.line, char: lineEnd.char + 1),
+        p0: f.cursor,
+        p1: Position(line: lineEnd.line, char: lineEnd.char + 1),
       ),
       false);
   f.clampCursor();
