@@ -8,13 +8,6 @@ import 'range.dart';
 
 typedef OperatorPendingAction = void Function(Range);
 
-final operatorActions = <String, OperatorPendingAction>{
-  'c': pendingActionChange,
-  'd': pendingActionDelete,
-  'g': pendingActionGo,
-  'y': pendingActionYank,
-};
-
 void yankRange(Range r) {
   final range = normalizedRange(r);
   final sublist = lines.sublist(range.start.line, range.end.line + 1);

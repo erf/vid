@@ -14,33 +14,6 @@ import 'vt100.dart';
 
 typedef NormalAction = void Function();
 
-final normalActions = <String, NormalAction>{
-  'q': actionQuit,
-  's': actionSave,
-  'h': actionCursorCharPrev,
-  'l': actionCursorCharNext,
-  'j': actionCursorCharDown,
-  'k': actionCursorCharUp,
-  'w': actionCursorWordNext,
-  'b': actionCursorWordPrev,
-  'e': actionCursorWordEnd,
-  'x': actionDeleteCharNext,
-  '0': actionCursorLineStart,
-  '\$': actionCursorLineEnd,
-  'i': actionInsert,
-  'a': actionAppendCharNext,
-  'A': actionAppendLineEnd,
-  'I': actionInsertLineStart,
-  'o': actionOpenLineBelow,
-  'O': actionOpenLineAbove,
-  'G': actionCursorLineBottom,
-  'r': actionReplaceMode,
-  'D': actionDeleteLineEnd,
-  'p': actionPasteAfter,
-  '\u0004': actionMoveDownHalfPage,
-  '\u0015': actionMoveUpHalfPage,
-};
-
 void actionMoveDownHalfPage() {
   cursor.line += term.height ~/ 2;
   clampCursor();

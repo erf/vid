@@ -9,6 +9,7 @@ import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator_pending.dart';
 import 'actions_text_objects.dart';
+import 'bindings.dart';
 import 'characters_ext.dart';
 import 'file_buffer.dart';
 import 'modes.dart';

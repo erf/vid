@@ -7,15 +7,6 @@ import 'range.dart';
 
 typedef TextObject = Range Function(Position);
 
-final textObjects = <String, TextObject>{
-  'd': objectCurrentLine,
-  'y': objectCurrentLine,
-  'k': objectLineUp,
-  'j': objectLineDown,
-  'g': objectFirstLine,
-  'G': objectLastLine,
-};
-
 Range objectCurrentLine(Position p) {
   return Range(
     start: Position(line: p.line, char: 0),

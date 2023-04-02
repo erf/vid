@@ -10,12 +10,6 @@ import 'text_utils.dart';
 
 typedef InsertAction = void Function();
 
-final insertActions = <String, InsertAction>{
-  '\x1b': insertActionEscape,
-  '\x7f': insertActionBackspace,
-  '\n': insertActionEnter,
-};
-
 void insertActionEscape() {
   mode = Mode.normal;
   clampCursor();
