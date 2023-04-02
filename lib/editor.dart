@@ -94,6 +94,7 @@ class Editor {
 
     renderBuffer.write(VT100.invert(true));
     renderBuffer.write(VT100.cursorPosition(x: 1, y: terminal.height));
+
     final String modeStr;
     if (mode == Mode.normal) {
       modeStr = '';
@@ -102,13 +103,13 @@ class Editor {
     } else {
       modeStr = 'INSERT >> ';
     }
-    final fileStr = filename ?? '[No Name]';
-    final padLeft =
-        terminal.width - modeStr.length - fileStr.length - message.length - 3;
-    final line = cursor.y + 1;
-    final char = cursor.x + 1;
-    final status =
-        ' $modeStr$fileStr $message${'$line, $char'.padLeft(padLeft)} ';
+
+    final nameStr = filename ?? '[No Name]';
+    final left = ' $modeStr$nameStr $message';
+    final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
+    final padLeft = terminal.width - left.length - 1;
+    final status = '$left ${right.padLeft(padLeft)}';
+
     renderBuffer.write(status);
     renderBuffer.write(VT100.invert(false));
   }
