@@ -1,6 +1,6 @@
 import 'package:characters/characters.dart';
 
-import 'actions_operator_pending.dart';
+import 'actions_pending.dart';
 import 'modes.dart';
 import 'position.dart';
 

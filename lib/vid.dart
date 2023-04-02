@@ -7,7 +7,7 @@ import 'package:characters/characters.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
-import 'actions_operator_pending.dart';
+import 'actions_pending.dart';
 import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
@@ -18,7 +18,7 @@ import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
-import 'text_utils.dart';
+import 'utils.dart';
 import 'vt100.dart';
 
 class Editor {

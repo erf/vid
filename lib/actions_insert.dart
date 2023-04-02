@@ -1,18 +1,18 @@
 import 'dart:math';
 
 import 'package:vid/characters_ext.dart';
+import 'package:vid/file_buffer_ext.dart';
 
 import 'actions_motion.dart';
 import 'file_buffer.dart';
 import 'modes.dart';
 import 'position.dart';
-import 'text_utils.dart';
 
 typedef InsertAction = void Function(FileBuffer);
 
 void insertActionEscape(FileBuffer f) {
   f.mode = Mode.normal;
-  clampCursor(f);
+  f.clampCursor();
 }
 
 void insertActionEnter(FileBuffer f) {
@@ -39,7 +39,7 @@ void joinLines(FileBuffer f) {
 }
 
 void deleteCharPrev(FileBuffer f) {
-  if (emptyFile(f)) {
+  if (f.emptyFile()) {
     return;
   }
   f.lines[f.cursor.line] =

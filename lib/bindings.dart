@@ -1,7 +1,7 @@
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
-import 'actions_operator_pending.dart';
+import 'actions_pending.dart';
 import 'actions_text_objects.dart';
 
 final insertActions = <String, InsertAction>{
