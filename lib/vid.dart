@@ -9,6 +9,7 @@ import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator_pending.dart';
+import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_ext.dart';
@@ -121,15 +122,7 @@ void insert(Characters str) {
 }
 
 void replace(Characters str) {
-  final lines = fileBuffer.lines;
-  final cursor = fileBuffer.cursor;
-  fileBuffer.mode = Mode.normal;
-  Characters line = lines[cursor.line];
-  if (line.isEmpty) {
-    return;
-  }
-  fileBuffer.lines[cursor.line] =
-      line.replaceRange(cursor.char, cursor.char + 1, str);
+  defaultReplace(fileBuffer, str);
 }
 
 // clamp view on cursor position
