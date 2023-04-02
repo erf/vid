@@ -1,5 +1,5 @@
 name: vid
-description: A vim-like text editor written in Dart
+description: A minimal vi-like text editor for the terminal written in Dart
 version: 1.0.0
 homepage: https://github.com/erf/vid
 
