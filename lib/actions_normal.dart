@@ -1,32 +1,33 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/characters_ext.dart';
-import 'package:vid/file_buffer_ext.dart';
 
 import 'actions_motion.dart';
+import 'characters_ext.dart';
 import 'file_buffer.dart';
+import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
+import 'string_ext.dart';
 import 'vid.dart';
 import 'vt100.dart';
 
 typedef NormalAction = void Function(Editor, FileBuffer);
 
 void actionMoveDownHalfPage(Editor e, FileBuffer f) {
-  f.cursor.line += e.terminal.height ~/ 2;
+  f.cursor.y += e.terminal.height ~/ 2;
   f.clampCursor();
 }
 
 void actionMoveUpHalfPage(Editor e, FileBuffer f) {
-  f.cursor.line -= e.terminal.height ~/ 2;
+  f.cursor.y -= e.terminal.height ~/ 2;
   f.clampCursor();
 }
 
 void actionPasteAfter(Editor e, FileBuffer f) {
   if (f.yankBuffer == null) return;
-  f.pasteText(f.yankBuffer!);
+  f.paste(f.yankBuffer!);
 }
 
 void actionQuit(Editor e, FileBuffer f) {
@@ -66,16 +67,16 @@ void actionCursorLineBottom(Editor e, FileBuffer f) {
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.lines.insert(f.cursor.line, Characters.empty);
-  f.cursor.char = 0;
+  f.lines.insert(f.cursor.y, ''.ch);
+  f.cursor.x = 0;
 }
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  if (f.cursor.line + 1 >= f.lines.length) {
-    f.lines.add(Characters.empty);
+  if (f.cursor.y + 1 >= f.lines.length) {
+    f.lines.add(''.ch);
   } else {
-    f.lines.insert(f.cursor.line + 1, Characters.empty);
+    f.lines.insert(f.cursor.y + 1, ''.ch);
   }
   actionCursorCharDown(e, f);
 }
@@ -86,20 +87,20 @@ void actionInsert(Editor e, FileBuffer f) {
 
 void actionInsertLineStart(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.cursor.char = 0;
+  f.cursor.x = 0;
 }
 
 void actionAppendLineEnd(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  if (f.lines[f.cursor.line].isNotEmpty) {
-    f.cursor.char = f.lines[f.cursor.line].length;
+  if (f.lines[f.cursor.y].isNotEmpty) {
+    f.cursor.x = f.lines[f.cursor.y].length;
   }
 }
 
 void actionAppendCharNext(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  if (f.lines[f.cursor.line].isNotEmpty) {
-    f.cursor.char++;
+  if (f.lines[f.cursor.y].isNotEmpty) {
+    f.cursor.x++;
   }
 }
 
@@ -109,7 +110,7 @@ void actionCursorLineEnd(Editor e, FileBuffer f) {
 
 void actionCursorLineStart(Editor e, FileBuffer f) {
   f.cursor = motionLineStart(f, f.cursor);
-  f.view.char = 0;
+  f.view.x = 0;
 }
 
 void actionCursorCharUp(Editor e, FileBuffer f) {
@@ -136,9 +137,9 @@ void actionDeleteCharNext(Editor e, FileBuffer f) {
   if (f.empty()) {
     return;
   }
-  Characters line = f.lines[f.cursor.line];
+  Characters line = f.lines[f.cursor.y];
   if (line.isNotEmpty) {
-    f.lines[f.cursor.line] = line.deleteCharAt(f.cursor.char);
+    f.lines[f.cursor.y] = line.deleteCharAt(f.cursor.x);
   }
   f.clampCursor();
 }
@@ -153,7 +154,7 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
   f.deleteRange(
       Range(
         p0: f.cursor,
-        p1: Position(line: lineEnd.line, char: lineEnd.char + 1),
+        p1: Position(y: lineEnd.y, x: lineEnd.x + 1),
       ),
       false);
   f.clampCursor();

@@ -17,7 +17,7 @@ extension CharactersExt on Characters {
   }
 
   Characters deleteCharAt(int index) {
-    return replaceCharAt(index, Characters.empty);
+    return replaceCharAt(index, ''.ch);
   }
 
   // get cursor position for the rendered line

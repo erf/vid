@@ -18,37 +18,36 @@ void insertActionEscape(FileBuffer f) {
 void insertActionEnter(FileBuffer f) {
   final lines = f.lines;
   final cursor = f.cursor;
-  final lineAfterCursor = lines[cursor.line].skip(cursor.char);
-  lines[cursor.line] = lines[cursor.line].take(cursor.char);
-  lines.insert(cursor.line + 1, lineAfterCursor);
-  cursor.char = 0;
-  f.view.char = 0;
+  final lineAfterCursor = lines[cursor.y].skip(cursor.x);
+  lines[cursor.y] = lines[cursor.y].take(cursor.x);
+  lines.insert(cursor.y + 1, lineAfterCursor);
+  cursor.x = 0;
+  f.view.x = 0;
   f.cursor = motionCharDown(f, f.cursor);
 }
 
 void joinLines(FileBuffer f) {
   final lines = f.lines;
   final cursor = f.cursor;
-  if (lines.length <= 1 || cursor.line <= 0) {
+  if (lines.length <= 1 || cursor.y <= 0) {
     return;
   }
-  final charPos = lines[cursor.line - 1].length;
-  lines[cursor.line - 1] += lines[cursor.line];
-  lines.removeAt(cursor.line);
-  f.cursor = Position(line: cursor.line - 1, char: charPos);
+  final charPos = lines[cursor.y - 1].length;
+  lines[cursor.y - 1] += lines[cursor.y];
+  lines.removeAt(cursor.y);
+  f.cursor = Position(y: cursor.y - 1, x: charPos);
 }
 
 void deleteCharPrev(FileBuffer f) {
   if (f.empty()) {
     return;
   }
-  f.lines[f.cursor.line] =
-      f.lines[f.cursor.line].deleteCharAt(f.cursor.char - 1);
-  f.cursor.char = max(0, f.cursor.char - 1);
+  f.lines[f.cursor.y] = f.lines[f.cursor.y].deleteCharAt(f.cursor.x - 1);
+  f.cursor.x = max(0, f.cursor.x - 1);
 }
 
 void insertActionBackspace(FileBuffer f) {
-  if (f.cursor.char == 0) {
+  if (f.cursor.x == 0) {
     joinLines(f);
   } else {
     deleteCharPrev(f);

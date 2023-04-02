@@ -10,94 +10,94 @@ typedef Motion = Position Function(FileBuffer, Position);
 
 Position motionCharNext(FileBuffer f, Position p) {
   return Position(
-    line: p.line,
-    char: clamp(p.char + 1, 0, f.lines[p.line].length - 1),
+    y: p.y,
+    x: clamp(p.x + 1, 0, f.lines[p.y].length - 1),
   );
 }
 
 Position motionCharPrev(FileBuffer f, Position p) {
-  return Position(line: p.line, char: max(0, p.char - 1));
+  return Position(y: p.y, x: max(0, p.x - 1));
 }
 
 Position motionCharUp(FileBuffer f, Position p) {
-  final line = clamp(p.line - 1, 0, f.lines.length - 1);
-  final char = clamp(p.char, 0, f.lines[line].length - 1);
-  return Position(line: line, char: char);
+  final line = clamp(p.y - 1, 0, f.lines.length - 1);
+  final char = clamp(p.x, 0, f.lines[line].length - 1);
+  return Position(y: line, x: char);
 }
 
 Position motionCharDown(FileBuffer f, Position p) {
-  final line = clamp(p.line + 1, 0, f.lines.length - 1);
-  final char = clamp(p.char, 0, f.lines[line].length - 1);
-  return Position(line: line, char: char);
+  final line = clamp(p.y + 1, 0, f.lines.length - 1);
+  final char = clamp(p.x, 0, f.lines[line].length - 1);
+  return Position(y: line, x: char);
 }
 
 Position motionFirstLine(FileBuffer f, Position p) {
-  return Position(line: 0, char: 0);
+  return Position(y: 0, x: 0);
 }
 
 Position motionLastLine(FileBuffer f, Position position) {
-  return Position(line: max(0, f.lines.length - 1), char: f.lines.last.length);
+  return Position(y: max(0, f.lines.length - 1), x: f.lines.last.length);
 }
 
 Position motionLineStart(FileBuffer f, Position p) {
-  return Position(line: p.line, char: 0);
+  return Position(y: p.y, x: 0);
 }
 
 Position motionLineEnd(FileBuffer f, Position p) {
-  return Position(line: p.line, char: f.lines[p.line].length - 1);
+  return Position(y: p.y, x: f.lines[p.y].length - 1);
 }
 
 Position motionWordNext(FileBuffer f, Position p) {
-  final line = f.lines[p.line];
-  final start = line.charsToByteLength(p.char);
+  final line = f.lines[p.y];
+  final start = line.charsToByteLength(p.x);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
     if (match.start > start) {
       final charPos = line.byteToCharsLength(match.start);
-      return Position(char: charPos, line: p.line);
+      return Position(x: charPos, y: p.y);
     }
   }
   // either move to next line or stay on last char
-  if (p.line < f.lines.length - 1) {
-    return Position(char: 0, line: p.line + 1);
+  if (p.y < f.lines.length - 1) {
+    return Position(x: 0, y: p.y + 1);
   } else {
-    return Position(char: max(line.length - 1, 0), line: p.line);
+    return Position(x: max(line.length - 1, 0), y: p.y);
   }
 }
 
 Position motionWordEnd(FileBuffer f, Position p) {
-  final line = f.lines[p.line];
-  final start = line.charsToByteLength(p.char);
+  final line = f.lines[p.y];
+  final start = line.charsToByteLength(p.x);
   final matches = RegExp(r'\S+').allMatches(line.string);
   for (final match in matches) {
     if (match.end - 1 > start) {
       final charPos = line.byteToCharsLength(match.end);
-      return Position(char: charPos - 1, line: p.line);
+      return Position(x: charPos - 1, y: p.y);
     }
   }
-  if (p.line < f.lines.length - 1) {
-    return Position(char: 0, line: p.line + 1);
+  if (p.y < f.lines.length - 1) {
+    return Position(x: 0, y: p.y + 1);
   } else {
-    return Position(char: max(line.length - 1, 0), line: p.line);
+    return Position(x: max(line.length - 1, 0), y: p.y);
   }
 }
 
 Position motionWordPrev(FileBuffer f, Position p) {
-  final line = f.lines[p.line];
-  final start = line.charsToByteLength(p.char);
+  final line = f.lines[p.y];
+  final start = line.charsToByteLength(p.x);
   final matches = RegExp(r'\S+').allMatches(line.string);
   final reversed = matches.toList().reversed;
   for (final match in reversed) {
     if (match.start < start) {
       final charPos = line.byteToCharsLength(match.start);
-      return Position(char: charPos, line: p.line);
+      return Position(x: charPos, y: p.y);
     }
   }
   // either move to previous line or stay on the first char
-  if (p.line > 0) {
-    return Position(char: f.lines[p.line - 1].length, line: p.line - 1);
+  if (p.y > 0) {
+    return Position(x: f.lines[p.y - 1].length, y: p.y - 1);
   } else {
-    return Position(char: 0, line: p.line);
+    return Position(x: 0, y: p.y);
   }
 }
 

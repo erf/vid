@@ -17,6 +17,7 @@ import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
+import 'string_ext.dart';
 import 'terminal.dart';
 import 'vt100.dart';
 
@@ -46,8 +47,8 @@ class Editor {
     final cursor = fileBuffer.cursor;
     final view = fileBuffer.view;
 
-    final lineStart = view.line;
-    final lineEnd = view.line + terminal.height - 1;
+    final lineStart = view.y;
+    final lineEnd = view.y + terminal.height - 1;
 
     // draw lines
     for (int l = lineStart; l < lineEnd; l++) {
@@ -56,11 +57,11 @@ class Editor {
         continue;
       }
       var line = lines[l];
-      if (view.char > 0) {
-        if (view.char >= line.length) {
-          line = Characters.empty;
+      if (view.x > 0) {
+        if (view.x >= line.length) {
+          line = ''.ch;
         } else {
-          line = line.replaceRange(0, view.char, Characters.empty);
+          line = line.replaceRange(0, view.x, ''.ch);
         }
       }
       if (line.length < terminal.width) {
@@ -73,14 +74,14 @@ class Editor {
     // draw status
     drawStatus();
 
-    final cursorPos = lines[cursor.line].renderedLength(cursor.char);
+    final cursorPos = lines[cursor.y].renderedLength(cursor.x);
 
     // draw cursor
     final termPos = Position(
-      line: cursor.line - view.line + 1,
-      char: cursorPos - view.char + 1,
+      y: cursor.y - view.y + 1,
+      x: cursorPos - view.x + 1,
     );
-    renderBuffer.write(VT100.cursorPosition(x: termPos.char, y: termPos.line));
+    renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
 
     terminal.write(renderBuffer);
     renderBuffer.clear();
@@ -103,7 +104,7 @@ class Editor {
     }
     final fileStr = filename ?? '[No Name]';
     final status =
-        ' $modeStr$fileStr $message${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(terminal.width - modeStr.length - fileStr.length - message.length - 3)} ';
+        ' $modeStr$fileStr $message${'${cursor.y + 1}, ${cursor.x + 1}'.padLeft(terminal.width - modeStr.length - fileStr.length - message.length - 3)} ';
     renderBuffer.write(status);
     renderBuffer.write(VT100.invert(false));
   }
@@ -148,13 +149,13 @@ class Editor {
       return;
     }
 
-    Characters line = lines[cursor.line];
+    Characters line = lines[cursor.y];
     if (line.isEmpty) {
-      lines[cursor.line] = str;
+      lines[cursor.y] = str;
     } else {
-      lines[cursor.line] = line.replaceRange(cursor.char, cursor.char, str);
+      lines[cursor.y] = line.replaceRange(cursor.x, cursor.x, str);
     }
-    cursor.char++;
+    cursor.x++;
   }
 
   void normal(Characters str) {
