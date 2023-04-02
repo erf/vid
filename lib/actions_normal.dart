@@ -26,7 +26,7 @@ void actionMoveUpHalfPage(Editor e, FileBuffer f) {
 
 void actionPasteAfter(Editor e, FileBuffer f) {
   if (f.yankBuffer == null) return;
-  f.insertText(f.yankBuffer!, f.cursor);
+  f.pasteText(f.yankBuffer!);
 }
 
 void actionQuit(Editor e, FileBuffer f) {

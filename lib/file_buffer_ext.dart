@@ -27,9 +27,10 @@ extension FileBufferExt on FileBuffer {
     }
   }
 
-  void insertText(Characters text, Position pos) {
-    final newText = lines[pos.line].replaceRange(pos.char, pos.char, text);
-    lines.replaceRange(pos.line, pos.line + 1, newText.split('\n'.characters));
+  void pasteText(Characters text) {
+    final p = cursor;
+    final newText = lines[p.line].replaceRange(p.char, p.char, text);
+    lines.replaceRange(p.line, p.line + 1, newText.split('\n'.characters));
   }
 
   void deleteRange(Range r, [bool removeEmptyLines = true]) {
