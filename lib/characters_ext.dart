@@ -26,7 +26,7 @@ extension CharactersExt on Characters {
   }
 
   // get cursor position for the rendered line
-  int renderedLength(int charIndex, {bool usingLatestUnicodeVersion = true}) {
+  int renderedLength(int charIndex, {bool usingLatestUnicodeVersion = false}) {
     if (usingLatestUnicodeVersion) {
       return stringWidth(take(charIndex).string);
     } else {
