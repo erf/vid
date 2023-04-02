@@ -105,7 +105,7 @@ class Editor {
     }
 
     final nameStr = filename ?? '[No Name]';
-    final left = ' $modeStr$nameStr $message';
+    final left = ' $modeStr$nameStr $message ';
     final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
     final padLeft = terminal.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
