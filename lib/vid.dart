@@ -52,7 +52,7 @@ void draw() {
   // draw status
   drawStatus();
 
-  final cursorPos = lines[cursor.line].charsToRenderLength(cursor.char);
+  final cursorPos = lines[cursor.line].renderedLength(cursor.char);
 
   // draw cursor
   final termPos = Position(
