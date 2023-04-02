@@ -88,23 +88,14 @@ class Editor {
   }
 
   void drawStatus() {
-    final mode = fileBuffer.mode;
     final cursor = fileBuffer.cursor;
-    final filename = fileBuffer.filename;
 
     renderBuffer.write(VT100.invert(true));
     renderBuffer.write(VT100.cursorPosition(x: 1, y: terminal.height));
 
-    final String modeStr;
-    if (mode == Mode.normal) {
-      modeStr = '';
-    } else if (mode == Mode.operatorPending) {
-      modeStr = 'PENDING >> ';
-    } else {
-      modeStr = 'INSERT >> ';
-    }
+    String modeStr = getModeStatusStr(fileBuffer.mode);
 
-    final nameStr = filename ?? '[No Name]';
+    final nameStr = fileBuffer.filename ?? '[No Name]';
     final left = ' $modeStr$nameStr $message ';
     final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
     final padLeft = terminal.width - left.length - 1;
@@ -112,6 +103,21 @@ class Editor {
 
     renderBuffer.write(status);
     renderBuffer.write(VT100.invert(false));
+  }
+
+  String getModeStatusStr(Mode mode) {
+    switch (mode) {
+      case Mode.normal:
+        return '';
+      case Mode.operatorPending:
+        return 'PENDING >> ';
+      case Mode.insert:
+        return 'INSERT >> ';
+      case Mode.replace:
+        return 'REPLACE >> ';
+      default:
+        return '';
+    }
   }
 
   void showMessage(String text) {
