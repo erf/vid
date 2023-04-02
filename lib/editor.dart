@@ -68,7 +68,7 @@ class Editor {
       if (line.length < terminal.width) {
         renderBuffer.writeln(line);
       } else {
-        renderBuffer.writeln(line.substring(0, terminal.width - 1));
+        renderBuffer.writeln(line.take(terminal.width - 1));
       }
     }
 
