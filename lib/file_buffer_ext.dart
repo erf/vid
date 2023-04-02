@@ -61,8 +61,9 @@ extension FileBufferExt on FileBuffer {
     }
   }
 
+  // check if file is empty, only one line with empty string
   bool empty() {
-    return lines.length == 1 && lines[0].isEmpty;
+    return lines.length == 1 && lines.first.isEmpty;
   }
 
 // clamp cursor position to valid range
