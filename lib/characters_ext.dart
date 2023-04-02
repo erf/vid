@@ -40,11 +40,11 @@ extension CharactersExt on Characters {
   }
 
   // get the byte length given the character length
-  int charsToByteLength(int charsLen) {
-    if (charsLen <= 0) {
-      return charsLen;
+  int charsToByteLength(int charsLength) {
+    if (charsLength <= 0) {
+      return charsLength;
     } else {
-      return substring(0, charsLen).string.length;
+      return take(charsLength).string.length;
     }
   }
 }
