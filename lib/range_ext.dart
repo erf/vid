@@ -14,4 +14,9 @@ extension RangeExt on Range {
     }
     return r;
   }
+
+// check if line is inside range
+  bool lineInside(int line) {
+    return line > p0.y && line < p1.y;
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/range_ext.dart';
 
 import 'characters_ext.dart';
 import 'file_buffer.dart';
@@ -48,16 +49,11 @@ extension FileBufferExt on FileBuffer {
     }
   }
 
-// check if line is inside range
-  bool insideRange(int line, Range range) {
-    return line > range.p0.y && line < range.p1.y;
-  }
-
 // iterate remove empty lines and lines inside range
   void removeEmptyLinesInRange(Range r) {
     int line = r.p0.y;
-    for (int i = r.p0.y; i <= r.p1.y; i++) {
-      if (lines[line].isEmpty || insideRange(i, r)) {
+    for (int l = r.p0.y; l <= r.p1.y; l++) {
+      if (lines[line].isEmpty || r.lineInside(l)) {
         lines.removeAt(line);
       } else {
         line++;
