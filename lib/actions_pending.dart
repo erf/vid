@@ -12,7 +12,7 @@ void yankRange(FileBuffer f, Range range) {
   final r = range.normalized();
   final sublist = f.lines.sublist(r.p0.y, r.p1.y + 1);
   if (sublist.length == 1) {
-    f.yankBuffer = sublist.first.substring(r.p0.x, r.p1.x + 1);
+    f.yankBuffer = sublist.first.substring(r.p0.x, r.p1.x);
     return;
   }
   // get text in range from the first and last element
