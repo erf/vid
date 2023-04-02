@@ -76,11 +76,8 @@ class Editor {
     drawStatus();
 
     // draw cursor
-    final renderPos = lines[cursor.y].renderedLength(cursor.x);
-    final termPos = Position(
-      y: cursor.y - view.y + 1,
-      x: renderPos - view.x + 1,
-    );
+    final pos = lines[cursor.y].renderedLength(cursor.x);
+    final termPos = Position(y: cursor.y - view.y + 1, x: pos - view.x + 1);
     renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
 
     terminal.write(renderBuffer);
