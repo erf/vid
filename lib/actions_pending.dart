@@ -19,12 +19,13 @@ void yankRange(FileBuffer f, Range range) {
   var text = ''.ch;
   for (int i = r.p0.y; i <= r.p1.y; i++) {
     if (i == r.p0.y) {
-      text += f.lines[i].substring(r.p0.x);
+      text += f.lines[i].skip(r.p0.x);
     } else if (i == r.p1.y) {
-      text += f.lines[i].substring(0, r.p1.x);
+      text += f.lines[i].take(r.p1.x);
     } else {
       text += f.lines[i];
     }
+    text += '\n'.ch;
   }
   f.yankBuffer = text;
 }
