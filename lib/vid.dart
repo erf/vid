@@ -24,7 +24,7 @@ class Editor {
   final terminal = Terminal();
   final fileBuffer = FileBuffer();
   final renderBuffer = StringBuffer();
-  String msg = '';
+  String message = '';
 
   void init(List<String> args) {
     terminal.rawMode = true;
@@ -103,16 +103,16 @@ class Editor {
     }
     final fileStr = filename ?? '[No Name]';
     final status =
-        ' $modeStr$fileStr $msg${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(terminal.width - modeStr.length - fileStr.length - msg.length - 3)} ';
+        ' $modeStr$fileStr $message${'${cursor.line + 1}, ${cursor.char + 1}'.padLeft(terminal.width - modeStr.length - fileStr.length - message.length - 3)} ';
     renderBuffer.write(status);
     renderBuffer.write(VT100.invert(false));
   }
 
-  void showMessage(String message) {
-    msg = message;
+  void showMessage(String text) {
+    message = text;
     draw();
     Timer(Duration(seconds: 2), () {
-      msg = '';
+      message = '';
       draw();
     });
   }
