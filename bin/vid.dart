@@ -1,4 +1,4 @@
-import 'package:vid/vid.dart' as vid;
+import 'package:vid/editor.dart' as vid;
 
 void main(List<String> args) {
   vid.Editor().init(args);

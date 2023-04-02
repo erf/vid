@@ -10,7 +10,7 @@ import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'string_ext.dart';
-import 'vid.dart';
+import 'editor.dart';
 import 'vt100.dart';
 
 typedef NormalAction = void Function(Editor, FileBuffer);
