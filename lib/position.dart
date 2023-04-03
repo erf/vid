@@ -12,4 +12,15 @@ class Position {
   Position clone() {
     return Position.from(this);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Position) {
+      return false;
+    }
+    return other.y == y && other.x == x;
+  }
+
+  @override
+  int get hashCode => y.hashCode ^ x.hashCode;
 }
