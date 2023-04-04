@@ -17,22 +17,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.3.1"
-  ansi_regex:
-    dependency: transitive
-    description:
-      name: ansi_regex
-      sha256: ca4f2b24a85e797a1512e1d3fe34d5f8429648f78e2268b6a8b5628c8430e643
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2"
-  ansi_strip:
-    dependency: transitive
-    description:
-      name: ansi_strip
-      sha256: "9bb54e10962ac1de86b9b64a278a5b8965a28a2f741975eac7fe9fb0ebe1aaac"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.1+1"
   args:
     dependency: transitive
     description:
@@ -97,22 +81,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  east_asian_width:
-    dependency: transitive
-    description:
-      name: east_asian_width
-      sha256: a13c5487dab7ddbad48875789819f0ea38a61cbaaa3024ebe7b199521e6f5788
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
-  emoji_regex:
-    dependency: transitive
-    description:
-      name: emoji_regex
-      sha256: d54f0650e4fe753e80c6adfdf768cd39c8268be454dcaf0ed653059a30d8c8f8
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
   file:
     dependency: transitive
     description:
@@ -329,14 +297,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  string_width:
-    dependency: "direct main"
-    description:
-      name: string_width
-      sha256: "04b3d8631dfcd755a8f16bba5443c55b8c846df144f46ca492c7e8fabeaee2be"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.4"
   term_glyph:
     dependency: transitive
     description:

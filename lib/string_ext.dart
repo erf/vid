@@ -1,6 +1,9 @@
 import 'package:characters/characters.dart';
 
 extension StringExt on String {
+  // A naive implementation to determine the width of a character.
+  // return 1 for characters in the Basic Multilingual Plane (BMP)
+  // return 2 for characters outside the BMP
   // https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane
   int get renderWidth {
     return runes.first > 0x10000 ? 2 : 1;

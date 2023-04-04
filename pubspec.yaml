@@ -8,7 +8,6 @@ environment:
 
 dependencies:
   characters: ^1.3.0
-  string_width: ^0.1.4
 
 dev_dependencies:
   lints: ^2.0.0
