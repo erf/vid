@@ -1,5 +1,4 @@
 import 'package:characters/characters.dart';
-import 'package:string_width/string_width.dart';
 import 'package:vid/string_ext.dart';
 
 extension CharactersExt on Characters {
