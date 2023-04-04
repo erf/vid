@@ -6,11 +6,7 @@ extension StringExt on String {
   // return 2 for characters outside the BMP
   // https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane
   int get renderWidth {
-    if (runes.length > 1) {
-      return 2;
-    } else {
-      return runes.first >= 0x10000 ? 2 : 1;
-    }
+    return runes.first >= 0x10000 ? 2 : 1;
   }
 
   Characters get ch => Characters(this);
