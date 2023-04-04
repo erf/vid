@@ -62,7 +62,7 @@ void actionCursorCharPrev(Editor e, FileBuffer f) {
 }
 
 void actionCursorLineBottom(Editor e, FileBuffer f) {
-  f.cursor = motionLastLine(f, f.cursor);
+  f.cursor = motionFileEnd(f, f.cursor);
 }
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {

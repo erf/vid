@@ -16,7 +16,10 @@ Position motionCharNext(FileBuffer f, Position p) {
 }
 
 Position motionCharPrev(FileBuffer f, Position p) {
-  return Position(y: p.y, x: max(0, p.x - 1));
+  return Position(
+    y: p.y,
+    x: max(0, p.x - 1),
+  );
 }
 
 Position motionCharUp(FileBuffer f, Position p) {
@@ -31,12 +34,15 @@ Position motionCharDown(FileBuffer f, Position p) {
   return Position(y: line, x: char);
 }
 
-Position motionFirstLine(FileBuffer f, Position p) {
+Position motionFileStart(FileBuffer f, Position p) {
   return Position(y: 0, x: 0);
 }
 
-Position motionLastLine(FileBuffer f, Position position) {
-  return Position(y: max(0, f.lines.length - 1), x: f.lines.last.length);
+Position motionFileEnd(FileBuffer f, Position position) {
+  return Position(
+    x: f.lines.last.length,
+    y: max(0, f.lines.length - 1),
+  );
 }
 
 Position motionLineStart(FileBuffer f, Position p) {

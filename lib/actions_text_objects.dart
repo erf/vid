@@ -29,12 +29,12 @@ Range objectLineDown(FileBuffer f, Position p) {
 
 Range objectFirstLine(FileBuffer f, Position p) {
   final start = Position(y: p.y, x: f.lines[p.y].length);
-  final end = motionFirstLine(f, p);
+  final end = motionFileStart(f, p);
   return Range(p0: start, p1: end);
 }
 
 Range objectLastLine(FileBuffer f, Position p) {
   final start = Position(y: p.y, x: 0);
-  final end = motionLastLine(f, p);
+  final end = motionFileEnd(f, p);
   return Range(p0: start, p1: end);
 }

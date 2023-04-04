@@ -14,6 +14,11 @@ class Position {
   }
 
   @override
+  String toString() {
+    return 'Position(y: $y, x: $x)';
+  }
+
+  @override
   bool operator ==(Object other) {
     if (other is! Position) {
       return false;

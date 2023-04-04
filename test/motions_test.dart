@@ -52,4 +52,28 @@ void main() {
     expect(motionCharDown(f, Position(x: 0, y: 1)), Position(x: 0, y: 1));
     expect(motionCharDown(f, Position(x: 2, y: 1)), Position(x: 2, y: 1));
   });
+
+  test('motionFileStart', () {
+    final f = FileBuffer();
+    f.lines = [
+      'abc'.ch,
+      'def'.ch,
+    ];
+    expect(motionFileStart(f, Position(x: 0, y: 0)), Position(x: 0, y: 0));
+    expect(motionFileStart(f, Position(x: 2, y: 0)), Position(x: 0, y: 0));
+    expect(motionFileStart(f, Position(x: 0, y: 1)), Position(x: 0, y: 0));
+    expect(motionFileStart(f, Position(x: 2, y: 1)), Position(x: 0, y: 0));
+  });
+
+  test('motionFileEnd', () {
+    final f = FileBuffer();
+    f.lines = [
+      'abc'.ch,
+      'def'.ch,
+    ];
+    expect(motionFileEnd(f, Position(x: 0, y: 0)), Position(x: 3, y: 1));
+    expect(motionFileEnd(f, Position(x: 2, y: 0)), Position(x: 3, y: 1));
+    expect(motionFileEnd(f, Position(x: 0, y: 1)), Position(x: 3, y: 1));
+    expect(motionFileEnd(f, Position(x: 2, y: 1)), Position(x: 3, y: 1));
+  });
 }
