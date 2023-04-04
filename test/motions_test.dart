@@ -40,4 +40,16 @@ void main() {
     expect(motionCharUp(f, Position(x: 0, y: 1)), Position(x: 0, y: 0));
     expect(motionCharUp(f, Position(x: 2, y: 1)), Position(x: 2, y: 0));
   });
+
+  test('motionCharDown', () {
+    final f = FileBuffer();
+    f.lines = [
+      'abc'.ch,
+      'def'.ch,
+    ];
+    expect(motionCharDown(f, Position(x: 0, y: 0)), Position(x: 0, y: 1));
+    expect(motionCharDown(f, Position(x: 2, y: 0)), Position(x: 2, y: 1));
+    expect(motionCharDown(f, Position(x: 0, y: 1)), Position(x: 0, y: 1));
+    expect(motionCharDown(f, Position(x: 2, y: 1)), Position(x: 2, y: 1));
+  });
 }
