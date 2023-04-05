@@ -1,6 +1,6 @@
 name: vid
 description: A minimal vi-like text editor for the terminal written in Dart
-version: 1.0.0
+version: 0.1.0
 homepage: https://github.com/erf/vid
 
 environment:
