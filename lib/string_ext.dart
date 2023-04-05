@@ -1,12 +1,17 @@
 import 'package:characters/characters.dart';
 
 extension StringExt on String {
-  // Try to determine the rendered width of a string
+  // Try to determine the rendered width of a single character
   int get renderWidth {
     // if the string is empty, return 0
     if (isEmpty) {
       return 0;
     }
+    // if the string is a single space, return 1
+    if (this == ' ') {
+      return 1;
+    }
+    //assert(ch.length <= 1);
 
     // Check if codeUnits contains a Variation Selector (VS) of type 16 (emoji) or 15 (text)
     // https://en.wikipedia.org/wiki/Variation_Selectors_(Unicode_block)
