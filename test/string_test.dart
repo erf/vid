@@ -27,6 +27,7 @@ void main() {
     expect('💕'.renderWidth, 2);
     expect('👩‍👩‍👦‍👦'.renderWidth, 2);
     expect('⏳'.renderWidth, 2);
+    expect('⌚'.renderWidth, 2);
     expect('⏩'.renderWidth, 2);
   });
 }
