@@ -97,20 +97,25 @@ class Editor {
     final padLeft = terminal.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
 
-    renderBuffer.write(status);
+    if (status.length < terminal.width - 1) {
+      renderBuffer.write(status);
+    } else {
+      renderBuffer.write(status.substring(0, terminal.width - 1));
+    }
+
     renderBuffer.write(VT100.invert(false));
   }
 
   String getModeStatusStr(Mode mode) {
     switch (mode) {
       case Mode.normal:
-        return 'NOR ';
+        return 'NOR  ';
       case Mode.operatorPending:
-        return 'PEN ';
+        return 'PEN  ';
       case Mode.insert:
-        return 'INS ';
+        return 'INS  ';
       case Mode.replace:
-        return 'REP ';
+        return 'REP  ';
       default:
         return '';
     }
