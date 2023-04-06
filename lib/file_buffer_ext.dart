@@ -73,8 +73,8 @@ extension FileBufferExt on FileBuffer {
   }
 
 // clamp view on cursor position
-  void clampView(Terminal t) {
-    view.y = clamp(view.y, cursor.y, cursor.y - t.height + 2);
-    view.x = clamp(view.x, cursor.x, cursor.x - t.width + 2);
+  void clampView(Terminal term) {
+    view.y = clamp(view.y, cursor.y, cursor.y - term.height + 2);
+    view.x = clamp(view.x, cursor.x, cursor.x - term.width + 2);
   }
 }
