@@ -17,7 +17,6 @@ import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
-import 'string_ext.dart';
 import 'terminal.dart';
 import 'vt100.dart';
 
@@ -44,6 +43,8 @@ class Editor {
   void draw() {
     renderBuffer.write(VT100.erase);
 
+    fileBuffer.clampView(terminal);
+
     final lines = fileBuffer.lines;
     final cursor = fileBuffer.cursor;
     final view = fileBuffer.view;
@@ -53,23 +54,19 @@ class Editor {
 
     // draw lines
     for (int l = lineStart; l < lineEnd; l++) {
+      // draw ~ if no more lines
       if (l > lines.length - 1) {
         renderBuffer.writeln('~');
         continue;
       }
-      var line = lines[l];
-      if (view.x > 0) {
-        if (view.x >= line.length) {
-          line = ''.ch;
-        } else {
-          line = line.skip(view.x);
-        }
+      // optimize for empty lines
+      if (lines[l].isEmpty) {
+        renderBuffer.writeln();
+        continue;
       }
-      if (line.length < terminal.width) {
-        renderBuffer.writeln(line);
-      } else {
-        renderBuffer.writeln(line.take(terminal.width - 1));
-      }
+      // draw line in view
+      final line = lines[l].substring(view.x, view.x + terminal.width - 1);
+      renderBuffer.writeln(line);
     }
 
     // draw status
@@ -131,23 +128,21 @@ class Editor {
   }
 
   void input(List<int> codes) {
-    Characters str = utf8.decode(codes).characters;
-
+    final chars = utf8.decode(codes).characters;
     switch (fileBuffer.mode) {
       case Mode.insert:
-        insert(str);
+        insert(chars);
         break;
       case Mode.normal:
-        normal(str);
+        normal(chars);
         break;
       case Mode.operatorPending:
-        pending(str);
+        pending(chars);
         break;
       case Mode.replace:
-        replace(str);
+        replace(chars);
         break;
     }
-    fileBuffer.clampView(terminal);
     draw();
   }
 
