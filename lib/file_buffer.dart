@@ -14,6 +14,7 @@ class FileBuffer {
 // the current cursor position (0 based, in human-readable symbol space as opposed to byte space)
   var cursor = Position();
 
+// the view offset in the file (0 based, in human-readable symbol space as opposed to byte space)
   var view = Position();
 
   var mode = Mode.normal;
