@@ -9,7 +9,7 @@ extension StringExt on String {
     }
 
     // assert that the string is a single character
-    //assert(ch.length <= 1);
+    assert(ch.length <= 1);
 
     // if the string is a single space, return 1
     if (this == ' ') {
@@ -31,20 +31,19 @@ extension StringExt on String {
     // http://www.unicode.org/reports/tr51/#def_emoji_presentation
     const int vs15 = 0xFE0E; // text
     if (codeUnits.contains(vs15)) {
-      //print('vs15');
       return 1;
     }
     const int vs16 = 0xFE0F; // emoji
     if (codeUnits.contains(vs16)) {
-      print('vs16');
       return 2;
     }
 
+    // Assume that codeUnits > 1 is an emoji of width 2
     if (codeUnits.length > 1) {
-      print('codeUnits.length > 1');
       return 2;
     }
 
+    // Get the first code unit
     final int codeUnit = codeUnits.first;
 
     // Check if codeUnits contains a default presentation emoji or text
@@ -62,7 +61,6 @@ extension StringExt on String {
       0x23FA, // ⏺️
     ];
     if (defaultPresentationText.contains(codeUnit)) {
-      print('defaultPresentationText');
       return 1;
     }
     const defaultPresentationEmoji = <int>[
@@ -76,17 +74,14 @@ extension StringExt on String {
       0x23F3, // ⏳
     ];
     if (defaultPresentationEmoji.contains(codeUnit)) {
-      print('defaultPresentationEmoji');
       return 2;
     }
 
     // Return 1 if the first character is in the Basic Multilingual Plane (BMP) else return 2
     // https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane
     if (codeUnit >= 0x10000) {
-      print('>= 0x10000');
       return 2;
     } else {
-      print('< 0x10000');
       return 1;
     }
   }
