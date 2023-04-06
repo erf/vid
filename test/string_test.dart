@@ -7,8 +7,8 @@ void info(String str) {
   //print(str);
   //print(str.length);
   //print(str.codeUnits.length);
-  //print(str.codeUnits);
-  //print(str.runes.map((e) => toHex(e)).join(' '));
+  print(str.codeUnits);
+  print(str.runes.map((e) => toHex(e)).join(' '));
   //print(str.renderWidth);
   print('$str ${str.renderWidth}');
 }
@@ -26,5 +26,7 @@ void main() {
     expect('❤️'.renderWidth, 2);
     expect('💕'.renderWidth, 2);
     expect('👩‍👩‍👦‍👦'.renderWidth, 2);
+    expect('⏳'.renderWidth, 2);
+    expect('⏩'.renderWidth, 2);
   });
 }
