@@ -104,13 +104,13 @@ class Editor {
   String getModeStatusStr(Mode mode) {
     switch (mode) {
       case Mode.normal:
-        return '';
+        return 'NOR ';
       case Mode.operatorPending:
-        return 'PENDING >> ';
+        return 'PEN ';
       case Mode.insert:
-        return 'INSERT >> ';
+        return 'INS ';
       case Mode.replace:
-        return 'REPLACE >> ';
+        return 'REP ';
       default:
         return '';
     }
