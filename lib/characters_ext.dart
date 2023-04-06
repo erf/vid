@@ -1,5 +1,8 @@
 import 'package:characters/characters.dart';
 import 'package:vid/string_ext.dart';
+import 'package:vid/terminal.dart';
+
+import 'position.dart';
 
 extension CharactersExt on Characters {
   // a substring method similar to String for Characters
@@ -24,11 +27,6 @@ extension CharactersExt on Characters {
     return replaceCharAt(index, ''.ch);
   }
 
-  // get cursor position for the rendered line
-  int renderedLength(int charIndex) {
-    return take(charIndex).fold(0, (prev, curr) => prev + curr.renderWidth);
-  }
-
   // get the symbol length given the byte length
   int byteToCharsLength(int byteLength) {
     return string.substring(0, byteLength).characters.length;
@@ -41,5 +39,36 @@ extension CharactersExt on Characters {
     } else {
       return take(charsLength).string.length;
     }
+  }
+
+  // get cursor position for the rendered line
+  int renderedLength(int charIndex) {
+    return take(charIndex).fold(0, (prev, curr) => prev + curr.renderWidth);
+  }
+
+  // get the visible string for the given view
+  Characters getVisibleLine(Position view, Terminal terminal) {
+    final start = renderedLength(view.x);
+    final end = terminal.width - 1;
+    return skipWhileLessThanRenderedLength(start)
+        .takeWhileLessThanRenderedLength(end);
+  }
+
+  // take characters until the rendered length of the line is reached
+  Characters takeWhileLessThanRenderedLength(int maxCols) {
+    int totalWidth = 0;
+    return takeWhile((char) {
+      totalWidth += char.renderWidth;
+      return totalWidth <= maxCols;
+    });
+  }
+
+  // skip characters until the rendered length of the line is reached
+  Characters skipWhileLessThanRenderedLength(int maxCols) {
+    int totalWidth = 0;
+    return skipWhile((char) {
+      totalWidth += char.renderWidth;
+      return totalWidth <= maxCols;
+    });
   }
 }
