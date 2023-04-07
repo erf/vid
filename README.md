@@ -7,7 +7,7 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 ## Features 📋
 
 - A minimal, modal, vim-like text editor for the terminal 🤓
-- Proper rendering, cursor movement and editing of Unicode characters and Emoji's ❤️‍🔥🥳
+- Proper rendering, cursor movement and editing of Unicode characters and Emoji's ❤️‍🔥
 - Use with a modern Terminal (WezTerm 💕) configured for the latest Unicode version (15)
 - Written in pragmatic Dart code 💻
 
