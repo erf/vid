@@ -1,4 +1,5 @@
 import 'package:characters/characters.dart';
+import 'package:vid/unicode_info.dart';
 
 extension StringExt on String {
   // Try to determine the rendered width of a single character
@@ -9,7 +10,7 @@ extension StringExt on String {
     }
 
     // assert that the string is a single character
-    assert(ch.length <= 1);
+    //assert(ch.length <= 1);
 
     // if the string is a single space, return 1
     if (this == ' ') {
@@ -21,69 +22,39 @@ extension StringExt on String {
     //   return 4;
     // }
 
-    // // if the string is a single newline, return 0
-    // if ('\n'.contains(this)) {
-    //   return 0;
-    // }
-
     // Check if codeUnits contains a Variation Selector (VS) of type 16 (emoji) or 15 (text)
     // https://en.wikipedia.org/wiki/Variation_Selectors_(Unicode_block)
     // http://www.unicode.org/reports/tr51/#def_emoji_presentation
     const int vs15 = 0xFE0E; // text
     if (codeUnits.contains(vs15)) {
+      //print('vs15: $this');
       return 1;
     }
     const int vs16 = 0xFE0F; // emoji
     if (codeUnits.contains(vs16)) {
+      //print('vs16: $this');
       return 2;
     }
 
-    // Assume that codeUnits > 1 is an emoji of width 2
-    if (codeUnits.length > 1) {
+    // combined characters must be 2 ?
+    if (runes.length > 1) {
+      //print('runes > 1: $this');
       return 2;
     }
 
-    // Get the first code unit
-    final int codeUnit = codeUnits.first;
-
-    // Check if codeUnits contains a default presentation emoji or text
-    // https://en.wikipedia.org/wiki/Miscellaneous_Technical#References
-    const defaultPresentationText = <int>[
-      0x2328, // ⌨️
-      0x23CF, // ⏏️
-      0x23ED, // ⏭️
-      0x23EE, // ⏮️
-      0x23EF, // ⏯️
-      0x23F1, // ⏱️
-      0x23F2, // ⏲️
-      0x23F8, // ⏸️
-      0x23F9, // ⏹️
-      0x23FA, // ⏺️
-    ];
-    if (defaultPresentationText.contains(codeUnit)) {
-      return 1;
+    // If the string is a emoji, return 2
+    if (UnicodeInfo.emojiCodePoints1.contains(runes.first)) {
+      //print('emojiCodePoints1: $this');
+      return 2;
     }
-    const defaultPresentationEmoji = <int>[
-      0x231A, // ⌚
-      0x231B, // ⌛
-      0x23E9, // ⏩
-      0x23EA, // ⏪
-      0x23EB, // ⏫
-      0x23EC, // ⏬
-      0x23F0, // ⏰
-      0x23F3, // ⏳
-    ];
-    if (defaultPresentationEmoji.contains(codeUnit)) {
+    // If the string is a Emoji_Presentation, return 2
+    if (UnicodeInfo.emojiCodePoints15.contains(runes.first)) {
+      //print('emojiCodePoints15: $this');
       return 2;
     }
 
-    // Return 1 if the first character is in the Basic Multilingual Plane (BMP) else return 2
-    // https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane
-    if (codeUnit >= 0x10000) {
-      return 2;
-    } else {
-      return 1;
-    }
+    //print('text: $this');
+    return 1;
   }
 
   // Shorthand for Characters(this)
