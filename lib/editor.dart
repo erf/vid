@@ -118,13 +118,15 @@ class Editor {
     }
   }
 
-  void showMessage(String text) {
+  void showMessage(String text, {bool timed = false}) {
     message = text;
     draw();
-    Timer(Duration(milliseconds: messageTimeInMs), () {
-      message = '';
-      draw();
-    });
+    if (timed) {
+      Timer(Duration(milliseconds: messageTimeInMs), () {
+        message = '';
+        draw();
+      });
+    }
   }
 
   void input(List<int> codes) {
@@ -144,6 +146,7 @@ class Editor {
         break;
     }
     draw();
+    message = '';
   }
 
   void insert(Characters str) {
