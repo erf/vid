@@ -89,7 +89,7 @@ class Editor {
 
     final nameStr = fileBuffer.filename ?? '[No Name]';
     final modeStr = getModeStatusStr(fileBuffer.mode);
-    final left = ' $modeStr$nameStr $message ';
+    final left = ' $modeStr  $nameStr  $message ';
     final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
     final padLeft = terminal.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
@@ -106,13 +106,13 @@ class Editor {
   String getModeStatusStr(Mode mode) {
     switch (mode) {
       case Mode.normal:
-        return 'NOR  ';
+        return 'NOR';
       case Mode.operatorPending:
-        return 'PEN  ';
+        return 'PEN';
       case Mode.insert:
-        return 'INS  ';
+        return 'INS';
       case Mode.replace:
-        return 'REP  ';
+        return 'REP';
       default:
         return '';
     }
