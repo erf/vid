@@ -50,7 +50,7 @@ void actionSave(Editor e, FileBuffer f) {
     sink.writeln(line);
   }
   sink.close();
-  e.showMessage('Saved');
+  e.showMessage('File saved');
 }
 
 void actionCursorCharNext(Editor e, FileBuffer f) {
