@@ -15,4 +15,4 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 
 - No syntax highlighting (just terminal colors)
 - No plugins (let's not get too fancy)
-- No window manager (just open a new tab in the terminal)
+- No window manager (just open a new Terminal tab)
