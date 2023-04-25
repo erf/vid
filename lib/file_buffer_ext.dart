@@ -19,6 +19,10 @@ extension FileBufferExt on FileBuffer {
       return;
     }
     filename = args.first;
+    if (Directory(filename!).existsSync()) {
+      print('Cannot open directory');
+      exit(1);
+    }
     final file = File(filename!);
     if (file.existsSync()) {
       lines = file.readAsLinesSync().map(Characters.new).toList();
