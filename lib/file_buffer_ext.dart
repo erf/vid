@@ -18,12 +18,12 @@ extension FileBufferExt on FileBuffer {
       lines = [''.ch];
       return;
     }
-    filename = args.first;
-    if (Directory(filename!).existsSync()) {
+    path = args.first;
+    if (Directory(path!).existsSync()) {
       print('Cannot open directory');
       exit(1);
     }
-    final file = File(filename!);
+    final file = File(path!);
     if (file.existsSync()) {
       lines = file.readAsLinesSync().map(Characters.new).toList();
       if (lines.isEmpty) {

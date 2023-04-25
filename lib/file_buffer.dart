@@ -6,7 +6,7 @@ import 'position.dart';
 import 'string_ext.dart';
 
 class FileBuffer {
-  String? filename;
+  String? path;
 
 // always have at least one line with one empty string
   List<Characters> lines = [''.ch];

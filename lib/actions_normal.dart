@@ -40,11 +40,11 @@ void actionQuit(Editor e, FileBuffer f) {
 }
 
 void actionSave(Editor e, FileBuffer f) {
-  if (f.filename == null) {
+  if (f.path == null) {
     e.showMessage('Error: No filename');
     return;
   }
-  final file = File(f.filename!);
+  final file = File(f.path!);
   final sink = file.openWrite();
   for (var line in f.lines) {
     sink.writeln(line);
