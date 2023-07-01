@@ -1,30 +1,32 @@
-import 'package:characters/characters.dart';
+import 'package:vid/emojis_2.dart';
 
-import 'unicode_info.dart';
+import 'emojis_1.dart';
+import 'emojis_15.dart';
 
-extension UnicodeInfoExt on UnicodeInfo {
+class Emoji {
   // Check if a character is an emoji
-  static bool isEmoji(Characters ch) {
-    assert(ch.length == 1);
-
+  static bool isEmoji(String str) {
     // Check if codeUnits contains a Variation Selector (VS) of type 16 (emoji) or 15 (text)
     // https://en.wikipedia.org/wiki/Variation_Selectors_(Unicode_block)
     // http://www.unicode.org/reports/tr51/#def_emoji_presentation
     const int vs15 = 0xFE0E; // text
-    if (ch.string.codeUnits.contains(vs15)) {
+    if (str.codeUnits.contains(vs15)) {
       //print('vs15: $this');
       return false;
     }
     const int vs16 = 0xFE0F; // emoji
-    if (ch.string.codeUnits.contains(vs16)) {
+    if (str.codeUnits.contains(vs16)) {
       //print('vs16: $this');
       return true;
     }
 
-    if (UnicodeInfo.emojiCodePoints1.contains(ch.string.runes.first)) {
+    if (emojis1.contains(str)) {
       return true;
     }
-    if (UnicodeInfo.emojiCodePoints15.contains(ch.string.runes.first)) {
+    if (emojis2.contains(str)) {
+      return true;
+    }
+    if (emojis15.contains(str)) {
       return true;
     }
 

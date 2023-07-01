@@ -21,7 +21,7 @@ int main(List<String> args) {
   }
   final lines = file.readAsLinesSync();
 
-  final emojiCodePoints = <int>[];
+  final emojis = <String>[];
   for (var line in lines) {
     if (line.startsWith('#')) {
       continue;
@@ -36,35 +36,32 @@ int main(List<String> args) {
     }
     final value = parts[0].trim();
 
-    // Unicode 15.0 has a range of code points for emoji
+    // Unicode 15.0 document can have a range of code points
     if (value.contains('..')) {
-      final codePoints = value.split('..');
-      final codePoint = int.parse(codePoints.first, radix: 16);
-      emojiCodePoints.add(codePoint);
+      final List<String> codePoints = value.split('..');
+      final int codePointFirst = int.parse(codePoints.first, radix: 16);
+      emojis.add(String.fromCharCode(codePointFirst));
       if (codePoints.length > 1) {
-        final endCodePoint = int.parse(codePoints.last, radix: 16);
-        for (var i = codePoint + 1; i <= endCodePoint; i++) {
-          emojiCodePoints.add(i);
+        final int codePointLast = int.parse(codePoints.last, radix: 16);
+        for (int i = codePointFirst + 1; i <= codePointLast; i++) {
+          emojis.add(String.fromCharCode(i));
         }
       }
     } else {
-      // Unicode 1.0 has a single code point for emoji
-      final codePoints = value.split(' ');
-      final codePoint = int.parse(codePoints.first, radix: 16);
-      emojiCodePoints.add(codePoint);
+      final List<int> codePoints =
+          value.split(' ').map((e) => int.parse(e, radix: 16)).toList();
+      if (codePoints.length == 1) {
+        emojis.add(String.fromCharCode(codePoints.first));
+      } else {
+        emojis.add(String.fromCharCodes(codePoints));
+      }
     }
   }
-  // write out the code points as a list of ints in hex
+  // print emojis as a comma separated list
   final sb = StringBuffer();
-  sb.write('const emojiCodePoints = <int>[');
-  for (var i = 0; i < emojiCodePoints.length; i++) {
-    if (i % 10 == 0) {
-      sb.write('\n  ');
-    }
-    sb.write('0x${emojiCodePoints[i].toRadixString(16).padLeft(4, '0')}, ');
+  for (var i = 0; i < emojis.length; i++) {
+    sb.write('\'${emojis[i]}\', ');
   }
-  sb.write('];');
   print(sb.toString());
-  print('DONE!');
   return 0;
 }
