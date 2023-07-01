@@ -23,18 +23,15 @@ class Emoji {
     if (emojis1.contains(str)) {
       return true;
     }
-    if (emojis2.contains(str)) {
-      return true;
-    }
-    if (emojis15.contains(str)) {
-      return true;
-    }
+    // if (emojis15.contains(str)) {
+    //   return true;
+    // }
 
     // combined characters must be 2 ?
-    //if (ch.string.runes.length > 1) {
-    //print('runes > 1: $this');
-    //return true;
-    //}
+    if (str.runes.length > 1) {
+      //print('runes > 1: $str');
+      return true;
+    }
 
     return false;
   }
