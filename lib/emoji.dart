@@ -20,18 +20,18 @@ class Emoji {
       return true;
     }
 
+    // combined characters must be 2 ?
+    if (str.runes.length > 1) {
+      //print('runes > 1: $str');
+      return true;
+    }
+
     if (emojis1.contains(str)) {
       return true;
     }
     // if (emojis15.contains(str)) {
     //   return true;
     // }
-
-    // combined characters must be 2 ?
-    if (str.runes.length > 1) {
-      //print('runes > 1: $str');
-      return true;
-    }
 
     return false;
   }
