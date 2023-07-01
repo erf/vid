@@ -29,9 +29,9 @@ class Emoji {
     if (emojis1.contains(str)) {
       return true;
     }
-    // if (emojis15.contains(str)) {
-    //   return true;
-    // }
+    if (emojis15.contains(str)) {
+      return true;
+    }
 
     return false;
   }
