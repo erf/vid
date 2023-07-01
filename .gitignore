@@ -6,3 +6,7 @@
 build/
 
 .vscode
+.idea
+
+data
+test-data
