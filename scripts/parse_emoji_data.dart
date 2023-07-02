@@ -1,13 +1,12 @@
 import 'dart:io';
 
-// This script parses the emoji-data.txt file from the Unicode Consortium
-// and outputs a list of code points that are emoji.
-//
-// We support all emoji in the Emoji 1.0 spec, plus all emoji in the latest spec.
-//
-// The emoji-data.txt files can be downloaded from:
+// This script parses a list of emoji code points from the 'emoji-data.txt' file
+// downloaded from unicode.org
 // https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
 // https://unicode.org/Public/emoji/1.0/emoji-data.txt
+//
+// The script is used to generate the list of emoji code points used in
+// lib/emojis.dart
 int main(List<String> args) {
   if (args.isEmpty) {
     print('Usage: dart parse_emoji_data.dart <path to emoji-data.txt>');

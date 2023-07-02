@@ -11,8 +11,8 @@ class Emoji {
     if (str.codeUnits.contains(vs16)) {
       return true;
     }
-    // check if first codeUnit is in pre-generated emoji list
-    if (emojis15.contains(str.runes.first)) {
+    // check if first codeUnit is in pre-generated emoji hashmap
+    if (emojis15Map.containsKey(str.runes.first)) {
       return true;
     }
     return false;
