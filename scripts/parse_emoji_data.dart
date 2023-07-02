@@ -9,6 +9,10 @@ import 'dart:io';
 // https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
 // https://unicode.org/Public/emoji/1.0/emoji-data.txt
 int main(List<String> args) {
+  if (args.isEmpty) {
+    print('Usage: dart parse_emoji_data.dart <path to emoji-data.txt>');
+    return 1;
+  }
   final path = args.first;
   if (Uri.tryParse(path) == null) {
     print('Invalid path: $path');
@@ -21,7 +25,7 @@ int main(List<String> args) {
   }
   final lines = file.readAsLinesSync();
 
-  final emojis = <String>[];
+  final emojis = <int>[];
   for (var line in lines) {
     if (line.startsWith('#')) {
       continue;
@@ -36,32 +40,31 @@ int main(List<String> args) {
     }
     final value = parts[0].trim();
 
-    // Unicode 15.0 document can have a range of code points
+    // The unicode docs > 1.0, can have a range of code points
     if (value.contains('..')) {
       final List<String> codePoints = value.split('..');
       final int codePointFirst = int.parse(codePoints.first, radix: 16);
-      emojis.add(String.fromCharCode(codePointFirst));
+      emojis.add(codePointFirst);
       if (codePoints.length > 1) {
         final int codePointLast = int.parse(codePoints.last, radix: 16);
         for (int i = codePointFirst + 1; i <= codePointLast; i++) {
-          emojis.add(String.fromCharCode(i));
+          emojis.add(i);
         }
       }
     } else {
       final List<int> codePoints =
           value.split(' ').map((e) => int.parse(e, radix: 16)).toList();
       if (codePoints.length == 1) {
-        emojis.add(String.fromCharCode(codePoints.first));
+        emojis.add(codePoints.first);
       } else {
-        emojis.add(String.fromCharCodes(codePoints));
+        emojis.add(codePoints.first);
       }
     }
   }
   // print emojis as a comma separated list
   final sb = StringBuffer();
-  for (var i = 0; i < emojis.length; i++) {
-    sb.write('\'${emojis[i]}\', ');
-  }
+  sb.writeAll(emojis, ', ');
   print(sb.toString());
+  print('Total numer of emojis: ${emojis.length}');
   return 0;
 }
