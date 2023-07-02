@@ -16,7 +16,7 @@ class Emoji {
     }
 
     // if number of runes is greater than 1, it's an emoji
-    if (str.codeUnits.length > 1) {
+    if (str.runes.length > 1) {
       return true;
     }
 
