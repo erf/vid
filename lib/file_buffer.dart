@@ -8,13 +8,13 @@ import 'string_ext.dart';
 class FileBuffer {
   String? path;
 
-// always have at least one line with one empty string
+  // always have at least one line with one empty string
   List<Characters> lines = [''.ch];
 
-// the current cursor position (0 based, in human-readable symbol space as opposed to byte space)
+  // the current cursor position (0 based, in human-readable symbol space as opposed to byte space)
   var cursor = Position();
 
-// the view offset in the file (0 based, in human-readable symbol space as opposed to byte space)
+  // the view offset in the file (0 based, in human-readable symbol space as opposed to byte space)
   var view = Position();
 
   var mode = Mode.normal;

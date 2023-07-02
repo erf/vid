@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:characters/characters.dart';
 import 'package:vid/range_ext.dart';
@@ -20,7 +19,7 @@ extension FileBufferExt on FileBuffer {
     }
     path = args.first;
     if (Directory(path!).existsSync()) {
-      print('Cannot open directory');
+      print('Cannot open directory \'$path\'');
       exit(1);
     }
     final file = File(path!);
