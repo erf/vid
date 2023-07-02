@@ -42,11 +42,11 @@ int main(List<String> args) {
 
     // The unicode docs > 1.0, can have a range of code points
     if (value.contains('..')) {
-      final List<String> codePoints = value.split('..');
-      final int codePointFirst = int.parse(codePoints.first, radix: 16);
+      final List<String> codePointRange = value.split('..');
+      final int codePointFirst = int.parse(codePointRange.first, radix: 16);
       emojis.add(codePointFirst);
-      if (codePoints.length > 1) {
-        final int codePointLast = int.parse(codePoints.last, radix: 16);
+      if (codePointRange.length > 1) {
+        final int codePointLast = int.parse(codePointRange.last, radix: 16);
         for (int i = codePointFirst + 1; i <= codePointLast; i++) {
           emojis.add(i);
         }
@@ -54,17 +54,11 @@ int main(List<String> args) {
     } else {
       final List<int> codePoints =
           value.split(' ').map((e) => int.parse(e, radix: 16)).toList();
-      if (codePoints.length == 1) {
-        emojis.add(codePoints.first);
-      } else {
-        emojis.add(codePoints.first);
-      }
+      emojis.add(codePoints.first);
     }
   }
   // print emojis as a comma separated list
-  final sb = StringBuffer();
-  sb.writeAll(emojis, ', ');
-  print(sb.toString());
+  print(StringBuffer()..writeAll(emojis, ', '));
   print('Total numer of emojis: ${emojis.length}');
   return 0;
 }

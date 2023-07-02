@@ -1,4 +1,3 @@
-import 'emojis_1.dart';
 import 'emojis_15.dart';
 
 class Emoji {
@@ -13,8 +12,7 @@ class Emoji {
       return true;
     }
     // check if first codeUnit is in pre-generated emoji list
-    final int codeUnit = str.runes.first;
-    if (emojis15.contains(codeUnit)) {
+    if (emojis15.contains(str.runes.first)) {
       return true;
     }
     return false;
