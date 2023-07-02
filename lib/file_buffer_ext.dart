@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:characters/characters.dart';
 import 'package:vid/range_ext.dart';
@@ -14,9 +15,8 @@ extension FileBufferExt on FileBuffer {
   // load file from disk or create new file
   void load(List<String> args) {
     if (args.isEmpty) {
-      // always have at least one line with empty string to avoid index out of bounds
-      lines = [''.ch];
-      return;
+      print('No file specified');
+      exit(1);
     }
     path = args.first;
     if (Directory(path!).existsSync()) {

@@ -28,9 +28,9 @@ class Editor {
   static const messageTimeInMs = 2000;
 
   void init(List<String> args) {
+    fileBuffer.load(args);
     terminal.rawMode = true;
     terminal.write(VT100.cursorVisible(true));
-    fileBuffer.load(args);
     terminal.input.listen(input);
     terminal.resize.listen(resize);
     draw();
