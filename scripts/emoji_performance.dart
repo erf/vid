@@ -5,11 +5,24 @@ import 'dart:math';
 import 'package:vid/emojis_15.dart';
 
 void main() {
-  testIfEmojiUsingList();
+  final List<String> unicodeChars = generateRandomUnicodeChars(100000);
+  testEmojiInListPerformance(unicodeChars);
+  testEmojiInMapPerformance(unicodeChars);
 }
 
-void testIfEmojiUsingList() {
-  final List<String> unicodeChars = generateRandomUnicodeChars(100000);
+void testEmojiInListPerformance(List<String> unicodeChars) {
+  final stopwatch = Stopwatch()..start();
+  int num = 0;
+  for (final unicodeChar in unicodeChars) {
+    if (emojis15.contains(unicodeChar.runes.first)) {
+      num++;
+    }
+  }
+  stopwatch.stop();
+  print('testIfEmojiUsingList: ${stopwatch.elapsedMilliseconds}ms - $num');
+}
+
+void testEmojiInMapPerformance(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num = 0;
   for (final unicodeChar in unicodeChars) {
@@ -18,7 +31,7 @@ void testIfEmojiUsingList() {
     }
   }
   stopwatch.stop();
-  print('testIfEmojiUsingList: ${stopwatch.elapsedMilliseconds}ms - $num');
+  print('testIfEmojiUsingMap: ${stopwatch.elapsedMilliseconds}ms - $num');
 }
 
 List<String> generateRandomUnicodeChars(int length) {

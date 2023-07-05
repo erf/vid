@@ -4,6 +4,8 @@ import 'dart:io';
 // downloaded from unicode.org
 // https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
 // https://unicode.org/Public/emoji/1.0/emoji-data.txt
+// 
+// https://www.unicode.org/emoji/charts/emoji-variants.html
 //
 // The script is used to generate the list of emoji code points used in
 // lib/emojis.dart
