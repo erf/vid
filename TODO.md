@@ -1,6 +1,6 @@
 # TODO
 
-- handle breaking lines with emojis
+- handle long lines with emojis
 - better handling / architecture for pending mode
 - undo / history
 - find char

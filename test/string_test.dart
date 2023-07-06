@@ -27,25 +27,25 @@ void main() {
   });
 
   test('Default presentation text', () {
-    expect('\u2328'.renderWidth, 1);
-    expect('\u23CF'.renderWidth, 1);
-    expect('\u23ED'.renderWidth, 1);
-    expect('\u23EE'.renderWidth, 1);
-    expect('\u23EF'.renderWidth, 1);
-    expect('\u23F1'.renderWidth, 1);
-    expect('\u23F2'.renderWidth, 1);
-    expect('\u23F8'.renderWidth, 1);
+    expect('⌨'.renderWidth, 1);
+    expect('⏏'.renderWidth, 1);
+    expect('⏭'.renderWidth, 1);
+    expect('⏮'.renderWidth, 1);
+    expect('⏯'.renderWidth, 1);
+    expect('⏱'.renderWidth, 1);
+    expect('⏲'.renderWidth, 1);
+    expect('⏸'.renderWidth, 1);
   });
 
   test('Default presentation emoji', () {
-    expect('\u231A'.renderWidth, 2);
-    expect('\u231B'.renderWidth, 2);
-    expect('\u23E9'.renderWidth, 2);
-    expect('\u23EA'.renderWidth, 2);
-    expect('\u23EB'.renderWidth, 2);
-    expect('\u23EC'.renderWidth, 2);
-    expect('\u23F0'.renderWidth, 2);
-    expect('\u23F3'.renderWidth, 2);
+    expect('⌚'.renderWidth, 2);
+    expect('⌛'.renderWidth, 2);
+    expect('⏩'.renderWidth, 2);
+    expect('⏪'.renderWidth, 2);
+    expect('⏫'.renderWidth, 2);
+    expect('⏬'.renderWidth, 2);
+    expect('⏰'.renderWidth, 2);
+    expect('⏳'.renderWidth, 2);
   });
 
   test('Emoji vs Text types with variations', () {
