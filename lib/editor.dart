@@ -85,6 +85,7 @@ class Editor {
 
   void drawStatus() {
     final cursor = fileBuffer.cursor;
+    //final view = fileBuffer.view;
 
     renderBuffer.write(VT100.invert(true));
     renderBuffer.write(VT100.cursorPosition(x: 1, y: terminal.height));
@@ -95,11 +96,12 @@ class Editor {
     final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
     final padLeft = terminal.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
+    //final status = 'c${cursor.x},v${view.x}';
 
-    if (status.length < terminal.width - 1) {
+    if (status.length <= terminal.width - 1) {
       renderBuffer.write(status);
     } else {
-      renderBuffer.write(status.substring(0, terminal.width - 1));
+      renderBuffer.write(status.substring(0, terminal.width));
     }
 
     renderBuffer.write(VT100.invert(false));
