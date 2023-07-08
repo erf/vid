@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:characters/characters.dart';
 import 'package:vid/range_ext.dart';
@@ -78,6 +79,7 @@ extension FileBufferExt on FileBuffer {
 // clamp view on cursor position
   void clampView(Terminal term) {
     view.y = clamp(view.y, cursor.y, cursor.y - term.height + 2);
-    view.x = clamp(view.x, cursor.x, cursor.x - term.width + 2);
+    int cx = lines[cursor.y].renderedLength(cursor.x);
+    view.x = clamp(view.x, cx, cx - term.width + 1);
   }
 }

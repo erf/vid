@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/string_ext.dart';
 
 import 'actions_insert.dart';
 import 'actions_motion.dart';
@@ -65,7 +66,8 @@ class Editor {
         continue;
       }
       // draw line in view
-      final line = lines[l].substring(view.x, view.x + terminal.width - 1);
+      final line = lines[l].getVisibleLine(view, terminal);
+
       renderBuffer.writeln(line);
     }
 

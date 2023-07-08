@@ -5,3 +5,4 @@
 - undo / history
 - find char
 - delete line should save to register
+- don't exit if has changes

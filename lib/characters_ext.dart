@@ -42,16 +42,14 @@ extension CharactersExt on Characters {
   }
 
   // get cursor position for the rendered line
-  int renderedLength(int charIndex) {
-    return take(charIndex).fold(0, (prev, curr) => prev + curr.renderWidth);
+  int renderedLength(int index) {
+    return take(index).fold(0, (prev, curr) => prev + curr.renderWidth);
   }
 
   // get the visible string for the given view
-  Characters getVisibleLine(Position view, Terminal terminal) {
-    final start = renderedLength(view.x);
-    final end = terminal.width - 1;
-    return skipWhileLessThanRenderedLength(start)
-        .takeWhileLessThanRenderedLength(end);
+  Characters getVisibleLine(Position view, Terminal term) {
+    return skipWhileLessThanRenderedLength(view.x)
+        .takeWhileLessThanRenderedLength(term.width);
   }
 
   // take characters until the rendered length of the line is reached
