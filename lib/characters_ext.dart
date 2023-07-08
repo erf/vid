@@ -53,20 +53,20 @@ extension CharactersExt on Characters {
   }
 
   // take characters until the rendered length of the line is reached
-  Characters takeWhileLessThanRenderedLength(int maxCols) {
-    int totalWidth = 0;
+  Characters takeWhileLessThanRenderedLength(int col) {
+    int total = 0;
     return takeWhile((char) {
-      totalWidth += char.renderWidth;
-      return totalWidth <= maxCols;
+      total += char.renderWidth;
+      return total <= col;
     });
   }
 
   // skip characters until the rendered length of the line is reached
-  Characters skipWhileLessThanRenderedLength(int maxCols) {
-    int totalWidth = 0;
+  Characters skipWhileLessThanRenderedLength(int col) {
+    int total = 0;
     return skipWhile((char) {
-      totalWidth += char.renderWidth;
-      return totalWidth <= maxCols;
+      total += char.renderWidth;
+      return total <= col;
     });
   }
 }
