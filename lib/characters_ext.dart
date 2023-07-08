@@ -55,14 +55,25 @@ extension CharactersExt on Characters {
   // skip characters until the rendered length of the line is reached
   Characters skipWhileLessThanRenderedLength(int col) {
     int total = 0;
-    return skipWhile((char) {
+    bool addSpace = false;
+    final line = skipWhile((char) {
       int renderWidth = char.renderWidth;
       total += renderWidth;
+      // if first character is a double width character and the offset is 1 then
+      // add a space to the beginning of the line
       if (renderWidth == 2) {
+        if (total - 1 == col) {
+          addSpace = true;
+        }
         return (total - 1) <= col;
       }
       return total <= col;
     });
+    if (addSpace) {
+      return ' '.ch + line;
+    } else {
+      return line;
+    }
   }
 
   // take characters until the rendered length of the line is reached
