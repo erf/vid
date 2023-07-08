@@ -47,24 +47,24 @@ extension CharactersExt on Characters {
   }
 
   // get the visible string for the given view
-  Characters getVisibleLine(Position view, Terminal term) {
+  Characters getRenderLine(Position view, Terminal term) {
     return skipWhileLessThanRenderedLength(view.x)
         .takeWhileLessThanRenderedLength(term.width);
-  }
-
-  // take characters until the rendered length of the line is reached
-  Characters takeWhileLessThanRenderedLength(int col) {
-    int total = 0;
-    return takeWhile((char) {
-      total += char.renderWidth;
-      return total <= col;
-    });
   }
 
   // skip characters until the rendered length of the line is reached
   Characters skipWhileLessThanRenderedLength(int col) {
     int total = 0;
     return skipWhile((char) {
+      total += char.renderWidth;
+      return total <= col;
+    });
+  }
+
+  // take characters until the rendered length of the line is reached
+  Characters takeWhileLessThanRenderedLength(int col) {
+    int total = 0;
+    return takeWhile((char) {
       total += char.renderWidth;
       return total <= col;
     });

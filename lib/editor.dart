@@ -66,7 +66,7 @@ class Editor {
         continue;
       }
       // draw line in view
-      final line = lines[l].getVisibleLine(view, terminal);
+      final line = lines[l].getRenderLine(view, terminal);
 
       renderBuffer.writeln(line);
     }
