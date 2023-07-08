@@ -12,6 +12,7 @@ import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_ext.dart';
+import 'config.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
@@ -25,7 +26,6 @@ class Editor {
   final fileBuffer = FileBuffer();
   final renderBuffer = StringBuffer();
   String message = '';
-  static const messageTimeInMs = 2000;
 
   void init(List<String> args) {
     fileBuffer.load(args);
@@ -125,7 +125,7 @@ class Editor {
     message = text;
     draw();
     if (timed) {
-      Timer(Duration(milliseconds: messageTimeInMs), () {
+      Timer(Duration(milliseconds: Config.messageTime), () {
         message = '';
         draw();
       });
