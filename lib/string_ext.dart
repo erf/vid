@@ -1,5 +1,6 @@
 import 'package:characters/characters.dart';
 
+import 'config.dart';
 import 'emoji.dart';
 
 extension StringExt on String {
@@ -19,9 +20,9 @@ extension StringExt on String {
     }
 
     // if the string is a single tab, return 4 ?
-    // if ('\t'.contains(this)) {
-    //   return 4;
-    // }
+    if ('\t'.contains(this)) {
+      return Config.tabWidth;
+    }
 
     // If the string is a emoji, return 2
     if (Emoji.isEmoji(this)) {

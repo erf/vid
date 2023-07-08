@@ -1,6 +1,5 @@
 # TODO
 
-- improve movement when emoji at edges
 - better handling / architecture for pending mode
 - undo / history
 - find char

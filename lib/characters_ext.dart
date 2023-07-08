@@ -2,6 +2,7 @@ import 'package:characters/characters.dart';
 import 'package:vid/string_ext.dart';
 import 'package:vid/terminal.dart';
 
+import 'config.dart';
 import 'position.dart';
 
 extension CharactersExt on Characters {
@@ -48,7 +49,8 @@ extension CharactersExt on Characters {
 
   // get the visible string for the given view
   Characters getRenderLine(Position view, Terminal term) {
-    return skipWhileLessThanRenderedLength(view.x)
+    return replaceAll('\t'.ch, Config.tabSpaces)
+        .skipWhileLessThanRenderedLength(view.x)
         .takeWhileLessThanRenderedLength(term.width);
   }
 
