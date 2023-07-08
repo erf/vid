@@ -56,7 +56,11 @@ extension CharactersExt on Characters {
   Characters skipWhileLessThanRenderedLength(int col) {
     int total = 0;
     return skipWhile((char) {
-      total += char.renderWidth;
+      int renderWidth = char.renderWidth;
+      total += renderWidth;
+      if (renderWidth == 2) {
+        return (total - 1) <= col;
+      }
       return total <= col;
     });
   }
@@ -65,7 +69,11 @@ extension CharactersExt on Characters {
   Characters takeWhileLessThanRenderedLength(int col) {
     int total = 0;
     return takeWhile((char) {
-      total += char.renderWidth;
+      int renderWidth = char.renderWidth;
+      total += renderWidth;
+      if (renderWidth == 2) {
+        return (total - 1) <= col;
+      }
       return total <= col;
     });
   }
