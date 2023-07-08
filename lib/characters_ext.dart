@@ -49,7 +49,7 @@ extension CharactersExt on Characters {
 
   // get the visible string for the given view
   Characters getRenderLine(Position view, Terminal term) {
-    return replaceAll('\t'.ch, Config.tabSpaces)
+    return replaceAll('\t'.ch, Config.tabSpace)
         .skipWhileLessThanRenderedLength(view.x)
         .takeWhileLessThanRenderedLength(term.width);
   }
