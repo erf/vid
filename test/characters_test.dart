@@ -29,12 +29,11 @@ void main() {
     expect('abc'.ch.getRenderLine(0, 3).string, 'abc');
     expect('❤️‍🔥❤️‍🔥ab'.ch.getRenderLine(2, 4).string, '❤️‍🔥ab');
     expect('❤️‍🔥❤️‍🔥ab'.ch.getRenderLine(3, 4).string, ' ab',
-        reason: 'replace half emoji at start with space');
+        reason: 'Replace half emoji at start with space');
     expect('abcd🥹'.ch.getRenderLine(4, 6).string, '🥹');
     expect('abcd🥹'.ch.getRenderLine(5, 6).string, ' ');
     expect('abcd🥹'.ch.getRenderLine(3, 5).string, 'd🥹',
-        reason:
-            'Draw full emoji even if only half indexed or should we draw a space?');
+        reason: 'Draw full emoji even if only half indexed');
     expect('abcd🥹'.ch.getRenderLine(3, 6).string, 'd🥹');
   });
 }
