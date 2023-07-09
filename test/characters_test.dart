@@ -32,5 +32,9 @@ void main() {
         reason: 'replace half emoji at start with space');
     expect('abcd🥹'.ch.getRenderLine(4, 6).string, '🥹');
     expect('abcd🥹'.ch.getRenderLine(5, 6).string, ' ');
+    expect('abcd🥹'.ch.getRenderLine(3, 5).string, 'd🥹',
+        reason:
+            'Draw full emoji even if only half indexed or should we draw a space?');
+    expect('abcd🥹'.ch.getRenderLine(3, 6).string, 'd🥹');
   });
 }
