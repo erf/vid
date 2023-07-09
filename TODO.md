@@ -1,5 +1,6 @@
 # TODO
 
+- cursor up/down should move to correct render position
 - use iterator.expand etc ?
 - find char
 - undo / history
