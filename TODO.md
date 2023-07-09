@@ -1,5 +1,6 @@
 # TODO
 
+- "no newline at end of file"
 - cursor up/down should move to correct render position
 - use iterator.expand etc ?
 - find char
