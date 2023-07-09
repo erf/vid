@@ -1,11 +1,18 @@
 import 'package:characters/characters.dart';
-import 'package:vid/string_ext.dart';
-import 'package:vid/terminal.dart';
+import 'string_ext.dart';
+import 'terminal.dart';
 
 import 'config.dart';
 import 'position.dart';
 
 extension CharactersExt on Characters {
+  // a space character
+  static final space = Characters(' ');
+
+  // tab space
+  static final tabSpace =
+      List.generate(Config.tabWidth, (_) => space).join().ch;
+
   // a substring method similar to String for Characters
   Characters substring(int start, [int? end]) {
     return skip(start).take((end ?? length) - start);
@@ -49,7 +56,7 @@ extension CharactersExt on Characters {
 
   // get the visible string for the given view
   Characters getRenderLine(Position view, Terminal term) {
-    return replaceAll('\t'.ch, Config.tabSpace)
+    return replaceAll('\t'.ch, tabSpace)
         .skipWhileLessThanRenderedLength(view.x)
         .takeWhileLessThanRenderedLength(term.width);
   }
@@ -72,7 +79,7 @@ extension CharactersExt on Characters {
       return total <= col;
     });
     if (addSpace) {
-      return ' '.ch + line;
+      return space + line;
     } else {
       return line;
     }

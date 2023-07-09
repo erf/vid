@@ -7,6 +7,9 @@ extension StringExt on String {
   // Shorthand for characters (Characters(this))
   Characters get ch => characters;
 
+  // Space character
+  static const space = ' ';
+
   // Try to determine the rendered width of a single character
   int get renderWidth {
     // if the string is empty, return 0
