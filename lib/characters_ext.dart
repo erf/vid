@@ -1,9 +1,7 @@
 import 'package:characters/characters.dart';
-import 'string_ext.dart';
-import 'terminal.dart';
 
 import 'config.dart';
-import 'position.dart';
+import 'string_ext.dart';
 
 extension CharactersExt on Characters {
   // a space character
