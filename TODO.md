@@ -1,5 +1,6 @@
 # TODO
 
+- use iterator.expand etc ?
 - find char
 - undo / history
 - delete line should save to register
