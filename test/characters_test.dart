@@ -35,5 +35,6 @@ void main() {
     expect('abcd🥹'.ch.getRenderLine(3, 5).string, 'd🥹',
         reason: 'Draw full emoji even if only half indexed');
     expect('abcd🥹'.ch.getRenderLine(3, 6).string, 'd🥹');
+    expect('abcd🥹'.ch.getRenderLine(0, 5).string, 'abcd🥹');
   });
 }

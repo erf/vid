@@ -60,21 +60,21 @@ extension CharactersExt on Characters {
   }
 
   // skip characters until the rendered length of the line is reached
-  Characters skipWhileLessThanRenderedLength(int col) {
+  Characters skipWhileLessThanRenderedLength(int start) {
     int total = 0;
     bool addSpace = false;
     final line = skipWhile((char) {
       int renderWidth = char.renderWidth;
       total += renderWidth;
-      // if first character is a double width character and the offset is 1 then
-      // add a space to the beginning of the line
+      // add a space to the beginning of the line if the first character is a
+      // double width character and start is 1 then
       if (renderWidth == 2) {
-        if (total - 1 == col) {
+        if (total - 1 == start) {
           addSpace = true;
         }
-        return (total - 1) <= col;
+        return (total - 1) <= start;
       }
-      return total <= col;
+      return total <= start;
     });
     if (addSpace) {
       return space + line;
@@ -84,15 +84,15 @@ extension CharactersExt on Characters {
   }
 
   // take characters until the rendered length of the line is reached
-  Characters takeWhileLessThanRenderedLength(int col) {
+  Characters takeWhileLessThanRenderedLength(int width) {
     int total = 0;
     return takeWhile((char) {
       int renderWidth = char.renderWidth;
       total += renderWidth;
       if (renderWidth == 2) {
-        return (total - 1) <= col;
+        return (total - 1) <= width;
       }
-      return total <= col;
+      return total <= width;
     });
   }
 }
