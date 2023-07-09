@@ -1,4 +1,5 @@
 class Config {
-  static const messageTime = 2000;
-  static const tabWidth = 4;
+  static const int messageTime = 2000;
+  static const int tabWidth = 4;
+  static const bool addNewlineAtEOF = true;
 }
