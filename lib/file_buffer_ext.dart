@@ -26,7 +26,7 @@ extension FileBufferExt on FileBuffer {
     if (file.existsSync()) {
       lines = file.readAsLinesSync().map(Characters.new).toList();
       if (lines.isEmpty) {
-        lines = [''.ch];
+        lines = [Characters.empty];
       }
     }
   }
@@ -48,7 +48,7 @@ extension FileBufferExt on FileBuffer {
       removeEmptyLinesInRange(r);
     }
     if (lines.isEmpty) {
-      lines.add(''.ch);
+      lines.add(Characters.empty);
     }
   }
 

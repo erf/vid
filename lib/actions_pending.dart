@@ -1,3 +1,5 @@
+import 'package:characters/characters.dart';
+
 import 'characters_ext.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
@@ -16,7 +18,7 @@ void yankRange(FileBuffer f, Range range) {
     return;
   }
   // get text in range from the first and last element
-  var text = ''.ch;
+  var text = Characters.empty;
   for (int i = r.p0.y; i <= r.p1.y; i++) {
     if (i == r.p0.y) {
       text += f.lines[i].skip(r.p0.x);

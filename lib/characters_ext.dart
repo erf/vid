@@ -17,7 +17,7 @@ extension CharactersExt on Characters {
   }
 
   Characters removeRange(int start, [int? end]) {
-    return replaceRange(start, end, ''.ch);
+    return replaceRange(start, end, Characters.empty);
   }
 
   Characters replaceCharAt(int index, Characters char) {
@@ -25,7 +25,7 @@ extension CharactersExt on Characters {
   }
 
   Characters deleteCharAt(int index) {
-    return replaceCharAt(index, ''.ch);
+    return replaceCharAt(index, Characters.empty);
   }
 
   // get the symbol length given the byte length

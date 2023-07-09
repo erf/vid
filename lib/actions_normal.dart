@@ -67,16 +67,16 @@ void actionCursorLineBottom(Editor e, FileBuffer f) {
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.lines.insert(f.cursor.y, ''.ch);
+  f.lines.insert(f.cursor.y, Characters.empty);
   f.cursor.x = 0;
 }
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
   if (f.cursor.y + 1 >= f.lines.length) {
-    f.lines.add(''.ch);
+    f.lines.add(Characters.empty);
   } else {
-    f.lines.insert(f.cursor.y + 1, ''.ch);
+    f.lines.insert(f.cursor.y + 1, Characters.empty);
   }
   actionCursorCharDown(e, f);
 }
