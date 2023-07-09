@@ -4,6 +4,7 @@ import 'package:characters/characters.dart';
 
 import 'actions_motion.dart';
 import 'characters_ext.dart';
+import 'config.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
