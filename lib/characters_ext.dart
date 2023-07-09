@@ -55,10 +55,10 @@ extension CharactersExt on Characters {
   }
 
   // get the visible string for the given view
-  Characters getRenderLine(Position view, Terminal term) {
+  Characters getRenderLine(int index, int width) {
     return replaceAll('\t'.ch, tabSpace)
-        .skipWhileLessThanRenderedLength(view.x)
-        .takeWhileLessThanRenderedLength(term.width);
+        .skipWhileLessThanRenderedLength(index)
+        .takeWhileLessThanRenderedLength(width);
   }
 
   // skip characters until the rendered length of the line is reached
