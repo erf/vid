@@ -14,4 +14,13 @@ void main() {
     expect('abc'.ch.skipWhileLessThanRenderedLength(3).string, '');
     expect('😀😀abc'.ch.skipWhileLessThanRenderedLength(4).string, 'abc');
   });
+
+  test('get rendered length', () {
+    expect('abc'.ch.renderedLength(0), 0);
+    expect('abc'.ch.renderedLength(2), 2);
+    expect('abc'.ch.renderedLength(3), 3);
+    expect('😀😀abc'.ch.renderedLength(1), 2);
+    expect('😀😀abc'.ch.renderedLength(4), 6);
+    expect('😀😀abc'.ch.renderedLength(5), 7);
+  });
 }

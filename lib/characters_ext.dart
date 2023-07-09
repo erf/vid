@@ -49,9 +49,9 @@ extension CharactersExt on Characters {
     }
   }
 
-  // get cursor position for the rendered line
-  int renderedLength(int index) {
-    return take(index).fold(0, (prev, curr) => prev + curr.renderWidth);
+  // get the rendered length of the string up to the given index
+  int renderedLength(int count) {
+    return take(count).fold(0, (prev, curr) => prev + curr.renderWidth);
   }
 
   // get the visible string for the given view
