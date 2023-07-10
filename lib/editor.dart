@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 
+import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
@@ -147,6 +148,9 @@ class Editor {
       case Mode.replace:
         replace(chars);
         break;
+      case Mode.find:
+        find(chars);
+        break;
     }
     draw();
     message = '';
@@ -177,7 +181,6 @@ class Editor {
       fileBuffer.count = maybeInt;
       return;
     }
-
     NormalAction? action = normalActions[str.string];
     if (action != null) {
       action.call(this, fileBuffer);
@@ -191,27 +194,34 @@ class Editor {
   }
 
   void pending(Characters str) {
-    if (fileBuffer.currentPending == null) {
+    OperatorPendingAction? pendingAction = fileBuffer.currentPending;
+    if (pendingAction == null) {
       return;
     }
-
     TextObject? textObject = textObjects[str.string];
     if (textObject != null) {
       Range range = textObject.call(fileBuffer, fileBuffer.cursor);
-      fileBuffer.currentPending?.call(fileBuffer, range);
+      pendingAction.call(fileBuffer, range);
       return;
     }
-
     Motion? motion = motionActions[str.string];
     if (motion != null) {
-      Position newPosition = motion.call(fileBuffer, fileBuffer.cursor);
-      fileBuffer.currentPending
-          ?.call(fileBuffer, Range(p0: fileBuffer.cursor, p1: newPosition));
+      Position pNew = motion.call(fileBuffer, fileBuffer.cursor);
+      pendingAction.call(fileBuffer, Range(p0: fileBuffer.cursor, p1: pNew));
       return;
     }
   }
 
   void replace(Characters str) {
     defaultReplace(fileBuffer, str);
+  }
+
+  void find(Characters chars) {
+    FindAction? findAction = fileBuffer.findAction;
+    if (findAction != null) {
+      findAction.call(fileBuffer, fileBuffer.cursor, chars.string);
+      return;
+    }
+    fileBuffer.mode = Mode.normal;
   }
 }

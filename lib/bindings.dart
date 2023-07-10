@@ -1,3 +1,5 @@
+import 'package:vid/actions_find.dart';
+
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
@@ -50,6 +52,7 @@ final normalActions = <String, NormalAction>{
   'p': actionPasteAfter,
   '\u0004': actionMoveDownHalfPage,
   '\u0015': actionMoveUpHalfPage,
+  'f': actionFindCharNext,
 };
 
 final operatorActions = <String, OperatorPendingAction>{
@@ -66,4 +69,8 @@ final textObjects = <String, TextObject>{
   'j': objectLineDown,
   'g': objectFirstLine,
   'G': objectLastLine,
+};
+
+final findActions = <String, FindAction>{
+  'f': findNextChar,
 };

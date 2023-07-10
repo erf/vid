@@ -107,9 +107,21 @@ Position motionWordPrev(FileBuffer f, Position p) {
   }
 }
 
-// TODO not a motion, but a command ?
+// exit insert mode
 Position motionEscape(FileBuffer f, Position p) {
   f.mode = Mode.normal;
   f.currentPending = null;
   return p;
+}
+
+// find the next occurence of the given character on the current line
+Position motionFindNextChar(FileBuffer f, Position position, String char) {
+  final line = f.lines[position.y];
+  final start = line.charsToByteLength(position.x);
+  final match = char.allMatches(line.string, start).firstOrNull;
+  if (match == null) {
+    return position;
+  }
+  final charPos = line.byteToCharsLength(match.start);
+  return Position(x: charPos, y: position.y);
 }

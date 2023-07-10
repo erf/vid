@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/actions_find.dart';
 
 import 'actions_motion.dart';
 import 'characters_ext.dart';
@@ -157,4 +158,9 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
       ),
       false);
   f.clampCursor();
+}
+
+void actionFindCharNext(Editor e, FileBuffer f) {
+  f.mode = Mode.find;
+  f.findAction = findNextChar;
 }

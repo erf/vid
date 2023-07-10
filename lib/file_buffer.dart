@@ -1,5 +1,6 @@
 import 'package:characters/characters.dart';
 
+import 'actions_find.dart';
 import 'actions_pending.dart';
 import 'modes.dart';
 import 'position.dart';
@@ -19,6 +20,8 @@ class FileBuffer {
   var mode = Mode.normal;
 
   OperatorPendingAction? currentPending;
+
+  FindAction? findAction;
 
   int? count;
 

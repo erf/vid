@@ -76,4 +76,16 @@ void main() {
     expect(motionFileEnd(f, Position(x: 0, y: 1)), Position(x: 3, y: 1));
     expect(motionFileEnd(f, Position(x: 2, y: 1)), Position(x: 3, y: 1));
   });
+
+  test('motionFindNextChar', () {
+    final f = FileBuffer();
+    f.lines = [
+      'abc'.ch,
+      'def'.ch,
+    ];
+    final cursor = Position(x: 0, y: 0);
+    expect(motionFindNextChar(f, cursor, 'a'), Position(x: 0, y: 0));
+    expect(motionFindNextChar(f, cursor, 'b'), Position(x: 1, y: 0));
+    expect(motionFindNextChar(f, cursor, 'c'), Position(x: 2, y: 0));
+  });
 }

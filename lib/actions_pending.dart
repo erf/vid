@@ -8,7 +8,7 @@ import 'range.dart';
 import 'range_ext.dart';
 import 'string_ext.dart';
 
-typedef OperatorPendingAction = void Function(FileBuffer f, Range);
+typedef OperatorPendingAction = void Function(FileBuffer, Range);
 
 void yankRange(FileBuffer f, Range range) {
   final r = range.normalized();
