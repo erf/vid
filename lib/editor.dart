@@ -134,7 +134,7 @@ class Editor {
   }
 
   void input(List<int> codes) {
-    final chars = utf8.decode(codes).characters;
+    final String chars = utf8.decode(codes);
     switch (fileBuffer.mode) {
       case Mode.insert:
         insert(chars);
@@ -156,11 +156,11 @@ class Editor {
     message = '';
   }
 
-  void insert(Characters str) {
+  void insert(String str) {
     final lines = fileBuffer.lines;
     final cursor = fileBuffer.cursor;
 
-    InsertAction? insertAction = insertActions[str.string];
+    InsertAction? insertAction = insertActions[str];
     if (insertAction != null) {
       insertAction(fileBuffer);
       return;
@@ -168,43 +168,43 @@ class Editor {
 
     Characters line = lines[cursor.y];
     if (line.isEmpty) {
-      lines[cursor.y] = str;
+      lines[cursor.y] = str.characters;
     } else {
-      lines[cursor.y] = line.replaceRange(cursor.x, cursor.x, str);
+      lines[cursor.y] = line.replaceRange(cursor.x, cursor.x, str.characters);
     }
     cursor.x++;
   }
 
-  void normal(Characters str) {
-    final maybeInt = int.tryParse(str.string);
+  void normal(String str) {
+    final maybeInt = int.tryParse(str);
     if (maybeInt != null && maybeInt > 0) {
       fileBuffer.count = maybeInt;
       return;
     }
-    NormalAction? action = normalActions[str.string];
+    NormalAction? action = normalActions[str];
     if (action != null) {
       action.call(this, fileBuffer);
       return;
     }
-    OperatorPendingAction? pending = pendingActions[str.string];
+    OperatorPendingAction? pending = pendingActions[str];
     if (pending != null) {
       fileBuffer.mode = Mode.operatorPending;
       fileBuffer.pendingAction = pending;
     }
   }
 
-  void pending(Characters str) {
+  void pending(String str) {
     OperatorPendingAction? pendingAction = fileBuffer.pendingAction;
     if (pendingAction == null) {
       return;
     }
-    TextObject? textObject = textObjects[str.string];
+    TextObject? textObject = textObjects[str];
     if (textObject != null) {
       Range range = textObject.call(fileBuffer, fileBuffer.cursor);
       pendingAction.call(fileBuffer, range);
       return;
     }
-    Motion? motion = motionActions[str.string];
+    Motion? motion = motionActions[str];
     if (motion != null) {
       Position pNew = motion.call(fileBuffer, fileBuffer.cursor);
       pendingAction.call(fileBuffer, Range(p0: fileBuffer.cursor, p1: pNew));
@@ -212,14 +212,14 @@ class Editor {
     }
   }
 
-  void replace(Characters str) {
+  void replace(String str) {
     defaultReplace(fileBuffer, str);
   }
 
-  void find(Characters chars) {
+  void find(String chars) {
     FindAction? findAction = fileBuffer.findAction;
     if (findAction != null) {
-      findAction.call(fileBuffer, fileBuffer.cursor, chars.string);
+      findAction.call(fileBuffer, fileBuffer.cursor, chars);
       return;
     }
     fileBuffer.mode = Mode.normal;
