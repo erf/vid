@@ -186,15 +186,15 @@ class Editor {
       action.call(this, fileBuffer);
       return;
     }
-    OperatorPendingAction? pending = operatorActions[str.string];
+    OperatorPendingAction? pending = pendingActions[str.string];
     if (pending != null) {
       fileBuffer.mode = Mode.operatorPending;
-      fileBuffer.currentPending = pending;
+      fileBuffer.pendingAction = pending;
     }
   }
 
   void pending(Characters str) {
-    OperatorPendingAction? pendingAction = fileBuffer.currentPending;
+    OperatorPendingAction? pendingAction = fileBuffer.pendingAction;
     if (pendingAction == null) {
       return;
     }

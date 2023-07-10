@@ -19,7 +19,7 @@ class FileBuffer {
 
   var mode = Mode.normal;
 
-  OperatorPendingAction? currentPending;
+  OperatorPendingAction? pendingAction;
 
   FindAction? findAction;
 

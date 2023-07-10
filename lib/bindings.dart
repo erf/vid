@@ -55,7 +55,7 @@ final normalActions = <String, NormalAction>{
   'f': actionFindCharNext,
 };
 
-final operatorActions = <String, OperatorPendingAction>{
+final pendingActions = <String, OperatorPendingAction>{
   'c': pendingActionChange,
   'd': pendingActionDelete,
   'g': pendingActionGo,
