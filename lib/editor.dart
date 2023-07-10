@@ -223,5 +223,6 @@ class Editor {
       return;
     }
     fileBuffer.mode = Mode.normal;
+    fileBuffer.findAction = null;
   }
 }
