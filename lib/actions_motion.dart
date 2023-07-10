@@ -117,11 +117,23 @@ Position motionEscape(FileBuffer f, Position p) {
 // find the next occurence of the given character on the current line
 Position motionFindNextChar(FileBuffer f, Position position, String char) {
   final line = f.lines[position.y];
-  final start = line.charsToByteLength(position.x);
+  final start = line.charsToByteLength(position.x + 1);
   final match = char.allMatches(line.string, start).firstOrNull;
   if (match == null) {
     return position;
   }
+  final charPos = line.byteToCharsLength(match.start);
+  return Position(x: charPos, y: position.y);
+}
+
+Position motionFindPrevChar(FileBuffer f, Position position, String char) {
+  final line = f.lines[position.y];
+  final start = line.charsToByteLength(position.x);
+  final matches = char.allMatches(line.string.substring(0, start));
+  if (matches.isEmpty) {
+    return position;
+  }
+  final match = matches.last;
   final charPos = line.byteToCharsLength(match.start);
   return Position(x: charPos, y: position.y);
 }

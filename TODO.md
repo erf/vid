@@ -1,9 +1,8 @@
 # TODO
 
-- "no newline at end of file"
 - cursor up/down should move to correct render position
 - use iterator.expand etc ?
-- find char
+- find prev char
 - undo / history
 - delete line should save to register
 - yank line should include new-line char
@@ -13,3 +12,4 @@
 - don't exit if has changes
 - move back word to prev line and press x crashes
 - new file wo name but save with name (requires command mode)
+- repeat last action / search

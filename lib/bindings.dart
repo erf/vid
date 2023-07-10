@@ -53,6 +53,7 @@ final normalActions = <String, NormalAction>{
   '\u0004': actionMoveDownHalfPage,
   '\u0015': actionMoveUpHalfPage,
   'f': actionFindCharNext,
+  'F': actionFindCharPrev,
 };
 
 final pendingActions = <String, OperatorPendingAction>{

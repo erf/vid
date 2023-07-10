@@ -164,3 +164,8 @@ void actionFindCharNext(Editor e, FileBuffer f) {
   f.mode = Mode.find;
   f.findAction = findNextChar;
 }
+
+void actionFindCharPrev(Editor e, FileBuffer f) {
+  f.mode = Mode.find;
+  f.findAction = findPrevChar;
+}

@@ -80,12 +80,24 @@ void main() {
   test('motionFindNextChar', () {
     final f = FileBuffer();
     f.lines = [
-      'abc'.ch,
+      'abca'.ch,
       'def'.ch,
     ];
     final cursor = Position(x: 0, y: 0);
-    expect(motionFindNextChar(f, cursor, 'a'), Position(x: 0, y: 0));
+    expect(motionFindNextChar(f, cursor, 'a'), Position(x: 3, y: 0));
     expect(motionFindNextChar(f, cursor, 'b'), Position(x: 1, y: 0));
     expect(motionFindNextChar(f, cursor, 'c'), Position(x: 2, y: 0));
+  });
+
+  test('motionFindPrevChar', () {
+    final f = FileBuffer();
+    f.lines = [
+      'abc'.ch,
+      'def'.ch,
+    ];
+    final cursor = Position(x: 2, y: 0);
+    expect(motionFindPrevChar(f, cursor, 'a'), Position(x: 0, y: 0));
+    expect(motionFindPrevChar(f, cursor, 'b'), Position(x: 1, y: 0));
+    expect(motionFindPrevChar(f, cursor, 'c'), Position(x: 2, y: 0));
   });
 }

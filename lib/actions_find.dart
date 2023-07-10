@@ -13,3 +13,10 @@ void findNextChar(FileBuffer f, Position position, String char) {
   f.cursor.y = p.y;
   f.mode = Mode.normal;
 }
+
+void findPrevChar(FileBuffer f, Position position, String char) {
+  final p = motionFindPrevChar(f, position, char);
+  f.cursor.x = p.x;
+  f.cursor.y = p.y;
+  f.mode = Mode.normal;
+}
