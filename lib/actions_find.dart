@@ -14,6 +14,7 @@ void findNextChar(FileBuffer f, Position position, String char) {
   f.mode = Mode.normal;
 }
 
+// find the previous occurence of the given character on the current line
 void findPrevChar(FileBuffer f, Position position, String char) {
   final p = motionFindPrevChar(f, position, char);
   f.cursor.x = p.x;

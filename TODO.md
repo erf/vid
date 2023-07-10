@@ -1,11 +1,11 @@
 # TODO
 
+- delete line should save to register
+- yank line should include new-line char
 - cursor up/down should move to correct render position
 - use iterator.expand etc ?
 - find prev char
 - undo / history
-- delete line should save to register
-- yank line should include new-line char
 - star (*) go to similar token
 - better handling / architecture for pending mode
 - undo / history
