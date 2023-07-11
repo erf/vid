@@ -50,6 +50,7 @@ void main() {
   test('replaceRange', () {
     expect('abc'.ch.replaceRange(0, 1, 'd'.ch).string, 'dbc');
     expect('abc'.ch.replaceRange(0, 3, 'cba'.ch).string, 'cba');
+    expect('abcdef'.ch.replaceRange(1, 5, '👑👑'.ch).string, 'a👑👑f');
   });
 
   test('deleteCharAt', () {
