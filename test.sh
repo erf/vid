@@ -1,1 +1,0 @@
-dart test -r github
