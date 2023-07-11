@@ -13,12 +13,26 @@ extension CharactersExt on Characters {
 
   // a substring method similar to String for Characters
   Characters substring(int start, [int? end]) {
-    return skip(start).take((end ?? length) - start);
+    final range = CharacterRange(string);
+    range.moveNext(start);
+    if (end != null) {
+      range.moveNext(end - start);
+    } else {
+      range.moveNext(length);
+    }
+    return range.currentCharacters;
   }
 
   // a replaceRange method similar to String for Characters
   Characters replaceRange(int start, int? end, Characters replacement) {
-    return substring(0, start) + replacement + substring(end ?? length);
+    final range = CharacterRange(string);
+    range.moveNext(start);
+    if (end != null) {
+      range.moveNext(end - start);
+    } else {
+      range.moveNext(length);
+    }
+    return range.replaceRange(replacement).source;
   }
 
   Characters removeRange(int start, [int? end]) {
