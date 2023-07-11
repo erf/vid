@@ -5,15 +5,6 @@ void main() {
   const iterations = 1000000;
   final stopwatch = Stopwatch()..start();
 
-  // benchmark remove character at index using removeRange
-  stopwatch.reset();
-  for (int i = 0; i < iterations; i++) {
-    final text = '🥹🥹abc';
-    final index = 2;
-    final result = text.ch.removeRange(index, index + 1);
-  }
-  print('removeRange: ${stopwatch.elapsedMilliseconds}ms');
-
   // benchmark remove character at index using deleteCharAt
   stopwatch.reset();
   for (int i = 0; i < iterations; i++) {

@@ -14,14 +14,5 @@ void main() {
   }
   print('replaceRange: ${stopwatch.elapsedMilliseconds}ms');
 
-  // benchmark replace character at index using replaceCharAt
-  stopwatch.reset();
-  for (int i = 0; i < iterations; i++) {
-    final text = '🥹🥹abc';
-    final index = 2;
-    final result = text.ch.replaceRangeOld(index, index + 1, '🥰'.ch);
-  }
-  print('replaceRangeOld: ${stopwatch.elapsedMilliseconds}ms');
-
   stopwatch.stop();
 }
