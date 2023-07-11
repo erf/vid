@@ -25,12 +25,18 @@ extension CharactersExt on Characters {
     return replaceRange(start, end, Characters.empty);
   }
 
-  Characters replaceCharAt(int index, Characters char) {
-    return replaceRange(index, index + 1, char);
-  }
-
   Characters deleteCharAt(int index) {
     return replaceCharAt(index, Characters.empty);
+  }
+
+  Characters replaceCharAt(int index, Characters char) {
+    if (index < 0 || index >= length) {
+      return this;
+    }
+    final range = CharacterRange(string);
+    range.moveNext(index);
+    range.moveNext(1);
+    return range.replaceRange(char).source;
   }
 
   // get the symbol length given the byte length

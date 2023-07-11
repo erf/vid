@@ -37,4 +37,30 @@ void main() {
     expect('abcd🥹'.ch.getRenderLine(3, 6).string, 'd🥹');
     expect('abcd🥹'.ch.getRenderLine(0, 5).string, 'abcd🥹');
   });
+
+  test('substring', () {
+    expect('abc'.ch.substring(0, 1).string, 'a');
+    expect('abc'.ch.substring(0, 2).string, 'ab');
+    expect('abc'.ch.substring(0, 3).string, 'abc');
+    expect('😀😀abc'.ch.substring(0, 1).string, '😀');
+    expect('😀😀abc'.ch.substring(0, 2).string, '😀😀');
+    expect('😀😀abc'.ch.substring(0, 3).string, '😀😀a');
+  });
+
+  test('replaceRange', () {
+    expect('abc'.ch.replaceRange(0, 1, 'd'.ch).string, 'dbc');
+    expect('abc'.ch.replaceRange(0, 3, 'cba'.ch).string, 'cba');
+  });
+
+  test('deleteCharAt', () {
+    expect('abc'.ch.deleteCharAt(0).string, 'bc');
+    expect('abc'.ch.deleteCharAt(1).string, 'ac');
+    expect('abc'.ch.deleteCharAt(2).string, 'ab');
+    expect('abc'.ch.deleteCharAt(3).string, 'abc');
+    expect('😀😀abc'.ch.deleteCharAt(0).string, '😀abc');
+    expect('😀😀abc'.ch.deleteCharAt(1).string, '😀abc');
+    expect('😀😀abc'.ch.deleteCharAt(2).string, '😀😀bc');
+    expect('😀😀abc'.ch.deleteCharAt(3).string, '😀😀ac');
+    expect('😀😀abc'.ch.deleteCharAt(4).string, '😀😀ab');
+  });
 }
