@@ -8,7 +8,4 @@ build/
 .vscode
 .idea
 
-data
-test-data
-third-party
 sample-data
