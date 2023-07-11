@@ -5,23 +5,22 @@ void main() {
   const iterations = 1000000;
   final stopwatch = Stopwatch()..start();
 
-  // benchmark remove character at index using deleteCharAt
+  // benchmark replace character at index using substring
   stopwatch.reset();
   for (int i = 0; i < iterations; i++) {
     final text = '🥹🥹abc';
-    final index = 2;
-    final result = text.ch.removeRange(index, index + 1);
+    final result = text.ch.substring(0, 3);
   }
-  print('removeRange: ${stopwatch.elapsedMilliseconds}ms');
+  print('substring: ${stopwatch.elapsedMilliseconds}ms');
 
-  // benchmark remove character at index using removeCharacterAtIndex
+  // benchmark replace character at index using substringOld
   stopwatch.reset();
   for (int i = 0; i < iterations; i++) {
     final text = '🥹🥹abc';
     final index = 2;
-    final result = text.ch.deleteCharAt(index);
+    final result = text.ch.substringOld(0, 3);
   }
-  print('deleteCharAt: ${stopwatch.elapsedMilliseconds}ms');
+  print('substringOld: ${stopwatch.elapsedMilliseconds}ms');
 
   stopwatch.stop();
 }
