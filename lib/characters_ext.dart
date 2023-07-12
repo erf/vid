@@ -27,19 +27,22 @@ extension CharactersExt on Characters {
     return subrange(start, end).currentCharacters;
   }
 
-  // a replaceRange method similar to String for Characters
+  // replace a range of characters with the given replacement
   Characters replaceRange(int start, int? end, Characters replacement) {
     return subrange(start, end).replaceRange(replacement).source;
   }
 
+  // remove a range of characters
   Characters removeRange(int start, [int? end]) {
     return replaceRange(start, end, Characters.empty);
   }
 
+  // delete a character at the given index
   Characters deleteCharAt(int index) {
     return removeRange(index, index + 1);
   }
 
+  // replace a character at the given index
   Characters replaceCharAt(int index, Characters char) {
     return replaceRange(index, index + 1, char);
   }
