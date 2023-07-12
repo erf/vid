@@ -149,7 +149,9 @@ void actionReplaceMode(Editor e, FileBuffer f) {
 }
 
 void actionDeleteLineEnd(Editor e, FileBuffer f) {
-  if (f.empty()) return;
+  if (f.empty()) {
+    return;
+  }
   final lineEnd = motionLineEnd(f, f.cursor);
   f.deleteRange(
       Range(
