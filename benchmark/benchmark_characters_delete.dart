@@ -10,7 +10,7 @@ void main() {
   for (int i = 0; i < iterations; i++) {
     final text = '🥹🥹abc';
     final index = 2;
-    final result = text.ch.deleteCharAt(index);
+    text.ch.deleteCharAt(index);
   }
   print('deleteCharAt: ${stopwatch.elapsedMilliseconds}ms');
 

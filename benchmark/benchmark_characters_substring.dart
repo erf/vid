@@ -9,7 +9,7 @@ void main() {
   stopwatch.reset();
   for (int i = 0; i < iterations; i++) {
     final text = '🥹🥹abc';
-    final result = text.ch.substring(0, 3);
+    text.ch.substring(0, 3);
   }
   print('substring: ${stopwatch.elapsedMilliseconds}ms');
 

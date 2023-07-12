@@ -10,7 +10,7 @@ void main() {
   for (int i = 0; i < iterations; i++) {
     final text = '🥹🥹abc';
     final index = 2;
-    final result = text.ch.replaceRange(index, index + 1, '🥰'.ch);
+    text.ch.replaceRange(index, index + 1, '🥰'.ch);
   }
   print('replaceRange: ${stopwatch.elapsedMilliseconds}ms');
 
