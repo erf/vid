@@ -17,7 +17,7 @@ extension CharactersExt on Characters {
     if (end != null) {
       range.moveNext(end - start);
     } else {
-      range.moveNext(length);
+      range.moveNextAll();
     }
     return range;
   }
