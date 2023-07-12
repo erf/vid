@@ -143,7 +143,6 @@ void main() {
 
     expect(motionWordPrev(f, Position(x: 5, y: 0)), Position(x: 4, y: 0));
     expect(motionWordPrev(f, Position(x: 4, y: 1)), Position(x: 0, y: 1));
-    expect(motionWordPrev(f, Position(x: 0, y: 1)), Position(x: 8, y: 0),
-        skip: true);
+    expect(motionWordPrev(f, Position(x: 0, y: 1)), Position(x: 8, y: 0));
   });
 }

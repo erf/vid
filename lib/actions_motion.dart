@@ -101,7 +101,7 @@ Position motionWordPrev(FileBuffer f, Position p) {
   }
   // either move to previous line or stay on the first char
   if (p.y > 0) {
-    return Position(x: f.lines[p.y - 1].length, y: p.y - 1);
+    return motionWordPrev(f, Position(x: f.lines[p.y - 1].length, y: p.y - 1));
   } else {
     return Position(x: 0, y: p.y);
   }
