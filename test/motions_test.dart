@@ -100,4 +100,12 @@ void main() {
     expect(motionFindPrevChar(f, cursor, 'b'), Position(x: 1, y: 0));
     expect(motionFindPrevChar(f, cursor, 'c'), Position(x: 2, y: 0));
   });
+
+  test('motionWordNext', () {
+    final f = FileBuffer();
+    f.lines = ['abc def ghi'.ch];
+    expect(motionWordNext(f, Position(x: 0, y: 0)), Position(x: 4, y: 0));
+    expect(motionWordNext(f, Position(x: 3, y: 0)), Position(x: 4, y: 0));
+    expect(motionWordNext(f, Position(x: 4, y: 0)), Position(x: 8, y: 0));
+  });
 }
