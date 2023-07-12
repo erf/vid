@@ -11,7 +11,7 @@ extension CharactersExt on Characters {
   static final tabSpace =
       List.generate(Config.tabWidth, (_) => space).join().ch;
 
-  CharacterRange getSubRange(int start, [int? end]) {
+  CharacterRange subrange(int start, [int? end]) {
     final range = CharacterRange(string);
     range.moveNext(start);
     if (end != null) {
@@ -24,12 +24,12 @@ extension CharactersExt on Characters {
 
   // a substring method similar to String for Characters
   Characters substring(int start, [int? end]) {
-    return getSubRange(start, end).currentCharacters;
+    return subrange(start, end).currentCharacters;
   }
 
   // a replaceRange method similar to String for Characters
   Characters replaceRange(int start, int? end, Characters replacement) {
-    return getSubRange(start, end).replaceRange(replacement).source;
+    return subrange(start, end).replaceRange(replacement).source;
   }
 
   Characters removeRange(int start, [int? end]) {
