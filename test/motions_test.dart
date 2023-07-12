@@ -130,4 +130,20 @@ void main() {
     expect(motionWordEnd(f, Position(x: 10, y: 0)), Position(x: 0, y: 1));
     expect(motionWordEnd(f, Position(x: 2, y: 1)), Position(x: 6, y: 1));
   });
+
+  test('motionWordPrev', () {
+    final f = FileBuffer();
+    f.lines = [
+      'abc d❤️‍🔥f ghi'.ch,
+      'jkl mno pqr'.ch,
+    ];
+    expect(motionWordPrev(f, Position(x: 0, y: 0)), Position(x: 0, y: 0));
+    expect(motionWordPrev(f, Position(x: 3, y: 0)), Position(x: 0, y: 0));
+    expect(motionWordPrev(f, Position(x: 4, y: 0)), Position(x: 0, y: 0));
+
+    expect(motionWordPrev(f, Position(x: 5, y: 0)), Position(x: 4, y: 0));
+    expect(motionWordPrev(f, Position(x: 4, y: 1)), Position(x: 0, y: 1));
+    expect(motionWordPrev(f, Position(x: 0, y: 1)), Position(x: 8, y: 0),
+        skip: true);
+  });
 }
