@@ -94,7 +94,7 @@ class Editor {
     final nameStr = fileBuffer.path ?? '[No Name]';
     final modeStr = getModeStatusStr(fileBuffer.mode);
     final left = ' $modeStr  $nameStr ${dirty ? '*' : ''} $message ';
-    final right = ' ${cursor.y + 1}, ${cursor.x + 1}';
+    final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
     final padLeft = terminal.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
     //final status = 'c${cursor.x},v${view.x}';
