@@ -1,5 +1,6 @@
 # TODO
 
+- undo / history (simpler text delete/insert API - recreate lines on changes?)
 - delete line should save to register
 - yank line should include new-line char
 - cursor up/down should move to correct render position
@@ -8,4 +9,3 @@
 - better architecture for actions and pending mode
 - save file without name (requires command mode)
 - repeat last action / search using dot (.)
-- undo / history
