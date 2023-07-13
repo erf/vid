@@ -44,7 +44,7 @@ void doQuit(Editor e, FileBuffer f) {
 
 void actionQuit(Editor e, FileBuffer f) {
   if (f.isDirty) {
-    e.showMessage('File has changes. Press Q to quit without saving.');
+    e.showMessage('Press \'Q\' to quit without saving', timed: true);
     return;
   }
   doQuit(e, f);
@@ -56,11 +56,11 @@ void actionQuitWithoutSaving(Editor e, FileBuffer f) {
 
 void actionSave(Editor e, FileBuffer f) {
   if (f.path == null) {
-    e.showMessage('Error: No filename');
+    e.showMessage('Error: No filename', timed: true);
     return;
   }
   if (f.isDirty == false) {
-    e.showMessage('No changes');
+    e.showMessage('No changes', timed: true);
     return;
   }
   final file = File(f.path!);
@@ -70,7 +70,7 @@ void actionSave(Editor e, FileBuffer f) {
   }
   sink.close();
   f.isDirty = false;
-  e.showMessage('File saved');
+  e.showMessage('File saved', timed: true);
 }
 
 void actionCursorCharNext(Editor e, FileBuffer f) {
