@@ -50,7 +50,7 @@ Position motionLineStart(FileBuffer f, Position p) {
 }
 
 Position motionLineEnd(FileBuffer f, Position p) {
-  return Position(y: p.y, x: f.lines[p.y].length - 1);
+  return Position(y: p.y, x: max(0, f.lines[p.y].length - 1));
 }
 
 Position motionWordNext(FileBuffer f, Position p) {
