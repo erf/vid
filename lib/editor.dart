@@ -170,6 +170,7 @@ class Editor {
       lines[cursor.y] = line.replaceRange(cursor.x, cursor.x, str.characters);
     }
     cursor.x++;
+    fileBuffer.isDirty = true;
   }
 
   void normal(String str) {

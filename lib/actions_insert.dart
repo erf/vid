@@ -24,6 +24,7 @@ void insertActionEnter(FileBuffer f) {
   cursor.x = 0;
   f.view.x = 0;
   f.cursor = motionCharDown(f, f.cursor);
+  f.isDirty = true;
 }
 
 void joinLines(FileBuffer f) {
@@ -36,6 +37,7 @@ void joinLines(FileBuffer f) {
   lines[cursor.y - 1] += lines[cursor.y];
   lines.removeAt(cursor.y);
   f.cursor = Position(y: cursor.y - 1, x: charPos);
+  f.isDirty = true;
 }
 
 void deleteCharPrev(FileBuffer f) {
@@ -44,6 +46,7 @@ void deleteCharPrev(FileBuffer f) {
   }
   f.lines[f.cursor.y] = f.lines[f.cursor.y].deleteCharAt(f.cursor.x - 1);
   f.cursor.x = max(0, f.cursor.x - 1);
+  f.isDirty = true;
 }
 
 void insertActionBackspace(FileBuffer f) {

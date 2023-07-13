@@ -52,6 +52,5 @@ void pendingActionDelete(FileBuffer file, Range range, String str) {
 
 void pendingActionGo(FileBuffer file, Range range, String str) {
   file.mode = Mode.normal;
-  file.cursor.x = range.p1.x;
-  file.cursor.y = range.p1.y;
+  file.cursor = range.p1.clone();
 }

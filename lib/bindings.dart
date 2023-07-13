@@ -12,6 +12,7 @@ final insertActions = <String, InsertAction>{
 
 final normalActions = <String, NormalAction>{
   'q': actionQuit,
+  'Q': actionQuitWithoutSaving,
   's': actionSave,
   'h': actionCursorCharPrev,
   'l': actionCursorCharNext,

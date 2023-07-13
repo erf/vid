@@ -28,4 +28,7 @@ class FileBuffer {
 
   // the register to use for the pending action
   Characters? yankBuffer;
+
+  // if the file has been modified and not saved
+  bool isDirty = false;
 }

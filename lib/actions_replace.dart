@@ -12,4 +12,5 @@ void defaultReplace(FileBuffer f, String s) {
   final line = f.lines[p.y];
   if (line.isEmpty) return;
   f.lines[p.y] = line.replaceCharAt(p.x, s.characters);
+  f.isDirty = true;
 }
