@@ -81,4 +81,15 @@ extension FileBufferExt on FileBuffer {
     int cx = lines[cursor.y].renderedLength(cursor.x);
     view.x = clamp(view.x, cx, cx - term.width + 1);
   }
+
+  void joinLines() {
+    final p = cursor;
+    final line = lines[p.y];
+    if (p.y == lines.length - 1) {
+      return;
+    }
+    final nextLine = lines[p.y + 1];
+    lines[p.y] = line + nextLine;
+    lines.removeAt(p.y + 1);
+  }
 }

@@ -26,7 +26,9 @@ void actionMoveUpHalfPage(Editor e, FileBuffer f) {
 }
 
 void actionPasteAfter(Editor e, FileBuffer f) {
-  if (f.yankBuffer == null) return;
+  if (f.yankBuffer == null) {
+    return;
+  }
   f.paste(f.yankBuffer!);
 }
 
@@ -170,4 +172,8 @@ void actionFindCharNext(Editor e, FileBuffer f) {
 void actionFindCharPrev(Editor e, FileBuffer f) {
   f.mode = Mode.find;
   f.findAction = findPrevChar;
+}
+
+void actionJoinLines(Editor e, FileBuffer f) {
+  f.joinLines();
 }
