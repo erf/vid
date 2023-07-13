@@ -54,6 +54,8 @@ final normalActions = <String, NormalAction>{
   '\u0015': actionMoveUpHalfPage,
   'f': actionFindCharNext,
   'F': actionFindCharPrev,
+  't': actionTillCharNext,
+  'T': actionTillCharPrev,
   'J': actionJoinLines,
 };
 

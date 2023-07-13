@@ -21,3 +21,17 @@ void findPrevChar(FileBuffer f, Position position, String char) {
   f.cursor.y = p.y;
   f.mode = Mode.normal;
 }
+
+void tillNextChar(FileBuffer f, Position position, String char) {
+  final p = motionTillNextChar(f, position, char);
+  f.cursor.x = p.x;
+  f.cursor.y = p.y;
+  f.mode = Mode.normal;
+}
+
+void tillPrevChar(FileBuffer f, Position position, String char) {
+  final p = motionTillPrevChar(f, position, char);
+  f.cursor.x = p.x;
+  f.cursor.y = p.y;
+  f.mode = Mode.normal;
+}

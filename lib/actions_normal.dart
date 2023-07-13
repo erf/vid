@@ -174,6 +174,16 @@ void actionFindCharPrev(Editor e, FileBuffer f) {
   f.findAction = findPrevChar;
 }
 
+void actionTillCharNext(Editor e, FileBuffer f) {
+  f.mode = Mode.find;
+  f.findAction = tillNextChar;
+}
+
+void actionTillCharPrev(Editor e, FileBuffer f) {
+  f.mode = Mode.find;
+  f.findAction = tillPrevChar;
+}
+
 void actionJoinLines(Editor e, FileBuffer f) {
   f.joinLines();
 }

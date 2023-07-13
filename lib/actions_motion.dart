@@ -126,6 +126,12 @@ Position motionFindNextChar(FileBuffer f, Position position, String char) {
   return Position(x: charPos, y: position.y);
 }
 
+Position motionTillNextChar(FileBuffer f, Position position, String char) {
+  final p = motionFindNextChar(f, position, char);
+  p.x = max(p.x - 1, position.x);
+  return p;
+}
+
 // find the previous occurence of the given character on the current line
 Position motionFindPrevChar(FileBuffer f, Position position, String char) {
   final line = f.lines[position.y];
@@ -137,4 +143,10 @@ Position motionFindPrevChar(FileBuffer f, Position position, String char) {
   final match = matches.last;
   final charPos = line.byteToCharsLength(match.start);
   return Position(x: charPos, y: position.y);
+}
+
+Position motionTillPrevChar(FileBuffer f, Position position, String char) {
+  final p = motionFindPrevChar(f, position, char);
+  p.x = min(p.x + 1, position.x);
+  return p;
 }
