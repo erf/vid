@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/actions_find.dart';
 
-import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
@@ -148,9 +148,6 @@ class Editor {
       case Mode.replace:
         replace(chars);
         break;
-      case Mode.find:
-        find(chars);
-        break;
     }
     draw();
     message = '';
@@ -183,7 +180,7 @@ class Editor {
     }
     NormalAction? action = normalActions[str];
     if (action != null) {
-      action.call(this, fileBuffer);
+      action(this, fileBuffer);
       return;
     }
     OperatorPendingAction? pending = pendingActions[str];
@@ -194,35 +191,31 @@ class Editor {
   }
 
   void pending(String str) {
-    OperatorPendingAction? pendingAction = fileBuffer.pendingAction;
+    Function? pendingAction = fileBuffer.pendingAction;
     if (pendingAction == null) {
       return;
     }
-    TextObject? textObject = textObjects[str];
-    if (textObject != null) {
-      Range range = textObject.call(fileBuffer, fileBuffer.cursor);
-      pendingAction.call(fileBuffer, range);
+    if (pendingAction is FindAction) {
+      pendingAction(fileBuffer, fileBuffer.cursor, str);
       return;
     }
-    Motion? motion = motionActions[str];
-    if (motion != null) {
-      Position pNew = motion.call(fileBuffer, fileBuffer.cursor);
-      pendingAction.call(fileBuffer, Range(p0: fileBuffer.cursor, p1: pNew));
-      return;
+    if (pendingAction is OperatorPendingAction) {
+      TextObject? textObject = textObjects[str];
+      if (textObject != null) {
+        Range range = textObject(fileBuffer, fileBuffer.cursor);
+        pendingAction(fileBuffer, range, str);
+        return;
+      }
+      Motion? motion = motionActions[str];
+      if (motion != null) {
+        Position p = motion(fileBuffer, fileBuffer.cursor);
+        pendingAction(fileBuffer, Range(p0: fileBuffer.cursor, p1: p), str);
+        return;
+      }
     }
   }
 
   void replace(String str) {
     defaultReplace(fileBuffer, str);
-  }
-
-  void find(String chars) {
-    FindAction? findAction = fileBuffer.findAction;
-    if (findAction != null) {
-      findAction.call(fileBuffer, fileBuffer.cursor, chars);
-      return;
-    }
-    fileBuffer.mode = Mode.normal;
-    fileBuffer.findAction = null;
   }
 }

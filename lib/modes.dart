@@ -3,5 +3,4 @@ enum Mode {
   operatorPending,
   insert,
   replace,
-  find,
 }

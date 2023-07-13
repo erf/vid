@@ -165,23 +165,23 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
 }
 
 void actionFindCharNext(Editor e, FileBuffer f) {
-  f.mode = Mode.find;
-  f.findAction = findNextChar;
+  f.mode = Mode.operatorPending;
+  f.pendingAction = findNextChar;
 }
 
 void actionFindCharPrev(Editor e, FileBuffer f) {
-  f.mode = Mode.find;
-  f.findAction = findPrevChar;
+  f.mode = Mode.operatorPending;
+  f.pendingAction = findPrevChar;
 }
 
 void actionTillCharNext(Editor e, FileBuffer f) {
-  f.mode = Mode.find;
-  f.findAction = tillNextChar;
+  f.mode = Mode.operatorPending;
+  f.pendingAction = tillNextChar;
 }
 
 void actionTillCharPrev(Editor e, FileBuffer f) {
-  f.mode = Mode.find;
-  f.findAction = tillPrevChar;
+  f.mode = Mode.operatorPending;
+  f.pendingAction = tillPrevChar;
 }
 
 void actionJoinLines(Editor e, FileBuffer f) {

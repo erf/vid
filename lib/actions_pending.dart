@@ -8,7 +8,7 @@ import 'range.dart';
 import 'range_ext.dart';
 import 'string_ext.dart';
 
-typedef OperatorPendingAction = void Function(FileBuffer, Range);
+typedef OperatorPendingAction = void Function(FileBuffer, Range, String);
 
 void yankRange(FileBuffer f, Range range) {
   final r = range.normalized();
@@ -32,26 +32,26 @@ void yankRange(FileBuffer f, Range range) {
   f.yankBuffer = text;
 }
 
-void pendingActionYank(FileBuffer f, Range range) {
-  yankRange(f, range);
-  f.mode = Mode.normal;
+void pendingActionYank(FileBuffer file, Range range, String str) {
+  yankRange(file, range);
+  file.mode = Mode.normal;
 }
 
-void pendingActionChange(FileBuffer f, Range range) {
-  pendingActionDelete(f, range);
-  f.mode = Mode.insert;
+void pendingActionChange(FileBuffer file, Range range, String str) {
+  pendingActionDelete(file, range, str);
+  file.mode = Mode.insert;
 }
 
-void pendingActionDelete(FileBuffer f, Range range) {
+void pendingActionDelete(FileBuffer file, Range range, String str) {
   Range r = range.normalized();
-  f.deleteRange(r);
-  f.cursor = r.p0.clone();
-  f.clampCursor();
-  f.mode = Mode.normal;
+  file.deleteRange(r);
+  file.cursor = r.p0.clone();
+  file.clampCursor();
+  file.mode = Mode.normal;
 }
 
-void pendingActionGo(FileBuffer f, Range range) {
-  f.mode = Mode.normal;
-  f.cursor.x = range.p1.x;
-  f.cursor.y = range.p1.y;
+void pendingActionGo(FileBuffer file, Range range, String str) {
+  file.mode = Mode.normal;
+  file.cursor.x = range.p1.x;
+  file.cursor.y = range.p1.y;
 }

@@ -1,11 +1,11 @@
 import 'package:characters/characters.dart';
 
-import 'actions_find.dart';
-import 'actions_pending.dart';
 import 'modes.dart';
 import 'position.dart';
 
+// the file buffer
 class FileBuffer {
+  // the path to the file
   String? path;
 
   // always have at least one line with one empty string
@@ -17,13 +17,15 @@ class FileBuffer {
   // the view offset in the file (0 based, in human-readable symbol space as opposed to byte space)
   var view = Position();
 
+  // the current mode
   var mode = Mode.normal;
 
-  OperatorPendingAction? pendingAction;
+  // the pending action to be executed
+  Function? pendingAction;
 
-  FindAction? findAction;
-
+  // the count of the pending action
   int? count;
 
+  // the register to use for the pending action
   Characters? yankBuffer;
 }

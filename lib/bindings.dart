@@ -1,5 +1,3 @@
-import 'package:vid/actions_find.dart';
-
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
@@ -10,21 +8,6 @@ final insertActions = <String, InsertAction>{
   '\x1b': insertActionEscape,
   '\x7f': insertActionBackspace,
   '\n': insertActionEnter,
-};
-
-final motionActions = <String, Motion>{
-  'h': motionCharPrev,
-  'l': motionCharNext,
-  'j': motionCharDown,
-  'k': motionCharUp,
-  'g': motionFileStart,
-  'G': motionFileEnd,
-  'w': motionWordNext,
-  'b': motionWordPrev,
-  'e': motionWordEnd,
-  '0': motionLineStart,
-  '\$': motionLineEnd,
-  '\x1b': motionEscape,
 };
 
 final normalActions = <String, NormalAction>{
@@ -75,6 +58,17 @@ final textObjects = <String, TextObject>{
   'G': objectLastLine,
 };
 
-final findActions = <String, FindAction>{
-  'f': findNextChar,
+final motionActions = <String, Motion>{
+  'h': motionCharPrev,
+  'l': motionCharNext,
+  'j': motionCharDown,
+  'k': motionCharUp,
+  'g': motionFileStart,
+  'G': motionFileEnd,
+  'w': motionWordNext,
+  'b': motionWordPrev,
+  'e': motionWordEnd,
+  '0': motionLineStart,
+  '\$': motionLineEnd,
+  '\x1b': motionEscape,
 };
