@@ -34,6 +34,7 @@ final normalActions = <String, NormalAction>{
   'r': actionReplaceMode,
   'D': actionDeleteLineEnd,
   'p': actionPasteAfter,
+  'P': actionPasteBefore,
   '\u0004': actionMoveDownHalfPage,
   '\u0015': actionMoveUpHalfPage,
   'f': actionFindCharNext,

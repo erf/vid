@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'actions_find.dart';
 import 'actions_motion.dart';
@@ -27,7 +28,35 @@ void actionPasteAfter(Editor e, FileBuffer f) {
   if (f.yankBuffer == null) {
     return;
   }
-  f.insert(f.yankBuffer!);
+  if (f.yankBuffer!.contains('\n')) {
+    f.insert(
+      f.yankBuffer!,
+      Position(y: min(f.cursor.y + 1, f.lines.length - 1), x: f.cursor.x),
+    );
+  } else {
+    f.insert(
+      f.yankBuffer!,
+      Position(y: f.cursor.y, x: f.cursor.x + 1),
+    );
+  }
+  f.isModified = true;
+}
+
+void actionPasteBefore(Editor e, FileBuffer f) {
+  if (f.yankBuffer == null) {
+    return;
+  }
+  if (f.yankBuffer!.contains('\n')) {
+    f.insert(
+      f.yankBuffer!,
+      Position(y: min(f.cursor.y + 1, f.lines.length - 1), x: f.cursor.x),
+    );
+  } else {
+    f.insert(
+      f.yankBuffer!,
+      Position(y: f.cursor.y, x: f.cursor.x),
+    );
+  }
   f.isModified = true;
 }
 
