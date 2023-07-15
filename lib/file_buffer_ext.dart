@@ -73,36 +73,36 @@ extension FileBufferExt on FileBuffer {
     return index;
   }
 
-  void replace(int index, int end, String newStr) {
-    final oldStr = text.substring(index, end);
+  void replace(int index, int end, String newStr, UndoOpType undoOp) {
+    final prevStr = text.substring(index, end);
     text = text.replaceRange(index, end, newStr);
     createLines();
     isModified = true;
-    undoList.add(UndoOp(UndoOpType.replace, oldStr, index, end, cursor));
+    undoList.add(UndoOp(undoOp, newStr, prevStr, index, end, cursor.clone()));
   }
 
-  void replaceRange(Range r, String str) {
+  void replaceRange(Range r, String str, UndoOpType undoType) {
     int index = getCursorIndex(r.p0);
     int end = getCursorIndex(r.p1);
-    replace(index, end, str);
+    replace(index, end, str, undoType);
   }
 
   void deleteRange(Range r) {
-    replaceRange(r, '');
+    replaceRange(r, '', UndoOpType.delete);
   }
 
   void insert(String str, [Position? position]) {
     int index = getCursorIndex(position ?? cursor);
-    replace(index, index, str);
+    replace(index, index, str, UndoOpType.insert);
   }
 
-  void replaceChar(String str, Position p) {
+  void replaceChar(String str, Position p, UndoOpType undoType) {
     int index = getCursorIndex(p);
-    replace(index, index + 1, str);
+    replace(index, index + 1, str, undoType);
   }
 
   void deleteChar(Position p) {
-    replaceChar('', p);
+    replaceChar('', p, UndoOpType.delete);
   }
 
   // check if file is empty, only one line with empty string

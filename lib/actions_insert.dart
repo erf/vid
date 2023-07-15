@@ -3,6 +3,7 @@ import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
+import 'undo.dart';
 
 typedef InsertAction = void Function(FileBuffer);
 
@@ -34,7 +35,7 @@ void deleteCharPrev(FileBuffer f) {
     return;
   }
   f.cursor.x--;
-  f.replaceChar('', f.cursor);
+  f.replaceChar('', f.cursor, UndoOpType.delete);
 }
 
 void insertActionBackspace(FileBuffer f) {

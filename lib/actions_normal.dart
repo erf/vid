@@ -203,7 +203,7 @@ void actionTillCharPrev(Editor e, FileBuffer f) {
 
 void actionJoinLines(Editor e, FileBuffer f) {
   final p = Position(y: f.cursor.y, x: f.lines[f.cursor.y].length);
-  f.replaceChar('', p);
+  f.replaceChar('', p, UndoOpType.delete);
 }
 
 void actionUndo(Editor e, FileBuffer f) {
@@ -213,7 +213,19 @@ void actionUndo(Editor e, FileBuffer f) {
   final op = f.undoList.removeLast();
   switch (op.type) {
     case UndoOpType.replace:
-      f.text = f.text.replaceRange(op.index, op.index, op.text);
+      f.text = f.text.replaceRange(op.index, op.end, op.prevStr);
+      f.createLines();
+      f.isModified = true;
+      f.cursor = op.cursor;
+      break;
+    case UndoOpType.insert:
+      f.text = f.text.replaceRange(op.index, op.index + op.newStr.length, '');
+      f.createLines();
+      f.isModified = true;
+      f.cursor = op.cursor;
+      break;
+    case UndoOpType.delete:
+      f.text = f.text.replaceRange(op.index, op.index, op.prevStr);
       f.createLines();
       f.isModified = true;
       f.cursor = op.cursor;
