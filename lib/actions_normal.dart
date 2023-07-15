@@ -94,13 +94,8 @@ void actionOpenLineAbove(Editor e, FileBuffer f) {
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  if (f.cursor.y + 1 >= f.lines.length) {
-    f.lines.add(Characters.empty);
-  } else {
-    f.lines.insert(f.cursor.y + 1, Characters.empty);
-  }
+  f.insert('\n', Position(y: f.cursor.y + 1, x: 0));
   actionCursorCharDown(e, f);
-  f.isModified = true;
 }
 
 void actionInsert(Editor e, FileBuffer f) {
