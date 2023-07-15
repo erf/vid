@@ -13,7 +13,7 @@ void main() {
     f.createLines();
     f.cursor = Position(x: 0, y: 1);
     final r = objectCurrentLine(f, f.cursor);
-    pendingActionDelete(f, r, '');
+    pendingActionDelete(f, r);
     expect(f.lines, [
       'abc'.ch,
       'ghi'.ch,
@@ -27,7 +27,7 @@ void main() {
     f.createLines();
     f.cursor = Position(x: 0, y: 2);
     final r = objectCurrentLine(f, f.cursor);
-    pendingActionDelete(f, r, '');
+    pendingActionDelete(f, r);
     expect(f.lines, [
       'abc'.ch,
       'def'.ch,
