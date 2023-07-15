@@ -81,18 +81,6 @@ extension FileBufferExt on FileBuffer {
     // TODO add to undo stack
   }
 
-// iterate remove empty lines and lines inside range
-  void removeEmptyLinesInRange(Range r) {
-    int line = r.p0.y;
-    for (int l = r.p0.y; l <= r.p1.y; l++) {
-      if (lines[line].isEmpty || r.lineInside(l)) {
-        lines.removeAt(line);
-      } else {
-        line++;
-      }
-    }
-  }
-
   // check if file is empty, only one line with empty string
   bool empty() {
     return lines.length == 1 && lines.first.isEmpty;
