@@ -31,7 +31,7 @@ void joinLines(FileBuffer f) {
 }
 
 void deleteCharPrev(FileBuffer f) {
-  if (f.empty()) {
+  if (f.empty) {
     return;
   }
   f.cursor.x--;
