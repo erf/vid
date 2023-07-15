@@ -58,9 +58,7 @@ Position motionLineEnd(FileBuffer f, Position p) {
 Position motionWordNext(FileBuffer f, Position p) {
   final start = f.getIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text, start);
-  if (matches.isEmpty) {
-    return p;
-  }
+  if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
   return f.getPositionFromIndex(match.start);
@@ -69,31 +67,20 @@ Position motionWordNext(FileBuffer f, Position p) {
 Position motionWordEnd(FileBuffer f, Position p) {
   final start = f.getIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text, start);
-  if (matches.isEmpty) {
-    return p;
-  }
+  if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => m.end - 1 > start, orElse: () => matches.first);
   return f.getPositionFromIndex(match.end - 1);
 }
 
 Position motionWordPrev(FileBuffer f, Position p) {
-  final line = f.lines[p.y];
-  final start = line.charsToByteLength(p.x);
-  final matches = RegExp(r'\w+').allMatches(line.string);
+  final start = f.getIndexFromPosition(p);
+  final matches = RegExp(r'\w+').allMatches(f.text.substring(0, start));
+  if (matches.isEmpty) return p;
   final reversed = matches.toList().reversed;
-  for (final match in reversed) {
-    if (match.start < start) {
-      final charPos = line.byteToCharsLength(match.start);
-      return Position(x: charPos, y: p.y);
-    }
-  }
-  // either move to previous line or stay on the first char
-  if (p.y > 0) {
-    return motionWordPrev(f, Position(x: f.lines[p.y - 1].length, y: p.y - 1));
-  } else {
-    return Position(x: 0, y: p.y);
-  }
+  final match =
+      reversed.firstWhere((m) => m.start < start, orElse: () => matches.first);
+  return f.getPositionFromIndex(match.start);
 }
 
 // exit insert mode
