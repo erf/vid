@@ -65,9 +65,7 @@ void actionSave(Editor e, FileBuffer f) {
   }
   final file = File(f.path!);
   final sink = file.openWrite();
-  for (var line in f.lines) {
-    sink.writeln(line);
-  }
+  sink.write(f.text);
   sink.close();
   f.isModified = false;
   e.showMessage('File saved', timed: true);

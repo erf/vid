@@ -53,8 +53,10 @@ extension FileBufferExt on FileBuffer {
         int charLineLen = line.length;
         if (cursor.x > charLineLen) {
           if (lineNo >= lines.length - 1) {
+            // if last line, return index at end of line
             return index + line.string.length;
           } else {
+            // else return index at newline character
             return index + line.string.length + 1;
           }
         } else if (cursor.x == charLineLen) {
