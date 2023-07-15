@@ -74,11 +74,15 @@ extension FileBufferExt on FileBuffer {
   }
 
   void replace(int index, int end, String textNew, UndoOpType undoOp) {
-    final textPrev = text.substring(index, end);
+    if (undoOp == UndoOpType.insert) {
+      undoList.add(UndoOp(undoOp, textNew, index, end, cursor.clone()));
+    } else {
+      final textPrev = text.substring(index, end);
+      undoList.add(UndoOp(undoOp, textPrev, index, end, cursor.clone()));
+    }
     text = text.replaceRange(index, end, textNew);
     createLines();
     isModified = true;
-    undoList.add(UndoOp(undoOp, textNew, textPrev, index, end, cursor.clone()));
   }
 
   void replaceRange(Range r, String str, UndoOpType undoType) {

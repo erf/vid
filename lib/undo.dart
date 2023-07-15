@@ -8,16 +8,14 @@ enum UndoOpType {
 
 class UndoOp {
   final UndoOpType type;
-  final String textPrev;
-  final String textNew;
+  final String text;
   final int index;
   final int end;
   final Position cursor;
 
   const UndoOp(
     this.type,
-    this.textNew,
-    this.textPrev,
+    this.text,
     this.index,
     this.end,
     this.cursor,
