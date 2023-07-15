@@ -6,7 +6,7 @@ enum UndoOpType {
   delete,
 }
 
-sealed class UndoOp {
+class UndoOp {
   final UndoOpType type;
   final String textPrev;
   final String textNew;
