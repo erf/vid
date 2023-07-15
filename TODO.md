@@ -19,3 +19,11 @@
 - simple API to replace / insert text or delete text given a range
 - easier for undo / redo
 - optimize later how we recreate visible lines from text
+
+### Refactor strategy
+- make more tests for actions
+- replace current text processing with using TextEngine to edit text
+- recreate lines of Characters after that, before rendering
+- replace lines of Characters with custom Line objects
+- line objects only have start, end indices for String and Characters
+- fix broken actions
