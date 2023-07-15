@@ -54,11 +54,7 @@ extension CharactersExt on Characters {
 
   // get the byte length given the character length
   int charsToByteLength(int charsLength) {
-    if (charsLength <= 0) {
-      return 0;
-    } else {
-      return take(charsLength).string.length;
-    }
+    return charsLength <= 0 ? 0 : take(charsLength).string.length;
   }
 
   // get the rendered length of the string up to the given index
