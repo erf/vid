@@ -151,12 +151,8 @@ void actionDeleteCharNext(Editor e, FileBuffer f) {
   if (f.empty()) {
     return;
   }
-  Characters line = f.lines[f.cursor.y];
-  if (line.isNotEmpty) {
-    f.lines[f.cursor.y] = line.deleteCharAt(f.cursor.x);
-  }
+  f.deleteChar(f.cursor);
   f.clampCursor();
-  f.isModified = true;
 }
 
 void actionReplaceMode(Editor e, FileBuffer f) {
