@@ -1,11 +1,10 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/position.dart';
-import 'package:vid/range_ext.dart';
 
 import 'characters_ext.dart';
 import 'file_buffer.dart';
+import 'position.dart';
 import 'range.dart';
 import 'string_ext.dart';
 import 'terminal.dart';

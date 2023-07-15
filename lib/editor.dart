@@ -2,10 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:characters/characters.dart';
-import 'package:vid/actions_find.dart';
-import 'package:vid/text_engine.dart';
-
+import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
