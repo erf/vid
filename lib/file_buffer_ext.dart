@@ -46,16 +46,17 @@ extension FileBufferExt on FileBuffer {
 
   // get the index of the cursor in the text
   int getCursorIndex(List<Characters> lines, Position cursor) {
-    int total = 0;
-    int lineNo = 0;
+    int index = 0;
+    int currentLine = 0;
     for (Characters line in lines) {
-      if (lineNo == cursor.y) {
-        return line.charsToByteLength(cursor.x) + total;
+      // if at current line, return index at cursor position
+      if (currentLine == cursor.y) {
+        return index + line.charsToByteLength(cursor.x);
       }
-      total += line.string.length + 1; // +1 for newline
-      lineNo++;
+      currentLine++;
+      index += line.string.length + 1; // +1 for newline
     }
-    return total;
+    return index;
   }
 
   void insert(String str) {

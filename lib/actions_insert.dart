@@ -16,15 +16,10 @@ void insertActionEscape(FileBuffer f) {
 }
 
 void insertActionEnter(FileBuffer f) {
-  final lines = f.lines;
-  final cursor = f.cursor;
-  final lineAfterCursor = lines[cursor.y].skip(cursor.x);
-  lines[cursor.y] = lines[cursor.y].take(cursor.x);
-  lines.insert(cursor.y + 1, lineAfterCursor);
-  cursor.x = 0;
+  f.insert('\n');
+  f.cursor.x = 0;
   f.view.x = 0;
   f.cursor = motionCharDown(f, f.cursor);
-  f.isModified = true;
 }
 
 void joinLines(FileBuffer f) {
