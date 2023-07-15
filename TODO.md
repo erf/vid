@@ -9,6 +9,8 @@
 - better architecture for actions and pending mode
 - save file without name (requires command mode)
 - repeat last action / search using dot (.)
+- C to change-to-eof-line
+- s to substitute
 
 ## Text engine
 
