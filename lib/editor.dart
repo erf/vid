@@ -156,25 +156,14 @@ class Editor {
   }
 
   void insert(String str) {
-    final lines = fileBuffer.lines;
-    final cursor = fileBuffer.cursor;
-
     InsertAction? insertAction = insertActions[str];
     if (insertAction != null) {
       insertAction(fileBuffer);
       return;
     }
-
-/*
-    Characters line = lines[cursor.y];
-    if (line.isEmpty) {
-      lines[cursor.y] = str.characters;
-    } else {
-      lines[cursor.y] = line.replaceRange(cursor.x, cursor.x, str.characters);
-    }
-    */
+    // default insert
     fileBuffer.insert(str);
-    cursor.x++;
+    fileBuffer.cursor.x++;
   }
 
   void normal(String str) {
