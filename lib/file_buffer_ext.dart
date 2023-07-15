@@ -66,12 +66,6 @@ extension FileBufferExt on FileBuffer {
     // TODO add to undo stack
   }
 
-  void paste(Characters text) {
-    final p = cursor;
-    final newText = lines[p.y].replaceRange(p.x, p.x, text);
-    lines.replaceRange(p.y, p.y + 1, newText.split('\n'.ch));
-  }
-
   void deleteRange(Range r, [bool removeEmptyLines = true]) {
     if (r.p0.y == r.p1.y) {
       lines[r.p0.y] = lines[r.p0.y].removeRange(r.p0.x, r.p1.x);
