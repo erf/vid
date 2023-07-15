@@ -9,18 +9,10 @@ typedef TextObject = Range Function(FileBuffer, Position);
 
 Range objectCurrentLine(FileBuffer f, Position p) {
   final lineLen = f.lines[p.y].length;
-  bool isLastLine = p.y == f.lines.length - 1;
-  if (isLastLine) {
-    return Range(
-      p0: Position(y: p.y - 1, x: lineLen),
-      p1: Position(y: p.y, x: lineLen),
-    );
-  } else {
-    return Range(
-      p0: Position(y: p.y, x: 0),
-      p1: Position(y: p.y, x: lineLen + 1),
-    );
-  }
+  return Range(
+    p0: Position(y: p.y, x: 0),
+    p1: Position(y: p.y, x: lineLen + 1),
+  );
 }
 
 Range objectLineUp(FileBuffer f, Position p) {

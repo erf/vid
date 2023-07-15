@@ -31,6 +31,7 @@ void main() {
     expect(f.lines, [
       'abc'.ch,
       'def'.ch,
+      ''.ch,
     ]);
   });
 }

@@ -17,8 +17,8 @@
 - keep positions per line and create CharacterRange.at from that
 - recreate render lines every time text changes
 - simple API to replace / insert text or delete text given a range
-- easier for undo / redo
-- optimize later how we recreate visible lines from text
+- easier to do undo / redo stack, with simpler text changes
+- optimize later how we recreate visible render lines from text
 
 ### Refactor strategy
 - make more tests for actions
