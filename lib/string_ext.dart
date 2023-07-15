@@ -25,10 +25,14 @@ extension StringExt on String {
     }
 
     // If the string is a emoji, return 2
-    if (Emoji.isEmoji(this)) {
+    if (isEmoji) {
       return 2;
     }
 
     return 1;
+  }
+
+  bool get isEmoji {
+    return Emoji.isEmoji(this);
   }
 }
