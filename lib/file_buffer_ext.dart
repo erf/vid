@@ -26,10 +26,10 @@ extension FileBufferExt on FileBuffer {
     final file = File(path!);
     if (file.existsSync()) {
       // load file
-      text = Characters(file.readAsStringSync());
+      text = file.readAsStringSync();
 
       // split text into lines
-      lines = text.split('\n'.ch).toList();
+      lines = text.split('\n').map((e) => e.ch).toList();
       if (lines.isEmpty) {
         lines = [Characters.empty];
       }

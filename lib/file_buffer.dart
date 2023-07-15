@@ -9,7 +9,7 @@ class FileBuffer {
   String? path;
 
   // the text of the file
-  Characters text = Characters.empty;
+  String text = '';
 
   // always have at least one line with one empty string
   List<Characters> lines = [Characters.empty];

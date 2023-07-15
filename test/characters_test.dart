@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:characters/characters.dart';
 import 'package:test/test.dart';
 import 'package:vid/characters_ext.dart';
