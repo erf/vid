@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/position.dart';
 import 'package:vid/range_ext.dart';
 
 import 'characters_ext.dart';
@@ -30,19 +31,21 @@ extension FileBufferExt on FileBuffer {
       text = file.readAsStringSync();
 
       // split text into lines
-      createLines();
+      lines = createLines(text);
     }
   }
 
   // split text into lines
-  void createLines() {
-    lines = text.split('\n').map((e) => e.ch).toList();
+  List<Characters> createLines(String text) {
+    List<Characters> lines = text.split('\n').map((e) => e.ch).toList();
     if (lines.isEmpty) {
       lines = [Characters.empty];
     }
+    return lines;
   }
 
-  int getCursorIndex() {
+  // get the index of the cursor in the text
+  int getCursorIndex(List<Characters> lines, Position cursor) {
     int total = 0;
     int lineNo = 0;
     for (Characters line in lines) {
@@ -56,10 +59,10 @@ extension FileBufferExt on FileBuffer {
   }
 
   void insert(String str) {
-    int index = getCursorIndex();
+    int index = getCursorIndex(lines, cursor);
     text = TextEngine.insert(text, index, str);
     isModified = true;
-    createLines();
+    lines = createLines(text);
     // TODO add to undo stack
   }
 
