@@ -77,8 +77,7 @@ Position motionWordPrev(FileBuffer f, Position p) {
   final start = f.getIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text.substring(0, start));
   if (matches.isEmpty) return p;
-  final match = matches.last;
-  return f.getPositionFromIndex(match.start);
+  return f.getPositionFromIndex(matches.last.start);
 }
 
 // exit insert mode
