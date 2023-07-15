@@ -51,6 +51,11 @@ extension FileBufferExt on FileBuffer {
     for (Characters line in lines) {
       // if at current line, return index at cursor position
       if (currentLine == cursor.y) {
+        int length = line.length;
+        if (cursor.x > length) {
+          // if cursor is larger than line, add newline
+          return index + length + 1;
+        }
         return index + line.charsToByteLength(cursor.x);
       }
       currentLine++;
@@ -67,20 +72,13 @@ extension FileBufferExt on FileBuffer {
     // TODO add to undo stack
   }
 
-  void deleteRange(Range r, [bool removeEmptyLines = true]) {
-    if (r.p0.y == r.p1.y) {
-      lines[r.p0.y] = lines[r.p0.y].removeRange(r.p0.x, r.p1.x);
-    } else {
-      lines[r.p0.y] = lines[r.p0.y].removeRange(r.p0.x);
-      lines[r.p1.y] = lines[r.p1.y].removeRange(0, r.p1.x);
-    }
-    if (removeEmptyLines) {
-      removeEmptyLinesInRange(r);
-    }
-    if (lines.isEmpty) {
-      lines.add(Characters.empty);
-    }
+  void deleteRange(Range r) {
+    int index = getCursorIndex(lines, r.p0);
+    int end = getCursorIndex(lines, r.p1);
+    text = TextEngine.delete(text, index, end);
+    lines = createLines(text);
     isModified = true;
+    // TODO add to undo stack
   }
 
 // iterate remove empty lines and lines inside range
