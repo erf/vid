@@ -59,8 +59,8 @@ extension FileBufferExt on FileBuffer {
     return index;
   }
 
-  void insert(String str) {
-    int index = getCursorIndex(lines, cursor);
+  void insert(String str, [Position? position]) {
+    int index = getCursorIndex(lines, position ?? cursor);
     text = TextEngine.insert(text, index, str);
     isModified = true;
     lines = createLines(text);
