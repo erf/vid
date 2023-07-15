@@ -67,20 +67,14 @@ Position motionWordNext(FileBuffer f, Position p) {
 }
 
 Position motionWordEnd(FileBuffer f, Position p) {
-  final line = f.lines[p.y];
-  final start = line.charsToByteLength(p.x);
-  final matches = RegExp(r'\w+').allMatches(line.string, start);
-  for (final match in matches) {
-    if (match.end - 1 > start) {
-      final charPos = line.byteToCharsLength(match.end);
-      return Position(x: charPos - 1, y: p.y);
-    }
+  final start = f.getIndexFromPosition(p);
+  final matches = RegExp(r'\w+').allMatches(f.text, start);
+  if (matches.isEmpty) {
+    return p;
   }
-  if (p.y < f.lines.length - 1) {
-    return Position(x: 0, y: p.y + 1);
-  } else {
-    return Position(x: max(line.length - 1, 0), y: p.y);
-  }
+  final match =
+      matches.firstWhere((m) => m.end - 1 > start, orElse: () => matches.first);
+  return f.getPositionFromIndex(match.end - 1);
 }
 
 Position motionWordPrev(FileBuffer f, Position p) {
