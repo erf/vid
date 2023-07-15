@@ -78,8 +78,8 @@ Position motionWordPrev(FileBuffer f, Position p) {
   final matches = RegExp(r'\w+').allMatches(f.text.substring(0, start));
   if (matches.isEmpty) return p;
   final reversed = matches.toList().reversed;
-  final match =
-      reversed.firstWhere((m) => m.start < start, orElse: () => matches.first);
+  final match = reversed.firstOrNull;
+  if (match == null) return p;
   return f.getPositionFromIndex(match.start);
 }
 
