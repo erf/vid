@@ -30,21 +30,20 @@ extension FileBufferExt on FileBuffer {
       text = file.readAsStringSync();
 
       // split text into lines
-      lines = createLines(text);
+      createLines();
     }
   }
 
   // split text into lines
-  List<Characters> createLines(String text) {
-    List<Characters> lines = text.split('\n').map((e) => e.ch).toList();
+  void createLines() {
+    lines = text.split('\n').map((e) => e.ch).toList();
     if (lines.isEmpty) {
       lines = [Characters.empty];
     }
-    return lines;
   }
 
   // get the index of the cursor in the text
-  int getCursorIndex(List<Characters> lines, Position cursor) {
+  int getCursorIndex(Position cursor) {
     int index = 0;
     int currentLine = 0;
     for (Characters line in lines) {
@@ -64,32 +63,32 @@ extension FileBufferExt on FileBuffer {
   }
 
   void insert(String str, [Position? position]) {
-    int index = getCursorIndex(lines, position ?? cursor);
+    int index = getCursorIndex(position ?? cursor);
     text = TextEngine.insert(text, index, str);
     isModified = true;
-    lines = createLines(text);
+    createLines();
     // TODO add to undo stack
   }
 
   void deleteRange(Range r) {
-    int index = getCursorIndex(lines, r.p0);
-    int end = getCursorIndex(lines, r.p1);
+    int index = getCursorIndex(r.p0);
+    int end = getCursorIndex(r.p1);
     if (index >= text.length) {
       return;
     }
     text = TextEngine.delete(text, index, end);
-    lines = createLines(text);
+    createLines();
     isModified = true;
     // TODO add to undo stack
   }
 
   void replaceChar(String str, Position p) {
-    int index = getCursorIndex(lines, p);
+    int index = getCursorIndex(p);
     if (index >= text.length) {
       return;
     }
     text = TextEngine.replaceChar(text, index, str);
-    lines = createLines(text);
+    createLines();
     isModified = true;
     // TODO add to undo stack
   }
@@ -110,17 +109,5 @@ extension FileBufferExt on FileBuffer {
     view.y = clamp(view.y, cursor.y, cursor.y - term.height + 2);
     int cx = lines[cursor.y].renderedLength(cursor.x);
     view.x = clamp(view.x, cx, cx - term.width + 1);
-  }
-
-  void joinLines() {
-    final p = cursor;
-    final line = lines[p.y];
-    if (p.y == lines.length - 1) {
-      return;
-    }
-    final nextLine = lines[p.y + 1];
-    lines[p.y] = line + nextLine;
-    lines.removeAt(p.y + 1);
-    isModified = true;
   }
 }
