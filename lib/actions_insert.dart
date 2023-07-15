@@ -22,18 +22,14 @@ void insertActionEnter(FileBuffer f) {
 void joinLines(FileBuffer f) {
   final lines = f.lines;
   final cursor = f.cursor;
-  if (lines.length <= 1 || cursor.y <= 0) {
-    return;
-  }
+  if (lines.length <= 1 || cursor.y <= 0) return;
   final charPos = lines[cursor.y - 1].length;
   f.cursor = Position(y: cursor.y - 1, x: charPos);
   f.deleteChar(f.cursor);
 }
 
 void deleteCharPrev(FileBuffer f) {
-  if (f.empty) {
-    return;
-  }
+  if (f.empty) return;
   f.cursor.x--;
   f.replaceChar('', f.cursor, UndoOpType.delete);
 }

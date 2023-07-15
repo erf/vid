@@ -146,9 +146,7 @@ void actionCursorWordPrev(Editor e, FileBuffer f) {
 }
 
 void actionDeleteCharNext(Editor e, FileBuffer f) {
-  if (f.empty) {
-    return;
-  }
+  if (f.empty) return;
   f.deleteChar(f.cursor);
   f.clampCursor();
 }
@@ -158,9 +156,7 @@ void actionReplaceMode(Editor e, FileBuffer f) {
 }
 
 void actionDeleteLineEnd(Editor e, FileBuffer f) {
-  if (f.empty) {
-    return;
-  }
+  if (f.empty) return;
   final lineEnd = motionLineEnd(f, f.cursor);
   f.deleteRange(Range(
     p0: f.cursor,
@@ -170,9 +166,7 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
 }
 
 void actionChangeLineEnd(Editor e, FileBuffer f) {
-  if (f.empty) {
-    return;
-  }
+  if (f.empty) return;
   final lineEnd = motionLineEnd(f, f.cursor);
   f.deleteRange(Range(
     p0: f.cursor,

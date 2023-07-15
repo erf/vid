@@ -66,7 +66,7 @@ extension FileBufferExt on FileBuffer {
     for (Characters line in lines) {
       // if at current line, return index at cursor position
       if (lineNo == cursor.y) {
-        // if cursor is larger than line, expect newline except for last line
+        // if cursor is larger than line, assume newline except for last line
         int charLineLen = line.length;
         if (cursor.x > charLineLen) {
           if (lineNo >= lines.length - 1) {
