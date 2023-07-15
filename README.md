@@ -24,3 +24,4 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 ## Keyboard shortcuts
 
 See [bindings.dart](lib/bindings.dart)
+
