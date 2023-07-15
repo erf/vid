@@ -158,10 +158,12 @@ void actionReplaceMode(Editor e, FileBuffer f) {
 void actionDeleteLineEnd(Editor e, FileBuffer f) {
   if (f.empty) return;
   final lineEnd = motionLineEnd(f, f.cursor);
-  f.deleteRange(Range(
+  final r = Range(
     p0: f.cursor,
     p1: Position(y: lineEnd.y, x: lineEnd.x + 1),
-  ));
+  );
+  f.yankRange(r);
+  f.deleteRange(r);
   f.clampCursor();
 }
 
@@ -220,5 +222,5 @@ void actionUndo(Editor e, FileBuffer f) {
   }
   f.createLines();
   f.isModified = true;
-  f.cursor = op.cursor;
+  f.cursor = op.cursor.clone();
 }

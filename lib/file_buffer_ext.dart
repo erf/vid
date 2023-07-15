@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/range_ext.dart';
 import 'package:vid/undo.dart';
 
 import 'characters_ext.dart';
@@ -40,6 +41,13 @@ extension FileBufferExt on FileBuffer {
     if (lines.isEmpty) {
       lines = [Characters.empty];
     }
+  }
+
+  void yankRange(Range range) {
+    final r = range.normalized();
+    final i0 = getIndexFromPosition(r.p0);
+    final i1 = getIndexFromPosition(r.p1);
+    yankBuffer = text.substring(i0, i1);
   }
 
   // get the cursor position from the index in the text

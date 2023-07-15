@@ -6,16 +6,8 @@ import 'range_ext.dart';
 
 typedef OperatorPendingAction = void Function(FileBuffer, Range);
 
-void yankRange(FileBuffer f, Range range) {
-  final r = range.normalized();
-  final i0 = f.getIndexFromPosition(r.p0);
-  final i1 = f.getIndexFromPosition(r.p1);
-  final text = f.text.substring(i0, i1);
-  f.yankBuffer = text;
-}
-
 void pendingActionYank(FileBuffer file, Range range) {
-  yankRange(file, range);
+  file.yankRange(range);
   file.mode = Mode.normal;
 }
 
@@ -26,7 +18,7 @@ void pendingActionChange(FileBuffer file, Range range) {
 
 void pendingActionDelete(FileBuffer file, Range range) {
   Range r = range.normalized();
-  yankRange(file, r);
+  file.yankRange(r);
   file.deleteRange(r);
   file.cursor = r.p0.clone();
   file.clampCursor();
