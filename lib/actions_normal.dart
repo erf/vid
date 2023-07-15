@@ -214,21 +214,15 @@ void actionUndo(Editor e, FileBuffer f) {
   switch (op.type) {
     case UndoOpType.replace:
       f.text = f.text.replaceRange(op.index, op.end, op.prevStr);
-      f.createLines();
-      f.isModified = true;
-      f.cursor = op.cursor;
       break;
     case UndoOpType.insert:
       f.text = f.text.replaceRange(op.index, op.index + op.newStr.length, '');
-      f.createLines();
-      f.isModified = true;
-      f.cursor = op.cursor;
       break;
     case UndoOpType.delete:
       f.text = f.text.replaceRange(op.index, op.index, op.prevStr);
-      f.createLines();
-      f.isModified = true;
-      f.cursor = op.cursor;
       break;
   }
+  f.createLines();
+  f.isModified = true;
+  f.cursor = op.cursor;
 }
