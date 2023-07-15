@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:characters/characters.dart';
 import 'package:vid/actions_find.dart';
@@ -198,5 +199,6 @@ void actionTillCharPrev(Editor e, FileBuffer f) {
 }
 
 void actionJoinLines(Editor e, FileBuffer f) {
-  f.joinLines();
+  final p = Position(y: f.cursor.y, x: f.lines[f.cursor.y].length);
+  f.replaceChar('', p);
 }

@@ -9,8 +9,8 @@ class TextEngine {
     return text.replaceRange(index, end, replacement);
   }
 
-  static String replaceChar(String text, int index, String replacement) {
-    return replace(text, index, index + 1, replacement);
+  static String replaceChar(String text, int index, String char) {
+    return replace(text, index, index + 1, char);
   }
 
   static String delete(String text, int index, int? end) {
