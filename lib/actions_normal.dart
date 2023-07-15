@@ -91,7 +91,7 @@ void actionOpenLineAbove(Editor e, FileBuffer f) {
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insert('\n', Position(y: f.cursor.y + 1, x: 0));
+  f.insert('\n', Position(y: f.cursor.y, x: f.lines[f.cursor.y].length));
   actionCursorCharDown(e, f);
 }
 
