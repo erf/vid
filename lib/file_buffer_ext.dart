@@ -45,18 +45,27 @@ extension FileBufferExt on FileBuffer {
   // get the index of the cursor in the text
   int getCursorIndex(Position cursor) {
     int index = 0;
-    int currentLine = 0;
+    int lineNo = 0;
     for (Characters line in lines) {
       // if at current line, return index at cursor position
-      if (currentLine == cursor.y) {
-        if (cursor.x > line.length) {
-          // if cursor is larger than line, add newline
-          return index + line.string.length + 1;
+      if (lineNo == cursor.y) {
+        // if cursor is larger than line, expect newline except for last line
+        int charLineLen = line.length;
+        if (cursor.x > charLineLen) {
+          if (lineNo >= lines.length - 1) {
+            return index + line.string.length;
+          } else {
+            return index + line.string.length + 1;
+          }
+        } else if (cursor.x == charLineLen) {
+          // optimized if exactly at end of line full line length
+          return index + line.string.length;
+        } else {
+          // else return index at cursor position
+          return index + line.charsToByteLength(cursor.x);
         }
-        // else return index at cursor position
-        return index + line.charsToByteLength(cursor.x);
       }
-      currentLine++;
+      lineNo++;
       index += line.string.length + 1; // +1 for newline
     }
     return index;
@@ -73,9 +82,6 @@ extension FileBufferExt on FileBuffer {
   void deleteRange(Range r) {
     int index = getCursorIndex(r.p0);
     int end = getCursorIndex(r.p1);
-    if (index >= text.length) {
-      return;
-    }
     text = TextEngine.delete(text, index, end);
     createLines();
     isModified = true;
@@ -84,9 +90,6 @@ extension FileBufferExt on FileBuffer {
 
   void replaceChar(String str, Position p) {
     int index = getCursorIndex(p);
-    if (index >= text.length) {
-      return;
-    }
     text = TextEngine.replaceChar(text, index, str);
     createLines();
     isModified = true;

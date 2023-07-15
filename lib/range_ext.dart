@@ -1,6 +1,7 @@
 import 'range.dart';
 
 extension RangeExt on Range {
+  // make the range in correct order from top to bottom
   Range normalized() {
     Range r = Range.from(this);
     if (r.p0.y > r.p1.y) {
