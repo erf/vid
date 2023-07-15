@@ -191,13 +191,13 @@ class Editor {
       TextObject? textObject = textObjects[str];
       if (textObject != null) {
         Range range = textObject(fileBuffer, fileBuffer.cursor);
-        pendingAction(fileBuffer, range, str);
+        pendingAction(fileBuffer, range);
         return;
       }
       Motion? motion = motionActions[str];
       if (motion != null) {
         Position p = motion(fileBuffer, fileBuffer.cursor);
-        pendingAction(fileBuffer, Range(p0: fileBuffer.cursor, p1: p), str);
+        pendingAction(fileBuffer, Range(p0: fileBuffer.cursor, p1: p));
         return;
       }
     }

@@ -4,7 +4,7 @@ import 'modes.dart';
 import 'range.dart';
 import 'range_ext.dart';
 
-typedef OperatorPendingAction = void Function(FileBuffer, Range, String);
+typedef OperatorPendingAction = void Function(FileBuffer, Range);
 
 void yankRange(FileBuffer f, Range range) {
   final r = range.normalized();
@@ -14,17 +14,17 @@ void yankRange(FileBuffer f, Range range) {
   f.yankBuffer = text;
 }
 
-void pendingActionYank(FileBuffer file, Range range, String str) {
+void pendingActionYank(FileBuffer file, Range range) {
   yankRange(file, range);
   file.mode = Mode.normal;
 }
 
-void pendingActionChange(FileBuffer file, Range range, String str) {
-  pendingActionDelete(file, range, str);
+void pendingActionChange(FileBuffer file, Range range) {
+  pendingActionDelete(file, range);
   file.mode = Mode.insert;
 }
 
-void pendingActionDelete(FileBuffer file, Range range, String str) {
+void pendingActionDelete(FileBuffer file, Range range) {
   Range r = range.normalized();
   yankRange(file, r);
   file.deleteRange(r);
@@ -33,7 +33,7 @@ void pendingActionDelete(FileBuffer file, Range range, String str) {
   file.mode = Mode.normal;
 }
 
-void pendingActionGo(FileBuffer file, Range range, String str) {
+void pendingActionGo(FileBuffer file, Range range) {
   file.mode = Mode.normal;
   file.cursor = range.p1.clone();
 }
