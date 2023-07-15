@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 import 'package:vid/actions_find.dart';
+import 'package:vid/text_engine.dart';
 
 import 'actions_insert.dart';
 import 'actions_motion.dart';
@@ -164,14 +165,16 @@ class Editor {
       return;
     }
 
+/*
     Characters line = lines[cursor.y];
     if (line.isEmpty) {
       lines[cursor.y] = str.characters;
     } else {
       lines[cursor.y] = line.replaceRange(cursor.x, cursor.x, str.characters);
     }
+    */
+    fileBuffer.insert(str);
     cursor.x++;
-    fileBuffer.isModified = true;
   }
 
   void normal(String str) {

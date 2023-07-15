@@ -8,6 +8,7 @@ import 'file_buffer.dart';
 import 'range.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
+import 'text_engine.dart';
 import 'utils.dart';
 
 extension FileBufferExt on FileBuffer {
@@ -29,11 +30,37 @@ extension FileBufferExt on FileBuffer {
       text = file.readAsStringSync();
 
       // split text into lines
-      lines = text.split('\n').map((e) => e.ch).toList();
-      if (lines.isEmpty) {
-        lines = [Characters.empty];
-      }
+      createLines();
     }
+  }
+
+  // split text into lines
+  void createLines() {
+    lines = text.split('\n').map((e) => e.ch).toList();
+    if (lines.isEmpty) {
+      lines = [Characters.empty];
+    }
+  }
+
+  int getCursorIndex() {
+    int total = 0;
+    int lineNo = 0;
+    for (Characters line in lines) {
+      if (lineNo == cursor.y) {
+        return line.charsToByteLength(cursor.x) + total;
+      }
+      total += line.string.length + 1; // +1 for newline
+      lineNo++;
+    }
+    return total;
+  }
+
+  void insert(String str) {
+    int index = getCursorIndex();
+    text = TextEngine.insert(text, index, str);
+    isModified = true;
+    createLines();
+    // TODO add to undo stack
   }
 
   void paste(Characters text) {
