@@ -8,8 +8,8 @@ typedef OperatorPendingAction = void Function(FileBuffer, Range);
 
 void yankRange(FileBuffer f, Range range) {
   final r = range.normalized();
-  final i0 = f.getCursorIndex(r.p0);
-  final i1 = f.getCursorIndex(r.p1);
+  final i0 = f.getIndexFromPosition(r.p0);
+  final i1 = f.getIndexFromPosition(r.p1);
   final text = f.text.substring(i0, i1);
   f.yankBuffer = text;
 }

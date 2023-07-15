@@ -42,8 +42,25 @@ extension FileBufferExt on FileBuffer {
     }
   }
 
+  // get the cursor position from the index in the text
+  Position getPositionFromIndex(int start) {
+    int index = 0;
+    int lineNo = 0;
+    for (Characters line in lines) {
+      if (index + line.string.length + 1 > start) {
+        return Position(
+          y: lineNo,
+          x: line.byteToCharsLength(start - index),
+        );
+      }
+      index += line.string.length + 1;
+      lineNo++;
+    }
+    return Position(y: lines.length - 1, x: lines.last.length);
+  }
+
   // get the index of the cursor in the text
-  int getCursorIndex(Position cursor) {
+  int getIndexFromPosition(Position cursor) {
     int index = 0;
     int lineNo = 0;
     for (Characters line in lines) {
@@ -86,8 +103,8 @@ extension FileBufferExt on FileBuffer {
   }
 
   void replaceRange(Range r, String str, UndoOpType undoType) {
-    int index = getCursorIndex(r.p0);
-    int end = getCursorIndex(r.p1);
+    int index = getIndexFromPosition(r.p0);
+    int end = getIndexFromPosition(r.p1);
     replace(index, end, str, undoType);
   }
 
@@ -96,12 +113,12 @@ extension FileBufferExt on FileBuffer {
   }
 
   void insert(String str, [Position? position]) {
-    int index = getCursorIndex(position ?? cursor);
+    int index = getIndexFromPosition(position ?? cursor);
     replace(index, index, str, UndoOpType.insert);
   }
 
   void replaceChar(String str, Position p, UndoOpType undoType) {
-    int index = getCursorIndex(p);
+    int index = getIndexFromPosition(p);
     replace(index, index + 1, str, undoType);
   }
 

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/file_buffer_ext.dart';
+
 import 'characters_ext.dart';
 import 'file_buffer.dart';
 import 'modes.dart';
@@ -54,21 +56,14 @@ Position motionLineEnd(FileBuffer f, Position p) {
 }
 
 Position motionWordNext(FileBuffer f, Position p) {
-  final line = f.lines[p.y];
-  final start = line.charsToByteLength(p.x);
-  final matches = RegExp(r'\w+').allMatches(line.string, start);
-  for (final match in matches) {
-    if (match.start > start) {
-      final charPos = line.byteToCharsLength(match.start);
-      return Position(x: charPos, y: p.y);
-    }
+  final start = f.getIndexFromPosition(p);
+  final matches = RegExp(r'\w+').allMatches(f.text, start);
+  if (matches.isEmpty) {
+    return p;
   }
-  // either move to next line or stay on last char
-  if (p.y < f.lines.length - 1) {
-    return Position(x: 0, y: p.y + 1);
-  } else {
-    return Position(x: max(line.length - 1, 0), y: p.y);
-  }
+  final match =
+      matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
+  return f.getPositionFromIndex(match.start);
 }
 
 Position motionWordEnd(FileBuffer f, Position p) {
