@@ -1,16 +1,13 @@
 import 'dart:io';
 
-import 'package:characters/characters.dart';
-import 'package:vid/actions_find.dart';
-
+import 'actions_find.dart';
 import 'actions_motion.dart';
-import 'characters_ext.dart';
+import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
-import 'editor.dart';
 import 'vt100.dart';
 
 typedef NormalAction = void Function(Editor, FileBuffer);
