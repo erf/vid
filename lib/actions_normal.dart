@@ -29,7 +29,7 @@ void actionPasteAfter(Editor e, FileBuffer f) {
   if (f.yankBuffer == null) {
     return;
   }
-  f.insert(f.yankBuffer!.string);
+  f.insert(f.yankBuffer!);
   f.isModified = true;
 }
 

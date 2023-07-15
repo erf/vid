@@ -30,7 +30,7 @@ class FileBuffer {
   int? count;
 
   // the register to use for the pending action
-  Characters? yankBuffer;
+  String? yankBuffer;
 
   // if the file has been modified and not saved
   bool isModified = false;
