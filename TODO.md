@@ -9,8 +9,8 @@
 - better architecture for actions and pending mode
 - save file without name (requires command mode)
 - repeat last action / search using dot (.)
-- C to change-to-eof-line
-- s to substitute
+- write more tests
+- replace lines with custom Line objects with start, end indices for String and Characters
 
 ## Text engine
 
@@ -21,11 +21,3 @@
 - simple API to replace / insert text or delete text given a range
 - easier to do undo / redo stack, with simpler text changes
 - optimize later how we recreate visible render lines from text
-
-### Refactor strategy
-- make more tests for actions
-- replace current text processing with using TextEngine to edit text
-- recreate lines of Characters after that, before rendering
-- replace lines of Characters with custom Line objects
-- line objects only have start, end indices for String and Characters
-- fix broken actions
