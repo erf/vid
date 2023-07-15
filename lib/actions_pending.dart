@@ -26,6 +26,7 @@ void pendingActionChange(FileBuffer file, Range range, String str) {
 
 void pendingActionDelete(FileBuffer file, Range range, String str) {
   Range r = range.normalized();
+  yankRange(file, r);
   file.deleteRange(r);
   file.cursor = r.p0.clone();
   file.clampCursor();
