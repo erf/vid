@@ -33,5 +33,5 @@ class FileBuffer {
   Characters? yankBuffer;
 
   // if the file has been modified and not saved
-  bool isDirty = false;
+  bool isModified = false;
 }

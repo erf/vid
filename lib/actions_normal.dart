@@ -30,7 +30,7 @@ void actionPasteAfter(Editor e, FileBuffer f) {
     return;
   }
   f.paste(f.yankBuffer!);
-  f.isDirty = true;
+  f.isModified = true;
 }
 
 void doQuit(Editor e, FileBuffer f) {
@@ -43,7 +43,7 @@ void doQuit(Editor e, FileBuffer f) {
 }
 
 void actionQuit(Editor e, FileBuffer f) {
-  if (f.isDirty) {
+  if (f.isModified) {
     e.showMessage('Press \'Q\' to quit without saving', timed: true);
     return;
   }
@@ -59,7 +59,7 @@ void actionSave(Editor e, FileBuffer f) {
     e.showMessage('Error: No filename', timed: true);
     return;
   }
-  if (f.isDirty == false) {
+  if (f.isModified == false) {
     e.showMessage('No changes', timed: true);
     return;
   }
@@ -69,7 +69,7 @@ void actionSave(Editor e, FileBuffer f) {
     sink.writeln(line);
   }
   sink.close();
-  f.isDirty = false;
+  f.isModified = false;
   e.showMessage('File saved', timed: true);
 }
 
@@ -89,7 +89,7 @@ void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
   f.lines.insert(f.cursor.y, Characters.empty);
   f.cursor.x = 0;
-  f.isDirty = true;
+  f.isModified = true;
 }
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
@@ -100,7 +100,7 @@ void actionOpenLineBelow(Editor e, FileBuffer f) {
     f.lines.insert(f.cursor.y + 1, Characters.empty);
   }
   actionCursorCharDown(e, f);
-  f.isDirty = true;
+  f.isModified = true;
 }
 
 void actionInsert(Editor e, FileBuffer f) {
@@ -164,7 +164,7 @@ void actionDeleteCharNext(Editor e, FileBuffer f) {
     f.lines[f.cursor.y] = line.deleteCharAt(f.cursor.x);
   }
   f.clampCursor();
-  f.isDirty = true;
+  f.isModified = true;
 }
 
 void actionReplaceMode(Editor e, FileBuffer f) {

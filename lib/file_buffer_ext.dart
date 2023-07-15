@@ -55,7 +55,7 @@ extension FileBufferExt on FileBuffer {
     if (lines.isEmpty) {
       lines.add(Characters.empty);
     }
-    isDirty = true;
+    isModified = true;
   }
 
 // iterate remove empty lines and lines inside range
@@ -97,6 +97,6 @@ extension FileBufferExt on FileBuffer {
     final nextLine = lines[p.y + 1];
     lines[p.y] = line + nextLine;
     lines.removeAt(p.y + 1);
-    isDirty = true;
+    isModified = true;
   }
 }

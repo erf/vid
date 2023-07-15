@@ -86,7 +86,7 @@ class Editor {
   void drawStatus() {
     final cursor = fileBuffer.cursor;
     //final view = fileBuffer.view;
-    final dirty = fileBuffer.isDirty;
+    final dirty = fileBuffer.isModified;
 
     renderBuffer.write(VT100.invert(true));
     renderBuffer.write(VT100.cursorPosition(x: 1, y: terminal.height));
@@ -171,7 +171,7 @@ class Editor {
       lines[cursor.y] = line.replaceRange(cursor.x, cursor.x, str.characters);
     }
     cursor.x++;
-    fileBuffer.isDirty = true;
+    fileBuffer.isModified = true;
   }
 
   void normal(String str) {
