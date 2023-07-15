@@ -8,6 +8,7 @@ import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
+import 'undo.dart';
 import 'vt100.dart';
 
 typedef NormalAction = void Function(Editor, FileBuffer);
@@ -203,4 +204,19 @@ void actionTillCharPrev(Editor e, FileBuffer f) {
 void actionJoinLines(Editor e, FileBuffer f) {
   final p = Position(y: f.cursor.y, x: f.lines[f.cursor.y].length);
   f.replaceChar('', p);
+}
+
+void actionUndo(Editor e, FileBuffer f) {
+  if (f.undoList.isEmpty) {
+    return;
+  }
+  final op = f.undoList.removeLast();
+  switch (op.type) {
+    case UndoOpType.replace:
+      f.text = f.text.replaceRange(op.index, op.index, op.text);
+      f.createLines();
+      f.isModified = true;
+      f.cursor = op.cursor;
+      break;
+  }
 }

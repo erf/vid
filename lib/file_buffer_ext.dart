@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/undo.dart';
 
 import 'characters_ext.dart';
 import 'file_buffer.dart';
@@ -8,7 +9,6 @@ import 'position.dart';
 import 'range.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
-import 'text_engine.dart';
 import 'utils.dart';
 
 extension FileBufferExt on FileBuffer {
@@ -73,29 +73,32 @@ extension FileBufferExt on FileBuffer {
     return index;
   }
 
-  void insert(String str, [Position? position]) {
-    int index = getCursorIndex(position ?? cursor);
-    text = TextEngine.insert(text, index, str);
-    isModified = true;
+  void replace(int index, int end, String newStr) {
+    final oldStr = text.substring(index, end);
+    text = text.replaceRange(index, end, newStr);
     createLines();
-    // TODO add to undo stack
+    isModified = true;
+    undoList.add(UndoOp(UndoOpType.replace, oldStr, index, end, cursor));
+  }
+
+  void replaceRange(Range r, String str) {
+    int index = getCursorIndex(r.p0);
+    int end = getCursorIndex(r.p1);
+    replace(index, end, str);
   }
 
   void deleteRange(Range r) {
-    int index = getCursorIndex(r.p0);
-    int end = getCursorIndex(r.p1);
-    text = TextEngine.delete(text, index, end);
-    createLines();
-    isModified = true;
-    // TODO add to undo stack
+    replaceRange(r, '');
+  }
+
+  void insert(String str, [Position? position]) {
+    int index = getCursorIndex(position ?? cursor);
+    replace(index, index, str);
   }
 
   void replaceChar(String str, Position p) {
     int index = getCursorIndex(p);
-    text = TextEngine.replaceChar(text, index, str);
-    createLines();
-    isModified = true;
-    // TODO add to undo stack
+    replace(index, index + 1, str);
   }
 
   void deleteChar(Position p) {

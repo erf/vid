@@ -42,6 +42,7 @@ final normalActions = <String, NormalAction>{
   'T': actionTillCharPrev,
   'J': actionJoinLines,
   'C': actionChangeLineEnd,
+  'u': actionUndo,
 };
 
 final pendingActions = <String, OperatorPendingAction>{

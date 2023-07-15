@@ -2,6 +2,7 @@ import 'package:characters/characters.dart';
 
 import 'modes.dart';
 import 'position.dart';
+import 'undo.dart';
 
 // all things related to the file buffer
 class FileBuffer {
@@ -35,4 +36,7 @@ class FileBuffer {
 
   // if the file has been modified and not saved
   bool isModified = false;
+
+  // list of undo operations
+  List<UndoOp> undoList = [];
 }
