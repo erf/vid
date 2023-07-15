@@ -168,6 +168,18 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
   f.clampCursor();
 }
 
+void actionChangeLineEnd(Editor e, FileBuffer f) {
+  if (f.empty()) {
+    return;
+  }
+  final lineEnd = motionLineEnd(f, f.cursor);
+  f.deleteRange(Range(
+    p0: f.cursor,
+    p1: Position(y: lineEnd.y, x: lineEnd.x + 1),
+  ));
+  f.mode = Mode.insert;
+}
+
 void actionFindCharNext(Editor e, FileBuffer f) {
   f.mode = Mode.operatorPending;
   f.pendingAction = findNextChar;
