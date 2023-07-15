@@ -73,12 +73,12 @@ extension FileBufferExt on FileBuffer {
     return index;
   }
 
-  void replace(int index, int end, String newStr, UndoOpType undoOp) {
-    final prevStr = text.substring(index, end);
-    text = text.replaceRange(index, end, newStr);
+  void replace(int index, int end, String textNew, UndoOpType undoOp) {
+    final textPrev = text.substring(index, end);
+    text = text.replaceRange(index, end, textNew);
     createLines();
     isModified = true;
-    undoList.add(UndoOp(undoOp, newStr, prevStr, index, end, cursor.clone()));
+    undoList.add(UndoOp(undoOp, textNew, textPrev, index, end, cursor.clone()));
   }
 
   void replaceRange(Range r, String str, UndoOpType undoType) {

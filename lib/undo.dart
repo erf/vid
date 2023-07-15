@@ -6,18 +6,18 @@ enum UndoOpType {
   delete,
 }
 
-class UndoOp {
-  UndoOpType type;
-  String prevStr;
-  String newStr;
-  int index;
-  int end;
-  Position cursor;
+sealed class UndoOp {
+  final UndoOpType type;
+  final String textPrev;
+  final String textNew;
+  final int index;
+  final int end;
+  final Position cursor;
 
-  UndoOp(
+  const UndoOp(
     this.type,
-    this.newStr,
-    this.prevStr,
+    this.textNew,
+    this.textPrev,
     this.index,
     this.end,
     this.cursor,
