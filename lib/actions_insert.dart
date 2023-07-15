@@ -1,10 +1,6 @@
-import 'dart:math';
-
-import 'package:vid/characters_ext.dart';
-import 'package:vid/file_buffer_ext.dart';
-
 import 'actions_motion.dart';
 import 'file_buffer.dart';
+import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
 
