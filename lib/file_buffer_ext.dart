@@ -98,6 +98,10 @@ extension FileBufferExt on FileBuffer {
     // TODO add to undo stack
   }
 
+  void deleteChar(Position p) {
+    replaceChar('', p);
+  }
+
   // check if file is empty, only one line with empty string
   bool empty() {
     return lines.length == 1 && lines.first.isEmpty;

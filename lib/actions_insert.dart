@@ -29,19 +29,16 @@ void joinLines(FileBuffer f) {
     return;
   }
   final charPos = lines[cursor.y - 1].length;
-  lines[cursor.y - 1] += lines[cursor.y];
-  lines.removeAt(cursor.y);
   f.cursor = Position(y: cursor.y - 1, x: charPos);
-  f.isModified = true;
+  f.deleteChar(f.cursor);
 }
 
 void deleteCharPrev(FileBuffer f) {
   if (f.empty()) {
     return;
   }
-  f.lines[f.cursor.y] = f.lines[f.cursor.y].deleteCharAt(f.cursor.x - 1);
-  f.cursor.x = max(0, f.cursor.x - 1);
-  f.isModified = true;
+  f.cursor.x--;
+  f.replaceChar('', f.cursor);
 }
 
 void insertActionBackspace(FileBuffer f) {
