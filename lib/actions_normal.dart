@@ -202,8 +202,10 @@ void actionTillCharPrev(Editor e, FileBuffer f) {
 }
 
 void actionJoinLines(Editor e, FileBuffer f) {
-  final p = Position(y: f.cursor.y, x: f.lines[f.cursor.y].length);
-  f.replaceChar('', p, UndoOpType.delete);
+  if (f.lines.length <= 1) {
+    return;
+  }
+  f.deleteChar(Position(y: f.cursor.y, x: f.lines[f.cursor.y].length));
 }
 
 void actionUndo(Editor e, FileBuffer f) {
