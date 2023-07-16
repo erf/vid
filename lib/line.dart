@@ -1,8 +1,10 @@
 import 'package:characters/characters.dart';
 
 class Line {
+  // the byte index in the text
   final int index;
-  final String text;
+  // the text of the line as a Characters object
+  final Characters text;
 
   const Line({
     required this.index,
@@ -11,9 +13,13 @@ class Line {
 
   int get length => text.length;
 
-  int get end => index + length;
+  int get byteLength => text.string.length;
 
-  int get charLength => characters.length;
+  int get end => index + byteLength;
 
-  Characters get characters => text.characters;
+  bool get isEmpty => text.isEmpty;
+
+  bool get isNotEmpty => text.isNotEmpty;
+
+  int byteIndexAt(int x) => index + text.take(x).string.length;
 }

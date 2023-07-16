@@ -1,4 +1,5 @@
 import 'package:characters/characters.dart';
+import 'package:vid/line.dart';
 
 import 'modes.dart';
 import 'position.dart';
@@ -13,7 +14,7 @@ class FileBuffer {
   String text = '';
 
   // text split by '\n' character, created by createLines when text is changed
-  var lines = [Characters.empty];
+  var lines = [Line(index: 0, text: Characters.empty)];
 
   // the cursor position (0 based, in grapheme cluster space)
   var cursor = Position();

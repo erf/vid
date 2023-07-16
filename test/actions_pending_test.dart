@@ -14,7 +14,7 @@ void main() {
     f.cursor = Position(x: 0, y: 1);
     final r = objectCurrentLine(f, f.cursor);
     pendingActionDelete(f, r);
-    expect(f.lines, [
+    expect(f.lines.map((e) => e.text).toList(), [
       'abc'.ch,
       'ghi'.ch,
     ]);
@@ -28,7 +28,7 @@ void main() {
     f.cursor = Position(x: 0, y: 2);
     final r = objectCurrentLine(f, f.cursor);
     pendingActionDelete(f, r);
-    expect(f.lines, [
+    expect(f.lines.map((e) => e.text), [
       'abc'.ch,
       'def'.ch,
       ''.ch,

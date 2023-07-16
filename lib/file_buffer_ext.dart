@@ -1,15 +1,15 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/range_ext.dart';
-import 'package:vid/undo.dart';
 
 import 'characters_ext.dart';
 import 'file_buffer.dart';
+import 'line.dart';
 import 'position.dart';
 import 'range.dart';
-import 'string_ext.dart';
+import 'range_ext.dart';
 import 'terminal.dart';
+import 'undo.dart';
 import 'utils.dart';
 
 extension FileBufferExt on FileBuffer {
@@ -37,9 +37,14 @@ extension FileBufferExt on FileBuffer {
 
   // split text into lines
   void createLines() {
-    lines = text.split('\n').map((e) => e.ch).toList();
+    int index = 0;
+    lines = text.split('\n').map((e) {
+      final line = Line(index: index, text: e.characters);
+      index += e.length + 1;
+      return line;
+    }).toList();
     if (lines.isEmpty) {
-      lines = [Characters.empty];
+      lines = [Line(index: 0, text: Characters.empty)];
     }
   }
 
@@ -54,14 +59,14 @@ extension FileBufferExt on FileBuffer {
   Position getPositionFromIndex(int start) {
     int index = 0;
     int lineNo = 0;
-    for (Characters line in lines) {
-      if (index + line.string.length + 1 > start) {
+    for (Line line in lines) {
+      if (index + line.byteLength + 1 > start) {
         return Position(
           y: lineNo,
-          x: line.byteToCharsLength(start - index),
+          x: line.text.byteToCharsLength(start - index),
         );
       }
-      index += line.string.length + 1;
+      index += line.byteLength + 1;
       lineNo++;
     }
     return Position(y: lines.length - 1, x: lines.last.length);
@@ -69,33 +74,23 @@ extension FileBufferExt on FileBuffer {
 
   // get the index of the cursor in the text
   int getIndexFromPosition(Position p) {
-    int index = 0;
-    int lineNo = 0;
-    for (Characters line in lines) {
-      // if at current line, return index at cursor position
-      if (lineNo == p.y) {
-        // if cursor is larger than line, assume newline except for last line
-        int charLineLen = line.length;
-        if (p.x > charLineLen) {
-          if (lineNo >= lines.length - 1) {
-            // if last line, return index at end of line
-            return index + line.string.length;
-          } else {
-            // else return index at newline character
-            return index + line.string.length + 1;
-          }
-        } else if (p.x == charLineLen) {
-          // optimized if exactly at end of line full line length
-          return index + line.string.length;
-        } else {
-          // else return index at cursor position
-          return index + line.charsToByteLength(p.x);
-        }
-      }
-      lineNo++;
-      index += line.string.length + 1; // +1 for newline
+    //return lines[p.y].byteIndexAt(p.x);
+    final Line line = lines[p.y];
+    final int index = line.index;
+    final int charLen = line.length;
+    // if cursor is larger than line, assume newline except for last line
+    if (p.x > charLen) {
+      // if last line, return index at eol else return index at newline
+      return p.y >= lines.length - 1
+          ? index + line.byteLength
+          : index + line.byteLength + 1;
     }
-    return index;
+    // optimized if exactly at end of line full line length
+    if (p.x == charLen) {
+      return index + line.byteLength;
+    }
+    // else return index at cursor position
+    return line.byteIndexAt(p.x);
   }
 
   void replace(int index, int end, String textNew, UndoOpType undoOp) {
@@ -146,7 +141,7 @@ extension FileBufferExt on FileBuffer {
 // clamp view on cursor position
   void clampView(Terminal term) {
     view.y = clamp(view.y, cursor.y, cursor.y - term.height + 2);
-    int cx = lines[cursor.y].renderedLength(cursor.x);
+    int cx = lines[cursor.y].text.renderedLength(cursor.x);
     view.x = clamp(view.x, cx, cx - term.width + 1);
   }
 }
