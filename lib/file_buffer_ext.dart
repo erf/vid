@@ -48,13 +48,6 @@ extension FileBufferExt on FileBuffer {
     }
   }
 
-  void yankRange(Range range) {
-    final r = range.normalized();
-    final i0 = getIndexFromPosition(r.p0);
-    final i1 = getIndexFromPosition(r.p1);
-    yankBuffer = text.substring(i0, i1);
-  }
-
   // get the cursor position from the index in the text
   Position getPositionFromIndex(int start) {
     for (int i = 0; i < lines.length; i++) {
@@ -123,6 +116,13 @@ extension FileBufferExt on FileBuffer {
 
   void deleteChar(Position p) {
     replaceChar('', p, UndoOpType.delete);
+  }
+
+  void yankRange(Range range) {
+    final r = range.normalized();
+    final i0 = getIndexFromPosition(r.p0);
+    final i1 = getIndexFromPosition(r.p1);
+    yankBuffer = text.substring(i0, i1);
   }
 
   // check if file is empty, only one line with empty string
