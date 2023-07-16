@@ -75,7 +75,7 @@ class Editor {
     final termPos = Position(y: cursor.y - view.y + 1, x: curPos - view.x + 1);
     renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
 
-    terminal.write(renderBuffer);
+    terminal.write(renderBuffer.toString());
     renderBuffer.clear();
   }
 
