@@ -17,12 +17,12 @@ void main() {
   });
 
   test('renderedLength', () {
-    expect('abc'.ch.renderedLength(0), 0);
-    expect('abc'.ch.renderedLength(2), 2);
-    expect('abc'.ch.renderedLength(3), 3);
-    expect('😀😀abc'.ch.renderedLength(1), 2);
-    expect('😀😀abc'.ch.renderedLength(4), 6);
-    expect('😀😀abc'.ch.renderedLength(5), 7);
+    expect('abc'.ch.renderLength(0), 0);
+    expect('abc'.ch.renderLength(2), 2);
+    expect('abc'.ch.renderLength(3), 3);
+    expect('😀😀abc'.ch.renderLength(1), 2);
+    expect('😀😀abc'.ch.renderLength(4), 6);
+    expect('😀😀abc'.ch.renderLength(5), 7);
   });
 
   test('getRenderLine', () {

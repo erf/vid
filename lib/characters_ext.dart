@@ -58,7 +58,7 @@ extension CharactersExt on Characters {
   }
 
   // get the rendered length of the string up to the given index
-  int renderedLength(int count) {
+  int renderLength(int count) {
     return take(count).fold(0, (prev, curr) => prev + curr.renderWidth);
   }
 
