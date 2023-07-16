@@ -36,6 +36,7 @@ extension StringExt on String {
     return 1;
   }
 
+  // Print out some info about a string (for testing)
   void info() {
     print(this);
     print('length $length');
