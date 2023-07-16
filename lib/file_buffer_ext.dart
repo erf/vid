@@ -64,22 +64,7 @@ extension FileBufferExt on FileBuffer {
 
   // get the index of the cursor in the text
   int indexFromPosition(Position p) {
-    final Line line = lines[p.y];
-    final int index = line.index;
-    final int charLen = line.length;
-    // if cursor is larger than line, assume newline except for last line
-    if (p.x > charLen) {
-      // if last line, return index at eol else return index at newline
-      return p.y >= lines.length - 1
-          ? index + line.byteLength
-          : index + line.byteLength + 1;
-    }
-    // optimized if exactly at end of line full line length
-    if (p.x == charLen) {
-      return index + line.byteLength;
-    }
-    // else return index at cursor position
-    return line.byteIndexAt(p.x);
+    return lines[p.y].byteIndexAt(p.x);
   }
 
   // the main method used to replace, delete and insert text in the buffer
