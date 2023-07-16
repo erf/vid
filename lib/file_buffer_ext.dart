@@ -57,17 +57,14 @@ extension FileBufferExt on FileBuffer {
 
   // get the cursor position from the index in the text
   Position getPositionFromIndex(int start) {
-    int index = 0;
-    int lineNo = 0;
-    for (Line line in lines) {
-      if (index + line.byteLength + 1 > start) {
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      if (line.end + 1 > start) {
         return Position(
-          y: lineNo,
-          x: line.text.byteToCharsLength(start - index),
+          y: i,
+          x: line.text.byteToCharsLength(start - line.index),
         );
       }
-      index += line.byteLength + 1;
-      lineNo++;
     }
     return Position(y: lines.length - 1, x: lines.last.length);
   }
