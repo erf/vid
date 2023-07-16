@@ -116,9 +116,9 @@ extension FileBufferExt on FileBuffer {
 
   void yankRange(Range range) {
     final r = range.normalized();
-    final i0 = indexFromPosition(r.start);
-    final i1 = indexFromPosition(r.end);
-    yankBuffer = text.substring(i0, i1);
+    final start = indexFromPosition(r.start);
+    final end = indexFromPosition(r.end);
+    yankBuffer = text.substring(start, end);
   }
 
   // check if file is empty, only one line with empty string
