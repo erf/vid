@@ -11,7 +11,7 @@ typedef Motion = Position Function(FileBuffer, Position);
 Position motionCharNext(FileBuffer f, Position p) {
   return Position(
     y: p.y,
-    x: clamp(p.x + 1, 0, f.lines[p.y].length - 1),
+    x: clamp(p.x + 1, 0, f.lines[p.y].charLength - 1),
   );
 }
 
@@ -24,13 +24,13 @@ Position motionCharPrev(FileBuffer f, Position p) {
 
 Position motionCharUp(FileBuffer f, Position p) {
   final line = clamp(p.y - 1, 0, f.lines.length - 1);
-  final char = clamp(p.x, 0, f.lines[line].length - 1);
+  final char = clamp(p.x, 0, f.lines[line].charLength - 1);
   return Position(y: line, x: char);
 }
 
 Position motionCharDown(FileBuffer f, Position p) {
   final line = clamp(p.y + 1, 0, f.lines.length - 1);
-  final char = clamp(p.x, 0, f.lines[line].length - 1);
+  final char = clamp(p.x, 0, f.lines[line].charLength - 1);
   return Position(y: line, x: char);
 }
 
@@ -40,7 +40,7 @@ Position motionFileStart(FileBuffer f, Position p) {
 
 Position motionFileEnd(FileBuffer f, Position position) {
   return Position(
-    x: f.lines.last.length,
+    x: f.lines.last.charLength,
     y: max(0, f.lines.length - 1),
   );
 }
@@ -50,7 +50,7 @@ Position motionLineStart(FileBuffer f, Position p) {
 }
 
 Position motionLineEnd(FileBuffer f, Position p) {
-  return Position(y: p.y, x: max(0, f.lines[p.y].length - 1));
+  return Position(y: p.y, x: max(0, f.lines[p.y].charLength - 1));
 }
 
 Position motionWordNext(FileBuffer f, Position p) {

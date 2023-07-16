@@ -27,7 +27,7 @@ void joinLines(FileBuffer f) {
   final lines = f.lines;
   final cursor = f.cursor;
   if (lines.length <= 1 || cursor.y <= 0) return;
-  final charPos = lines[cursor.y - 1].length;
+  final charPos = lines[cursor.y - 1].charLength;
   f.cursor = Position(y: cursor.y - 1, x: charPos);
   f.deleteAt(f.cursor);
 }

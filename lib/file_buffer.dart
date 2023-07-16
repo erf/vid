@@ -14,7 +14,7 @@ class FileBuffer {
   String text = '';
 
   // text split by '\n' character, created by createLines when text is changed
-  var lines = [Line(index: 0, chars: Characters.empty, lineNo: 0)];
+  var lines = [Line(start: 0, chars: Characters.empty, lineNo: 0)];
 
   // the cursor position (0 based, in grapheme cluster space)
   var cursor = Position();
