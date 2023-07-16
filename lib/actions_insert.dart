@@ -7,6 +7,11 @@ import 'undo.dart';
 
 typedef InsertAction = void Function(FileBuffer);
 
+void defaultInsert(FileBuffer f, String s) {
+  f.insert(s);
+  f.cursor.x++;
+}
+
 void insertActionEscape(FileBuffer f) {
   f.mode = Mode.normal;
   f.clampCursor();

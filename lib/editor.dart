@@ -153,9 +153,7 @@ class Editor {
       insertAction(fileBuffer);
       return;
     }
-    // default insert
-    fileBuffer.insert(str);
-    fileBuffer.cursor.x++;
+    defaultInsert(fileBuffer, str);
   }
 
   void normal(String str) {
