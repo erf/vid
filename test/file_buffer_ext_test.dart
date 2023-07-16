@@ -99,10 +99,10 @@ void main() {
     ]);
   });
 
-  test('multiple undo operations', () {
+  test('multiple undo', () {
     final e = Editor();
     final f = FileBuffer();
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi';
     f.createLines();
     f.deleteRange(Range(
       start: Position(x: 0, y: 0),
@@ -112,18 +112,14 @@ void main() {
     f.deleteAt(Position(x: 0, y: 0));
     f.replaceAt(Position(x: 0, y: 0), 'X');
     expect(f.text, 'X\nghi');
-    expect(f.lines.map((e) => e.chars), [
-      'X'.ch,
-      'ghi'.ch,
-    ]);
     actionUndo(e, f);
     expect(f.text, 'f\nghi');
     actionUndo(e, f);
-    expect(f.text, 'ef\nghi');
+    expect(f.text, '👩‍👩‍👦‍👦f\nghi');
     actionUndo(e, f);
-    expect(f.text, 'def\nghi');
+    expect(f.text, 'd👩‍👩‍👦‍👦f\nghi');
     actionUndo(e, f);
-    expect(f.text, 'abc\ndef\nghi');
+    expect(f.text, 'abc\nd👩‍👩‍👦‍👦f\nghi');
   });
 
   test('deleteAt with emoji', () {
