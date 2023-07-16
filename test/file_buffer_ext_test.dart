@@ -3,6 +3,7 @@ import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
 import 'package:vid/position.dart';
 import 'package:vid/range.dart';
+import 'package:vid/string_ext.dart';
 
 void main() {
   test('getIndexFromPosition', () {
@@ -66,5 +67,33 @@ void main() {
     expect(undo.newText, 'X');
     expect(undo.index, 4);
     expect(undo.end, 4);
+  });
+
+  test('deleteAt', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef';
+    f.createLines();
+    f.deleteAt(Position(x: 0, y: 1));
+    expect(f.text, 'abc\nef');
+    final undo = f.undoList.last;
+    expect(undo.oldText, 'd');
+    expect(undo.newText, '');
+    expect(undo.index, 4);
+    expect(undo.end, 5);
+  });
+
+  test('deleteAt last on line', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef\nghi';
+    f.createLines();
+    f.deleteAt(Position(x: 0, y: 2));
+    f.deleteAt(Position(x: 0, y: 2));
+    f.deleteAt(Position(x: 0, y: 2));
+    expect(f.text, 'abc\ndef\n');
+    expect(f.lines.map((e) => e.chars), [
+      'abc'.ch,
+      'def'.ch,
+      ''.ch,
+    ]);
   });
 }
