@@ -12,14 +12,13 @@ class FileBuffer {
   // the text of the file
   String text = '';
 
-  // the lines of the file, generated from the text based on '\n' characters, with the last line always being empty
-  // when text changes, lines is recreated by calling updateLines()
+  // text split by '\n' character, created by createLines when text is changed
   var lines = [Characters.empty];
 
-  // the current cursor position (0 based, in human-readable symbol space as opposed to byte space)
+  // the cursor position (0 based, in grapheme cluster space)
   var cursor = Position();
 
-  // the view offset in the file (0 based, in human-readable symbol space as opposed to byte space)
+  // the view offset (0 based, in grapheme cluster space)
   var view = Position();
 
   // the current mode
