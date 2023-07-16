@@ -29,14 +29,14 @@ void actionPasteAfter(Editor e, FileBuffer f) {
     return;
   }
   if (f.yankBuffer!.contains('\n')) {
-    f.insert(
-      f.yankBuffer!,
+    f.insertAt(
       Position(y: min(f.cursor.y + 1, f.lines.length - 1), x: f.cursor.x),
+      f.yankBuffer!,
     );
   } else {
-    f.insert(
-      f.yankBuffer!,
+    f.insertAt(
       Position(y: f.cursor.y, x: f.cursor.x + 1),
+      f.yankBuffer!,
     );
   }
   f.isModified = true;
@@ -47,14 +47,14 @@ void actionPasteBefore(Editor e, FileBuffer f) {
     return;
   }
   if (f.yankBuffer!.contains('\n')) {
-    f.insert(
-      f.yankBuffer!,
+    f.insertAt(
       Position(y: min(f.cursor.y + 1, f.lines.length - 1), x: f.cursor.x),
+      f.yankBuffer!,
     );
   } else {
-    f.insert(
-      f.yankBuffer!,
+    f.insertAt(
       Position(y: f.cursor.y, x: f.cursor.x),
+      f.yankBuffer!,
     );
   }
   f.isModified = true;
@@ -112,13 +112,19 @@ void actionCursorLineBottom(Editor e, FileBuffer f) {
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insert('\n', Position(y: f.cursor.y, x: 0));
+  f.insertAt(
+    Position(y: f.cursor.y, x: 0),
+    '\n',
+  );
   f.cursor.x = 0;
 }
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insert('\n', Position(y: f.cursor.y, x: f.lines[f.cursor.y].length));
+  f.insertAt(
+    Position(y: f.cursor.y, x: f.lines[f.cursor.y].length),
+    '\n',
+  );
   actionCursorCharDown(e, f);
 }
 
@@ -176,7 +182,7 @@ void actionCursorWordPrev(Editor e, FileBuffer f) {
 
 void actionDeleteCharNext(Editor e, FileBuffer f) {
   if (f.empty) return;
-  f.deleteChar(f.cursor);
+  f.deleteAt(f.cursor);
   f.clampCursor();
 }
 
@@ -230,7 +236,7 @@ void actionJoinLines(Editor e, FileBuffer f) {
   if (f.lines.length <= 1) {
     return;
   }
-  f.deleteChar(Position(y: f.cursor.y, x: f.lines[f.cursor.y].length));
+  f.deleteAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].length));
 }
 
 void actionUndo(Editor e, FileBuffer f) {
@@ -239,14 +245,14 @@ void actionUndo(Editor e, FileBuffer f) {
   }
   final op = f.undoList.removeLast();
   switch (op.type) {
-    case UndoOpType.replace:
-      f.text = f.text.replaceRange(op.index, op.end, op.text);
+    case UndoType.replace:
+      f.text = f.text.replaceRange(op.index, op.end, op.oldText);
       break;
-    case UndoOpType.insert:
-      f.text = f.text.replaceRange(op.index, op.index + op.text.length, '');
+    case UndoType.insert:
+      f.text = f.text.replaceRange(op.index, op.index + op.newText.length, '');
       break;
-    case UndoOpType.delete:
-      f.text = f.text.replaceRange(op.index, op.index, op.text);
+    case UndoType.delete:
+      f.text = f.text.replaceRange(op.index, op.index, op.oldText);
       break;
   }
   f.createLines();

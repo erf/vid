@@ -82,40 +82,36 @@ extension FileBufferExt on FileBuffer {
     return line.byteIndexAt(p.x);
   }
 
-  void replace(int index, int end, String textNew, UndoOpType undoOp) {
-    if (undoOp == UndoOpType.insert) {
-      undoList.add(UndoOp(undoOp, textNew, index, end, cursor.clone()));
-    } else {
-      final textPrev = text.substring(index, end);
-      undoList.add(UndoOp(undoOp, textPrev, index, end, cursor.clone()));
-    }
-    text = text.replaceRange(index, end, textNew);
+  // the main method used to replace, delete and insert text in the buffer
+  void replace(int index, int end, String newText, UndoType undoOp) {
+    // undo
+    final oldText = text.substring(index, end);
+    undoList.add(UndoOp(undoOp, newText, oldText, index, end, cursor.clone()));
+    // replace text
+    text = text.replaceRange(index, end, newText);
     createLines();
     isModified = true;
   }
 
-  void replaceRange(Range r, String str, UndoOpType undoType) {
-    int index = getIndexFromPosition(r.p0);
-    int end = getIndexFromPosition(r.p1);
-    replace(index, end, str, undoType);
-  }
-
   void deleteRange(Range r) {
-    replaceRange(r, '', UndoOpType.delete);
+    final index = getIndexFromPosition(r.p0);
+    final end = getIndexFromPosition(r.p1);
+    replace(index, end, '', UndoType.delete);
   }
 
-  void insert(String str, [Position? position]) {
-    int index = getIndexFromPosition(position ?? cursor);
-    replace(index, index, str, UndoOpType.insert);
+  void insertAt(Position p, String str) {
+    final index = getIndexFromPosition(p);
+    replace(index, index, str, UndoType.insert);
   }
 
-  void replaceChar(String str, Position p, UndoOpType undoType) {
-    int index = getIndexFromPosition(p);
-    replace(index, index + 1, str, undoType);
+  void replaceAt(Position p, String str) {
+    final index = getIndexFromPosition(p);
+    replace(index, index + 1, str, UndoType.replace);
   }
 
-  void deleteChar(Position p) {
-    replaceChar('', p, UndoOpType.delete);
+  void deleteAt(Position p) {
+    final index = getIndexFromPosition(p);
+    replace(index, index + 1, '', UndoType.delete);
   }
 
   void yankRange(Range range) {

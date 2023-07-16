@@ -3,12 +3,11 @@ import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
-import 'undo.dart';
 
 typedef InsertAction = void Function(FileBuffer);
 
 void defaultInsert(FileBuffer f, String s) {
-  f.insert(s);
+  f.insertAt(f.cursor, s);
   f.cursor.x++;
 }
 
@@ -18,7 +17,7 @@ void insertActionEscape(FileBuffer f) {
 }
 
 void insertActionEnter(FileBuffer f) {
-  f.insert('\n');
+  f.insertAt(f.cursor, '\n');
   f.cursor.x = 0;
   f.view.x = 0;
   f.cursor = motionCharDown(f, f.cursor);
@@ -30,13 +29,13 @@ void joinLines(FileBuffer f) {
   if (lines.length <= 1 || cursor.y <= 0) return;
   final charPos = lines[cursor.y - 1].length;
   f.cursor = Position(y: cursor.y - 1, x: charPos);
-  f.deleteChar(f.cursor);
+  f.deleteAt(f.cursor);
 }
 
 void deleteCharPrev(FileBuffer f) {
   if (f.empty) return;
   f.cursor.x--;
-  f.replaceChar('', f.cursor, UndoOpType.delete);
+  f.deleteAt(f.cursor);
 }
 
 void insertActionBackspace(FileBuffer f) {
