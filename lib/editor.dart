@@ -53,28 +53,26 @@ class Editor {
 
     // draw lines
     for (int l = lineStart; l < lineEnd; l++) {
-      // draw ~ if no more lines
+      // if no more lines draw '~'
       if (l > lines.length - 1) {
         renderBuffer.writeln('~');
         continue;
       }
-      // optimize for empty lines
+      // for empty lines draw empty line
       if (lines[l].isEmpty) {
         renderBuffer.writeln();
         continue;
       }
-      // draw line in view
-      final line = lines[l].getRenderLine(view.x, terminal.width);
-
-      renderBuffer.writeln(line);
+      // get substring of line in view based on render width
+      renderBuffer.writeln(lines[l].getRenderLine(view.x, terminal.width));
     }
 
     // draw status
     drawStatus();
 
     // draw cursor
-    final pos = lines[cursor.y].renderedLength(cursor.x);
-    final termPos = Position(y: cursor.y - view.y + 1, x: pos - view.x + 1);
+    final curPos = lines[cursor.y].renderedLength(cursor.x);
+    final termPos = Position(y: cursor.y - view.y + 1, x: curPos - view.x + 1);
     renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
 
     terminal.write(renderBuffer);
