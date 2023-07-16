@@ -3,7 +3,6 @@ import 'package:vid/actions_motion.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
 import 'package:vid/position.dart';
-import 'package:vid/string_ext.dart';
 
 void main() {
   test('motionCharNext', () {

@@ -1,18 +1,14 @@
 import 'package:test/test.dart';
 import 'package:vid/string_ext.dart';
-import 'package:vid/int_ext.dart';
-
-void info(String str) {
-  print(str);
-  print(str.length);
-  print(str.codeUnits.length);
-  print(str.codeUnits);
-  print(str.runes.map((e) => e.hex).join(' '));
-  print(str.renderWidth);
-  print('$str ${str.renderWidth}');
-}
 
 void main() {
+  test('String info', () {
+    'a'.info();
+    '❤️'.info();
+    '😵'.info();
+    '👩‍👩‍👦‍👦'.info();
+  }, skip: true);
+
   test('Emoji render width', () {
     expect(''.renderWidth, 0);
     expect('a'.renderWidth, 1);

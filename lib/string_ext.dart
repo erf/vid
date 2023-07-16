@@ -2,6 +2,7 @@ import 'package:characters/characters.dart';
 
 import 'config.dart';
 import 'emoji.dart';
+import 'int_ext.dart';
 
 extension StringExt on String {
   // Shorthand for characters (Characters(this))
@@ -33,5 +34,15 @@ extension StringExt on String {
     }
 
     return 1;
+  }
+
+  void info() {
+    print(this);
+    print('length $length');
+    print('codeUnits.length ${codeUnits.length}');
+    print('codeUnits ${codeUnits.map((e) => e.hex).join(' ')}');
+    print('runes.length ${runes.length}');
+    print('runes ${runes.map((e) => e.hex).join(' ')}');
+    print('renderWidth $renderWidth');
   }
 }
