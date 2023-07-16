@@ -7,6 +7,7 @@ import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_pending.dart';
+import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_ext.dart';
@@ -17,7 +18,6 @@ import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
-import 'undo.dart';
 import 'vt100.dart';
 
 class Editor {
@@ -202,9 +202,6 @@ class Editor {
   }
 
   void replace(String str) {
-    final p = fileBuffer.cursor;
-    fileBuffer.mode = Mode.normal;
-    if (fileBuffer.empty) return;
-    fileBuffer.replaceChar(str, p, UndoOpType.replace);
+    defaultReplace(fileBuffer, str);
   }
 }
