@@ -49,7 +49,7 @@ extension FileBufferExt on FileBuffer {
   }
 
   // get the cursor position from the index in the text
-  Position getPositionFromIndex(int start) {
+  Position positionFromIndex(int start) {
     for (int i = 0; i < lines.length; i++) {
       final line = lines[i];
       if (line.end + 1 > start) {
@@ -63,7 +63,7 @@ extension FileBufferExt on FileBuffer {
   }
 
   // get the index of the cursor in the text
-  int getIndexFromPosition(Position p) {
+  int indexFromPosition(Position p) {
     final Line line = lines[p.y];
     final int index = line.index;
     final int charLen = line.length;
@@ -94,30 +94,30 @@ extension FileBufferExt on FileBuffer {
   }
 
   void deleteRange(Range r) {
-    final index = getIndexFromPosition(r.start);
-    final end = getIndexFromPosition(r.end);
+    final index = indexFromPosition(r.start);
+    final end = indexFromPosition(r.end);
     replace(index, end, '', UndoType.delete);
   }
 
   void insertAt(Position p, String str) {
-    final index = getIndexFromPosition(p);
+    final index = indexFromPosition(p);
     replace(index, index, str, UndoType.insert);
   }
 
   void replaceAt(Position p, String str) {
-    final index = getIndexFromPosition(p);
+    final index = indexFromPosition(p);
     replace(index, index + 1, str, UndoType.replace);
   }
 
   void deleteAt(Position p) {
-    final index = getIndexFromPosition(p);
+    final index = indexFromPosition(p);
     replace(index, index + 1, '', UndoType.delete);
   }
 
   void yankRange(Range range) {
     final r = range.normalized();
-    final i0 = getIndexFromPosition(r.start);
-    final i1 = getIndexFromPosition(r.end);
+    final i0 = indexFromPosition(r.start);
+    final i1 = indexFromPosition(r.end);
     yankBuffer = text.substring(i0, i1);
   }
 

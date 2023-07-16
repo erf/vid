@@ -54,28 +54,28 @@ Position motionLineEnd(FileBuffer f, Position p) {
 }
 
 Position motionWordNext(FileBuffer f, Position p) {
-  final start = f.getIndexFromPosition(p);
+  final start = f.indexFromPosition(p);
   final matches = RegExp(r'\S+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
-  return f.getPositionFromIndex(match.start);
+  return f.positionFromIndex(match.start);
 }
 
 Position motionWordEnd(FileBuffer f, Position p) {
-  final start = f.getIndexFromPosition(p);
+  final start = f.indexFromPosition(p);
   final matches = RegExp(r'\S+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => m.end - 1 > start, orElse: () => matches.first);
-  return f.getPositionFromIndex(match.end - 1);
+  return f.positionFromIndex(match.end - 1);
 }
 
 Position motionWordPrev(FileBuffer f, Position p) {
-  final start = f.getIndexFromPosition(p);
+  final start = f.indexFromPosition(p);
   final matches = RegExp(r'\S+').allMatches(f.text.substring(0, start));
   if (matches.isEmpty) return p;
-  return f.getPositionFromIndex(matches.last.start);
+  return f.positionFromIndex(matches.last.start);
 }
 
 // exit insert mode
@@ -88,10 +88,10 @@ Position motionEscape(FileBuffer f, Position p) {
 // find the next occurence of the given character on the current line
 Position motionFindNextChar(FileBuffer f, Position p, String char) {
   final position = Position(x: p.x + 1, y: p.y);
-  final start = f.getIndexFromPosition(position);
+  final start = f.indexFromPosition(position);
   final match = char.allMatches(f.text, start).firstOrNull;
   if (match == null) return p;
-  return f.getPositionFromIndex(match.start);
+  return f.positionFromIndex(match.start);
 }
 
 Position motionTillNextChar(FileBuffer f, Position position, String char) {
@@ -102,11 +102,11 @@ Position motionTillNextChar(FileBuffer f, Position position, String char) {
 
 // find the previous occurence of the given character on the current line
 Position motionFindPrevChar(FileBuffer f, Position position, String char) {
-  final start = f.getIndexFromPosition(position);
+  final start = f.indexFromPosition(position);
   final matches = char.allMatches(f.text.substring(0, start));
   if (matches.isEmpty) return position;
   final match = matches.last;
-  return f.getPositionFromIndex(match.start);
+  return f.positionFromIndex(match.start);
 }
 
 Position motionTillPrevChar(FileBuffer f, Position position, String char) {

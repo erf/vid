@@ -9,20 +9,20 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef';
     f.createLines();
-    expect(f.getIndexFromPosition(Position(x: 0, y: 0)), 0);
-    expect(f.getIndexFromPosition(Position(x: 2, y: 0)), 2);
-    expect(f.getIndexFromPosition(Position(x: 0, y: 1)), 4);
-    expect(f.getIndexFromPosition(Position(x: 2, y: 1)), 6);
+    expect(f.indexFromPosition(Position(x: 0, y: 0)), 0);
+    expect(f.indexFromPosition(Position(x: 2, y: 0)), 2);
+    expect(f.indexFromPosition(Position(x: 0, y: 1)), 4);
+    expect(f.indexFromPosition(Position(x: 2, y: 1)), 6);
   });
 
   test('getPositionFromIndex', () {
     final f = FileBuffer();
     f.text = 'abc\ndef';
     f.createLines();
-    expect(f.getPositionFromIndex(0), Position(x: 0, y: 0));
-    expect(f.getPositionFromIndex(2), Position(x: 2, y: 0));
-    expect(f.getPositionFromIndex(4), Position(x: 0, y: 1));
-    expect(f.getPositionFromIndex(6), Position(x: 2, y: 1));
+    expect(f.positionFromIndex(0), Position(x: 0, y: 0));
+    expect(f.positionFromIndex(2), Position(x: 2, y: 0));
+    expect(f.positionFromIndex(4), Position(x: 0, y: 1));
+    expect(f.positionFromIndex(6), Position(x: 2, y: 1));
   });
 
   test('replaceAt', () {
