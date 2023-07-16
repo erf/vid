@@ -132,7 +132,7 @@ class Editor {
   }
 
   void input(List<int> codes) {
-    final String chars = utf8.decode(codes);
+    final chars = utf8.decode(codes);
     switch (fileBuffer.mode) {
       case Mode.insert:
         insert(chars);

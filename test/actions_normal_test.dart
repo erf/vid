@@ -35,4 +35,34 @@ void main() {
     ]);
     expect(f.cursor, Position(x: 0, y: 1));
   });
+
+  test('actionDeleteCharNext', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef\nghi';
+    f.createLines();
+    f.cursor = Position(x: 1, y: 1);
+    final e = Editor();
+    actionDeleteCharNext(e, f);
+    expect(f.lines.map((e) => e.chars), [
+      'abc'.ch,
+      'df'.ch,
+      'ghi'.ch,
+    ]);
+    expect(f.cursor, Position(x: 1, y: 1));
+  });
+
+  test('actionDeleteCharNext at end', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef\n ';
+    f.createLines();
+    f.cursor = Position(x: 0, y: 2);
+    final e = Editor();
+    actionDeleteCharNext(e, f);
+    expect(f.lines.map((e) => e.chars).toList(), [
+      'abc'.ch,
+      'def'.ch,
+      ''.ch,
+    ]);
+    expect(f.cursor, Position(x: 0, y: 2));
+  });
 }

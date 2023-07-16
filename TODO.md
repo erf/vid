@@ -10,3 +10,4 @@
 - proper word search
 - more tests
 - replace List<Characters> with custom Line objects with start, end indices ?
+- x at end breaks
