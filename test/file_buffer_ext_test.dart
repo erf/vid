@@ -130,9 +130,15 @@ void main() {
     final f = FileBuffer();
     f.text = 'ab🪼de';
     f.createLines();
-    // TODO delete doesn't work with emoji
     f.deleteAt(Position(x: 2, y: 0));
-    final lines = f.lines;
     expect(f.text, 'abde');
-  }, skip: true);
+  });
+
+  test('replaceAt with emoji', () {
+    final f = FileBuffer();
+    f.text = 'ab🪼de';
+    f.createLines();
+    f.replaceAt(Position(x: 2, y: 0), 'X');
+    expect(f.text, 'abXde');
+  });
 }

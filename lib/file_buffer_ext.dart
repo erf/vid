@@ -92,12 +92,16 @@ extension FileBufferExt on FileBuffer {
 
   void replaceAt(Position p, String str) {
     final index = indexFromPosition(p);
-    replace(index, index + 1, str, UndoType.replace);
+    final range = CharacterRange.at(text, index)..moveNext();
+    final next = range.current.length;
+    replace(index, index + next, str, UndoType.replace);
   }
 
   void deleteAt(Position p) {
     final index = indexFromPosition(p);
-    replace(index, index + 1, '', UndoType.delete);
+    final range = CharacterRange.at(text, index)..moveNext();
+    final next = range.current.length;
+    replace(index, index + next, '', UndoType.delete);
   }
 
   void yankRange(Range range) {
