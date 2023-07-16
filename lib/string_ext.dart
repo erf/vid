@@ -7,6 +7,9 @@ extension StringExt on String {
   // Shorthand for characters (Characters(this))
   Characters get ch => characters;
 
+  // Shorthand for Emoji checking a String
+  bool get isEmoji => Emoji.isEmoji(this);
+
   // Try to determine the rendered width of a single character
   int get renderWidth {
     // if the string is empty, return 0
@@ -30,9 +33,5 @@ extension StringExt on String {
     }
 
     return 1;
-  }
-
-  bool get isEmoji {
-    return Emoji.isEmoji(this);
   }
 }
