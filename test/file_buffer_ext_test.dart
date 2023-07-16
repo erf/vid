@@ -1,4 +1,6 @@
 import 'package:test/test.dart';
+import 'package:vid/actions_normal.dart';
+import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
 import 'package:vid/position.dart';
@@ -95,5 +97,32 @@ void main() {
       'def'.ch,
       ''.ch,
     ]);
+  });
+
+  test('multiple undo operations', () {
+    final e = Editor();
+    final f = FileBuffer();
+    f.text = 'abc\ndef\nghi';
+    f.createLines();
+    f.deleteRange(Range(
+      start: Position(x: 0, y: 0),
+      end: Position(x: 0, y: 1),
+    ));
+    f.deleteAt(Position(x: 0, y: 0));
+    f.deleteAt(Position(x: 0, y: 0));
+    f.replaceAt(Position(x: 0, y: 0), 'X');
+    expect(f.text, 'X\nghi');
+    expect(f.lines.map((e) => e.chars), [
+      'X'.ch,
+      'ghi'.ch,
+    ]);
+    actionUndo(e, f);
+    expect(f.text, 'f\nghi');
+    actionUndo(e, f);
+    expect(f.text, 'ef\nghi');
+    actionUndo(e, f);
+    expect(f.text, 'def\nghi');
+    actionUndo(e, f);
+    expect(f.text, 'abc\ndef\nghi');
   });
 }
