@@ -74,7 +74,6 @@ extension FileBufferExt on FileBuffer {
 
   // get the index of the cursor in the text
   int getIndexFromPosition(Position p) {
-    //return lines[p.y].byteIndexAt(p.x);
     final Line line = lines[p.y];
     final int index = line.index;
     final int charLen = line.length;
