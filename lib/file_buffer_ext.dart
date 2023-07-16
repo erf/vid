@@ -40,13 +40,13 @@ extension FileBufferExt on FileBuffer {
     int index = 0;
     int lineNo = 0;
     lines = text.split('\n').map((e) {
-      final line = Line(index: index, text: e.characters, lineNo: lineNo);
+      final line = Line(index: index, chars: e.characters, lineNo: lineNo);
       index += e.length + 1;
       lineNo++;
       return line;
     }).toList();
     if (lines.isEmpty) {
-      lines = [Line(index: 0, text: Characters.empty, lineNo: 0)];
+      lines = [Line(index: 0, chars: Characters.empty, lineNo: 0)];
     }
   }
 
@@ -55,7 +55,7 @@ extension FileBufferExt on FileBuffer {
     final line = lines.firstWhere((line) => line.end + 1 > start);
     return Position(
       y: line.lineNo,
-      x: line.text.byteToCharsLength(start - line.index),
+      x: line.chars.byteToCharsLength(start - line.index),
     );
   }
 
@@ -115,7 +115,7 @@ extension FileBufferExt on FileBuffer {
 // clamp view on cursor position
   void clampView(Terminal term) {
     view.y = clamp(view.y, cursor.y, cursor.y - term.height + 2);
-    int cx = lines[cursor.y].text.renderLength(cursor.x);
+    int cx = lines[cursor.y].chars.renderLength(cursor.x);
     view.x = clamp(view.x, cx, cx - term.width + 1);
   }
 }
