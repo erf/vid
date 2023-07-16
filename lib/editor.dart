@@ -102,18 +102,12 @@ class Editor {
   }
 
   String getModeStatusStr(Mode mode) {
-    switch (mode) {
-      case Mode.normal:
-        return 'NOR';
-      case Mode.operatorPending:
-        return 'PEN';
-      case Mode.insert:
-        return 'INS';
-      case Mode.replace:
-        return 'REP';
-      default:
-        return '';
-    }
+    return switch (mode) {
+      Mode.normal => 'NOR',
+      Mode.operatorPending => 'PEN',
+      Mode.insert => 'INS',
+      Mode.replace => 'REP',
+    };
   }
 
   void showMessage(String text, {bool timed = false}) {
@@ -132,16 +126,12 @@ class Editor {
     switch (fileBuffer.mode) {
       case Mode.insert:
         insert(chars);
-        break;
       case Mode.normal:
         normal(chars);
-        break;
       case Mode.operatorPending:
         pending(chars);
-        break;
       case Mode.replace:
         replace(chars);
-        break;
     }
     draw();
     message = '';
