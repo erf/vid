@@ -68,15 +68,15 @@ extension FileBufferExt on FileBuffer {
   }
 
   // get the index of the cursor in the text
-  int getIndexFromPosition(Position cursor) {
+  int getIndexFromPosition(Position p) {
     int index = 0;
     int lineNo = 0;
     for (Characters line in lines) {
       // if at current line, return index at cursor position
-      if (lineNo == cursor.y) {
+      if (lineNo == p.y) {
         // if cursor is larger than line, assume newline except for last line
         int charLineLen = line.length;
-        if (cursor.x > charLineLen) {
+        if (p.x > charLineLen) {
           if (lineNo >= lines.length - 1) {
             // if last line, return index at end of line
             return index + line.string.length;
@@ -84,12 +84,12 @@ extension FileBufferExt on FileBuffer {
             // else return index at newline character
             return index + line.string.length + 1;
           }
-        } else if (cursor.x == charLineLen) {
+        } else if (p.x == charLineLen) {
           // optimized if exactly at end of line full line length
           return index + line.string.length;
         } else {
           // else return index at cursor position
-          return index + line.charsToByteLength(cursor.x);
+          return index + line.charsToByteLength(p.x);
         }
       }
       lineNo++;
