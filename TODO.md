@@ -1,5 +1,6 @@
 # TODO
 
+- count not working for delete word etc
 - star (*) go to similar token
 - cursor up/down should move to correct render position
 - better use of CharacterRange ?
