@@ -10,7 +10,6 @@ typedef ReplaceAction = void Function(FileBuffer, Characters);
 void defaultReplace(FileBuffer f, String s) {
   final p = f.cursor;
   f.mode = Mode.normal;
-  final line = f.lines[p.y];
-  if (line.isEmpty) return;
+  if (f.empty) return;
   f.replaceChar(s, p, UndoOpType.replace);
 }
