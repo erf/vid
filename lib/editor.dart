@@ -44,14 +44,25 @@ class Editor {
 
     fileBuffer.clampView(terminal);
 
-    final lines = fileBuffer.lines;
-    final cursor = fileBuffer.cursor;
-    final view = fileBuffer.view;
+    // draw lines
+    drawLines();
 
+    // draw status
+    drawStatus();
+
+    // draw cursor
+    drawCursor();
+
+    terminal.write(renderBuffer.toString());
+    renderBuffer.clear();
+  }
+
+  void drawLines() {
+    final lines = fileBuffer.lines;
+    final view = fileBuffer.view;
     final lineStart = view.y;
     final lineEnd = view.y + terminal.height - 1;
 
-    // draw lines
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
       if (l > lines.length - 1) {
@@ -67,17 +78,15 @@ class Editor {
       final line = lines[l].chars.getRenderLine(view.x, terminal.width);
       renderBuffer.writeln(line);
     }
+  }
 
-    // draw status
-    drawStatus();
-
-    // draw cursor
+  void drawCursor() {
+    final lines = fileBuffer.lines;
+    final view = fileBuffer.view;
+    final cursor = fileBuffer.cursor;
     final curPos = lines[cursor.y].chars.renderLength(cursor.x);
     final termPos = Position(y: cursor.y - view.y + 1, x: curPos - view.x + 1);
     renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
-
-    terminal.write(renderBuffer.toString());
-    renderBuffer.clear();
   }
 
   void drawStatus() {
