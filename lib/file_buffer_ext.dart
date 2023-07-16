@@ -65,24 +65,24 @@ extension FileBufferExt on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int index, int end, String newText, UndoType undoOp) {
-    // make sure index and end are valid
-    if (index < 0 || end > text.length) {
+  void replace(int start, int end, String newText, UndoType undoOp) {
+    // make sure start and end are valid
+    if (start < 0 || end > text.length) {
       return;
     }
     // undo
-    final oldText = text.substring(index, end);
-    undoList.add(UndoOp(undoOp, newText, oldText, index, end, cursor.clone()));
+    final oldText = text.substring(start, end);
+    undoList.add(UndoOp(undoOp, newText, oldText, start, end, cursor.clone()));
     // replace text
-    text = text.replaceRange(index, end, newText);
+    text = text.replaceRange(start, end, newText);
     createLines();
     isModified = true;
   }
 
   void deleteRange(Range r) {
-    final index = indexFromPosition(r.start);
+    final start = indexFromPosition(r.start);
     final end = indexFromPosition(r.end);
-    replace(index, end, '', UndoType.delete);
+    replace(start, end, '', UndoType.delete);
   }
 
   void insertAt(Position p, String str) {
