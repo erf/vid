@@ -38,28 +38,25 @@ extension FileBufferExt on FileBuffer {
   // split text into lines
   void createLines() {
     int index = 0;
+    int lineNo = 0;
     lines = text.split('\n').map((e) {
-      final line = Line(index: index, text: e.characters);
+      final line = Line(index: index, text: e.characters, lineNo: lineNo);
       index += e.length + 1;
+      lineNo++;
       return line;
     }).toList();
     if (lines.isEmpty) {
-      lines = [Line(index: 0, text: Characters.empty)];
+      lines = [Line(index: 0, text: Characters.empty, lineNo: 0)];
     }
   }
 
   // get the cursor position from the index in the text
   Position positionFromIndex(int start) {
-    for (int i = 0; i < lines.length; i++) {
-      final line = lines[i];
-      if (line.end + 1 > start) {
-        return Position(
-          y: i,
-          x: line.text.byteToCharsLength(start - line.index),
-        );
-      }
-    }
-    return Position(y: lines.length - 1, x: lines.last.length);
+    final line = lines.firstWhere((line) => line.end + 1 > start);
+    return Position(
+      y: line.lineNo,
+      x: line.text.byteToCharsLength(start - line.index),
+    );
   }
 
   // get the index of the cursor in the text

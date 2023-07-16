@@ -5,10 +5,13 @@ class Line {
   final int index;
   // the text of the line as a Characters object
   final Characters text;
+  // the line number
+  final int lineNo;
 
   const Line({
     required this.index,
     required this.text,
+    required this.lineNo,
   });
 
   int get length => text.length;
