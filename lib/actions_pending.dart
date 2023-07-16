@@ -20,12 +20,12 @@ void pendingActionDelete(FileBuffer file, Range range) {
   Range r = range.normalized();
   file.yankRange(r);
   file.deleteRange(r);
-  file.cursor = r.p0.clone();
+  file.cursor = r.start.clone();
   file.clampCursor();
   file.mode = Mode.normal;
 }
 
 void pendingActionGo(FileBuffer file, Range range) {
   file.mode = Mode.normal;
-  file.cursor = range.p1.clone();
+  file.cursor = range.end.clone();
 }

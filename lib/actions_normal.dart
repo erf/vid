@@ -194,8 +194,8 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
   if (f.empty) return;
   final lineEnd = motionLineEnd(f, f.cursor);
   final r = Range(
-    p0: f.cursor,
-    p1: Position(y: lineEnd.y, x: lineEnd.x + 1),
+    start: f.cursor,
+    end: Position(y: lineEnd.y, x: lineEnd.x + 1),
   );
   f.yankRange(r);
   f.deleteRange(r);
@@ -206,8 +206,8 @@ void actionChangeLineEnd(Editor e, FileBuffer f) {
   if (f.empty) return;
   final lineEnd = motionLineEnd(f, f.cursor);
   f.deleteRange(Range(
-    p0: f.cursor,
-    p1: Position(y: lineEnd.y, x: lineEnd.x + 1),
+    start: f.cursor,
+    end: Position(y: lineEnd.y, x: lineEnd.x + 1),
   ));
   f.mode = Mode.insert;
 }

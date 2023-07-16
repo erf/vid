@@ -4,14 +4,14 @@ extension RangeExt on Range {
   // make the range in correct order from top to bottom
   Range normalized() {
     Range r = Range.from(this);
-    if (r.p0.y > r.p1.y) {
-      final tmp = r.p0;
-      r.p0 = r.p1;
-      r.p1 = tmp;
-    } else if (r.p0.y == r.p1.y && r.p0.x > r.p1.x) {
-      final tmp = r.p0.x;
-      r.p0.x = r.p1.x;
-      r.p1.x = tmp;
+    if (r.start.y > r.end.y) {
+      final tmp = r.start;
+      r.start = r.end;
+      r.end = tmp;
+    } else if (r.start.y == r.end.y && r.start.x > r.end.x) {
+      final tmp = r.start.x;
+      r.start.x = r.end.x;
+      r.end.x = tmp;
     }
     return r;
   }

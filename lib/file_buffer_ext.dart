@@ -94,8 +94,8 @@ extension FileBufferExt on FileBuffer {
   }
 
   void deleteRange(Range r) {
-    final index = getIndexFromPosition(r.p0);
-    final end = getIndexFromPosition(r.p1);
+    final index = getIndexFromPosition(r.start);
+    final end = getIndexFromPosition(r.end);
     replace(index, end, '', UndoType.delete);
   }
 
@@ -116,8 +116,8 @@ extension FileBufferExt on FileBuffer {
 
   void yankRange(Range range) {
     final r = range.normalized();
-    final i0 = getIndexFromPosition(r.p0);
-    final i1 = getIndexFromPosition(r.p1);
+    final i0 = getIndexFromPosition(r.start);
+    final i1 = getIndexFromPosition(r.end);
     yankBuffer = text.substring(i0, i1);
   }
 

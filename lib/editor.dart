@@ -193,7 +193,7 @@ class Editor {
       Motion? motion = motionActions[str];
       if (motion != null) {
         Position p = motion(fileBuffer, fileBuffer.cursor);
-        pendingAction(fileBuffer, Range(p0: fileBuffer.cursor, p1: p));
+        pendingAction(fileBuffer, Range(start: fileBuffer.cursor, end: p));
         return;
       }
     }
