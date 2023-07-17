@@ -96,12 +96,8 @@ Position motionEscape(FileBuffer f, Position p) {
 Position motionFindNextChar(FileBuffer f, Position p, String char) {
   final r = CharacterRange(f.text.string);
   final start = f.indexFromPosition(p);
-  if (!r.moveNext(start + 1)) {
-    return p;
-  }
-  if (!r.moveTo(char.ch)) {
-    return p;
-  }
+  if (!r.moveNext(start + 1)) return p;
+  if (!r.moveTo(char.ch)) return p;
   return f.positionFromIndex(r.stringBeforeLength);
 }
 
@@ -112,13 +108,12 @@ Position motionTillNextChar(FileBuffer f, Position position, String char) {
 }
 
 // find the previous occurence of the given character on the current line
-Position motionFindPrevChar(FileBuffer f, Position position, String char) {
-  // TODO: use CharacterRange to find next word ?
-  final start = f.indexFromPosition(position);
-  final matches = char.allMatches(f.text.string.substring(0, start));
-  if (matches.isEmpty) return position;
-  final match = matches.last;
-  return f.positionFromIndex(match.start);
+Position motionFindPrevChar(FileBuffer f, Position p, String char) {
+  final r = CharacterRange(f.text.string);
+  final start = f.indexFromPosition(p);
+  r.moveNext(start + 1);
+  r.collapseToFirst(char.ch);
+  return f.positionFromIndex(r.stringBeforeLength);
 }
 
 Position motionTillPrevChar(FileBuffer f, Position position, String char) {
