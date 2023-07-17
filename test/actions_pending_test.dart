@@ -9,7 +9,7 @@ import 'package:vid/string_ext.dart';
 void main() {
   test('deleteLine', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
     f.cursor = Position(x: 0, y: 1);
     final r = objectCurrentLine(f, f.cursor);
@@ -23,7 +23,7 @@ void main() {
 
   test('delete last line', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
     f.cursor = Position(x: 0, y: 2);
     final r = objectCurrentLine(f, f.cursor);

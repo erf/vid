@@ -11,7 +11,7 @@ class FileBuffer {
   String? path;
 
   // the text of the file
-  String text = '';
+  Characters text = Characters.empty;
 
   // text split by '\n' character, created by createLines when text is changed
   var lines = [Line(start: 0, chars: Characters.empty, lineNo: 0)];
@@ -32,7 +32,7 @@ class FileBuffer {
   int? count;
 
   // the register to use for the pending action
-  String? yankBuffer;
+  Characters? yankBuffer;
 
   // if the file has been modified and not saved
   bool isModified = false;

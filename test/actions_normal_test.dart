@@ -9,7 +9,7 @@ import 'package:vid/string_ext.dart';
 void main() {
   test('joinLines', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
     f.cursor = Position(x: 0, y: 1);
     final e = Editor();
@@ -23,7 +23,7 @@ void main() {
 
   test('deleteLineEnd', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
     f.cursor = Position(x: 0, y: 1);
     final e = Editor();
@@ -38,7 +38,7 @@ void main() {
 
   test('actionDeleteCharNext', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
     f.cursor = Position(x: 1, y: 1);
     final e = Editor();
@@ -53,7 +53,7 @@ void main() {
 
   test('actionDeleteCharNext at end', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef\n ';
+    f.text = 'abc\ndef\n '.ch;
     f.createLines();
     f.cursor = Position(x: 0, y: 2);
     final e = Editor();

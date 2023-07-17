@@ -1,3 +1,5 @@
+import 'package:vid/string_ext.dart';
+
 import 'actions_motion.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
@@ -7,7 +9,7 @@ import 'position.dart';
 typedef InsertAction = void Function(FileBuffer);
 
 void defaultInsert(FileBuffer f, String s) {
-  f.insertAt(f.cursor, s);
+  f.insertAt(f.cursor, s.ch);
   f.cursor.x++;
 }
 
@@ -17,7 +19,7 @@ void insertActionEscape(FileBuffer f) {
 }
 
 void insertActionEnter(FileBuffer f) {
-  f.insertAt(f.cursor, '\n');
+  f.insertAt(f.cursor, '\n'.ch);
   f.cursor.x = 0;
   f.view.x = 0;
   f.cursor = motionCharDown(f, f.cursor);
@@ -27,7 +29,7 @@ void joinLines(FileBuffer f) {
   final lines = f.lines;
   final cursor = f.cursor;
   if (lines.length <= 1 || cursor.y <= 0) return;
-  final charPos = lines[cursor.y - 1].charLength;
+  final charPos = lines[cursor.y - 1].length;
   f.cursor = Position(y: cursor.y - 1, x: charPos);
   f.deleteAt(f.cursor);
 }

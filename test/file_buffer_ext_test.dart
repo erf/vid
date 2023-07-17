@@ -10,7 +10,7 @@ import 'package:vid/string_ext.dart';
 void main() {
   test('getIndexFromPosition', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef';
+    f.text = 'abc\ndef'.ch;
     f.createLines();
     expect(f.indexFromPosition(Position(x: 0, y: 0)), 0);
     expect(f.indexFromPosition(Position(x: 2, y: 0)), 2);
@@ -20,7 +20,7 @@ void main() {
 
   test('getPositionFromIndex', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef';
+    f.text = 'abc\ndef'.ch;
     f.createLines();
     expect(f.positionFromIndex(0), Position(x: 0, y: 0));
     expect(f.positionFromIndex(2), Position(x: 2, y: 0));
@@ -30,20 +30,20 @@ void main() {
 
   test('replaceAt', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef';
+    f.text = 'abc\ndef'.ch;
     f.createLines();
-    f.replaceAt(Position(x: 0, y: 0), 'X');
-    expect(f.text, 'Xbc\ndef');
+    f.replaceAt(Position(x: 0, y: 0), 'X'.ch);
+    expect(f.text, 'Xbc\ndef'.ch);
     final undo = f.undoList.last;
-    expect(undo.oldText, 'a');
-    expect(undo.newText, 'X');
+    expect(undo.oldText, 'a'.ch);
+    expect(undo.newText, 'X'.ch);
     expect(undo.index, 0);
     expect(undo.end, 1);
   });
 
   test('deleteRange', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef';
+    f.text = 'abc\ndef'.ch;
     f.createLines();
     f.deleteRange(
       Range(
@@ -51,47 +51,47 @@ void main() {
         end: Position(x: 1, y: 1),
       ),
     );
-    expect(f.text, 'ef');
+    expect(f.text, 'ef'.ch);
     final undo = f.undoList.last;
-    expect(undo.oldText, 'abc\nd');
+    expect(undo.oldText, 'abc\nd'.ch);
     expect(undo.index, 0);
     expect(undo.end, 5);
   });
 
   test('insertAt', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef';
+    f.text = 'abc\ndef'.ch;
     f.createLines();
-    f.insertAt(Position(x: 0, y: 1), 'X');
-    expect(f.text, 'abc\nXdef');
+    f.insertAt(Position(x: 0, y: 1), 'X'.ch);
+    expect(f.text, 'abc\nXdef'.ch);
     final undo = f.undoList.last;
-    expect(undo.oldText, '');
-    expect(undo.newText, 'X');
+    expect(undo.oldText, ''.ch);
+    expect(undo.newText, 'X'.ch);
     expect(undo.index, 4);
     expect(undo.end, 4);
   });
 
   test('deleteAt', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef';
+    f.text = 'abc\ndef'.ch;
     f.createLines();
     f.deleteAt(Position(x: 0, y: 1));
-    expect(f.text, 'abc\nef');
+    expect(f.text, 'abc\nef'.ch);
     final undo = f.undoList.last;
-    expect(undo.oldText, 'd');
-    expect(undo.newText, '');
+    expect(undo.oldText, 'd'.ch);
+    expect(undo.newText, ''.ch);
     expect(undo.index, 4);
     expect(undo.end, 5);
   });
 
   test('deleteAt last on line', () {
     final f = FileBuffer();
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
     f.deleteAt(Position(x: 0, y: 2));
     f.deleteAt(Position(x: 0, y: 2));
     f.deleteAt(Position(x: 0, y: 2));
-    expect(f.text, 'abc\ndef\n');
+    expect(f.text, 'abc\ndef\n'.ch);
     expect(f.lines.map((e) => e.chars), [
       'abc'.ch,
       'def'.ch,
@@ -102,7 +102,7 @@ void main() {
   test('multiple undo', () {
     final e = Editor();
     final f = FileBuffer();
-    f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi';
+    f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi'.ch;
     f.createLines();
     f.deleteRange(Range(
       start: Position(x: 0, y: 0),
@@ -110,31 +110,31 @@ void main() {
     ));
     f.deleteAt(Position(x: 0, y: 0));
     f.deleteAt(Position(x: 0, y: 0));
-    f.replaceAt(Position(x: 0, y: 0), 'X');
-    expect(f.text, 'X\nghi');
+    f.replaceAt(Position(x: 0, y: 0), 'X'.ch);
+    expect(f.text, 'X\nghi'.ch);
     actionUndo(e, f);
-    expect(f.text, 'f\nghi');
+    expect(f.text, 'f\nghi'.ch);
     actionUndo(e, f);
-    expect(f.text, '👩‍👩‍👦‍👦f\nghi');
+    expect(f.text, '👩‍👩‍👦‍👦f\nghi'.ch);
     actionUndo(e, f);
-    expect(f.text, 'd👩‍👩‍👦‍👦f\nghi');
+    expect(f.text, 'd👩‍👩‍👦‍👦f\nghi'.ch);
     actionUndo(e, f);
-    expect(f.text, 'abc\nd👩‍👩‍👦‍👦f\nghi');
+    expect(f.text, 'abc\nd👩‍👩‍👦‍👦f\nghi'.ch);
   });
 
   test('deleteAt with emoji', () {
     final f = FileBuffer();
-    f.text = 'ab🪼de';
+    f.text = 'ab🪼de'.ch;
     f.createLines();
     f.deleteAt(Position(x: 2, y: 0));
-    expect(f.text, 'abde');
+    expect(f.text, 'abde'.ch);
   });
 
   test('replaceAt with emoji', () {
     final f = FileBuffer();
-    f.text = 'ab🪼de';
+    f.text = 'ab🪼de'.ch;
     f.createLines();
-    f.replaceAt(Position(x: 2, y: 0), 'X');
-    expect(f.text, 'abXde');
+    f.replaceAt(Position(x: 2, y: 0), 'X'.ch);
+    expect(f.text, 'abXde'.ch);
   });
 }

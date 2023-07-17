@@ -1,6 +1,10 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:characters/characters.dart';
+import 'package:vid/characters_ext.dart';
+import 'package:vid/string_ext.dart';
+
 import 'actions_find.dart';
 import 'actions_motion.dart';
 import 'editor.dart';
@@ -112,19 +116,13 @@ void actionCursorLineBottom(Editor e, FileBuffer f) {
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insertAt(
-    Position(y: f.cursor.y, x: 0),
-    '\n',
-  );
+  f.insertAt(Position(y: f.cursor.y, x: 0), '\n'.ch);
   f.cursor.x = 0;
 }
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insertAt(
-    Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLength),
-    '\n',
-  );
+  f.insertAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].length), '\n'.ch);
   actionCursorCharDown(e, f);
 }
 
@@ -140,7 +138,7 @@ void actionInsertLineStart(Editor e, FileBuffer f) {
 void actionAppendLineEnd(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
   if (f.lines[f.cursor.y].isNotEmpty) {
-    f.cursor.x = f.lines[f.cursor.y].charLength;
+    f.cursor.x = f.lines[f.cursor.y].length;
   }
 }
 
@@ -237,7 +235,7 @@ void actionJoinLines(Editor e, FileBuffer f) {
   if (f.lines.length <= 1) {
     return;
   }
-  f.deleteAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLength));
+  f.deleteAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].length));
 }
 
 void actionUndo(Editor e, FileBuffer f) {
@@ -249,7 +247,8 @@ void actionUndo(Editor e, FileBuffer f) {
     case UndoType.replace:
       f.text = f.text.replaceRange(op.index, op.end, op.oldText);
     case UndoType.insert:
-      f.text = f.text.replaceRange(op.index, op.index + op.newText.length, '');
+      f.text = f.text.replaceRange(
+          op.index, op.index + op.newText.length, Characters.empty);
     case UndoType.delete:
       f.text = f.text.replaceRange(op.index, op.index, op.oldText);
   }

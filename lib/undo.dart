@@ -1,3 +1,5 @@
+import 'package:characters/characters.dart';
+
 import 'position.dart';
 
 enum UndoType {
@@ -8,8 +10,8 @@ enum UndoType {
 
 class UndoOp {
   final UndoType type;
-  final String newText;
-  final String oldText;
+  final Characters newText;
+  final Characters oldText;
   final int index;
   final int end;
   final Position cursor;

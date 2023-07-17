@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/string_ext.dart';
 
 import 'characters_ext.dart';
 import 'file_buffer.dart';
@@ -28,7 +29,7 @@ extension FileBufferExt on FileBuffer {
     final file = File(path!);
     if (file.existsSync()) {
       // load file
-      text = file.readAsStringSync();
+      text = file.readAsStringSync().characters;
 
       // split text into lines
       createLines();
@@ -39,13 +40,13 @@ extension FileBufferExt on FileBuffer {
   void createLines() {
     int index = 0;
     int lineNo = 0;
-    lines = text.split('\n').map((e) {
+    lines = text.string.split('\n').map((e) => e.ch).map((l) {
       final line = Line(
         start: index,
-        chars: e.characters,
+        chars: l,
         lineNo: lineNo,
       );
-      index += e.length + 1;
+      index += l.length + 1;
       lineNo++;
       return line;
     }).toList();
@@ -59,23 +60,23 @@ extension FileBufferExt on FileBuffer {
     final line = lines.firstWhere((line) => line.end + 1 > start);
     return Position(
       y: line.lineNo,
-      x: line.chars.byteToCharsLength(start - line.start),
+      x: start - line.start,
     );
   }
 
   // get the index of the cursor in the text
   int indexFromPosition(Position p) {
-    return lines[p.y].byteIndexAt(p.x);
+    return lines[p.y].indexAt(p.x);
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, String newText, UndoType undoOp) {
+  void replace(int start, int end, Characters newText, UndoType undoOp) {
     // make sure start and end are valid
     if (start < 0 || end > text.length) {
       return;
     }
     // undo
-    final oldText = text.substring(start, end);
+    final Characters oldText = text.substring(start, end);
     undoList.add(UndoOp(undoOp, newText, oldText, start, end, cursor.clone()));
     // replace text
     text = text.replaceRange(start, end, newText);
@@ -86,26 +87,22 @@ extension FileBufferExt on FileBuffer {
   void deleteRange(Range r) {
     final start = indexFromPosition(r.start);
     final end = indexFromPosition(r.end);
-    replace(start, end, '', UndoType.delete);
+    replace(start, end, Characters.empty, UndoType.delete);
   }
 
-  void insertAt(Position p, String str) {
+  void insertAt(Position p, Characters str) {
     final index = indexFromPosition(p);
     replace(index, index, str, UndoType.insert);
   }
 
-  void replaceAt(Position p, String str) {
+  void replaceAt(Position p, Characters str) {
     final index = indexFromPosition(p);
-    final range = CharacterRange.at(text, index)..moveNext();
-    final next = range.current.length;
-    replace(index, index + next, str, UndoType.replace);
+    replace(index, index + 1, str, UndoType.replace);
   }
 
   void deleteAt(Position p) {
     final index = indexFromPosition(p);
-    final range = CharacterRange.at(text, index)..moveNext();
-    final next = range.current.length;
-    replace(index, index + next, '', UndoType.delete);
+    replace(index, index + 1, Characters.empty, UndoType.delete);
   }
 
   void yankRange(Range range) {
@@ -121,7 +118,7 @@ extension FileBufferExt on FileBuffer {
 // clamp cursor position to valid range
   void clampCursor() {
     cursor.y = clamp(cursor.y, 0, lines.length - 1);
-    cursor.x = clamp(cursor.x, 0, lines[cursor.y].charLength - 1);
+    cursor.x = clamp(cursor.x, 0, lines[cursor.y].length - 1);
   }
 
 // clamp view on cursor position

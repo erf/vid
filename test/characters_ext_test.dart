@@ -103,5 +103,10 @@ void main() {
     expect(range.current, 'abc');
     range.expandAll();
     expect(range.current, 'abc def ghi');
+    range.moveBackAll();
+    expect(range.current, '');
+    range.moveTo('d'.ch);
+    expect(range.current, 'd');
+    expect(range.stringBeforeLength, 4);
   });
 }
