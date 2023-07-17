@@ -91,7 +91,7 @@ void main() {
     expect(motionFindPrevChar(f, cursor, 'a'), Position(x: 0, y: 0));
     expect(motionFindPrevChar(f, cursor, 'b'), Position(x: 1, y: 0));
     expect(motionFindPrevChar(f, cursor, 'c'), Position(x: 2, y: 0));
-  }, skip: true);
+  });
 
   test('motionWordNext', () {
     final f = FileBuffer();
@@ -104,7 +104,7 @@ void main() {
     expect(motionWordNext(f, Position(x: 8, y: 0)), Position(x: 0, y: 1));
     expect(motionWordNext(f, Position(x: 2, y: 1)), Position(x: 4, y: 1));
     expect(motionWordNext(f, Position(x: 2, y: 1)), Position(x: 4, y: 1));
-  }, skip: true);
+  });
 
   test('motionWordEnd', () {
     final f = FileBuffer();
@@ -117,7 +117,7 @@ void main() {
     expect(motionWordEnd(f, Position(x: 8, y: 0)), Position(x: 10, y: 0));
     expect(motionWordEnd(f, Position(x: 10, y: 0)), Position(x: 2, y: 1));
     expect(motionWordEnd(f, Position(x: 2, y: 1)), Position(x: 6, y: 1));
-  }, skip: true);
+  });
 
   test('motionWordPrev', () {
     final f = FileBuffer();
@@ -130,5 +130,5 @@ void main() {
     expect(motionWordPrev(f, Position(x: 5, y: 0)), Position(x: 4, y: 0));
     expect(motionWordPrev(f, Position(x: 4, y: 1)), Position(x: 0, y: 1));
     expect(motionWordPrev(f, Position(x: 0, y: 1)), Position(x: 8, y: 0));
-  }, skip: true);
+  });
 }

@@ -2,13 +2,6 @@ import 'package:test/test.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {
-  test('String info', () {
-    'a'.info();
-    '❤️'.info();
-    '😵'.info();
-    '👩‍👩‍👦‍👦'.info();
-  }, skip: true);
-
   test('Emoji render width', () {
     expect(''.renderWidth, 0);
     expect('a'.renderWidth, 1);

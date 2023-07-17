@@ -1,9 +1,5 @@
 import 'dart:math';
 
-import 'package:characters/characters.dart';
-import 'package:vid/characters_ext.dart';
-import 'package:vid/string_ext.dart';
-
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
@@ -15,7 +11,7 @@ typedef Motion = Position Function(FileBuffer, Position);
 Position motionCharNext(FileBuffer f, Position p) {
   return Position(
     y: p.y,
-    x: clamp(p.x + 1, 0, f.lines[p.y].length - 1),
+    x: clamp(p.x + 1, 0, f.lines[p.y].charLength - 1),
   );
 }
 
@@ -28,13 +24,13 @@ Position motionCharPrev(FileBuffer f, Position p) {
 
 Position motionCharUp(FileBuffer f, Position p) {
   final line = clamp(p.y - 1, 0, f.lines.length - 1);
-  final char = clamp(p.x, 0, f.lines[line].length - 1);
+  final char = clamp(p.x, 0, f.lines[line].charLength - 1);
   return Position(y: line, x: char);
 }
 
 Position motionCharDown(FileBuffer f, Position p) {
   final line = clamp(p.y + 1, 0, f.lines.length - 1);
-  final char = clamp(p.x, 0, f.lines[line].length - 1);
+  final char = clamp(p.x, 0, f.lines[line].charLength - 1);
   return Position(y: line, x: char);
 }
 
@@ -44,7 +40,7 @@ Position motionFileStart(FileBuffer f, Position p) {
 
 Position motionFileEnd(FileBuffer f, Position position) {
   return Position(
-    x: f.lines.last.length,
+    x: f.lines.last.charLength,
     y: max(0, f.lines.length - 1),
   );
 }
@@ -54,35 +50,32 @@ Position motionLineStart(FileBuffer f, Position p) {
 }
 
 Position motionLineEnd(FileBuffer f, Position p) {
-  return Position(y: p.y, x: max(0, f.lines[p.y].length - 1));
+  return Position(y: p.y, x: max(0, f.lines[p.y].charLength - 1));
 }
 
 Position motionWordNext(FileBuffer f, Position p) {
-  // TODO: use CharacterRange to find next word ?
-  final start = f.indexFromPosition(p);
+  final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\S+').allMatches(f.text.string, start);
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
-  return f.positionFromIndex(match.start);
+  return f.positionFromByteIndex(match.start);
 }
 
 Position motionWordEnd(FileBuffer f, Position p) {
-  // TODO: use CharacterRange to find next word ?
-  final start = f.indexFromPosition(p);
+  final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\S+').allMatches(f.text.string, start);
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => m.end - 1 > start, orElse: () => matches.first);
-  return f.positionFromIndex(match.end - 1);
+  return f.positionFromByteIndex(match.end - 1);
 }
 
 Position motionWordPrev(FileBuffer f, Position p) {
-  // TODO: use CharacterRange to find next word ?
-  final start = f.indexFromPosition(p);
-  final matches = RegExp(r'\S+').allMatches(f.text.substring(0, start).string);
+  final start = f.byteIndexFromPosition(p);
+  final matches = RegExp(r'\S+').allMatches(f.text.string.substring(0, start));
   if (matches.isEmpty) return p;
-  return f.positionFromIndex(matches.last.start);
+  return f.positionFromByteIndex(matches.last.start);
 }
 
 // exit insert mode
@@ -94,15 +87,11 @@ Position motionEscape(FileBuffer f, Position p) {
 
 // find the next occurence of the given character on the current line
 Position motionFindNextChar(FileBuffer f, Position p, String char) {
-  final r = CharacterRange(f.text.string);
-  final start = f.indexFromPosition(p);
-  if (!r.moveNext(start + 1)) {
-    return p;
-  }
-  if (!r.moveTo(char.ch)) {
-    return p;
-  }
-  return f.positionFromIndex(r.stringBeforeLength);
+  final position = Position(x: p.x + 1, y: p.y);
+  final start = f.byteIndexFromPosition(position);
+  final match = char.allMatches(f.text.string, start).firstOrNull;
+  if (match == null) return p;
+  return f.positionFromByteIndex(match.start);
 }
 
 Position motionTillNextChar(FileBuffer f, Position position, String char) {
@@ -113,12 +102,11 @@ Position motionTillNextChar(FileBuffer f, Position position, String char) {
 
 // find the previous occurence of the given character on the current line
 Position motionFindPrevChar(FileBuffer f, Position position, String char) {
-  // TODO: use CharacterRange to find next word ?
-  final start = f.indexFromPosition(position);
+  final start = f.byteIndexFromPosition(position);
   final matches = char.allMatches(f.text.string.substring(0, start));
   if (matches.isEmpty) return position;
   final match = matches.last;
-  return f.positionFromIndex(match.start);
+  return f.positionFromByteIndex(match.start);
 }
 
 Position motionTillPrevChar(FileBuffer f, Position position, String char) {

@@ -38,35 +38,43 @@ extension FileBufferExt on FileBuffer {
 
   // split text into lines
   void createLines() {
-    int index = 0;
+    int charIndex = 0;
+    int byteIndex = 0;
     int lineNo = 0;
+
     lines = text.string.split('\n').map((e) => e.ch).map((l) {
       final line = Line(
-        start: index,
+        charIndex: charIndex,
+        byteIndex: byteIndex,
         chars: l,
         lineNo: lineNo,
       );
-      index += l.length + 1;
+      charIndex += l.length + 1;
+      byteIndex += l.string.length + 1;
       lineNo++;
       return line;
     }).toList();
+
     if (lines.isEmpty) {
-      lines = [Line(start: 0, chars: Characters.empty, lineNo: 0)];
+      lines = [Line.empty];
     }
   }
 
-  // get the cursor position from the index in the text
-  Position positionFromIndex(int start) {
-    final line = lines.firstWhere((line) => line.end + 1 > start);
+  Position positionFromByteIndex(int start) {
+    final line = lines.firstWhere((line) => line.byteEnd + 1 > start);
     return Position(
       y: line.lineNo,
-      x: start - line.start,
+      x: line.chars.byteToCharsLength(start - line.byteIndex),
     );
   }
 
   // get the index of the cursor in the text
-  int indexFromPosition(Position p) {
-    return lines[p.y].indexAt(p.x);
+  int charIndexFromPosition(Position p) {
+    return lines[p.y].charIndexAt(p.x);
+  }
+
+  int byteIndexFromPosition(Position p) {
+    return lines[p.y].byteIndexAt(p.x);
   }
 
   // the main method used to replace, delete and insert text in the buffer
@@ -85,30 +93,30 @@ extension FileBufferExt on FileBuffer {
   }
 
   void deleteRange(Range r) {
-    final start = indexFromPosition(r.start);
-    final end = indexFromPosition(r.end);
+    final start = charIndexFromPosition(r.start);
+    final end = charIndexFromPosition(r.end);
     replace(start, end, Characters.empty, UndoType.delete);
   }
 
   void insertAt(Position p, Characters str) {
-    final index = indexFromPosition(p);
+    final index = charIndexFromPosition(p);
     replace(index, index, str, UndoType.insert);
   }
 
   void replaceAt(Position p, Characters str) {
-    final index = indexFromPosition(p);
+    final index = charIndexFromPosition(p);
     replace(index, index + 1, str, UndoType.replace);
   }
 
   void deleteAt(Position p) {
-    final index = indexFromPosition(p);
+    final index = charIndexFromPosition(p);
     replace(index, index + 1, Characters.empty, UndoType.delete);
   }
 
   void yankRange(Range range) {
     final r = range.normalized();
-    final start = indexFromPosition(r.start);
-    final end = indexFromPosition(r.end);
+    final start = charIndexFromPosition(r.start);
+    final end = charIndexFromPosition(r.end);
     yankBuffer = text.substring(start, end);
   }
 
@@ -118,7 +126,7 @@ extension FileBufferExt on FileBuffer {
 // clamp cursor position to valid range
   void clampCursor() {
     cursor.y = clamp(cursor.y, 0, lines.length - 1);
-    cursor.x = clamp(cursor.x, 0, lines[cursor.y].length - 1);
+    cursor.x = clamp(cursor.x, 0, lines[cursor.y].charLength - 1);
   }
 
 // clamp view on cursor position
