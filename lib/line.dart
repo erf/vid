@@ -20,13 +20,11 @@ class Line {
     lineNo: 0,
   );
 
-  int get charLength => text.length;
+  int get charLen => text.length;
 
-  int get charEnd => charIndex + charLength;
+  int get byteLen => text.string.length;
 
-  int get byteLength => text.string.length;
-
-  int get byteEnd => byteIndex + byteLength;
+  int get byteEnd => byteIndex + byteLen;
 
   bool get isEmpty => text.isEmpty;
 

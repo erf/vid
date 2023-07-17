@@ -122,8 +122,7 @@ void actionOpenLineAbove(Editor e, FileBuffer f) {
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insertAt(
-      Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLength), '\n'.ch);
+  f.insertAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLen), '\n'.ch);
   actionCursorCharDown(e, f);
 }
 
@@ -139,7 +138,7 @@ void actionInsertLineStart(Editor e, FileBuffer f) {
 void actionAppendLineEnd(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
   if (f.lines[f.cursor.y].isNotEmpty) {
-    f.cursor.x = f.lines[f.cursor.y].charLength;
+    f.cursor.x = f.lines[f.cursor.y].charLen;
   }
 }
 
@@ -236,7 +235,7 @@ void actionJoinLines(Editor e, FileBuffer f) {
   if (f.lines.length <= 1) {
     return;
   }
-  f.deleteAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLength));
+  f.deleteAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLen));
 }
 
 void actionUndo(Editor e, FileBuffer f) {

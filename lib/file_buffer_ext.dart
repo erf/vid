@@ -126,7 +126,7 @@ extension FileBufferExt on FileBuffer {
 // clamp cursor position to valid range
   void clampCursor() {
     cursor.y = clamp(cursor.y, 0, lines.length - 1);
-    cursor.x = clamp(cursor.x, 0, lines[cursor.y].charLength - 1);
+    cursor.x = clamp(cursor.x, 0, lines[cursor.y].charLen - 1);
   }
 
 // clamp view on cursor position

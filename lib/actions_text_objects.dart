@@ -11,7 +11,7 @@ Range objectCurrentLine(FileBuffer f, Position p) {
   if (p.y >= f.lines.length - 1) {
     return Range(
       start: Position(y: f.lines.length - 1, x: 0),
-      end: Position(y: f.lines.length - 1, x: f.lines.last.charLength),
+      end: Position(y: f.lines.length - 1, x: f.lines.last.charLen),
     );
   } else {
     return Range(
@@ -23,19 +23,19 @@ Range objectCurrentLine(FileBuffer f, Position p) {
 
 Range objectLineUp(FileBuffer f, Position p) {
   final start = Position(y: max(p.y - 1, 0), x: 0);
-  final end = Position(y: p.y, x: f.lines[p.y].charLength);
+  final end = Position(y: p.y, x: f.lines[p.y].charLen);
   return Range(start: start, end: end);
 }
 
 Range objectLineDown(FileBuffer f, Position p) {
   final start = Position(y: p.y, x: 0);
   final endLine = min(p.y + 1, f.lines.length - 1);
-  final end = Position(y: endLine, x: f.lines[endLine].charLength);
+  final end = Position(y: endLine, x: f.lines[endLine].charLen);
   return Range(start: start, end: end);
 }
 
 Range objectFirstLine(FileBuffer f, Position p) {
-  final start = Position(y: p.y, x: f.lines[p.y].charLength);
+  final start = Position(y: p.y, x: f.lines[p.y].charLen);
   final end = motionFileStart(f, p);
   return Range(start: start, end: end);
 }
