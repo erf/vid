@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/string_ext.dart';
 
 import 'characters_ext.dart';
 import 'file_buffer.dart';
@@ -9,6 +8,7 @@ import 'line.dart';
 import 'position.dart';
 import 'range.dart';
 import 'range_ext.dart';
+import 'string_ext.dart';
 import 'terminal.dart';
 import 'undo.dart';
 import 'utils.dart';
@@ -28,8 +28,7 @@ extension FileBufferExt on FileBuffer {
     final file = File(path!);
     if (file.existsSync()) {
       // load file
-      text = file.readAsStringSync().characters;
-
+      text = file.readAsStringSync().ch;
       // split text into lines
       createLines();
     }

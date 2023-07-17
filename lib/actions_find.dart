@@ -1,5 +1,4 @@
-import 'package:vid/actions_motion.dart';
-
+import 'actions_motion.dart';
 import 'file_buffer.dart';
 import 'modes.dart';
 import 'position.dart';

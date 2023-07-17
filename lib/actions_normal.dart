@@ -2,17 +2,17 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:characters/characters.dart';
-import 'package:vid/characters_ext.dart';
-import 'package:vid/string_ext.dart';
 
 import 'actions_find.dart';
 import 'actions_motion.dart';
+import 'characters_ext.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
+import 'string_ext.dart';
 import 'undo.dart';
 import 'vt100.dart';
 

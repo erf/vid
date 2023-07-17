@@ -1,6 +1,6 @@
 import 'package:characters/characters.dart';
-import 'package:vid/line.dart';
 
+import 'line.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'undo.dart';
