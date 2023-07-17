@@ -79,10 +79,6 @@ extension FileBufferExt on FileBuffer {
 
   // the main method used to replace, delete and insert text in the buffer
   void replace(int start, int end, Characters newText, UndoType undoOp) {
-    // make sure start and end are valid
-    if (start < 0 || end > text.length) {
-      return;
-    }
     // undo
     final Characters oldText = text.substring(start, end);
     undoList.add(UndoOp(undoOp, newText, oldText, start, end, cursor.clone()));
