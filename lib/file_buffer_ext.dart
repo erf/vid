@@ -42,6 +42,7 @@ extension FileBufferExt on FileBuffer {
     int byteIndex = 0;
     int lineNo = 0;
 
+    // split text into lines with some metadata used for cursor positioning etc.
     lines = text.string.split('\n').map((e) => e.ch).map((l) {
       final line = Line(
         charStart: charIndex,
@@ -68,11 +69,12 @@ extension FileBufferExt on FileBuffer {
     );
   }
 
-  // get the index of the cursor in the text
+  // get the char index of the cursor in the Characters text
   int charIndexFromPosition(Position p) {
     return lines[p.y].charIndexAt(p.x);
   }
 
+  // get the byte index of the cursor in the String text
   int byteIndexFromPosition(Position p) {
     return lines[p.y].byteIndexAt(p.x);
   }
