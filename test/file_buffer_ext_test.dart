@@ -92,7 +92,7 @@ void main() {
     f.deleteAt(Position(x: 0, y: 2));
     f.deleteAt(Position(x: 0, y: 2));
     expect(f.text, 'abc\ndef\n'.ch);
-    expect(f.lines.map((e) => e.chars), [
+    expect(f.lines.map((e) => e.text), [
       'abc'.ch,
       'def'.ch,
       ''.ch,

@@ -75,7 +75,7 @@ class Editor {
         continue;
       }
       // get substring of line in view based on render width
-      final line = lines[l].chars.getRenderLine(view.x, terminal.width);
+      final line = lines[l].text.getRenderLine(view.x, terminal.width);
       renderBuffer.writeln(line);
     }
   }
@@ -84,7 +84,7 @@ class Editor {
     final lines = fileBuffer.lines;
     final view = fileBuffer.view;
     final cursor = fileBuffer.cursor;
-    final curPos = lines[cursor.y].chars.renderLength(cursor.x);
+    final curPos = lines[cursor.y].text.renderLength(cursor.x);
     final termPos = Position(y: cursor.y - view.y + 1, x: curPos - view.x + 1);
     renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
   }

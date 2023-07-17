@@ -46,7 +46,7 @@ extension FileBufferExt on FileBuffer {
       final line = Line(
         charIndex: charIndex,
         byteIndex: byteIndex,
-        chars: l,
+        text: l,
         lineNo: lineNo,
       );
       charIndex += l.length + 1;
@@ -64,7 +64,7 @@ extension FileBufferExt on FileBuffer {
     final line = lines.firstWhere((line) => line.byteEnd + 1 > start);
     return Position(
       y: line.lineNo,
-      x: line.chars.byteToCharsLength(start - line.byteIndex),
+      x: line.text.byteToCharsLength(start - line.byteIndex),
     );
   }
 
@@ -132,7 +132,7 @@ extension FileBufferExt on FileBuffer {
 // clamp view on cursor position
   void clampView(Terminal term) {
     view.y = clamp(view.y, cursor.y, cursor.y - term.height + 2);
-    int cx = lines[cursor.y].chars.renderLength(cursor.x);
+    int cx = lines[cursor.y].text.renderLength(cursor.x);
     view.x = clamp(view.x, cx, cx - term.width + 1);
   }
 }

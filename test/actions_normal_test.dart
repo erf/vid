@@ -14,7 +14,7 @@ void main() {
     f.cursor = Position(x: 0, y: 1);
     final e = Editor();
     actionJoinLines(e, f);
-    expect(f.lines.map((e) => e.chars), [
+    expect(f.lines.map((e) => e.text), [
       'abc'.ch,
       'defghi'.ch,
     ]);
@@ -28,7 +28,7 @@ void main() {
     f.cursor = Position(x: 0, y: 1);
     final e = Editor();
     actionDeleteLineEnd(e, f);
-    expect(f.lines.map((e) => e.chars), [
+    expect(f.lines.map((e) => e.text), [
       'abc'.ch,
       ''.ch,
       'ghi'.ch,
@@ -43,7 +43,7 @@ void main() {
     f.cursor = Position(x: 1, y: 1);
     final e = Editor();
     actionDeleteCharNext(e, f);
-    expect(f.lines.map((e) => e.chars), [
+    expect(f.lines.map((e) => e.text), [
       'abc'.ch,
       'df'.ch,
       'ghi'.ch,
@@ -58,7 +58,7 @@ void main() {
     f.cursor = Position(x: 0, y: 2);
     final e = Editor();
     actionDeleteCharNext(e, f);
-    expect(f.lines.map((e) => e.chars).toList(), [
+    expect(f.lines.map((e) => e.text).toList(), [
       'abc'.ch,
       'def'.ch,
       ''.ch,
