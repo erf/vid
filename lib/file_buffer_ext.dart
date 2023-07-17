@@ -44,8 +44,8 @@ extension FileBufferExt on FileBuffer {
 
     lines = text.string.split('\n').map((e) => e.ch).map((l) {
       final line = Line(
-        charIndex: charIndex,
-        byteIndex: byteIndex,
+        charStart: charIndex,
+        byteStart: byteIndex,
         text: l,
         lineNo: lineNo,
       );
@@ -60,11 +60,11 @@ extension FileBufferExt on FileBuffer {
     }
   }
 
-  Position positionFromByteIndex(int start) {
-    final line = lines.firstWhere((line) => line.byteEnd + 1 > start);
+  Position positionFromByteIndex(int index) {
+    final line = lines.firstWhere((line) => index <= line.byteEnd);
     return Position(
       y: line.lineNo,
-      x: line.text.byteToCharsLength(start - line.byteIndex),
+      x: line.text.byteToCharsLength(index - line.byteStart),
     );
   }
 
