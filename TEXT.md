@@ -1,7 +1,7 @@
 # Text engine
 
-- keep file as a String `text` 
-- keep lines of text + metadata that is recreated on `text` changes
+- file as a String `text` 
+- recreate lines of text + metadata on init / changes
 - minimal API to replace, insert and delete text for a given range
-- makes it easier to create a undo list
+- add undo operations to undo list on replace
 - optimize text changes later (if needed)
