@@ -1,5 +1,6 @@
 # TODO
 
+- use CharacterRange.replaceRange for text edit and work with char indices ?
 - count not working for delete word etc
 - star (*) go to similar token
 - cursor up/down should move to correct render position
