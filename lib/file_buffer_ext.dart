@@ -43,7 +43,7 @@ extension FileBufferExt on FileBuffer {
     int lineNo = 0;
 
     // split text into lines with some metadata used for cursor positioning etc.
-    lines = text.string.split('\n').map((e) => e.ch).map((l) {
+    lines = text.split('\n'.ch).map((l) {
       final line = Line(
         charStart: charIndex,
         byteStart: byteIndex,
