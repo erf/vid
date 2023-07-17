@@ -254,5 +254,5 @@ void actionUndo(Editor e, FileBuffer f) {
   }
   f.createLines();
   f.isModified = true;
-  f.cursor = op.cursor.clone();
+  f.cursor = op.cursor.clone;
 }

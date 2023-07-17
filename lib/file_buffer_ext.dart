@@ -83,7 +83,7 @@ extension FileBufferExt on FileBuffer {
   void replace(int start, int end, Characters newText, UndoType undoOp) {
     // undo
     final Characters oldText = text.substring(start, end);
-    undoList.add(UndoOp(undoOp, newText, oldText, start, end, cursor.clone()));
+    undoList.add(UndoOp(undoOp, newText, oldText, start, end, cursor.clone));
     // replace text
     text = text.replaceRange(start, end, newText);
     createLines();

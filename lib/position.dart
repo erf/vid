@@ -9,7 +9,7 @@ class Position {
     return Position(y: position.y, x: position.x);
   }
 
-  Position clone() {
+  Position get clone {
     return Position.from(this);
   }
 
