@@ -17,9 +17,8 @@ extension FileBufferExt on FileBuffer {
   // load file from disk or create new file
   void load(List<String> args) {
     if (args.isEmpty) {
-      //print('No file specified');
-      //exit(1);
-      return;
+      print('No file specified');
+      exit(1);
     }
     path = args.first;
     if (Directory(path!).existsSync()) {
@@ -84,7 +83,7 @@ extension FileBufferExt on FileBuffer {
     // undo
     final Characters oldText = text.substring(start, end);
     undoList.add(UndoOp(undoOp, newText, oldText, start, end, cursor.clone));
-    // replace text
+    // replace text and create lines
     text = text.replaceRange(start, end, newText);
     createLines();
     isModified = true;
