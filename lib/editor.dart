@@ -167,7 +167,7 @@ class Editor {
       action(this, fileBuffer);
       return;
     }
-    OperatorPendingAction? pending = pendingActions[str];
+    PendingAction? pending = pendingActions[str];
     if (pending != null) {
       fileBuffer.mode = Mode.pending;
       fileBuffer.pendingAction = pending;
@@ -183,7 +183,7 @@ class Editor {
       pendingAction(fileBuffer, fileBuffer.cursor, str);
       return;
     }
-    if (pendingAction is OperatorPendingAction) {
+    if (pendingAction is PendingAction) {
       TextObject? textObject = textObjects[str];
       if (textObject != null) {
         Range range = textObject(fileBuffer, fileBuffer.cursor);

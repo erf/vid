@@ -4,7 +4,7 @@ import 'modes.dart';
 import 'range.dart';
 import 'range_ext.dart';
 
-typedef OperatorPendingAction = void Function(FileBuffer, Range);
+typedef PendingAction = void Function(FileBuffer, Range);
 
 void pendingActionYank(FileBuffer file, Range range) {
   file.yankRange(range);

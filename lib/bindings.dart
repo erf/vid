@@ -46,7 +46,7 @@ final normalActions = <String, NormalAction>{
   'u': actionUndo,
 };
 
-final pendingActions = <String, OperatorPendingAction>{
+final pendingActions = <String, PendingAction>{
   'c': pendingActionChange,
   'd': pendingActionDelete,
   'g': pendingActionGo,
