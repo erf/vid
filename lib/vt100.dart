@@ -4,10 +4,12 @@ class VT100 {
   VT100._();
 
   // move cursor to x,y
-  static String cursorPosition({required int x, required int y}) => '\x1b[$y;${x}H';
+  static String cursorPosition({required int l, required int c}) =>
+      '\x1b[$l;${c}H';
 
   // cursor visibility
-  static String cursorVisible(bool visible) => visible ? '\x1b[?25h' : '\x1b[?25l';
+  static String cursorVisible(bool visible) =>
+      visible ? '\x1b[?25h' : '\x1b[?25l';
 
   // home and erase down
   static const String erase = '\x1b[H\x1b[J';

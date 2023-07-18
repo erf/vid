@@ -81,17 +81,16 @@ class Editor {
   }
 
   void drawCursor() {
-    final lines = fileBuffer.lines;
     final view = fileBuffer.view;
     final cursor = fileBuffer.cursor;
-    final curPos = lines[cursor.l].text.renderLength(cursor.c);
-    final termPos = Position(l: cursor.l - view.l + 1, c: curPos - view.c + 1);
-    renderBuffer.write(VT100.cursorPosition(x: termPos.c, y: termPos.l));
+    final curlen = fileBuffer.lines[cursor.l].text.renderLength(cursor.c);
+    final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
+    renderBuffer.write(VT100.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
   void drawStatus() {
     renderBuffer.write(VT100.invert(true));
-    renderBuffer.write(VT100.cursorPosition(x: 1, y: terminal.height));
+    renderBuffer.write(VT100.cursorPosition(c: 1, l: terminal.height));
 
     final cursor = fileBuffer.cursor;
     final modified = fileBuffer.isModified;
