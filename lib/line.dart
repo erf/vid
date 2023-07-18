@@ -30,7 +30,7 @@ class Line {
 
   bool get isNotEmpty => text.isNotEmpty;
 
-  int charIndexAt(int x) => charStart + x;
+  int charIndexAt(int c) => charStart + c;
 
-  int byteIndexAt(int x) => byteStart + text.take(x).string.length;
+  int byteIndexAt(int c) => byteStart + text.take(c).string.length;
 }
