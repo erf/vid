@@ -3,26 +3,21 @@ class Position {
   int y;
   int x;
 
-  Position({this.y = 0, this.x = 0});
+  Position({
+    this.y = 0,
+    this.x = 0,
+  });
 
-  factory Position.from(Position position) {
-    return Position(y: position.y, x: position.x);
-  }
+  factory Position.from(Position p) => Position(y: p.y, x: p.x);
 
-  Position get clone {
-    return Position.from(this);
-  }
+  Position get clone => Position.from(this);
 
   @override
-  String toString() {
-    return 'Position(y: $y, x: $x)';
-  }
+  String toString() => 'Position(y: $y, x: $x)';
 
   @override
   bool operator ==(Object other) {
-    if (other is! Position) {
-      return false;
-    }
+    if (other is! Position) return false;
     return other.y == y && other.x == x;
   }
 
