@@ -22,8 +22,9 @@ Range objectCurrentLine(FileBuffer f, Position p) {
 }
 
 Range objectLineUp(FileBuffer f, Position p) {
-  final start = Position(l: max(p.l - 1, 0), c: 0);
-  final end = Position(l: p.l, c: f.lines[p.l].charLen);
+  final start = Position(l: p.l, c: 0);
+  final line = min(p.l - 2, f.lines.length - 1);
+  final end = Position(l: line, c: 0);
   return Range(start: start, end: end);
 }
 
