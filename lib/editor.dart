@@ -157,9 +157,9 @@ class Editor {
   }
 
   void normal(String str) {
-    final maybeInt = int.tryParse(str);
-    if (maybeInt != null && maybeInt > 0) {
-      fileBuffer.count = maybeInt;
+    final count = int.tryParse(str);
+    if (count != null && count > 0) {
+      fileBuffer.count = count;
       return;
     }
     NormalAction? action = normalActions[str];

@@ -1,6 +1,6 @@
 # TODO
 
-- count not working for delete word etc
+- make use of count
 - star (*) go to similar token
 - cursor up/down should move to correct render position
 - better architecture for pending actions ?
