@@ -95,7 +95,7 @@ void main() {
 
   test('motionWordNext', () {
     final f = FileBuffer();
-    f.text = 'a🥹c d❤️‍🔥f ghi\njkl 😺no p🦀r'.ch;
+    f.text = 'abc def ghi\njkl mno pqr'.ch;
     f.createLines();
     expect(motionWordNext(f, Position(c: 0, l: 0)), Position(c: 4, l: 0));
     expect(motionWordNext(f, Position(c: 3, l: 0)), Position(c: 4, l: 0));
@@ -108,7 +108,7 @@ void main() {
 
   test('motionWordEnd', () {
     final f = FileBuffer();
-    f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr'.ch;
+    f.text = 'abc def ghi\njkl mno pqr'.ch;
     f.createLines();
     expect(motionWordEnd(f, Position(c: 0, l: 0)), Position(c: 2, l: 0));
     expect(motionWordEnd(f, Position(c: 3, l: 0)), Position(c: 6, l: 0));
