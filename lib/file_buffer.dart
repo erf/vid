@@ -11,7 +11,7 @@ class FileBuffer {
   String? path;
 
   // the text of the file
-  Characters text = Characters.empty;
+  var text = Characters.empty;
 
   // text split by '\n' character, created by createLines when text is changed
   var lines = [Line.empty];
@@ -38,5 +38,5 @@ class FileBuffer {
   bool isModified = false;
 
   // list of undo operations
-  List<Undo> undoList = [];
+  List<UndoOp> undoList = [];
 }

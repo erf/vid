@@ -78,10 +78,10 @@ extension FileBufferExt on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, Characters newText, UndoType undoType) {
+  void replace(int start, int end, Characters newText, UndoOpType undoType) {
     // undo
     final Characters oldText = text.substring(start, end);
-    undoList.add(Undo(undoType, newText, oldText, start, end, cursor.clone));
+    undoList.add(UndoOp(undoType, newText, oldText, start, end, cursor.clone));
     // replace text and create lines
     text = text.replaceRange(start, end, newText);
     createLines();
@@ -91,22 +91,22 @@ extension FileBufferExt on FileBuffer {
   void deleteRange(Range r) {
     final start = charIndexFromPosition(r.start);
     final end = charIndexFromPosition(r.end);
-    replace(start, end, Characters.empty, UndoType.delete);
+    replace(start, end, Characters.empty, UndoOpType.delete);
   }
 
   void insertAt(Position p, Characters str) {
     final index = charIndexFromPosition(p);
-    replace(index, index, str, UndoType.insert);
+    replace(index, index, str, UndoOpType.insert);
   }
 
   void replaceAt(Position p, Characters str) {
     final index = charIndexFromPosition(p);
-    replace(index, index + 1, str, UndoType.replace);
+    replace(index, index + 1, str, UndoOpType.replace);
   }
 
   void deleteAt(Position p) {
     final index = charIndexFromPosition(p);
-    replace(index, index + 1, Characters.empty, UndoType.delete);
+    replace(index, index + 1, Characters.empty, UndoOpType.delete);
   }
 
   void yankRange(Range range) {

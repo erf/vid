@@ -2,21 +2,21 @@ import 'package:characters/characters.dart';
 
 import 'position.dart';
 
-enum UndoType {
+enum UndoOpType {
   replace,
   insert,
   delete,
 }
 
-class Undo {
-  final UndoType type;
+class UndoOp {
+  final UndoOpType type;
   final Characters newText;
   final Characters oldText;
   final int start;
   final int end;
   final Position cursor;
 
-  const Undo(
+  const UndoOp(
     this.type,
     this.newText,
     this.oldText,
