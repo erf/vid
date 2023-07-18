@@ -62,7 +62,7 @@ void actionPasteBefore(Editor e, FileBuffer f) {
   f.isModified = true;
 }
 
-void doQuit(Editor e, FileBuffer f) {
+void quit(Editor e, FileBuffer f) {
   e.terminal.write(VT100.resetStyles + VT100.disableAlternativeBuffer);
   e.terminal.rawMode = false;
   exit(0);
@@ -73,11 +73,11 @@ void actionQuit(Editor e, FileBuffer f) {
     e.showMessage('Press \'Q\' to quit without saving', timed: true);
     return;
   }
-  doQuit(e, f);
+  quit(e, f);
 }
 
 void actionQuitWithoutSaving(Editor e, FileBuffer f) {
-  doQuit(e, f);
+  quit(e, f);
 }
 
 void actionSave(Editor e, FileBuffer f) {
