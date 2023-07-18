@@ -1,4 +1,4 @@
-import 'package:vid/characters_ext.dart';
+import 'package:vid/characters_index.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {

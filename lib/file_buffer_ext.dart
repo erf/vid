@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 
-import 'characters_ext.dart';
+import 'characters_index.dart';
+import 'characters_render.dart';
 import 'file_buffer.dart';
 import 'line.dart';
 import 'position.dart';
@@ -62,7 +63,7 @@ extension FileBufferExt on FileBuffer {
     final line = lines.firstWhere((line) => index <= line.byteEnd);
     return Position(
       l: line.lineNo,
-      c: line.text.byteToCharsLength(index - line.byteStart),
+      c: line.text.byteToCharLength(index - line.byteStart),
     );
   }
 

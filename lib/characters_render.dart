@@ -3,59 +3,13 @@ import 'package:characters/characters.dart';
 import 'config.dart';
 import 'string_ext.dart';
 
-extension CharactersExt on Characters {
+extension CharactersRender on Characters {
   // a space character
   static final space = Characters(' ');
 
   // tab space
   static final tabSpace =
       List.generate(Config.tabWidth, (_) => space).join().ch;
-
-  CharacterRange subrange(int start, [int? end]) {
-    final range = CharacterRange(string);
-    range.moveNext(start);
-    if (end != null) {
-      range.moveNext(end - start);
-    } else {
-      range.moveNextAll();
-    }
-    return range;
-  }
-
-  // a substring method similar to String for Characters
-  Characters substring(int start, [int? end]) {
-    return subrange(start, end).currentCharacters;
-  }
-
-  // replace a range of characters with the given replacement
-  Characters replaceRange(int start, int? end, Characters replacement) {
-    return subrange(start, end).replaceRange(replacement).source;
-  }
-
-  // remove a range of characters
-  Characters removeRange(int start, [int? end]) {
-    return replaceRange(start, end, Characters.empty);
-  }
-
-  // delete a character at the given index
-  Characters deleteCharAt(int index) {
-    return removeRange(index, index + 1);
-  }
-
-  // replace a character at the given index
-  Characters replaceCharAt(int index, Characters char) {
-    return replaceRange(index, index + 1, char);
-  }
-
-  // get the symbol length given the byte length
-  int byteToCharsLength(int byteLength) {
-    return string.substring(0, byteLength).characters.length;
-  }
-
-  // get the byte length given the character length
-  int charsToByteLength(int charsLength) {
-    return charsLength <= 0 ? 0 : take(charsLength).string.length;
-  }
 
   // get the rendered length of the string up to the given index
   int renderLength(int count) {

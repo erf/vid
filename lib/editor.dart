@@ -10,7 +10,7 @@ import 'actions_pending.dart';
 import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
-import 'characters_ext.dart';
+import 'characters_render.dart';
 import 'config.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';

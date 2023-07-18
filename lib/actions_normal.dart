@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'actions_find.dart';
 import 'actions_motion.dart';
-import 'characters_ext.dart';
+import 'characters_index.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';

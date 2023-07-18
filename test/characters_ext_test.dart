@@ -1,6 +1,7 @@
 import 'package:characters/characters.dart';
 import 'package:test/test.dart';
-import 'package:vid/characters_ext.dart';
+import 'package:vid/characters_index.dart';
+import 'package:vid/characters_render.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {
