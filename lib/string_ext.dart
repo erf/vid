@@ -2,7 +2,6 @@ import 'package:characters/characters.dart';
 
 import 'config.dart';
 import 'emoji.dart';
-import 'int_ext.dart';
 
 extension StringExt on String {
   // Shorthand for characters (Characters(this))
