@@ -29,8 +29,7 @@ class Editor {
   void init(List<String> args) {
     fileBuffer.load(args);
     terminal.rawMode = true;
-    terminal.write(VT100.enableAlternativeBuffer);
-    terminal.write(VT100.cursorVisible(true));
+    terminal.write(VT100.enableAlternativeBuffer + VT100.cursorVisible(true));
     terminal.input.listen(input);
     terminal.resize.listen(resize);
     draw();
