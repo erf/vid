@@ -167,6 +167,7 @@ void actionCursorWordNext(Editor e, FileBuffer f) {
 
 void actionCursorWordEnd(Editor v, FileBuffer f) {
   f.cursor = motionWordEnd(f, f.cursor);
+  f.cursor.c--;
 }
 
 void actionCursorWordPrev(Editor e, FileBuffer f) {

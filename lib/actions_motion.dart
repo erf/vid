@@ -68,7 +68,7 @@ Position motionWordEnd(FileBuffer f, Position p) {
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => m.end - 1 > start, orElse: () => matches.first);
-  return f.positionFromByteIndex(match.end - 1);
+  return f.positionFromByteIndex(match.end);
 }
 
 Position motionWordPrev(FileBuffer f, Position p) {
