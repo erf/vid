@@ -37,7 +37,7 @@ void main() {
     final undo = f.undoList.last;
     expect(undo.oldText, 'a'.ch);
     expect(undo.newText, 'X'.ch);
-    expect(undo.index, 0);
+    expect(undo.start, 0);
     expect(undo.end, 1);
   });
 
@@ -54,7 +54,7 @@ void main() {
     expect(f.text, 'ef'.ch);
     final undo = f.undoList.last;
     expect(undo.oldText, 'abc\nd'.ch);
-    expect(undo.index, 0);
+    expect(undo.start, 0);
     expect(undo.end, 5);
   });
 
@@ -67,7 +67,7 @@ void main() {
     final undo = f.undoList.last;
     expect(undo.oldText, ''.ch);
     expect(undo.newText, 'X'.ch);
-    expect(undo.index, 4);
+    expect(undo.start, 4);
     expect(undo.end, 4);
   });
 
@@ -80,7 +80,7 @@ void main() {
     final undo = f.undoList.last;
     expect(undo.oldText, 'd'.ch);
     expect(undo.newText, ''.ch);
-    expect(undo.index, 4);
+    expect(undo.start, 4);
     expect(undo.end, 5);
   });
 

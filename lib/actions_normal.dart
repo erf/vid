@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:characters/characters.dart';
-
 import 'actions_find.dart';
 import 'actions_motion.dart';
 import 'characters_ext.dart';
@@ -245,12 +243,12 @@ void actionUndo(Editor e, FileBuffer f) {
   final op = f.undoList.removeLast();
   switch (op.type) {
     case UndoType.replace:
-      f.text = f.text.replaceRange(op.index, op.end, op.oldText);
+      f.text = f.text.replaceRange(op.start, op.end, op.oldText);
     case UndoType.insert:
-      f.text = f.text.replaceRange(
-          op.index, op.index + op.newText.length, Characters.empty);
+      f.text =
+          f.text.replaceRange(op.start, op.start + op.newText.length, ''.ch);
     case UndoType.delete:
-      f.text = f.text.replaceRange(op.index, op.index, op.oldText);
+      f.text = f.text.replaceRange(op.start, op.start, op.oldText);
   }
   f.createLines();
   f.isModified = true;

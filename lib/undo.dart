@@ -12,7 +12,7 @@ class UndoOp {
   final UndoType type;
   final Characters newText;
   final Characters oldText;
-  final int index;
+  final int start;
   final int end;
   final Position cursor;
 
@@ -20,7 +20,7 @@ class UndoOp {
     this.type,
     this.newText,
     this.oldText,
-    this.index,
+    this.start,
     this.end,
     this.cursor,
   );
