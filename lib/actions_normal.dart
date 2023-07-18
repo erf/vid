@@ -241,15 +241,12 @@ void actionUndo(Editor e, FileBuffer f) {
     return;
   }
   final op = f.undoList.removeLast();
-  switch (op.type) {
-    case UndoType.replace:
-      f.text = f.text.replaceRange(op.start, op.end, op.oldText);
-    case UndoType.insert:
-      f.text =
-          f.text.replaceRange(op.start, op.start + op.newText.length, ''.ch);
-    case UndoType.delete:
-      f.text = f.text.replaceRange(op.start, op.start, op.oldText);
-  }
+  f.text = switch (op.type) {
+    UndoType.replace => f.text.replaceRange(op.start, op.end, op.oldText),
+    UndoType.insert =>
+      f.text.replaceRange(op.start, op.start + op.newText.length, ''.ch),
+    UndoType.delete => f.text.replaceRange(op.start, op.start, op.oldText),
+  };
   f.createLines();
   f.isModified = true;
   f.cursor = op.cursor.clone;
