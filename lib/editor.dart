@@ -157,7 +157,7 @@ class Editor {
 
   void normal(String str) {
     final count = int.tryParse(str);
-    if (count != null && count >= 0) {
+    if (count != null && count > 0) {
       if (fileBuffer.count == null) {
         fileBuffer.count = count;
       } else {
