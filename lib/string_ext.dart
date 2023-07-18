@@ -35,15 +35,4 @@ extension StringExt on String {
 
     return 1;
   }
-
-  // Print out some info about a string (for testing)
-  void info() {
-    print(this);
-    print('length $length');
-    print('codeUnits.length ${codeUnits.length}');
-    print('codeUnits ${codeUnits.map((e) => e.hex).join(' ')}');
-    print('runes.length ${runes.length}');
-    print('runes ${runes.map((e) => e.hex).join(' ')}');
-    print('renderWidth $renderWidth');
-  }
 }
