@@ -12,6 +12,7 @@ import 'position.dart';
 import 'range.dart';
 import 'string_ext.dart';
 import 'undo.dart';
+import 'utils.dart';
 import 'vt100.dart';
 
 typedef NormalAction = void Function(Editor, FileBuffer);
@@ -105,7 +106,12 @@ void actionCursorCharPrev(Editor e, FileBuffer f) {
   f.cursor = motionCharPrev(f, f.cursor);
 }
 
-void actionCursorLineBottom(Editor e, FileBuffer f) {
+void actionCursorLineBottomOrCount(Editor e, FileBuffer f) {
+  if (f.count != null) {
+    f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
+    f.count = null;
+    return;
+  }
   f.cursor = motionFileEnd(f, f.cursor);
 }
 

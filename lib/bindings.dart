@@ -30,7 +30,7 @@ final normalActions = <String, NormalAction>{
   'I': actionInsertLineStart,
   'o': actionOpenLineBelow,
   'O': actionOpenLineAbove,
-  'G': actionCursorLineBottom,
+  'G': actionCursorLineBottomOrCount,
   'r': actionReplaceMode,
   'D': actionDeleteLineEnd,
   'p': actionPasteAfter,

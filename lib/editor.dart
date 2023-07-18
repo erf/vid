@@ -157,8 +157,12 @@ class Editor {
 
   void normal(String str) {
     final count = int.tryParse(str);
-    if (count != null && count > 0) {
-      fileBuffer.count = count;
+    if (count != null && count >= 0) {
+      if (fileBuffer.count == null) {
+        fileBuffer.count = count;
+      } else {
+        fileBuffer.count = fileBuffer.count! * 10 + count;
+      }
       return;
     }
     NormalAction? action = normalActions[str];
