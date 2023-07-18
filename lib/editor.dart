@@ -60,8 +60,8 @@ class Editor {
   void drawLines() {
     final lines = fileBuffer.lines;
     final view = fileBuffer.view;
-    final lineStart = view.y;
-    final lineEnd = view.y + terminal.height - 1;
+    final lineStart = view.l;
+    final lineEnd = view.l + terminal.height - 1;
 
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
@@ -75,7 +75,7 @@ class Editor {
         continue;
       }
       // get substring of line in view based on render width
-      final line = lines[l].text.getRenderLine(view.x, terminal.width);
+      final line = lines[l].text.getRenderLine(view.c, terminal.width);
       renderBuffer.writeln(line);
     }
   }
@@ -84,9 +84,9 @@ class Editor {
     final lines = fileBuffer.lines;
     final view = fileBuffer.view;
     final cursor = fileBuffer.cursor;
-    final curPos = lines[cursor.y].text.renderLength(cursor.x);
-    final termPos = Position(y: cursor.y - view.y + 1, x: curPos - view.x + 1);
-    renderBuffer.write(VT100.cursorPosition(x: termPos.x, y: termPos.y));
+    final curPos = lines[cursor.l].text.renderLength(cursor.c);
+    final termPos = Position(l: cursor.l - view.l + 1, c: curPos - view.c + 1);
+    renderBuffer.write(VT100.cursorPosition(x: termPos.c, y: termPos.l));
   }
 
   void drawStatus() {
@@ -98,7 +98,7 @@ class Editor {
     final nameStr = fileBuffer.path ?? '[No Name]';
     final modeStr = getModeStatusStr(fileBuffer.mode);
     final left = ' $modeStr  $nameStr ${modified ? '* ' : ''}$message ';
-    final right = ' ${cursor.y + 1}, ${cursor.x + 1} ';
+    final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     final padLeft = terminal.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
 

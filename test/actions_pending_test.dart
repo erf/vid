@@ -11,21 +11,21 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
-    f.cursor = Position(x: 0, y: 1);
+    f.cursor = Position(c: 0, l: 1);
     final r = objectCurrentLine(f, f.cursor);
     pendingActionDelete(f, r);
     expect(f.lines.map((e) => e.text).toList(), [
       'abc'.ch,
       'ghi'.ch,
     ]);
-    expect(f.cursor, Position(x: 0, y: 1));
+    expect(f.cursor, Position(c: 0, l: 1));
   });
 
   test('delete last line', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
-    f.cursor = Position(x: 0, y: 2);
+    f.cursor = Position(c: 0, l: 2);
     final r = objectCurrentLine(f, f.cursor);
     pendingActionDelete(f, r);
     expect(f.lines.map((e) => e.text), [

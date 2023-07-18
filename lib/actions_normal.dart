@@ -19,12 +19,12 @@ import 'vt100.dart';
 typedef NormalAction = void Function(Editor, FileBuffer);
 
 void actionMoveDownHalfPage(Editor e, FileBuffer f) {
-  f.cursor.y += e.terminal.height ~/ 2;
+  f.cursor.l += e.terminal.height ~/ 2;
   f.clampCursor();
 }
 
 void actionMoveUpHalfPage(Editor e, FileBuffer f) {
-  f.cursor.y -= e.terminal.height ~/ 2;
+  f.cursor.l -= e.terminal.height ~/ 2;
   f.clampCursor();
 }
 
@@ -34,12 +34,12 @@ void actionPasteAfter(Editor e, FileBuffer f) {
   }
   if (f.yankBuffer!.contains('\n')) {
     f.insertAt(
-      Position(y: min(f.cursor.y + 1, f.lines.length - 1), x: f.cursor.x),
+      Position(l: min(f.cursor.l + 1, f.lines.length - 1), c: f.cursor.c),
       f.yankBuffer!,
     );
   } else {
     f.insertAt(
-      Position(y: f.cursor.y, x: f.cursor.x + 1),
+      Position(l: f.cursor.l, c: f.cursor.c + 1),
       f.yankBuffer!,
     );
   }
@@ -52,12 +52,12 @@ void actionPasteBefore(Editor e, FileBuffer f) {
   }
   if (f.yankBuffer!.contains('\n')) {
     f.insertAt(
-      Position(y: min(f.cursor.y + 1, f.lines.length - 1), x: f.cursor.x),
+      Position(l: min(f.cursor.l + 1, f.lines.length - 1), c: f.cursor.c),
       f.yankBuffer!,
     );
   } else {
     f.insertAt(
-      Position(y: f.cursor.y, x: f.cursor.x),
+      Position(l: f.cursor.l, c: f.cursor.c),
       f.yankBuffer!,
     );
   }
@@ -116,13 +116,13 @@ void actionCursorLineBottom(Editor e, FileBuffer f) {
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insertAt(Position(y: f.cursor.y, x: 0), '\n'.ch);
-  f.cursor.x = 0;
+  f.insertAt(Position(l: f.cursor.l, c: 0), '\n'.ch);
+  f.cursor.c = 0;
 }
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insertAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLen), '\n'.ch);
+  f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n'.ch);
   actionCursorCharDown(e, f);
 }
 
@@ -132,20 +132,20 @@ void actionInsert(Editor e, FileBuffer f) {
 
 void actionInsertLineStart(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.cursor.x = 0;
+  f.cursor.c = 0;
 }
 
 void actionAppendLineEnd(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  if (f.lines[f.cursor.y].isNotEmpty) {
-    f.cursor.x = f.lines[f.cursor.y].charLen;
+  if (f.lines[f.cursor.l].isNotEmpty) {
+    f.cursor.c = f.lines[f.cursor.l].charLen;
   }
 }
 
 void actionAppendCharNext(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  if (f.lines[f.cursor.y].isNotEmpty) {
-    f.cursor.x++;
+  if (f.lines[f.cursor.l].isNotEmpty) {
+    f.cursor.c++;
   }
 }
 
@@ -155,7 +155,7 @@ void actionCursorLineEnd(Editor e, FileBuffer f) {
 
 void actionCursorLineStart(Editor e, FileBuffer f) {
   f.cursor = motionLineStart(f, f.cursor);
-  f.view.x = 0;
+  f.view.c = 0;
 }
 
 void actionCursorCharUp(Editor e, FileBuffer f) {
@@ -193,7 +193,7 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
   final lineEnd = motionLineEnd(f, f.cursor);
   final r = Range(
     start: f.cursor,
-    end: Position(y: lineEnd.y, x: lineEnd.x + 1),
+    end: Position(l: lineEnd.l, c: lineEnd.c + 1),
   );
   f.yankRange(r);
   f.deleteRange(r);
@@ -205,7 +205,7 @@ void actionChangeLineEnd(Editor e, FileBuffer f) {
   final lineEnd = motionLineEnd(f, f.cursor);
   final range = Range(
     start: f.cursor,
-    end: Position(y: lineEnd.y, x: lineEnd.x + 1),
+    end: Position(l: lineEnd.l, c: lineEnd.c + 1),
   );
   f.deleteRange(range);
   f.mode = Mode.insert;
@@ -235,7 +235,7 @@ void actionJoinLines(Editor e, FileBuffer f) {
   if (f.lines.length <= 1) {
     return;
   }
-  f.deleteAt(Position(y: f.cursor.y, x: f.lines[f.cursor.y].charLen));
+  f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen));
 }
 
 void actionUndo(Editor e, FileBuffer f) {

@@ -62,19 +62,19 @@ extension FileBufferExt on FileBuffer {
   Position positionFromByteIndex(int index) {
     final line = lines.firstWhere((line) => index <= line.byteEnd);
     return Position(
-      y: line.lineNo,
-      x: line.text.byteToCharsLength(index - line.byteStart),
+      l: line.lineNo,
+      c: line.text.byteToCharsLength(index - line.byteStart),
     );
   }
 
   // get the char index of the cursor in the Characters text
   int charIndexFromPosition(Position p) {
-    return lines[p.y].charIndexAt(p.x);
+    return lines[p.l].charIndexAt(p.c);
   }
 
   // get the byte index of the cursor in the String text
   int byteIndexFromPosition(Position p) {
-    return lines[p.y].byteIndexAt(p.x);
+    return lines[p.l].byteIndexAt(p.c);
   }
 
   // the main method used to replace, delete and insert text in the buffer
@@ -121,14 +121,14 @@ extension FileBufferExt on FileBuffer {
 
 // clamp cursor position to valid range
   void clampCursor() {
-    cursor.y = clamp(cursor.y, 0, lines.length - 1);
-    cursor.x = clamp(cursor.x, 0, lines[cursor.y].charLen - 1);
+    cursor.l = clamp(cursor.l, 0, lines.length - 1);
+    cursor.c = clamp(cursor.c, 0, lines[cursor.l].charLen - 1);
   }
 
 // clamp view on cursor position
   void clampView(Terminal term) {
-    view.y = clamp(view.y, cursor.y, cursor.y - term.height + 2);
-    int cx = lines[cursor.y].text.renderLength(cursor.x);
-    view.x = clamp(view.x, cx, cx - term.width + 1);
+    view.l = clamp(view.l, cursor.l, cursor.l - term.height + 2);
+    int cx = lines[cursor.l].text.renderLength(cursor.c);
+    view.c = clamp(view.c, cx, cx - term.width + 1);
   }
 }

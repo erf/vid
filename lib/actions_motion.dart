@@ -10,47 +10,47 @@ typedef Motion = Position Function(FileBuffer, Position);
 
 Position motionCharNext(FileBuffer f, Position p) {
   return Position(
-    y: p.y,
-    x: clamp(p.x + 1, 0, f.lines[p.y].charLen - 1),
+    l: p.l,
+    c: clamp(p.c + 1, 0, f.lines[p.l].charLen - 1),
   );
 }
 
 Position motionCharPrev(FileBuffer f, Position p) {
   return Position(
-    y: p.y,
-    x: max(0, p.x - 1),
+    l: p.l,
+    c: max(0, p.c - 1),
   );
 }
 
 Position motionCharUp(FileBuffer f, Position p) {
-  final line = clamp(p.y - 1, 0, f.lines.length - 1);
-  final char = clamp(p.x, 0, f.lines[line].charLen - 1);
-  return Position(y: line, x: char);
+  final line = clamp(p.l - 1, 0, f.lines.length - 1);
+  final char = clamp(p.c, 0, f.lines[line].charLen - 1);
+  return Position(l: line, c: char);
 }
 
 Position motionCharDown(FileBuffer f, Position p) {
-  final line = clamp(p.y + 1, 0, f.lines.length - 1);
-  final char = clamp(p.x, 0, f.lines[line].charLen - 1);
-  return Position(y: line, x: char);
+  final line = clamp(p.l + 1, 0, f.lines.length - 1);
+  final char = clamp(p.c, 0, f.lines[line].charLen - 1);
+  return Position(l: line, c: char);
 }
 
 Position motionFileStart(FileBuffer f, Position p) {
-  return Position(y: 0, x: 0);
+  return Position(l: 0, c: 0);
 }
 
 Position motionFileEnd(FileBuffer f, Position position) {
   return Position(
-    x: f.lines.last.charLen,
-    y: max(0, f.lines.length - 1),
+    c: f.lines.last.charLen,
+    l: max(0, f.lines.length - 1),
   );
 }
 
 Position motionLineStart(FileBuffer f, Position p) {
-  return Position(y: p.y, x: 0);
+  return Position(l: p.l, c: 0);
 }
 
 Position motionLineEnd(FileBuffer f, Position p) {
-  return Position(y: p.y, x: max(0, f.lines[p.y].charLen - 1));
+  return Position(l: p.l, c: max(0, f.lines[p.l].charLen - 1));
 }
 
 Position motionWordNext(FileBuffer f, Position p) {
@@ -87,7 +87,7 @@ Position motionEscape(FileBuffer f, Position p) {
 
 // find the next occurence of the given character on the current line
 Position motionFindNextChar(FileBuffer f, Position p, String char) {
-  final pnew = Position(x: p.x + 1, y: p.y);
+  final pnew = Position(c: p.c + 1, l: p.l);
   final start = f.byteIndexFromPosition(pnew);
   final match = char.allMatches(f.text.string, start).firstOrNull;
   if (match == null) return p;
@@ -96,7 +96,7 @@ Position motionFindNextChar(FileBuffer f, Position p, String char) {
 
 Position motionTillNextChar(FileBuffer f, Position p, String char) {
   final pnew = motionFindNextChar(f, p, char);
-  pnew.x = max(pnew.x - 1, p.x);
+  pnew.c = max(pnew.c - 1, p.c);
   return pnew;
 }
 
@@ -111,6 +111,6 @@ Position motionFindPrevChar(FileBuffer f, Position p, String char) {
 
 Position motionTillPrevChar(FileBuffer f, Position p, String char) {
   final pnew = motionFindPrevChar(f, p, char);
-  pnew.x = min(pnew.x + 1, p.x);
+  pnew.c = min(pnew.c + 1, p.c);
   return pnew;
 }

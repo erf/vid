@@ -11,21 +11,21 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
-    f.cursor = Position(x: 0, y: 1);
+    f.cursor = Position(c: 0, l: 1);
     final e = Editor();
     actionJoinLines(e, f);
     expect(f.lines.map((e) => e.text), [
       'abc'.ch,
       'defghi'.ch,
     ]);
-    expect(f.cursor, Position(x: 0, y: 1));
+    expect(f.cursor, Position(c: 0, l: 1));
   });
 
   test('deleteLineEnd', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
-    f.cursor = Position(x: 0, y: 1);
+    f.cursor = Position(c: 0, l: 1);
     final e = Editor();
     actionDeleteLineEnd(e, f);
     expect(f.lines.map((e) => e.text), [
@@ -33,14 +33,14 @@ void main() {
       ''.ch,
       'ghi'.ch,
     ]);
-    expect(f.cursor, Position(x: 0, y: 1));
+    expect(f.cursor, Position(c: 0, l: 1));
   });
 
   test('actionDeleteCharNext', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
-    f.cursor = Position(x: 1, y: 1);
+    f.cursor = Position(c: 1, l: 1);
     final e = Editor();
     actionDeleteCharNext(e, f);
     expect(f.lines.map((e) => e.text), [
@@ -48,14 +48,14 @@ void main() {
       'df'.ch,
       'ghi'.ch,
     ]);
-    expect(f.cursor, Position(x: 1, y: 1));
+    expect(f.cursor, Position(c: 1, l: 1));
   });
 
   test('actionDeleteCharNext at end', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n '.ch;
     f.createLines();
-    f.cursor = Position(x: 0, y: 2);
+    f.cursor = Position(c: 0, l: 2);
     final e = Editor();
     actionDeleteCharNext(e, f);
     expect(f.lines.map((e) => e.text).toList(), [
@@ -63,6 +63,6 @@ void main() {
       'def'.ch,
       ''.ch,
     ]);
-    expect(f.cursor, Position(x: 0, y: 2));
+    expect(f.cursor, Position(c: 0, l: 2));
   });
 }

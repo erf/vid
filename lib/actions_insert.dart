@@ -9,7 +9,7 @@ typedef InsertAction = void Function(FileBuffer);
 
 void defaultInsert(FileBuffer f, String s) {
   f.insertAt(f.cursor, s.ch);
-  f.cursor.x++;
+  f.cursor.c++;
 }
 
 void insertActionEscape(FileBuffer f) {
@@ -19,28 +19,28 @@ void insertActionEscape(FileBuffer f) {
 
 void insertActionEnter(FileBuffer f) {
   f.insertAt(f.cursor, '\n'.ch);
-  f.cursor.x = 0;
-  f.view.x = 0;
+  f.cursor.c = 0;
+  f.view.c = 0;
   f.cursor = motionCharDown(f, f.cursor);
 }
 
 void joinLines(FileBuffer f) {
   final lines = f.lines;
   final cursor = f.cursor;
-  if (lines.length <= 1 || cursor.y <= 0) return;
-  final charPos = lines[cursor.y - 1].charLen;
-  f.cursor = Position(y: cursor.y - 1, x: charPos);
+  if (lines.length <= 1 || cursor.l <= 0) return;
+  final charPos = lines[cursor.l - 1].charLen;
+  f.cursor = Position(l: cursor.l - 1, c: charPos);
   f.deleteAt(f.cursor);
 }
 
 void deleteCharPrev(FileBuffer f) {
   if (f.empty) return;
-  f.cursor.x--;
+  f.cursor.c--;
   f.deleteAt(f.cursor);
 }
 
 void insertActionBackspace(FileBuffer f) {
-  if (f.cursor.x == 0) {
+  if (f.cursor.c == 0) {
     joinLines(f);
   } else {
     deleteCharPrev(f);

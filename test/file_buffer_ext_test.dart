@@ -12,27 +12,27 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef'.ch;
     f.createLines();
-    expect(f.charIndexFromPosition(Position(x: 0, y: 0)), 0);
-    expect(f.charIndexFromPosition(Position(x: 2, y: 0)), 2);
-    expect(f.charIndexFromPosition(Position(x: 0, y: 1)), 4);
-    expect(f.charIndexFromPosition(Position(x: 2, y: 1)), 6);
+    expect(f.charIndexFromPosition(Position(c: 0, l: 0)), 0);
+    expect(f.charIndexFromPosition(Position(c: 2, l: 0)), 2);
+    expect(f.charIndexFromPosition(Position(c: 0, l: 1)), 4);
+    expect(f.charIndexFromPosition(Position(c: 2, l: 1)), 6);
   });
 
   test('getPositionFromIndex', () {
     final f = FileBuffer();
     f.text = 'abc\ndef'.ch;
     f.createLines();
-    expect(f.positionFromByteIndex(0), Position(x: 0, y: 0));
-    expect(f.positionFromByteIndex(2), Position(x: 2, y: 0));
-    expect(f.positionFromByteIndex(4), Position(x: 0, y: 1));
-    expect(f.positionFromByteIndex(6), Position(x: 2, y: 1));
+    expect(f.positionFromByteIndex(0), Position(c: 0, l: 0));
+    expect(f.positionFromByteIndex(2), Position(c: 2, l: 0));
+    expect(f.positionFromByteIndex(4), Position(c: 0, l: 1));
+    expect(f.positionFromByteIndex(6), Position(c: 2, l: 1));
   });
 
   test('replaceAt', () {
     final f = FileBuffer();
     f.text = 'abc\ndef'.ch;
     f.createLines();
-    f.replaceAt(Position(x: 0, y: 0), 'X'.ch);
+    f.replaceAt(Position(c: 0, l: 0), 'X'.ch);
     expect(f.text, 'Xbc\ndef'.ch);
     final undo = f.undoList.last;
     expect(undo.oldText, 'a'.ch);
@@ -47,8 +47,8 @@ void main() {
     f.createLines();
     f.deleteRange(
       Range(
-        start: Position(x: 0, y: 0),
-        end: Position(x: 1, y: 1),
+        start: Position(c: 0, l: 0),
+        end: Position(c: 1, l: 1),
       ),
     );
     expect(f.text, 'ef'.ch);
@@ -62,7 +62,7 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef'.ch;
     f.createLines();
-    f.insertAt(Position(x: 0, y: 1), 'X'.ch);
+    f.insertAt(Position(c: 0, l: 1), 'X'.ch);
     expect(f.text, 'abc\nXdef'.ch);
     final undo = f.undoList.last;
     expect(undo.oldText, ''.ch);
@@ -75,7 +75,7 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef'.ch;
     f.createLines();
-    f.deleteAt(Position(x: 0, y: 1));
+    f.deleteAt(Position(c: 0, l: 1));
     expect(f.text, 'abc\nef'.ch);
     final undo = f.undoList.last;
     expect(undo.oldText, 'd'.ch);
@@ -88,9 +88,9 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi'.ch;
     f.createLines();
-    f.deleteAt(Position(x: 0, y: 2));
-    f.deleteAt(Position(x: 0, y: 2));
-    f.deleteAt(Position(x: 0, y: 2));
+    f.deleteAt(Position(c: 0, l: 2));
+    f.deleteAt(Position(c: 0, l: 2));
+    f.deleteAt(Position(c: 0, l: 2));
     expect(f.text, 'abc\ndef\n'.ch);
     expect(f.lines.map((e) => e.text), [
       'abc'.ch,
@@ -105,12 +105,12 @@ void main() {
     f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi'.ch;
     f.createLines();
     f.deleteRange(Range(
-      start: Position(x: 0, y: 0),
-      end: Position(x: 0, y: 1),
+      start: Position(c: 0, l: 0),
+      end: Position(c: 0, l: 1),
     ));
-    f.deleteAt(Position(x: 0, y: 0));
-    f.deleteAt(Position(x: 0, y: 0));
-    f.replaceAt(Position(x: 0, y: 0), 'X'.ch);
+    f.deleteAt(Position(c: 0, l: 0));
+    f.deleteAt(Position(c: 0, l: 0));
+    f.replaceAt(Position(c: 0, l: 0), 'X'.ch);
     expect(f.text, 'X\nghi'.ch);
     actionUndo(e, f);
     expect(f.text, 'f\nghi'.ch);
@@ -126,7 +126,7 @@ void main() {
     final f = FileBuffer();
     f.text = 'ab🪼de'.ch;
     f.createLines();
-    f.deleteAt(Position(x: 2, y: 0));
+    f.deleteAt(Position(c: 2, l: 0));
     expect(f.text, 'abde'.ch);
   });
 
@@ -134,7 +134,7 @@ void main() {
     final f = FileBuffer();
     f.text = 'ab🪼de'.ch;
     f.createLines();
-    f.replaceAt(Position(x: 2, y: 0), 'X'.ch);
+    f.replaceAt(Position(c: 2, l: 0), 'X'.ch);
     expect(f.text, 'abXde'.ch);
   });
 }

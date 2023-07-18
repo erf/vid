@@ -11,10 +11,10 @@ void main() {
     f.text = 'abc\ndef'.ch;
     f.createLines();
 
-    expect(motionCharNext(f, Position(x: 0, y: 0)), Position(x: 1, y: 0));
-    expect(motionCharNext(f, Position(x: 2, y: 0)), Position(x: 2, y: 0));
-    expect(motionCharNext(f, Position(x: 0, y: 1)), Position(x: 1, y: 1));
-    expect(motionCharNext(f, Position(x: 2, y: 1)), Position(x: 2, y: 1));
+    expect(motionCharNext(f, Position(c: 0, l: 0)), Position(c: 1, l: 0));
+    expect(motionCharNext(f, Position(c: 2, l: 0)), Position(c: 2, l: 0));
+    expect(motionCharNext(f, Position(c: 0, l: 1)), Position(c: 1, l: 1));
+    expect(motionCharNext(f, Position(c: 2, l: 1)), Position(c: 2, l: 1));
   });
 
   test('motionCharPrev', () {
@@ -22,10 +22,10 @@ void main() {
     f.text = 'abc\ndef'.ch;
     f.createLines();
 
-    expect(motionCharPrev(f, Position(x: 0, y: 0)), Position(x: 0, y: 0));
-    expect(motionCharPrev(f, Position(x: 2, y: 0)), Position(x: 1, y: 0));
-    expect(motionCharPrev(f, Position(x: 0, y: 1)), Position(x: 0, y: 1));
-    expect(motionCharPrev(f, Position(x: 2, y: 1)), Position(x: 1, y: 1));
+    expect(motionCharPrev(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(motionCharPrev(f, Position(c: 2, l: 0)), Position(c: 1, l: 0));
+    expect(motionCharPrev(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
+    expect(motionCharPrev(f, Position(c: 2, l: 1)), Position(c: 1, l: 1));
   });
 
   test('motionCharUp', () {
@@ -33,10 +33,10 @@ void main() {
     f.text = 'abc\ndef'.ch;
     f.createLines();
 
-    expect(motionCharUp(f, Position(x: 0, y: 0)), Position(x: 0, y: 0));
-    expect(motionCharUp(f, Position(x: 2, y: 0)), Position(x: 2, y: 0));
-    expect(motionCharUp(f, Position(x: 0, y: 1)), Position(x: 0, y: 0));
-    expect(motionCharUp(f, Position(x: 2, y: 1)), Position(x: 2, y: 0));
+    expect(motionCharUp(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(motionCharUp(f, Position(c: 2, l: 0)), Position(c: 2, l: 0));
+    expect(motionCharUp(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
+    expect(motionCharUp(f, Position(c: 2, l: 1)), Position(c: 2, l: 0));
   });
 
   test('motionCharDown', () {
@@ -44,10 +44,10 @@ void main() {
     f.text = 'abc\ndef'.ch;
     f.createLines();
 
-    expect(motionCharDown(f, Position(x: 0, y: 0)), Position(x: 0, y: 1));
-    expect(motionCharDown(f, Position(x: 2, y: 0)), Position(x: 2, y: 1));
-    expect(motionCharDown(f, Position(x: 0, y: 1)), Position(x: 0, y: 1));
-    expect(motionCharDown(f, Position(x: 2, y: 1)), Position(x: 2, y: 1));
+    expect(motionCharDown(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
+    expect(motionCharDown(f, Position(c: 2, l: 0)), Position(c: 2, l: 1));
+    expect(motionCharDown(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
+    expect(motionCharDown(f, Position(c: 2, l: 1)), Position(c: 2, l: 1));
   });
 
   test('motionFileStart', () {
@@ -55,10 +55,10 @@ void main() {
     f.text = 'abc\ndef'.ch;
     f.createLines();
 
-    expect(motionFileStart(f, Position(x: 0, y: 0)), Position(x: 0, y: 0));
-    expect(motionFileStart(f, Position(x: 2, y: 0)), Position(x: 0, y: 0));
-    expect(motionFileStart(f, Position(x: 0, y: 1)), Position(x: 0, y: 0));
-    expect(motionFileStart(f, Position(x: 2, y: 1)), Position(x: 0, y: 0));
+    expect(motionFileStart(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(motionFileStart(f, Position(c: 2, l: 0)), Position(c: 0, l: 0));
+    expect(motionFileStart(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
+    expect(motionFileStart(f, Position(c: 2, l: 1)), Position(c: 0, l: 0));
   });
 
   test('motionFileEnd', () {
@@ -66,69 +66,69 @@ void main() {
     f.text = 'abc\ndef'.ch;
     f.createLines();
 
-    expect(motionFileEnd(f, Position(x: 0, y: 0)), Position(x: 3, y: 1));
-    expect(motionFileEnd(f, Position(x: 2, y: 0)), Position(x: 3, y: 1));
-    expect(motionFileEnd(f, Position(x: 0, y: 1)), Position(x: 3, y: 1));
-    expect(motionFileEnd(f, Position(x: 2, y: 1)), Position(x: 3, y: 1));
+    expect(motionFileEnd(f, Position(c: 0, l: 0)), Position(c: 3, l: 1));
+    expect(motionFileEnd(f, Position(c: 2, l: 0)), Position(c: 3, l: 1));
+    expect(motionFileEnd(f, Position(c: 0, l: 1)), Position(c: 3, l: 1));
+    expect(motionFileEnd(f, Position(c: 2, l: 1)), Position(c: 3, l: 1));
   });
 
   test('motionFindNextChar', () {
     final f = FileBuffer();
     f.text = 'abca\ndef'.ch;
     f.createLines();
-    final cursor = Position(x: 0, y: 0);
+    final cursor = Position(c: 0, l: 0);
 
-    expect(motionFindNextChar(f, cursor, 'a'), Position(x: 3, y: 0));
-    expect(motionFindNextChar(f, cursor, 'b'), Position(x: 1, y: 0));
-    expect(motionFindNextChar(f, cursor, 'c'), Position(x: 2, y: 0));
+    expect(motionFindNextChar(f, cursor, 'a'), Position(c: 3, l: 0));
+    expect(motionFindNextChar(f, cursor, 'b'), Position(c: 1, l: 0));
+    expect(motionFindNextChar(f, cursor, 'c'), Position(c: 2, l: 0));
   });
 
   test('motionFindPrevChar', () {
     final f = FileBuffer();
     f.text = 'abc\ndef'.ch;
     f.createLines();
-    final cursor = Position(x: 2, y: 0);
-    expect(motionFindPrevChar(f, cursor, 'a'), Position(x: 0, y: 0));
-    expect(motionFindPrevChar(f, cursor, 'b'), Position(x: 1, y: 0));
-    expect(motionFindPrevChar(f, cursor, 'c'), Position(x: 2, y: 0));
+    final cursor = Position(c: 2, l: 0);
+    expect(motionFindPrevChar(f, cursor, 'a'), Position(c: 0, l: 0));
+    expect(motionFindPrevChar(f, cursor, 'b'), Position(c: 1, l: 0));
+    expect(motionFindPrevChar(f, cursor, 'c'), Position(c: 2, l: 0));
   });
 
   test('motionWordNext', () {
     final f = FileBuffer();
     f.text = 'a🥹c d❤️‍🔥f ghi\njkl 😺no p🦀r'.ch;
     f.createLines();
-    expect(motionWordNext(f, Position(x: 0, y: 0)), Position(x: 4, y: 0));
-    expect(motionWordNext(f, Position(x: 3, y: 0)), Position(x: 4, y: 0));
-    expect(motionWordNext(f, Position(x: 4, y: 0)), Position(x: 8, y: 0));
+    expect(motionWordNext(f, Position(c: 0, l: 0)), Position(c: 4, l: 0));
+    expect(motionWordNext(f, Position(c: 3, l: 0)), Position(c: 4, l: 0));
+    expect(motionWordNext(f, Position(c: 4, l: 0)), Position(c: 8, l: 0));
 
-    expect(motionWordNext(f, Position(x: 8, y: 0)), Position(x: 0, y: 1));
-    expect(motionWordNext(f, Position(x: 2, y: 1)), Position(x: 4, y: 1));
-    expect(motionWordNext(f, Position(x: 2, y: 1)), Position(x: 4, y: 1));
+    expect(motionWordNext(f, Position(c: 8, l: 0)), Position(c: 0, l: 1));
+    expect(motionWordNext(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
+    expect(motionWordNext(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
   });
 
   test('motionWordEnd', () {
     final f = FileBuffer();
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr'.ch;
     f.createLines();
-    expect(motionWordEnd(f, Position(x: 0, y: 0)), Position(x: 2, y: 0));
-    expect(motionWordEnd(f, Position(x: 3, y: 0)), Position(x: 6, y: 0));
-    expect(motionWordEnd(f, Position(x: 4, y: 0)), Position(x: 6, y: 0));
+    expect(motionWordEnd(f, Position(c: 0, l: 0)), Position(c: 2, l: 0));
+    expect(motionWordEnd(f, Position(c: 3, l: 0)), Position(c: 6, l: 0));
+    expect(motionWordEnd(f, Position(c: 4, l: 0)), Position(c: 6, l: 0));
 
-    expect(motionWordEnd(f, Position(x: 8, y: 0)), Position(x: 10, y: 0));
-    expect(motionWordEnd(f, Position(x: 10, y: 0)), Position(x: 2, y: 1));
-    expect(motionWordEnd(f, Position(x: 2, y: 1)), Position(x: 6, y: 1));
+    expect(motionWordEnd(f, Position(c: 8, l: 0)), Position(c: 10, l: 0));
+    expect(motionWordEnd(f, Position(c: 10, l: 0)), Position(c: 2, l: 1));
+    expect(motionWordEnd(f, Position(c: 2, l: 1)), Position(c: 6, l: 1));
   });
 
   test('motionWordPrev', () {
     final f = FileBuffer();
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr'.ch;
     f.createLines();
-    expect(motionWordPrev(f, Position(x: 0, y: 0)), Position(x: 0, y: 0));
-    expect(motionWordPrev(f, Position(x: 3, y: 0)), Position(x: 0, y: 0));
-    expect(motionWordPrev(f, Position(x: 4, y: 0)), Position(x: 0, y: 0));
+    expect(motionWordPrev(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(motionWordPrev(f, Position(c: 3, l: 0)), Position(c: 0, l: 0));
+    expect(motionWordPrev(f, Position(c: 4, l: 0)), Position(c: 0, l: 0));
 
-    expect(motionWordPrev(f, Position(x: 5, y: 0)), Position(x: 4, y: 0));
-    expect(motionWordPrev(f, Position(x: 4, y: 1)), Position(x: 0, y: 1));
-    expect(motionWordPrev(f, Position(x: 0, y: 1)), Position(x: 8, y: 0));
+    expect(motionWordPrev(f, Position(c: 5, l: 0)), Position(c: 4, l: 0));
+    expect(motionWordPrev(f, Position(c: 4, l: 1)), Position(c: 0, l: 1));
+    expect(motionWordPrev(f, Position(c: 0, l: 1)), Position(c: 8, l: 0));
   });
 }
