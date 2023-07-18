@@ -63,8 +63,8 @@ void actionPasteBefore(Editor e, FileBuffer f) {
 }
 
 void doQuit(Editor e, FileBuffer f) {
-  e.renderBuffer.write(VT100.erase);
   e.renderBuffer.write(VT100.reset);
+  e.renderBuffer.write(VT100.disableAlternativeBuffer);
   e.terminal.write(e.renderBuffer);
   e.renderBuffer.clear();
   e.terminal.rawMode = false;

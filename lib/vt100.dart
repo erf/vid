@@ -1,4 +1,6 @@
 // https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+// https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
+// https://en.wikipedia.org/wiki/ANSI_escape_code
 
 class VT100 {
   VT100._();
@@ -25,4 +27,10 @@ class VT100 {
 
   // reset font and background color
   static const String reset = '\x1b[0m';
+
+  // save screen
+  static const String enableAlternativeBuffer = '\x1b[?1049h';
+
+  // restore screen
+  static const String disableAlternativeBuffer = '\x1b[?1049l';
 }
