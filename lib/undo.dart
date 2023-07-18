@@ -8,7 +8,7 @@ enum UndoType {
   delete,
 }
 
-class UndoOp {
+class Undo {
   final UndoType type;
   final Characters newText;
   final Characters oldText;
@@ -16,7 +16,7 @@ class UndoOp {
   final int end;
   final Position cursor;
 
-  const UndoOp(
+  const Undo(
     this.type,
     this.newText,
     this.oldText,

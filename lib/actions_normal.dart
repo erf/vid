@@ -243,8 +243,7 @@ void actionUndo(Editor e, FileBuffer f) {
   final op = f.undoList.removeLast();
   f.text = switch (op.type) {
     UndoType.replace => f.text.replaceRange(op.start, op.end, op.oldText),
-    UndoType.insert =>
-      f.text.replaceRange(op.start, op.start + op.newText.length, ''.ch),
+    UndoType.insert => f.text.replaceRange(op.start, op.start + op.newText.length, ''.ch),
     UndoType.delete => f.text.replaceRange(op.start, op.start, op.oldText),
   };
   f.createLines();
