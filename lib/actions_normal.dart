@@ -212,22 +212,22 @@ void actionChangeLineEnd(Editor e, FileBuffer f) {
 }
 
 void actionFindCharNext(Editor e, FileBuffer f) {
-  f.mode = Mode.operatorPending;
+  f.mode = Mode.pending;
   f.pendingAction = findNextChar;
 }
 
 void actionFindCharPrev(Editor e, FileBuffer f) {
-  f.mode = Mode.operatorPending;
+  f.mode = Mode.pending;
   f.pendingAction = findPrevChar;
 }
 
 void actionTillCharNext(Editor e, FileBuffer f) {
-  f.mode = Mode.operatorPending;
+  f.mode = Mode.pending;
   f.pendingAction = tillNextChar;
 }
 
 void actionTillCharPrev(Editor e, FileBuffer f) {
-  f.mode = Mode.operatorPending;
+  f.mode = Mode.pending;
   f.pendingAction = tillPrevChar;
 }
 

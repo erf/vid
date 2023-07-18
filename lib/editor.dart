@@ -114,7 +114,7 @@ class Editor {
   String getModeStatusStr(Mode mode) {
     return switch (mode) {
       Mode.normal => 'NOR',
-      Mode.operatorPending => 'PEN',
+      Mode.pending => 'PEN',
       Mode.insert => 'INS',
       Mode.replace => 'REP',
     };
@@ -138,7 +138,7 @@ class Editor {
         insert(chars);
       case Mode.normal:
         normal(chars);
-      case Mode.operatorPending:
+      case Mode.pending:
         pending(chars);
       case Mode.replace:
         replace(chars);
@@ -169,7 +169,7 @@ class Editor {
     }
     OperatorPendingAction? pending = pendingActions[str];
     if (pending != null) {
-      fileBuffer.mode = Mode.operatorPending;
+      fileBuffer.mode = Mode.pending;
       fileBuffer.pendingAction = pending;
     }
   }
