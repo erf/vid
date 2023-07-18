@@ -14,7 +14,7 @@ class VT100 {
       visible ? '\x1b[?25h' : '\x1b[?25l';
 
   // home and erase down
-  static const String erase = '\x1b[H\x1b[J';
+  static const String homeAndErase = '\x1b[H\x1b[J';
 
   // set foreground color
   static String foreground(int color) => '\x1b[38;5;${color}m';
@@ -23,10 +23,10 @@ class VT100 {
   static String background(int color) => '\x1b[48;5;${color}m';
 
   // set invert
-  static String invert(invert) => invert ? '\x1b[7m' : '\x1b[27m';
+  static String invertColors(invert) => invert ? '\x1b[7m' : '\x1b[27m';
 
   // reset font and background color
-  static const String reset = '\x1b[0m';
+  static const String resetStyles = '\x1b[0m';
 
   // save screen
   static const String enableAlternativeBuffer = '\x1b[?1049h';

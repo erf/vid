@@ -41,7 +41,7 @@ class Editor {
   }
 
   void draw() {
-    renderBuffer.write(VT100.erase);
+    renderBuffer.write(VT100.homeAndErase);
 
     fileBuffer.clampView(terminal);
 
@@ -90,7 +90,7 @@ class Editor {
   }
 
   void drawStatus() {
-    renderBuffer.write(VT100.invert(true));
+    renderBuffer.write(VT100.invertColors(true));
     renderBuffer.write(VT100.cursorPosition(c: 1, l: terminal.height));
 
     final cursor = fileBuffer.cursor;
@@ -108,7 +108,7 @@ class Editor {
       renderBuffer.write(status.substring(0, terminal.width));
     }
 
-    renderBuffer.write(VT100.invert(false));
+    renderBuffer.write(VT100.invertColors(false));
   }
 
   String getModeStatusStr(Mode mode) {
