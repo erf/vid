@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vid/position.dart';
 import 'package:vid/range.dart';
-import 'package:vid/range_ext.dart';
 
 void main() {
   test('Range.normalized range is ahead', () {

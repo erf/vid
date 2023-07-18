@@ -7,7 +7,6 @@ import 'file_buffer.dart';
 import 'line.dart';
 import 'position.dart';
 import 'range.dart';
-import 'range_ext.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
 import 'undo.dart';

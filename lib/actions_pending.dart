@@ -2,7 +2,6 @@ import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'range.dart';
-import 'range_ext.dart';
 
 typedef PendingAction = void Function(FileBuffer, Range);
 

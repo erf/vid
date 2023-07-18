@@ -10,4 +10,15 @@ class Range {
   factory Range.from(Range r) => Range(start: r.start.clone, end: r.end.clone);
 
   Range get clone => Range.from(this);
+
+  // make sure start is before end
+  Range normalized() {
+    if (start.l < end.l) {
+      return clone;
+    }
+    if (start.l == end.l && start.c <= end.c) {
+      return clone;
+    }
+    return Range(start: end.clone, end: start.clone);
+  }
 }
