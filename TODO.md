@@ -6,5 +6,5 @@
 - better architecture for pending actions ?
 - save file without name (requires command mode!)
 - repeat last action / search using dot (.)
-- proper word search
+- better word search ?
 - more tests
