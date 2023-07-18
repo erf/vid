@@ -4,18 +4,68 @@ import 'package:vid/range.dart';
 import 'package:vid/range_ext.dart';
 
 void main() {
-  test('Range.normalized', () {
-    final rNorm = Range(
-      start: Position(c: 1, l: 1),
-      end: Position(c: 0, l: 0),
+  test('Range.normalized range is ahead', () {
+    final rNormalized = Range(
+      start: Position(l: 1, c: 1),
+      end: Position(l: 0, c: 0),
     ).normalized();
-
-    final expected = Range(
-      start: Position(c: 0, l: 0),
-      end: Position(c: 1, l: 1),
+    final rExpected = Range(
+      start: Position(l: 0, c: 0),
+      end: Position(l: 1, c: 1),
     );
+    expect(rNormalized.start, rExpected.start);
+    expect(rNormalized.end, rExpected.end);
+  });
 
-    expect(rNorm.start, expected.start);
-    expect(rNorm.end, expected.end);
+  test('Range.normalized range is behind', () {
+    final rNormalized = Range(
+      start: Position(l: 0, c: 0),
+      end: Position(l: 1, c: 1),
+    ).normalized();
+    final rExpected = Range(
+      start: Position(l: 0, c: 0),
+      end: Position(l: 1, c: 1),
+    );
+    expect(rNormalized.start, rExpected.start);
+    expect(rNormalized.end, rExpected.end);
+  });
+
+  test('Range.normalized range is on same line but ahead', () {
+    final rNormalized = Range(
+      start: Position(l: 0, c: 1),
+      end: Position(l: 0, c: 0),
+    ).normalized();
+    final rExpected = Range(
+      start: Position(l: 0, c: 0),
+      end: Position(l: 0, c: 1),
+    );
+    expect(rNormalized.start, rExpected.start);
+    expect(rNormalized.end, rExpected.end);
+  });
+
+  test('Range.normalized range is on same line and behind', () {
+    final rNormalized = Range(
+      start: Position(l: 1, c: 0),
+      end: Position(l: 1, c: 1),
+    ).normalized();
+    final rExpected = Range(
+      start: Position(l: 1, c: 0),
+      end: Position(l: 1, c: 1),
+    );
+    expect(rNormalized.start, rExpected.start);
+    expect(rNormalized.end, rExpected.end);
+  });
+
+  test('Range.normalized range is the same', () {
+    final rNormalized = Range(
+      start: Position(l: 1, c: 1),
+      end: Position(l: 1, c: 1),
+    ).normalized();
+    final rExpected = Range(
+      start: Position(l: 1, c: 1),
+      end: Position(l: 1, c: 1),
+    );
+    expect(rNormalized.start, rExpected.start);
+    expect(rNormalized.end, rExpected.end);
   });
 }

@@ -1,18 +1,14 @@
 import 'range.dart';
 
 extension RangeExt on Range {
-  // make the range in correct order from top to bottom
+  // make sure start is before end
   Range normalized() {
-    Range r = Range.from(this);
-    if (r.start.l > r.end.l) {
-      final tmp = r.start;
-      r.start = r.end;
-      r.end = tmp;
-    } else if (r.start.l == r.end.l && r.start.c > r.end.c) {
-      final tmp = r.start.c;
-      r.start.c = r.end.c;
-      r.end.c = tmp;
+    if (start.l < end.l) {
+      return clone;
     }
-    return r;
+    if (start.l == end.l && start.c <= end.c) {
+      return clone;
+    }
+    return Range(start: end.clone, end: start.clone);
   }
 }
