@@ -13,13 +13,13 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 - VT-100 terminal sequences ⌨
 - unlimited undo ↩️
 
-## Non-Goals 🛑
+## Non-goals 🛑
 
-- syntax highlighting (just terminal bg/fg colors)
+- syntax highlighting (we use terminal bg / fg colors)
 - plugins (let's keep things minimal)
-- window manager (just open a new Terminal tab)
+- window manager (just open a new terminal tab)
+- 100 % vim compatability (only a minimal subset)
 - binaries (just build from source)
-- 100 % vim compatability (a minimal subset, no visual mode etc)
 
 ## Keyboard shortcuts
 
