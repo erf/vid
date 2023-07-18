@@ -1,4 +1,4 @@
-# Text engine
+# Design
 
 - whole file as a String `text` 
 - recreate lines of text + metadata on init / changes
