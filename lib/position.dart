@@ -13,7 +13,7 @@ class Position {
   Position get clone => Position.from(this);
 
   @override
-  String toString() => 'Position(y: $l, x: $c)';
+  String toString() => 'Position(l: $l, c: $c)';
 
   @override
   bool operator ==(Object other) {

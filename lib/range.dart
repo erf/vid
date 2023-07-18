@@ -5,17 +5,9 @@ class Range {
   final Position start;
   final Position end;
 
-  const Range({
-    required this.start,
-    required this.end,
-  });
+  const Range({required this.start, required this.end});
 
-  static Range from(Range range) {
-    return Range(
-      start: range.start.clone,
-      end: range.end.clone,
-    );
-  }
+  factory Range.from(Range r) => Range(start: r.start.clone, end: r.end.clone);
 
   Range get clone => Range.from(this);
 }
