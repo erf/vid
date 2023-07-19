@@ -180,6 +180,10 @@ void actionCursorWordPrev(Editor e, FileBuffer f) {
   f.cursor = motionWordPrev(f, f.cursor);
 }
 
+void actionFindWordNext(Editor v, FileBuffer f) {
+  f.cursor = motionFindWordNext(f, f.cursor);
+}
+
 void actionDeleteCharNext(Editor e, FileBuffer f) {
   if (f.empty) return;
   f.deleteAt(f.cursor);

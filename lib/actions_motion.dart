@@ -62,6 +62,28 @@ Position motionWordNext(FileBuffer f, Position p) {
   return f.positionFromByteIndex(match.start);
 }
 
+Position motionFindWordNext(FileBuffer f, Position p) {
+  final start = f.byteIndexFromPosition(p);
+  final matches = RegExp(r'\w+').allMatches(f.text.string);
+  if (matches.isEmpty) {
+    return p;
+  }
+  final match =
+      matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
+  // we are not on the word
+  if (start < match.start || start >= match.end) {
+    return f.positionFromByteIndex(match.start);
+  }
+  // we are on the word and we want to find the next same word
+  final strToMatch = f.text.string.substring(match.start, match.end);
+  final index = f.text.string.indexOf(RegExp('\\b$strToMatch\\b'), match.end);
+  if (index == -1) {
+    // we did not find the same word, so we go to the matched word
+    return f.positionFromByteIndex(match.start);
+  }
+  return f.positionFromByteIndex(index);
+}
+
 Position motionWordEnd(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text.string, start);
