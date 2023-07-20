@@ -62,7 +62,7 @@ Position motionWordNext(FileBuffer f, Position p) {
   return f.positionFromByteIndex(match.start);
 }
 
-Position motionFindWordOnCursorNext(FileBuffer f, Position p) {
+Position motionSameWordNext(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text.string);
   if (matches.isEmpty) return p;
@@ -80,7 +80,7 @@ Position motionFindWordOnCursorNext(FileBuffer f, Position p) {
       : f.positionFromByteIndex(index);
 }
 
-Position motionFindWordOnCursorPrev(FileBuffer f, Position p) {
+Position motionSameWordPrev(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text.string);
   if (matches.isEmpty) return p;

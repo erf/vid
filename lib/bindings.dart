@@ -44,8 +44,8 @@ final normalActions = <String, NormalAction>{
   'J': actionJoinLines,
   'C': actionChangeLineEnd,
   'u': actionUndo,
-  '*': actionFindWordOnCursorNext,
-  '#': actionFindWordOnCursorPrev,
+  '*': actionSameWordNext,
+  '#': actionSameWordPrev,
 };
 
 final pendingActions = <String, PendingAction>{

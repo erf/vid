@@ -180,12 +180,12 @@ void actionCursorWordPrev(Editor e, FileBuffer f) {
   f.cursor = motionWordPrev(f, f.cursor);
 }
 
-void actionFindWordOnCursorNext(Editor v, FileBuffer f) {
-  f.cursor = motionFindWordOnCursorNext(f, f.cursor);
+void actionSameWordNext(Editor v, FileBuffer f) {
+  f.cursor = motionSameWordNext(f, f.cursor);
 }
 
-void actionFindWordOnCursorPrev(Editor v, FileBuffer f) {
-  f.cursor = motionFindWordOnCursorPrev(f, f.cursor);
+void actionSameWordPrev(Editor v, FileBuffer f) {
+  f.cursor = motionSameWordPrev(f, f.cursor);
 }
 
 void actionDeleteCharNext(Editor e, FileBuffer f) {

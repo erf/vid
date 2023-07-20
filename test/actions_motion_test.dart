@@ -136,21 +136,16 @@ void main() {
     final f = FileBuffer();
     f.text = 'det er fint, fint er det saus'.ch;
     f.createLines();
-    expect(motionFindWordOnCursorNext(f, Position(l: 0, c: 0)),
-        Position(l: 0, c: 21));
-    expect(motionFindWordOnCursorNext(f, Position(l: 0, c: 10)),
-        Position(l: 0, c: 13));
-    expect(motionFindWordOnCursorNext(f, Position(l: 0, c: 27)),
-        Position(l: 0, c: 25));
+    expect(motionSameWordNext(f, Position(l: 0, c: 0)), Position(l: 0, c: 21));
+    expect(motionSameWordNext(f, Position(l: 0, c: 10)), Position(l: 0, c: 13));
+    expect(motionSameWordNext(f, Position(l: 0, c: 27)), Position(l: 0, c: 25));
   });
 
   test('motionFindWordOnCursorPrev', () {
     final f = FileBuffer();
     f.text = 'det er fint, fint er det saus'.ch;
     f.createLines();
-    expect(motionFindWordOnCursorPrev(f, Position(l: 0, c: 15)),
-        Position(l: 0, c: 7));
-    expect(motionFindWordOnCursorPrev(f, Position(l: 0, c: 27)),
-        Position(l: 0, c: 25));
+    expect(motionSameWordPrev(f, Position(l: 0, c: 15)), Position(l: 0, c: 7));
+    expect(motionSameWordPrev(f, Position(l: 0, c: 27)), Position(l: 0, c: 25));
   });
 }
