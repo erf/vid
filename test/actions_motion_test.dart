@@ -148,4 +148,20 @@ void main() {
     expect(motionSameWordPrev(f, Position(l: 0, c: 15)), Position(l: 0, c: 7));
     expect(motionSameWordPrev(f, Position(l: 0, c: 27)), Position(l: 0, c: 25));
   });
+
+  test('motionFirstNoneBlank', () {
+    final f = FileBuffer();
+    f.text = '  abc'.ch;
+    f.createLines();
+    expect(
+        motionLineFirstNonBlank(f, Position(l: 0, c: 0)), Position(l: 0, c: 2));
+    expect(
+        motionLineFirstNonBlank(f, Position(l: 0, c: 1)), Position(l: 0, c: 2));
+    expect(
+        motionLineFirstNonBlank(f, Position(l: 0, c: 2)), Position(l: 0, c: 2));
+    expect(
+        motionLineFirstNonBlank(f, Position(l: 0, c: 3)), Position(l: 0, c: 2));
+    expect(
+        motionLineFirstNonBlank(f, Position(l: 0, c: 5)), Position(l: 0, c: 2));
+  });
 }

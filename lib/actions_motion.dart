@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:characters/characters.dart';
+
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
@@ -47,6 +49,12 @@ Position motionFileEnd(FileBuffer f, Position position) {
 
 Position motionLineStart(FileBuffer f, Position p) {
   return Position(l: p.l, c: 0);
+}
+
+Position motionLineFirstNonBlank(FileBuffer f, Position p) {
+  final line = f.lines[p.l];
+  final firstNonBlank = line.text.string.indexOf(RegExp(r'\S'));
+  return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
 }
 
 Position motionLineEnd(FileBuffer f, Position p) {

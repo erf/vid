@@ -23,6 +23,7 @@ final normalActions = <String, NormalAction>{
   'e': actionCursorWordEnd,
   'x': actionDeleteCharNext,
   '0': actionCursorLineStart,
+  '^': actionLineFirstNonBlank,
   '\$': actionCursorLineEnd,
   'i': actionInsert,
   'a': actionAppendCharNext,
@@ -51,8 +52,8 @@ final normalActions = <String, NormalAction>{
 final pendingActions = <String, PendingAction>{
   'c': pendingActionChange,
   'd': pendingActionDelete,
-  'g': pendingActionGo,
   'y': pendingActionYank,
+  'g': pendingActionGo,
 };
 
 final textObjects = <String, TextObject>{
@@ -75,6 +76,7 @@ final motionActions = <String, Motion>{
   'b': motionWordPrev,
   'e': motionWordEnd,
   '0': motionLineStart,
+  '^': motionLineFirstNonBlank,
   '\$': motionLineEnd,
   '\x1b': motionEscape,
 };

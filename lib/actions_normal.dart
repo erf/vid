@@ -159,6 +159,10 @@ void actionCursorLineStart(Editor e, FileBuffer f) {
   f.view.c = 0;
 }
 
+void actionLineFirstNonBlank(Editor e, FileBuffer f) {
+  f.cursor = motionLineFirstNonBlank(f, f.cursor);
+}
+
 void actionCursorCharUp(Editor e, FileBuffer f) {
   f.cursor = motionCharUp(f, f.cursor);
 }
