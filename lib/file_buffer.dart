@@ -28,6 +28,12 @@ class FileBuffer {
   // the pending action to be executed
   Function? pendingAction;
 
+  // the accumulated text input
+  var input = '';
+
+  // the accumulated count input
+  var countInput = '';
+
   // the count of the pending action
   int? count;
 

@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:characters/characters.dart';
-
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';

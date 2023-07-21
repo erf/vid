@@ -109,10 +109,17 @@ void actionCursorCharPrev(Editor e, FileBuffer f) {
 void actionCursorLineBottomOrCount(Editor e, FileBuffer f) {
   if (f.count != null) {
     f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
-    f.count = null;
-    return;
+  } else {
+    f.cursor = motionFileEnd(f, f.cursor);
   }
-  f.cursor = motionFileEnd(f, f.cursor);
+}
+
+void actionCursorLineTopOrCount(Editor e, FileBuffer f) {
+  if (f.count != null) {
+    f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
+  } else {
+    f.cursor = motionFileStart(f, f.cursor);
+  }
 }
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {

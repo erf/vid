@@ -131,69 +131,86 @@ class Editor {
   }
 
   void input(List<int> codes) {
-    final chars = utf8.decode(codes);
+    final char = utf8.decode(codes);
+
     switch (fileBuffer.mode) {
       case Mode.insert:
-        insert(chars);
+        insert(char);
       case Mode.normal:
-        normal(chars);
+        normal(char);
       case Mode.pending:
-        pending(chars);
+        pending(char);
       case Mode.replace:
-        replace(chars);
+        replace(char);
     }
     draw();
     message = '';
   }
 
-  void insert(String str) {
-    InsertAction? insertAction = insertActions[str];
+  void insert(String char) {
+    InsertAction? insertAction = insertActions[char];
     if (insertAction != null) {
       insertAction(fileBuffer);
       return;
     }
-    defaultInsert(fileBuffer, str);
+    defaultInsert(fileBuffer, char);
   }
 
-  void normal(String str) {
-    final count = int.tryParse(str);
-    if (count != null && count > 0) {
-      if (fileBuffer.count == null) {
-        fileBuffer.count = count;
-      } else {
-        fileBuffer.count = fileBuffer.count! * 10 + count;
-      }
+  void normal(String char) {
+    // accumulate countInput: if char is a number, add it to countInput
+    // if char is not a number, parse countInput and set fileBuffer.count
+    final count = int.tryParse(char);
+    if (count != null && (count > 0 || fileBuffer.countInput.isNotEmpty)) {
+      fileBuffer.countInput += char;
       return;
     }
-    NormalAction? action = normalActions[str];
+    if (fileBuffer.countInput.isNotEmpty) {
+      fileBuffer.count = int.parse(fileBuffer.countInput);
+      fileBuffer.countInput = '';
+    }
+
+    // accumulate fileBuffer.input until maxInput is reached and try to match
+    // a command in the bindings map
+    fileBuffer.input += char;
+    const int maxInput = 2;
+    if (fileBuffer.input.length > maxInput) {
+      fileBuffer.input = char;
+    }
+
+    NormalAction? action = normalActions[fileBuffer.input];
     if (action != null) {
       action(this, fileBuffer);
+      fileBuffer.input = '';
+      fileBuffer.count = null;
       return;
     }
-    PendingAction? pending = pendingActions[str];
+
+    PendingAction? pending = pendingActions[fileBuffer.input];
     if (pending != null) {
+      fileBuffer.input = '';
+      fileBuffer.count = null;
       fileBuffer.mode = Mode.pending;
       fileBuffer.pendingAction = pending;
     }
   }
 
-  void pending(String str) {
+  void pending(String char) {
     Function? pendingAction = fileBuffer.pendingAction;
     if (pendingAction == null) {
       return;
     }
     if (pendingAction is FindAction) {
-      pendingAction(fileBuffer, fileBuffer.cursor, str);
+      pendingAction(fileBuffer, fileBuffer.cursor, char);
       return;
     }
     if (pendingAction is PendingAction) {
-      TextObject? textObject = textObjects[str];
+      TextObject? textObject = textObjects[char];
       if (textObject != null) {
         Range range = textObject(fileBuffer, fileBuffer.cursor);
         pendingAction(fileBuffer, range);
         return;
       }
-      Motion? motion = motionActions[str];
+      Motion? motion = motionActions[char];
       if (motion != null) {
         Position p = motion(fileBuffer, fileBuffer.cursor);
         pendingAction(fileBuffer, Range(start: fileBuffer.cursor, end: p));
@@ -202,7 +219,7 @@ class Editor {
     }
   }
 
-  void replace(String str) {
-    defaultReplace(fileBuffer, str);
+  void replace(String char) {
+    defaultReplace(fileBuffer, char);
   }
 }

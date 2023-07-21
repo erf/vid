@@ -32,6 +32,7 @@ final normalActions = <String, NormalAction>{
   'o': actionOpenLineBelow,
   'O': actionOpenLineAbove,
   'G': actionCursorLineBottomOrCount,
+  'gg': actionCursorLineTopOrCount,
   'r': actionReplaceMode,
   'D': actionDeleteLineEnd,
   'p': actionPasteAfter,
@@ -53,7 +54,6 @@ final pendingActions = <String, PendingAction>{
   'c': pendingActionChange,
   'd': pendingActionDelete,
   'y': pendingActionYank,
-  'g': pendingActionGo,
 };
 
 final textObjects = <String, TextObject>{
