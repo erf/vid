@@ -28,7 +28,7 @@ extension FileBufferExt on FileBuffer {
     final file = File(path!);
     if (file.existsSync()) {
       // load file
-      text = file.readAsStringSync().ch;
+      text = file.readAsStringSync();
       // split text into lines
       createLines();
     }
@@ -41,7 +41,8 @@ extension FileBufferExt on FileBuffer {
     int lineNo = 0;
 
     // split text into lines with some metadata used for cursor positioning etc.
-    lines = text.split('\n'.ch).map((l) {
+    lines = text.split('\n').map((lstr) {
+      final l = lstr.ch;
       final line = Line(
         charStart: charIndex,
         byteStart: byteIndex,
@@ -78,9 +79,9 @@ extension FileBufferExt on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, Characters newText, UndoOpType undoType) {
+  void replace(int start, int end, String newText,  undoType) {
     // undo
-    final Characters oldText = text.substring(start, end);
+    final String oldText = text.substring(start, end);
     undoList.add(UndoOp(undoType, newText, oldText, start, end, cursor.clone));
     // replace text and create lines
     text = text.replaceRange(start, end, newText);
@@ -89,24 +90,24 @@ extension FileBufferExt on FileBuffer {
   }
 
   void deleteRange(Range r) {
-    final start = charIndexFromPosition(r.start);
-    final end = charIndexFromPosition(r.end);
-    replace(start, end, Characters.empty, UndoOpType.delete);
+    final start = byteIndexFromPosition(r.start);
+    final end = byteIndexFromPosition(r.end);
+    replace(start, end, '', UndoOpType.delete);
   }
 
-  void insertAt(Position p, Characters str) {
-    final index = charIndexFromPosition(p);
+  void insertAt(Position p, String str) {
+    final index = byteIndexFromPosition(p);
     replace(index, index, str, UndoOpType.insert);
   }
 
-  void replaceAt(Position p, Characters str) {
-    final index = charIndexFromPosition(p);
+  void replaceAt(Position p, String str) {
+    final index = byteIndexFromPosition(p);
     replace(index, index + 1, str, UndoOpType.replace);
   }
 
   void deleteAt(Position p) {
-    final index = charIndexFromPosition(p);
-    replace(index, index + 1, Characters.empty, UndoOpType.delete);
+    final index = byteIndexFromPosition(p);
+    replace(index, index + 1, '', UndoOpType.delete);
   }
 
   void yankRange(Range range) {

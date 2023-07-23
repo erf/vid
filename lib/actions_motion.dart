@@ -61,7 +61,7 @@ Position motionLineEnd(FileBuffer f, Position p) {
 
 Position motionWordNext(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
-  final matches = RegExp(r'\w+').allMatches(f.text.string, start);
+  final matches = RegExp(r'\w+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => start < m.start, orElse: () => matches.first);
@@ -70,7 +70,7 @@ Position motionWordNext(FileBuffer f, Position p) {
 
 Position motionSameWordNext(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
-  final matches = RegExp(r'\w+').allMatches(f.text.string);
+  final matches = RegExp(r'\w+').allMatches(f.text);
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
@@ -79,8 +79,8 @@ Position motionSameWordNext(FileBuffer f, Position p) {
     return f.positionFromByteIndex(match.start);
   }
   // we are on the word and we want to find the next same word
-  final wordToMatch = f.text.string.substring(match.start, match.end);
-  final index = f.text.string.indexOf(RegExp('\\b$wordToMatch\\b'), match.end);
+  final wordToMatch = f.text.substring(match.start, match.end);
+  final index = f.text.indexOf(RegExp('\\b$wordToMatch\\b'), match.end);
   return index == -1
       ? f.positionFromByteIndex(match.start)
       : f.positionFromByteIndex(index);
@@ -88,7 +88,7 @@ Position motionSameWordNext(FileBuffer f, Position p) {
 
 Position motionSameWordPrev(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
-  final matches = RegExp(r'\w+').allMatches(f.text.string);
+  final matches = RegExp(r'\w+').allMatches(f.text);
   if (matches.isEmpty) return p;
   final match = matches.firstWhere((e) {
     return start <= e.end;
@@ -98,8 +98,8 @@ Position motionSameWordPrev(FileBuffer f, Position p) {
     return f.positionFromByteIndex(match.start);
   }
   // we are on the word and we want to find the prev same word
-  final wordToMatch = f.text.string.substring(match.start, match.end);
-  final index = f.text.string
+  final wordToMatch = f.text.substring(match.start, match.end);
+  final index = f.text
       .substring(0, match.start)
       .lastIndexOf(RegExp('\\b$wordToMatch\\b'));
   return index == -1
@@ -109,7 +109,7 @@ Position motionSameWordPrev(FileBuffer f, Position p) {
 
 Position motionWordEnd(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
-  final matches = RegExp(r'\w+').allMatches(f.text.string, start);
+  final matches = RegExp(r'\w+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
   final match =
       matches.firstWhere((m) => start < m.end - 1, orElse: () => matches.first);
@@ -118,7 +118,7 @@ Position motionWordEnd(FileBuffer f, Position p) {
 
 Position motionWordPrev(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
-  final matches = RegExp(r'\w+').allMatches(f.text.string.substring(0, start));
+  final matches = RegExp(r'\w+').allMatches(f.text.substring(0, start));
   if (matches.isEmpty) return p;
   return f.positionFromByteIndex(matches.last.start);
 }
@@ -134,7 +134,7 @@ Position motionEscape(FileBuffer f, Position p) {
 Position motionFindNextChar(FileBuffer f, Position p, String char) {
   final pnew = Position(c: p.c + 1, l: p.l);
   final start = f.byteIndexFromPosition(pnew);
-  final match = char.allMatches(f.text.string, start).firstOrNull;
+  final match = char.allMatches(f.text, start).firstOrNull;
   if (match == null) return p;
   return f.positionFromByteIndex(match.start);
 }
@@ -148,7 +148,7 @@ Position motionTillNextChar(FileBuffer f, Position p, String char) {
 // find the previous occurence of the given character on the current line
 Position motionFindPrevChar(FileBuffer f, Position p, String char) {
   final start = f.byteIndexFromPosition(p);
-  final matches = char.allMatches(f.text.string.substring(0, start));
+  final matches = char.allMatches(f.text.substring(0, start));
   if (matches.isEmpty) return p;
   final match = matches.last;
   return f.positionFromByteIndex(match.start);

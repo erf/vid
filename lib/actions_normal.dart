@@ -124,13 +124,13 @@ void actionCursorLineTopOrCount(Editor e, FileBuffer f) {
 
 void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insertAt(Position(l: f.cursor.l, c: 0), '\n'.ch);
+  f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
   f.cursor.c = 0;
 }
 
 void actionOpenLineBelow(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n'.ch);
+  f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n');
   actionCursorCharDown(e, f);
 }
 
@@ -266,7 +266,7 @@ void actionUndo(Editor e, FileBuffer f) {
     UndoOpType.replace =>
       f.text.replaceRange(undo.start, undo.end, undo.oldText),
     UndoOpType.insert =>
-      f.text.replaceRange(undo.start, undo.start + undo.newText.length, ''.ch),
+      f.text.replaceRange(undo.start, undo.start + undo.newText.length, ''),
     UndoOpType.delete =>
       f.text.replaceRange(undo.start, undo.start, undo.oldText),
   };

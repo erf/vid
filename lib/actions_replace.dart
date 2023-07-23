@@ -10,5 +10,5 @@ typedef ReplaceAction = void Function(FileBuffer, Characters);
 void defaultReplace(FileBuffer f, String s) {
   f.mode = Mode.normal;
   if (f.empty) return;
-  f.replaceAt(f.cursor, s.ch);
+  f.replaceAt(f.cursor, s);
 }

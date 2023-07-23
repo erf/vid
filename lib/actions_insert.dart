@@ -8,7 +8,7 @@ import 'string_ext.dart';
 typedef InsertAction = void Function(FileBuffer);
 
 void defaultInsert(FileBuffer f, String s) {
-  f.insertAt(f.cursor, s.ch);
+  f.insertAt(f.cursor, s);
   f.cursor.c++;
 }
 
@@ -18,7 +18,7 @@ void insertActionEscape(FileBuffer f) {
 }
 
 void insertActionEnter(FileBuffer f) {
-  f.insertAt(f.cursor, '\n'.ch);
+  f.insertAt(f.cursor, '\n');
   f.cursor.c = 0;
   f.view.c = 0;
   f.cursor = motionCharDown(f, f.cursor);

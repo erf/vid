@@ -10,8 +10,8 @@ enum UndoOpType {
 
 class UndoOp {
   final UndoOpType type;
-  final Characters newText;
-  final Characters oldText;
+  final String newText;
+  final String oldText;
   final int start;
   final int end;
   final Position cursor;
