@@ -42,5 +42,5 @@ class FileBuffer {
   bool isModified = false;
 
   // list of undo operations
-  List<UndoOp> undoList = [];
+  List<Undo> undoList = [];
 }

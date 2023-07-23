@@ -35,9 +35,9 @@ void main() {
     f.replaceAt(Position(c: 0, l: 0), 'X');
     expect(f.text, 'Xbc\ndef');
     final undo = f.undoList.last;
-    expect(undo.oldText, 'a');
-    expect(undo.newText, 'X');
-    expect(undo.start, 0);
+    expect(undo.prev, 'a');
+    expect(undo.text, 'X');
+    expect(undo.i, 0);
   });
 
   test('deleteRange', () {
@@ -52,8 +52,8 @@ void main() {
     );
     expect(f.text, 'ef');
     final undo = f.undoList.last;
-    expect(undo.oldText, 'abc\nd');
-    expect(undo.start, 0);
+    expect(undo.prev, 'abc\nd');
+    expect(undo.i, 0);
   });
 
   test('insertAt', () {
@@ -63,9 +63,9 @@ void main() {
     f.insertAt(Position(c: 0, l: 1), 'X');
     expect(f.text, 'abc\nXdef');
     final undo = f.undoList.last;
-    expect(undo.oldText, '');
-    expect(undo.newText, 'X');
-    expect(undo.start, 4);
+    expect(undo.prev, '');
+    expect(undo.text, 'X');
+    expect(undo.i, 4);
   });
 
   test('deleteAt', () {
@@ -75,9 +75,9 @@ void main() {
     f.deleteAt(Position(c: 0, l: 1));
     expect(f.text, 'abc\nef');
     final undo = f.undoList.last;
-    expect(undo.oldText, 'd');
-    expect(undo.newText, '');
-    expect(undo.start, 4);
+    expect(undo.prev, 'd');
+    expect(undo.text, '');
+    expect(undo.i, 4);
   });
 
   test('deleteAt last on line', () {

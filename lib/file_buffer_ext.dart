@@ -82,7 +82,7 @@ extension FileBufferExt on FileBuffer {
   void replace(int start, int end, String newText, undoType) {
     // undo
     final String oldText = text.substring(start, end);
-    undoList.add(UndoOp(undoType, newText, oldText, start, cursor.clone));
+    undoList.add(Undo(undoType, newText, oldText, start, cursor.clone));
     // replace text and create lines
     text = text.replaceRange(start, end, newText);
     createLines();
@@ -92,26 +92,26 @@ extension FileBufferExt on FileBuffer {
   void deleteRange(Range r) {
     final start = byteIndexFromPosition(r.start);
     final end = byteIndexFromPosition(r.end);
-    replace(start, end, '', UndoOpType.delete);
+    replace(start, end, '', UndoType.delete);
   }
 
   void insertAt(Position p, String str) {
     final index = byteIndexFromPosition(p);
-    replace(index, index, str, UndoOpType.insert);
+    replace(index, index, str, UndoType.insert);
   }
 
   void replaceAt(Position p, String str) {
     final index = byteIndexFromPosition(p);
     final r = CharacterRange.at(text, index)..moveNext();
     final length = r.current.length;
-    replace(index, index + length, str, UndoOpType.replace);
+    replace(index, index + length, str, UndoType.replace);
   }
 
   void deleteAt(Position p) {
     final index = byteIndexFromPosition(p);
     final r = CharacterRange.at(text, index)..moveNext();
     final length = r.current.length;
-    replace(index, index + length, '', UndoOpType.delete);
+    replace(index, index + length, '', UndoType.delete);
   }
 
   void yankRange(Range range) {

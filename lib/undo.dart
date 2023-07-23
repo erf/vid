@@ -1,23 +1,23 @@
 import 'position.dart';
 
-enum UndoOpType {
+enum UndoType {
   replace,
   insert,
   delete,
 }
 
-class UndoOp {
-  final UndoOpType type;
-  final String newText;
-  final String oldText;
-  final int start;
+class Undo {
+  final UndoType type;
+  final String text;
+  final String prev;
+  final int i;
   final Position cursor;
 
-  const UndoOp(
+  const Undo(
     this.type,
-    this.newText,
-    this.oldText,
-    this.start,
+    this.text,
+    this.prev,
+    this.i,
     this.cursor,
   );
 }
