@@ -116,8 +116,8 @@ extension FileBufferExt on FileBuffer {
 
   void yankRange(Range range) {
     final r = range.normalized();
-    final start = charIndexFromPosition(r.start);
-    final end = charIndexFromPosition(r.end);
+    final start = byteIndexFromPosition(r.start);
+    final end = byteIndexFromPosition(r.end);
     yankBuffer = text.substring(start, end);
   }
 
