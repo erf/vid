@@ -123,6 +123,15 @@ Position motionWordPrev(FileBuffer f, Position p) {
   return f.positionFromByteIndex(matches.last.start);
 }
 
+Position motionWordEndPrev(FileBuffer f, Position p) {
+  final start = f.byteIndexFromPosition(p);
+  final matches = RegExp(r'\w+').allMatches(f.text);
+  if (matches.isEmpty) return p;
+  final match =
+      matches.lastWhere((e) => start > e.end, orElse: () => matches.last);
+  return f.positionFromByteIndex(match.end - 1);
+}
+
 // exit insert mode
 Position motionEscape(FileBuffer f, Position p) {
   f.mode = Mode.normal;

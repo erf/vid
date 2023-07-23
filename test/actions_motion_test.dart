@@ -131,6 +131,16 @@ void main() {
     expect(motionWordPrev(f, Position(c: 0, l: 1)), Position(c: 8, l: 0));
   });
 
+  test('motionWordEndPrev', () {
+    final f = FileBuffer();
+    f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr';
+    f.createLines();
+    expect(motionWordEndPrev(f, Position(c: 4, l: 0)), Position(c: 2, l: 0));
+    expect(motionWordEndPrev(f, Position(c: 8, l: 0)), Position(c: 6, l: 0));
+    expect(motionWordEndPrev(f, Position(c: 10, l: 0)), Position(c: 6, l: 0));
+    expect(motionWordEndPrev(f, Position(c: 1, l: 1)), Position(c: 10, l: 0));
+  });
+
   test('motionFindWordOnCursorNext', () {
     final f = FileBuffer();
     f.text = 'det er fint, fint er det saus';

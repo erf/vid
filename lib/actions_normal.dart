@@ -120,6 +120,10 @@ void actionCursorLineTopOrCount(Editor e, FileBuffer f) {
   }
 }
 
+void actionCursorWordEndPrev(Editor e, FileBuffer f) {
+  f.cursor = motionWordEndPrev(f, f.cursor);
+}
+
 void actionOpenLineAbove(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
   f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
