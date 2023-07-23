@@ -8,16 +8,6 @@ import 'package:vid/range.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {
-  test('getIndexFromPosition', () {
-    final f = FileBuffer();
-    f.text = 'abc\ndef';
-    f.createLines();
-    expect(f.charIndexFromPosition(Position(c: 0, l: 0)), 0);
-    expect(f.charIndexFromPosition(Position(c: 2, l: 0)), 2);
-    expect(f.charIndexFromPosition(Position(c: 0, l: 1)), 4);
-    expect(f.charIndexFromPosition(Position(c: 2, l: 1)), 6);
-  });
-
   test('getPositionFromIndex', () {
     final f = FileBuffer();
     f.text = 'abc\ndef';

@@ -36,7 +36,6 @@ extension FileBufferExt on FileBuffer {
 
   // split text into lines
   void createLines() {
-    int charIndex = 0;
     int byteIndex = 0;
     int lineNo = 0;
 
@@ -44,12 +43,10 @@ extension FileBufferExt on FileBuffer {
     lines = text.split('\n').map((lstr) {
       final l = lstr.ch;
       final line = Line(
-        charStart: charIndex,
         byteStart: byteIndex,
         text: l,
         lineNo: lineNo,
       );
-      charIndex += l.length + 1;
       byteIndex += l.string.length + 1;
       lineNo++;
       return line;
@@ -66,11 +63,6 @@ extension FileBufferExt on FileBuffer {
       l: line.lineNo,
       c: line.text.byteToCharLength(index - line.byteStart),
     );
-  }
-
-  // get the char index of the cursor in the Characters text
-  int charIndexFromPosition(Position p) {
-    return lines[p.l].charIndexAt(p.c);
   }
 
   // get the byte index of the cursor in the String text
