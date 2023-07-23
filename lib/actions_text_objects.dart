@@ -9,7 +9,7 @@ typedef TextObject = Range Function(FileBuffer, Position);
 
 Range objectCurrentLine(FileBuffer f, Position p) {
   final int linesLen = f.lines.length;
-  if (p.l == 0) {
+  if (linesLen == 1) {
     return Range(
       start: Position(l: 0, c: 0),
       end: Position(l: 0, c: f.lines.last.charLen),
