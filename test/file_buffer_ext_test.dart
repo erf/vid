@@ -38,7 +38,6 @@ void main() {
     expect(undo.oldText, 'a');
     expect(undo.newText, 'X');
     expect(undo.start, 0);
-    expect(undo.end, 1);
   });
 
   test('deleteRange', () {
@@ -55,7 +54,6 @@ void main() {
     final undo = f.undoList.last;
     expect(undo.oldText, 'abc\nd');
     expect(undo.start, 0);
-    expect(undo.end, 5);
   });
 
   test('insertAt', () {
@@ -68,7 +66,6 @@ void main() {
     expect(undo.oldText, '');
     expect(undo.newText, 'X');
     expect(undo.start, 4);
-    expect(undo.end, 4);
   });
 
   test('deleteAt', () {
@@ -81,7 +78,6 @@ void main() {
     expect(undo.oldText, 'd');
     expect(undo.newText, '');
     expect(undo.start, 4);
-    expect(undo.end, 5);
   });
 
   test('deleteAt last on line', () {

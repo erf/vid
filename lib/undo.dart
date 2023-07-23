@@ -11,7 +11,6 @@ class UndoOp {
   final String newText;
   final String oldText;
   final int start;
-  final int end;
   final Position cursor;
 
   const UndoOp(
@@ -19,7 +18,6 @@ class UndoOp {
     this.newText,
     this.oldText,
     this.start,
-    this.end,
     this.cursor,
   );
 }

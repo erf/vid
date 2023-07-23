@@ -261,8 +261,8 @@ void actionUndo(Editor e, FileBuffer f) {
   if (f.undoList.isEmpty) return;
   final undo = f.undoList.removeLast();
   f.text = switch (undo.type) {
-    UndoOpType.replace =>
-      f.text.replaceRange(undo.start, undo.end, undo.oldText),
+    UndoOpType.replace => f.text.replaceRange(
+        undo.start, undo.start + undo.newText.length, undo.oldText),
     UndoOpType.insert =>
       f.text.replaceRange(undo.start, undo.start + undo.newText.length, ''),
     UndoOpType.delete =>
