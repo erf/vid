@@ -173,4 +173,16 @@ void main() {
     expect(
         motionLineFirstNonBlank(f, Position(l: 0, c: 5)), Position(l: 0, c: 2));
   });
+
+  test('motionLineEnd', () {
+    final f = FileBuffer();
+    f.text = 'abc def\nghi jkl';
+    f.createLines();
+
+    expect(motionLineEnd(f, Position(l: 0, c: 0)), Position(l: 0, c: 7));
+    expect(motionLineEnd(f, Position(l: 0, c: 3)), Position(l: 0, c: 7));
+
+    expect(motionLineEnd(f, Position(l: 1, c: 0)), Position(l: 1, c: 7));
+    expect(motionLineEnd(f, Position(l: 1, c: 3)), Position(l: 1, c: 7));
+  });
 }

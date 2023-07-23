@@ -161,6 +161,7 @@ void actionAppendCharNext(Editor e, FileBuffer f) {
 
 void actionCursorLineEnd(Editor e, FileBuffer f) {
   f.cursor = motionLineEnd(f, f.cursor);
+  if (f.lines[f.cursor.l].isNotEmpty) f.cursor.c--;
 }
 
 void actionCursorLineStart(Editor e, FileBuffer f) {
