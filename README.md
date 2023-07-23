@@ -18,7 +18,7 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 - plugins (let's keep things minimal)
 - window manager (just open a new terminal tab)
 - 100 % vim compatability (only a minimal subset)
-- pre-built binaries (just call build.sh)
+- pre-built binaries (build w Dart 3 / dart.sh)
 
 ## Keyboard shortcuts
 
