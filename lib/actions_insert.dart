@@ -3,7 +3,6 @@ import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
 import 'modes.dart';
 import 'position.dart';
-import 'string_ext.dart';
 
 typedef InsertAction = void Function(FileBuffer);
 

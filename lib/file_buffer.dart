@@ -1,5 +1,3 @@
-import 'package:characters/characters.dart';
-
 import 'line.dart';
 import 'modes.dart';
 import 'position.dart';

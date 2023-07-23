@@ -8,6 +8,13 @@ import 'range.dart';
 typedef TextObject = Range Function(FileBuffer, Position);
 
 Range objectCurrentLine(FileBuffer f, Position p) {
+  final int linesLen = f.lines.length;
+  if (p.l >= linesLen - 1) {
+    return Range(
+      start: Position(l: linesLen - 2, c: f.lines[linesLen - 2].charLen),
+      end: Position(l: linesLen - 1, c: f.lines.last.charLen),
+    );
+  }
   return Range(
     start: Position(l: p.l, c: 0),
     end: Position(l: p.l + 1, c: 0),

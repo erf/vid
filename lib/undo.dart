@@ -1,5 +1,3 @@
-import 'package:characters/characters.dart';
-
 import 'position.dart';
 
 enum UndoOpType {
