@@ -5,11 +5,6 @@ import 'range.dart';
 
 typedef PendingAction = void Function(FileBuffer, Range);
 
-void pendingActionYank(FileBuffer file, Range range) {
-  file.yankRange(range);
-  file.mode = Mode.normal;
-}
-
 void pendingActionChange(FileBuffer file, Range range) {
   pendingActionDelete(file, range);
   file.mode = Mode.insert;
@@ -24,7 +19,7 @@ void pendingActionDelete(FileBuffer file, Range range) {
   file.mode = Mode.normal;
 }
 
-void pendingActionGo(FileBuffer file, Range range) {
+void pendingActionYank(FileBuffer file, Range range) {
+  file.yankRange(range);
   file.mode = Mode.normal;
-  file.cursor = range.end.clone;
 }
