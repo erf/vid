@@ -71,12 +71,16 @@ extension FileBufferExt on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, String newText, undoType) {
+  void replace(int start, int end, String textNew, undoType) {
     // undo
-    final String oldText = text.substring(start, end);
-    undoList.add(Undo(undoType, newText, oldText, start, cursor.clone));
+    final textPrev = text.substring(start, end);
+    undoList.add(Undo(undoType, textNew, textPrev, start, cursor.clone));
+    // yank
+    if (undoType == UndoType.delete || undoType == UndoType.replace) {
+      yankBuffer = textPrev;
+    }
     // replace text and create lines
-    text = text.replaceRange(start, end, newText);
+    text = text.replaceRange(start, end, textNew);
     createLines();
     isModified = true;
   }

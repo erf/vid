@@ -12,7 +12,6 @@ void pendingActionChange(FileBuffer file, Range range) {
 
 void pendingActionDelete(FileBuffer file, Range range) {
   Range r = range.normalized();
-  file.yankRange(r);
   file.deleteRange(r);
   file.cursor = r.start.clone;
   file.clampCursor();

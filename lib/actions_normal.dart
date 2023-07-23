@@ -219,7 +219,6 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
     start: f.cursor,
     end: Position(l: lineEnd.l, c: lineEnd.c + 1),
   );
-  f.yankRange(r);
   f.deleteRange(r);
   f.clampCursor();
 }
