@@ -8,17 +8,17 @@ import 'range.dart';
 typedef TextObject = Range Function(FileBuffer, Position);
 
 Range objectCurrentLine(FileBuffer f, Position p) {
-  final int linesLen = f.lines.length;
-  if (linesLen == 1) {
+  final lLen = f.lines.length;
+  if (lLen == 1) {
     return Range(
       start: Position(l: 0, c: 0),
       end: Position(l: 0, c: f.lines.last.charLen),
     );
   }
-  if (p.l >= linesLen - 1) {
+  if (p.l >= lLen - 1) {
     return Range(
-      start: Position(l: linesLen - 2, c: f.lines[linesLen - 2].charLen),
-      end: Position(l: linesLen - 1, c: f.lines.last.charLen),
+      start: Position(l: lLen - 2, c: f.lines[lLen - 2].charLen),
+      end: Position(l: lLen - 1, c: f.lines.last.charLen),
     );
   }
   return Range(
@@ -30,9 +30,11 @@ Range objectCurrentLine(FileBuffer f, Position p) {
 Range objectLineUp(FileBuffer f, Position p) {
   final start = Position(l: p.l, c: 0);
   if (p.l == 0) {
-    return Range(start: start, end: Position(l: 0, c: f.lines.first.charLen));
+    final end = Position(l: 0, c: f.lines.first.charLen);
+    return Range(start: start, end: end);
   }
-  return Range(start: start, end: Position(l: min(p.l - 2, f.lines.length - 1), c: 0));
+  final end = Position(l: min(p.l - 2, f.lines.length - 1), c: 0);
+  return Range(start: start, end: end);
 }
 
 Range objectLineDown(FileBuffer f, Position p) {
