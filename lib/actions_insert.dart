@@ -26,7 +26,7 @@ void insertActionEnter(FileBuffer f) {
 void joinLines(FileBuffer f) {
   if (f.lines.length <= 1 || f.cursor.l <= 0) return;
   final line = f.cursor.l - 1;
-  f.cursor = Position(l: line, c: f.lines[line].charLen);
+  f.cursor = Position(l: line, c: f.lines[line].charLen - 1);
   f.deleteAt(f.cursor);
 }
 
