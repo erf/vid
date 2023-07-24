@@ -12,8 +12,8 @@ void main() {
     f.text = 'abc\ndef';
     f.createLines();
     expect(f.lines.length, 2);
-    expect(f.lines[0].text.string, 'abc');
-    expect(f.lines[1].text.string, 'def');
+    expect(f.lines[0].text.string, 'abc ');
+    expect(f.lines[1].text.string, 'def ');
   });
 
   test('createLines w newline at end', () {
@@ -21,9 +21,9 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     expect(f.lines.length, 3);
-    expect(f.lines[0].text.string, 'abc');
-    expect(f.lines[1].text.string, 'def');
-    expect(f.lines[2].text.string, '');
+    expect(f.lines[0].text.string, 'abc ');
+    expect(f.lines[1].text.string, 'def ');
+    expect(f.lines[2].text.string, ' ');
   });
 
   test('getPositionFromIndex', () {
