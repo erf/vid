@@ -24,11 +24,9 @@ void insertActionEnter(FileBuffer f) {
 }
 
 void joinLines(FileBuffer f) {
-  final lines = f.lines;
-  final cursor = f.cursor;
-  if (lines.length <= 1 || cursor.l <= 0) return;
-  final charPos = lines[cursor.l - 1].charLen;
-  f.cursor = Position(l: cursor.l - 1, c: charPos);
+  if (f.lines.length <= 1 || f.cursor.l <= 0) return;
+  final line = f.cursor.l - 1;
+  f.cursor = Position(l: line, c: f.lines[line].charLen);
   f.deleteAt(f.cursor);
 }
 
