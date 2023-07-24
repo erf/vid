@@ -17,7 +17,7 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
-  test('deleteLineEnd', () {
+  test('actionDeleteLineEnd', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi';
     f.createLines();
@@ -25,6 +25,17 @@ void main() {
     final e = Editor();
     actionDeleteLineEnd(e, f);
     expect(f.text, 'abc\n\nghi');
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
+
+  test('actionDeleteLineEnd middle', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef\nghi';
+    f.createLines();
+    f.cursor = Position(c: 1, l: 1);
+    final e = Editor();
+    actionDeleteLineEnd(e, f);
+    expect(f.text, 'abc\nd\nghi');
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
