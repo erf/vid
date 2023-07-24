@@ -88,10 +88,7 @@ void actionSave(Editor e, FileBuffer f) {
     e.showMessage('No changes', timed: true);
     return;
   }
-  final file = File(f.path!);
-  final sink = file.openWrite();
-  sink.write(f.text);
-  sink.close();
+  File(f.path!).writeAsStringSync(f.text);
   f.isModified = false;
   e.showMessage('File saved', timed: true);
 }
