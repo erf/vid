@@ -29,6 +29,10 @@ extension FileBufferExt on FileBuffer {
     if (file.existsSync()) {
       // load file
       text = file.readAsStringSync();
+      // add missing newline
+      if (!text.endsWith('\n')) {
+        text += '\n';
+      }
       // split text into lines
       createLines();
     }
