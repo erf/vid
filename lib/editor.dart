@@ -132,7 +132,10 @@ class Editor {
 
   void input(List<int> codes) {
     final char = utf8.decode(codes);
+    inputChar(char);
+  }
 
+  void inputChar(String char, {bool testMode = false}) {
     switch (fileBuffer.mode) {
       case Mode.insert:
         insert(char);
@@ -143,7 +146,9 @@ class Editor {
       case Mode.replace:
         replace(char);
     }
-    draw();
+    if (!testMode) {
+      draw();
+    }
     message = '';
   }
 
