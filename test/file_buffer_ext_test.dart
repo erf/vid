@@ -62,6 +62,7 @@ void main() {
     final undo = f.undoList.last;
     expect(undo.prev, 'abc\nd');
     expect(undo.i, 0);
+    expect(f.yankBuffer, 'abc\nd');
   });
 
   test('insertAt', () {
