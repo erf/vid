@@ -59,7 +59,7 @@ extension FileBufferExt on FileBuffer {
   }
 
   Position positionFromByteIndex(int index) {
-    final line = lines.firstWhere((line) => index <= line.byteEnd);
+    final line = lines.firstWhere((line) => line.byteEnd >= index);
     return Position(
       l: line.lineNo,
       c: line.text.byteToCharLength(index - line.byteStart),

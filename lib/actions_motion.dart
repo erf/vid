@@ -64,7 +64,7 @@ Position motionWordNext(FileBuffer f, Position p) {
   final matches = RegExp(r'\w+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
   final match =
-      matches.firstWhere((m) => start < m.start, orElse: () => matches.first);
+      matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
   return f.positionFromByteIndex(match.start);
 }
 
@@ -75,7 +75,7 @@ Position motionSameWordNext(FileBuffer f, Position p) {
   final match =
       matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
   // we are not on the word
-  if (start < match.start || start >= match.end) {
+  if (match.start > start || match.end <= start) {
     return f.positionFromByteIndex(match.start);
   }
   // we are on the word and we want to find the next same word
@@ -90,9 +90,8 @@ Position motionSameWordPrev(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text);
   if (matches.isEmpty) return p;
-  final match = matches.firstWhere((e) {
-    return start <= e.end;
-  }, orElse: () => matches.first);
+  final match =
+      matches.firstWhere((e) => e.end >= start, orElse: () => matches.first);
   // we are not on the word
   if (start < match.start || start >= match.end) {
     return f.positionFromByteIndex(match.start);
@@ -112,7 +111,7 @@ Position motionWordEnd(FileBuffer f, Position p) {
   final matches = RegExp(r'\w+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
   final match =
-      matches.firstWhere((m) => start < m.end - 1, orElse: () => matches.first);
+      matches.firstWhere((m) => m.end - 1 > start, orElse: () => matches.first);
   return f.positionFromByteIndex(match.end);
 }
 
@@ -128,7 +127,7 @@ Position motionWordEndPrev(FileBuffer f, Position p) {
   final matches = RegExp(r'\w+').allMatches(f.text);
   if (matches.isEmpty) return p;
   final match =
-      matches.lastWhere((e) => start > e.end, orElse: () => matches.last);
+      matches.lastWhere((e) => e.end < start, orElse: () => matches.last);
   return f.positionFromByteIndex(match.end - 1);
 }
 
