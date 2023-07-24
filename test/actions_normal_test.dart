@@ -58,4 +58,27 @@ void main() {
     expect(f.text, 'abcdef\n');
     expect(f.cursor, Position(l: 0, c: 3));
   });
+
+  test('actionInsertLineStart', () {
+    final e = Editor();
+    final f = e.fileBuffer;
+    f.text = 'abc\ndef\n';
+    f.createLines();
+    f.cursor = Position(c: 2, l: 1);
+    actionInsertLineStart(e, f);
+    e.inputChar('x', testMode: true);
+    expect(f.text, 'abc\nxdef\n');
+    expect(f.cursor, Position(c: 1, l: 1));
+  });
+
+  test('actionAppendLineEnd', () {
+    final e = Editor();
+    final f = e.fileBuffer;
+    f.text = 'abc\ndef\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    actionAppendLineEnd(e, f);
+    e.inputChar('x', testMode: true);
+    expect(f.text, 'abcx\ndef\n');
+  });
 }
