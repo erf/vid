@@ -40,8 +40,8 @@ extension FileBufferExt on FileBuffer {
     int lineNo = 0;
 
     // split text into lines with some metadata used for cursor positioning etc.
-    lines = text.split('\n').map((lstr) {
-      final l = lstr.ch;
+    lines = text.split('\n').map((s) {
+      final l = s.ch;
       final line = Line(
         byteStart: byteIndex,
         text: l,
@@ -51,7 +51,7 @@ extension FileBufferExt on FileBuffer {
       lineNo++;
       return line;
     }).toList();
-    
+
     // add empty line if file is empty
     if (lines.isEmpty) {
       lines = [Line.empty];
