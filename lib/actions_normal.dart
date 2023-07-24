@@ -26,38 +26,14 @@ void actionMoveUpHalfPage(Editor e, FileBuffer f) {
 }
 
 void actionPasteAfter(Editor e, FileBuffer f) {
-  if (f.yankBuffer == null) {
-    return;
-  }
-  if (f.yankBuffer!.contains('\n')) {
-    f.insertAt(
-      Position(l: min(f.cursor.l + 1, f.lines.length - 1), c: f.cursor.c),
-      f.yankBuffer!,
-    );
-  } else {
-    f.insertAt(
-      Position(l: f.cursor.l, c: f.cursor.c + 1),
-      f.yankBuffer!,
-    );
-  }
+  if (f.yankBuffer == null) return;
+  f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
   f.isModified = true;
 }
 
 void actionPasteBefore(Editor e, FileBuffer f) {
-  if (f.yankBuffer == null) {
-    return;
-  }
-  if (f.yankBuffer!.contains('\n')) {
-    f.insertAt(
-      Position(l: min(f.cursor.l + 1, f.lines.length - 1), c: f.cursor.c),
-      f.yankBuffer!,
-    );
-  } else {
-    f.insertAt(
-      Position(l: f.cursor.l, c: f.cursor.c),
-      f.yankBuffer!,
-    );
-  }
+  if (f.yankBuffer == null) return;
+  f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
   f.isModified = true;
 }
 
