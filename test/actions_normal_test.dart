@@ -81,4 +81,15 @@ void main() {
     e.inputChar('x', testMode: true);
     expect(f.text, 'abcx\ndef\n');
   });
+
+  test('actionAppendCharNext', () {
+    final e = Editor();
+    final f = e.fileBuffer;
+    f.text = 'abc\ndef\n';
+    f.createLines();
+    f.cursor = Position(c: 3, l: 0);
+    actionAppendCharNext(e, f);
+    e.inputChar('x', testMode: true);
+    expect(f.text, 'abcx\ndef\n');
+  });
 }

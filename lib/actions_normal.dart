@@ -149,9 +149,7 @@ void actionAppendLineEnd(Editor e, FileBuffer f) {
 
 void actionAppendCharNext(Editor e, FileBuffer f) {
   f.mode = Mode.insert;
-  if (f.lines[f.cursor.l].isNotEmpty) {
-    f.cursor.c++;
-  }
+  f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
 }
 
 void actionCursorLineEnd(Editor e, FileBuffer f) {
