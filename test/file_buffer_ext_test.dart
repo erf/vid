@@ -5,7 +5,6 @@ import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
 import 'package:vid/position.dart';
 import 'package:vid/range.dart';
-import 'package:vid/string_ext.dart';
 
 void main() {
   test('getPositionFromIndex', () {
@@ -78,11 +77,6 @@ void main() {
     f.deleteAt(Position(c: 0, l: 2));
     f.deleteAt(Position(c: 0, l: 2));
     expect(f.text, 'abc\ndef\n');
-    expect(f.lines.map((e) => e.text), [
-      'abc'.ch,
-      'def'.ch,
-      ''.ch,
-    ]);
   });
 
   test('multiple undo', () {

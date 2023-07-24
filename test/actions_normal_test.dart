@@ -4,7 +4,6 @@ import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
 import 'package:vid/position.dart';
-import 'package:vid/string_ext.dart';
 
 void main() {
   test('joinLines', () {
@@ -14,12 +13,7 @@ void main() {
     f.cursor = Position(c: 0, l: 1);
     final e = Editor();
     actionJoinLines(e, f);
-    expect(
-        f.lines.map((e) => e.text),
-        [
-          'abc'.ch,
-          'defghi'.ch,
-        ].toList());
+    expect(f.text, 'abc\ndefghi');
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
@@ -30,11 +24,7 @@ void main() {
     f.cursor = Position(c: 0, l: 1);
     final e = Editor();
     actionDeleteLineEnd(e, f);
-    expect(f.lines.map((e) => e.text), [
-      'abc'.ch,
-      ''.ch,
-      'ghi'.ch,
-    ]);
+    expect(f.text, 'abc\n\nghi');
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
@@ -45,11 +35,7 @@ void main() {
     f.cursor = Position(c: 1, l: 1);
     final e = Editor();
     actionDeleteCharNext(e, f);
-    expect(f.lines.map((e) => e.text), [
-      'abc'.ch,
-      'df'.ch,
-      'ghi'.ch,
-    ]);
+    expect(f.text, 'abc\ndf\nghi');
     expect(f.cursor, Position(c: 1, l: 1));
   });
 
@@ -60,11 +46,7 @@ void main() {
     f.cursor = Position(c: 0, l: 2);
     final e = Editor();
     actionDeleteCharNext(e, f);
-    expect(f.lines.map((e) => e.text).toList(), [
-      'abc'.ch,
-      'def'.ch,
-      ''.ch,
-    ]);
+    expect(f.text, 'abc\ndef\n');
     expect(f.cursor, Position(c: 0, l: 2));
   });
 }

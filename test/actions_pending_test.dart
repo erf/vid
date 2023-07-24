@@ -4,7 +4,6 @@ import 'package:vid/actions_text_objects.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
 import 'package:vid/position.dart';
-import 'package:vid/string_ext.dart';
 
 void main() {
   test('deleteLine', () {
@@ -14,10 +13,7 @@ void main() {
     f.cursor = Position(c: 0, l: 1);
     final r = objectCurrentLine(f, f.cursor);
     pendingActionDelete(f, r);
-    expect(f.lines.map((e) => e.text).toList(), [
-      'abc'.ch,
-      'ghi'.ch,
-    ]);
+    expect(f.text, 'abc\nghi');
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
@@ -28,9 +24,6 @@ void main() {
     f.cursor = Position(c: 0, l: 2);
     final r = objectCurrentLine(f, f.cursor);
     pendingActionDelete(f, r);
-    expect(f.lines.map((e) => e.text).toList(), [
-      'abc'.ch,
-      'def'.ch,
-    ]);
+    expect(f.text, 'abc\ndef');
   });
 }
