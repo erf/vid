@@ -51,7 +51,8 @@ extension FileBufferExt on FileBuffer {
       lineNo++;
       return line;
     }).toList();
-
+    
+    // add empty line if file is empty
     if (lines.isEmpty) {
       lines = [Line.empty];
     }

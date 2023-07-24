@@ -57,4 +57,25 @@ void main() {
     pendingActionDelete(f, r);
     expect(f.text, '');
   });
+
+  test('pendingActionDelete on objectLineUp', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef\nghi';
+    f.createLines();
+    f.cursor = Position(c: 1, l: 1);
+    final r = objectLineUp(f, f.cursor);
+    pendingActionDelete(f, r);
+    expect(f.text, 'ghi');
+    expect(f.cursor, Position(c: 0, l: 0));
+  });
+  test('pendingActionDelete on objectLineUp (last line)', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    f.cursor = Position(c: 1, l: 2);
+    final r = objectLineUp(f, f.cursor);
+    pendingActionDelete(f, r);
+    expect(f.text, 'abc\n');
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
 }
