@@ -11,7 +11,7 @@ typedef Motion = Position Function(FileBuffer, Position);
 Position motionCharNext(FileBuffer f, Position p) {
   return Position(
     l: p.l,
-    c: clamp(p.c + 1, 0, f.lines[p.l].charLen - 1),
+    c: min(p.c + 1, f.lines[p.l].charLen - 1),
   );
 }
 

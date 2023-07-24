@@ -3,7 +3,6 @@ import 'package:vid/actions_normal.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
-import 'package:vid/modes.dart';
 import 'package:vid/position.dart';
 
 void main() {
