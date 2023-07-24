@@ -6,7 +6,7 @@ import 'package:vid/file_buffer_ext.dart';
 import 'package:vid/position.dart';
 
 void main() {
-  test('deleteLine', () {
+  test('pendingActionDelete on objectCurrentLine', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi';
     f.createLines();
@@ -17,7 +17,7 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
-  test('delete last line', () {
+  test('pendingActionDelete on objectCurrentLine (last)', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi';
     f.createLines();
