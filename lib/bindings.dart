@@ -81,7 +81,7 @@ final motionActions = <String, Motion>{
   'b': motionWordPrev,
   'e': motionWordEnd,
   '0': motionLineStart,
-  '^': motionLineFirstNonBlank,
+  '^': motionFirstNonBlank,
   '\$': motionLineEnd,
   '\x1b': motionEscape,
 };

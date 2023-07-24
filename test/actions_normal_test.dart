@@ -8,54 +8,54 @@ void main() {
   test('joinLines', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
     actionJoinLines(e, f);
-    expect(f.text, 'abc\ndefghi');
+    expect(f.text, 'abc\ndefghi\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
   test('actionDeleteLineEnd', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
     actionDeleteLineEnd(e, f);
-    expect(f.text, 'abc\nd\nghi');
-    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.text, 'abc\nd\nghi\n');
+    expect(f.cursor, Position(c: 1, l: 1));
   });
 
   test('actionChangeLineEnd', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'hello world';
+    f.text = 'hello world\n';
     f.createLines();
     f.cursor = Position(c: 5, l: 0);
     actionChangeLineEnd(e, f);
-    expect(f.text, 'hello');
+    expect(f.text, 'hello\n');
   });
 
   test('actionDeleteCharNext', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
     actionDeleteCharNext(e, f);
-    expect(f.text, 'abc\ndf\nghi');
+    expect(f.text, 'abc\ndf\nghi\n');
     expect(f.cursor, Position(c: 1, l: 1));
   });
 
-  test('actionDeleteCharNext at end', () {
+  test('actionDeleteCharNext delete newline', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'abc\ndef\n ';
+    f.text = 'abc\ndef\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 2);
+    f.cursor = Position(l: 0, c: 3);
     actionDeleteCharNext(e, f);
-    expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 2));
+    expect(f.text, 'abcdef\n');
+    expect(f.cursor, Position(l: 0, c: 3));
   });
 }

@@ -40,8 +40,8 @@ Position motionFileStart(FileBuffer f, Position p) {
 
 Position motionFileEnd(FileBuffer f, Position position) {
   return Position(
-    c: f.lines.last.charLen,
     l: max(0, f.lines.length - 1),
+    c: f.lines.last.charLen,
   );
 }
 
@@ -49,14 +49,13 @@ Position motionLineStart(FileBuffer f, Position p) {
   return Position(l: p.l, c: 0);
 }
 
-Position motionLineFirstNonBlank(FileBuffer f, Position p) {
-  final line = f.lines[p.l];
-  final firstNonBlank = line.text.string.indexOf(RegExp(r'\S'));
+Position motionFirstNonBlank(FileBuffer f, Position p) {
+  final firstNonBlank = f.lines[p.l].text.string.indexOf(RegExp(r'\S'));
   return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
 }
 
 Position motionLineEnd(FileBuffer f, Position p) {
-  return Position(l: p.l, c: f.lines[p.l].charLen);
+  return Position(l: p.l, c: f.lines[p.l].charLen - 1);
 }
 
 Position motionWordNext(FileBuffer f, Position p) {

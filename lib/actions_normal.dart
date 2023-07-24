@@ -167,7 +167,7 @@ void actionCursorLineStart(Editor e, FileBuffer f) {
 }
 
 void actionLineFirstNonBlank(Editor e, FileBuffer f) {
-  f.cursor = motionLineFirstNonBlank(f, f.cursor);
+  f.cursor = motionFirstNonBlank(f, f.cursor);
 }
 
 void actionCursorCharUp(Editor e, FileBuffer f) {
@@ -246,10 +246,8 @@ void actionTillCharPrev(Editor e, FileBuffer f) {
 }
 
 void actionJoinLines(Editor e, FileBuffer f) {
-  if (f.lines.length <= 1) {
-    return;
-  }
-  f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen));
+  if (f.lines.length <= 1) return;
+  f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
 }
 
 void actionUndo(Editor e, FileBuffer f) {
