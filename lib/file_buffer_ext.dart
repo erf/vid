@@ -41,13 +41,13 @@ extension FileBufferExt on FileBuffer {
 
     // split text into lines with some metadata used for cursor positioning etc.
     lines = text.split('\n').map((s) {
-      final l = s.ch;
+      final l = '$s '.ch;
       final line = Line(
         byteStart: byteIndex,
         text: l,
         lineNo: lineNo,
       );
-      byteIndex += l.string.length + 1;
+      byteIndex += l.string.length;
       lineNo++;
       return line;
     }).toList();
@@ -59,7 +59,7 @@ extension FileBufferExt on FileBuffer {
   }
 
   Position positionFromByteIndex(int index) {
-    final line = lines.firstWhere((line) => line.byteEnd >= index);
+    final line = lines.firstWhere((line) => index < line.byteEnd);
     return Position(
       l: line.lineNo,
       c: line.text.byteToCharLength(index - line.byteStart),
