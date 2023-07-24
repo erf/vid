@@ -78,4 +78,15 @@ void main() {
     expect(f.text, 'abc\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
+
+  test('pendingActionDelete on objectLineDown (middle line)', () {
+    final f = FileBuffer();
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    f.cursor = Position(l: 1, c: 0);
+    final r = objectLineDown(f, f.cursor);
+    pendingActionDelete(f, r);
+    expect(f.text, 'abc\n');
+    expect(f.cursor, Position(l: 1, c: 0));
+  });
 }

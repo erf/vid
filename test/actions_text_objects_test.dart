@@ -60,4 +60,15 @@ void main() {
     expect(r.start, Position(l: 0, c: 0), reason: 'start');
     expect(r.end, Position(l: 2, c: 0), reason: 'end');
   });
+
+  test('objectLineDown', () {
+    final e = Editor();
+    final f = e.fileBuffer;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    f.cursor = Position(l: 1, c: 0);
+    Range r = objectLineDown(f, f.cursor);
+    expect(r.start, Position(l: 1, c: 0), reason: 'start');
+    expect(r.end, Position(l: 3, c: 0), reason: 'end');
+  });
 }

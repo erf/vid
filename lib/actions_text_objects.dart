@@ -41,8 +41,7 @@ Range objectLineUp(FileBuffer f, Position p) {
 
 Range objectLineDown(FileBuffer f, Position p) {
   final start = Position(l: p.l, c: 0);
-  final line = min(p.l + 2, f.lines.length - 1);
-  final end = Position(l: line, c: 0);
+  final end = Position(l: min(p.l + 2, f.lines.length - 1), c: 0);
   return Range(start: start, end: end);
 }
 
