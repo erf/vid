@@ -10,12 +10,12 @@ void main() {
   test('defaultInsert', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'abc';
+    f.text = 'abc\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
     actionInsert(e, f);
     defaultInsert(f, 'd');
-    expect(f.text, 'adbc');
+    expect(f.text, 'adbc\n');
     expect(f.cursor, Position(c: 2, l: 0));
   });
 
@@ -33,23 +33,23 @@ void main() {
   test('insertActionEnter', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'abcdef';
+    f.text = 'abcdef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
     actionInsert(e, f);
     insertActionEnter(f);
-    expect(f.text, 'abc\ndef');
+    expect(f.text, 'abc\ndef\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
   test('insertActionBackspace', () {
     final e = Editor();
     final f = e.fileBuffer;
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
     insertActionBackspace(f);
-    expect(f.text, 'abcdef\nghi');
+    expect(f.text, 'abcdef\nghi\n');
     expect(f.cursor, Position(c: 3, l: 0));
   });
 }

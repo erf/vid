@@ -29,10 +29,6 @@ extension FileBufferExt on FileBuffer {
     if (file.existsSync()) {
       // load file
       text = file.readAsStringSync();
-      // add missing newline
-      if (!text.endsWith('\n')) {
-        text += '\n';
-      }
       // split text into lines
       createLines();
     }
@@ -42,6 +38,11 @@ extension FileBufferExt on FileBuffer {
   void createLines() {
     int byteIndex = 0;
     int lineNo = 0;
+
+    // add missing newline
+    if (!text.endsWith('\n')) {
+      text += '\n';
+    }
 
     // split text into lines with some metadata used for cursor positioning etc.
     lines = text.split('\n').map((s) {
@@ -55,6 +56,11 @@ extension FileBufferExt on FileBuffer {
       lineNo++;
       return line;
     }).toList();
+
+    // remove last empty line
+    if (lines.isNotEmpty) {
+      lines.removeLast();
+    }
 
     // add empty line if file is empty
     if (lines.isEmpty) {
