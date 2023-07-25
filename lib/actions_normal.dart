@@ -46,9 +46,9 @@ void quit(Editor e, FileBuffer f) {
 void actionQuit(Editor e, FileBuffer f) {
   if (f.isModified) {
     e.showMessage('Press \'Q\' to quit without saving', timed: true);
-    return;
+  } else {
+    quit(e, f);
   }
-  quit(e, f);
 }
 
 void actionQuitWithoutSaving(Editor e, FileBuffer f) {
