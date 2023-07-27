@@ -1,7 +1,7 @@
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
-import 'actions_pending.dart';
+import 'actions_operator.dart';
 import 'actions_text_objects.dart';
 
 final insertActions = <String, InsertAction>{
@@ -55,10 +55,10 @@ final normalActions = <String, NormalAction>{
   '#': actionSameWordPrev,
 };
 
-final pendingActions = <String, PendingAction>{
-  'c': pendingActionChange,
-  'd': pendingActionDelete,
-  'y': pendingActionYank,
+final operatorActions = <String, OperatorAction>{
+  'c': operatorActionChange,
+  'd': operatorActionDelete,
+  'y': operatorActionYank,
 };
 
 final textObjects = <String, TextObject>{

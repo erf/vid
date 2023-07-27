@@ -6,7 +6,7 @@ import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
-import 'actions_pending.dart';
+import 'actions_operator.dart';
 import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
@@ -113,7 +113,7 @@ class Editor {
   String getModeStatusStr(Mode mode) {
     return switch (mode) {
       Mode.normal => 'NOR',
-      Mode.pending => 'PEN',
+      Mode.operator => 'PEN',
       Mode.insert => 'INS',
       Mode.replace => 'REP',
     };
@@ -141,8 +141,8 @@ class Editor {
         insert(char);
       case Mode.normal:
         normal(char);
-      case Mode.pending:
-        pending(char);
+      case Mode.operator:
+        operator(char);
       case Mode.replace:
         replace(char);
     }
@@ -190,16 +190,16 @@ class Editor {
       return;
     }
 
-    PendingAction? pending = pendingActions[fileBuffer.input];
+    OperatorAction? pending = operatorActions[fileBuffer.input];
     if (pending != null) {
       fileBuffer.input = '';
       fileBuffer.count = null;
-      fileBuffer.mode = Mode.pending;
+      fileBuffer.mode = Mode.operator;
       fileBuffer.pendingAction = pending;
     }
   }
 
-  void pending(String char) {
+  void operator(String char) {
     Function? pendingAction = fileBuffer.pendingAction;
     if (pendingAction == null) {
       return;
@@ -208,7 +208,7 @@ class Editor {
       pendingAction(fileBuffer, fileBuffer.cursor, char);
       return;
     }
-    if (pendingAction is PendingAction) {
+    if (pendingAction is OperatorAction) {
       TextObject? textObject = textObjects[char];
       if (textObject != null) {
         Range range = textObject(fileBuffer, fileBuffer.cursor);

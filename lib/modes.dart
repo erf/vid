@@ -1,6 +1,6 @@
 enum Mode {
   normal,
-  pending,
+  operator,
   insert,
   replace,
 }

@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vid/actions_pending.dart';
+import 'package:vid/actions_operator.dart';
 import 'package:vid/actions_text_objects.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_ext.dart';
@@ -12,7 +12,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     final r = objectCurrentLine(f, f.cursor);
-    pendingActionDelete(f, r);
+    operatorActionDelete(f, r);
     expect(f.text, 'def\nghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
@@ -23,7 +23,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
     final r = objectLineUp(f, f.cursor);
-    pendingActionDelete(f, r);
+    operatorActionDelete(f, r);
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
@@ -34,7 +34,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
     final r = objectLineDown(f, f.cursor);
-    pendingActionDelete(f, r);
+    operatorActionDelete(f, r);
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
