@@ -17,6 +17,7 @@ extension FileBufferExt on FileBuffer {
   // load file from disk or create new file
   void load(List<String> args) {
     if (args.isEmpty) {
+      return;
       print('No file specified');
       exit(1);
     }
