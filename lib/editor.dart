@@ -40,6 +40,7 @@ class Editor {
   }
 
   void draw() {
+    rb.clear();
     rb.write(VT100.homeAndErase);
 
     fb.clampView(term);
@@ -54,7 +55,6 @@ class Editor {
     drawCursor();
 
     term.write(rb.toString());
-    rb.clear();
   }
 
   void drawLines() {
