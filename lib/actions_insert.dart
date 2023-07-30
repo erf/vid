@@ -1,3 +1,5 @@
+import 'package:characters/characters.dart';
+
 import 'actions_motion.dart';
 import 'file_buffer.dart';
 import 'file_buffer_ext.dart';
@@ -8,7 +10,7 @@ typedef InsertAction = void Function(FileBuffer);
 
 void defaultInsert(FileBuffer f, String s) {
   f.insertAt(f.cursor, s);
-  f.cursor.c++;
+  f.cursor.c += s.characters.length;
 }
 
 void insertActionEscape(FileBuffer f) {
