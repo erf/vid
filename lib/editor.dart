@@ -22,12 +22,12 @@ import 'vt100.dart';
 
 class Editor {
   final term = Terminal();
-  final fb = FileBuffer();
-  final rb = StringBuffer();
+  final file = FileBuffer();
+  final buff = StringBuffer();
   String message = '';
 
   void init(List<String> args) {
-    fb.load(args);
+    file.load(args);
     term.rawMode = true;
     term.write(VT100.enableAlternativeBuffer + VT100.cursorVisible(true));
     term.input.listen(input);
@@ -40,10 +40,10 @@ class Editor {
   }
 
   void draw() {
-    rb.clear();
-    rb.write(VT100.homeAndErase);
+    buff.clear();
+    buff.write(VT100.homeAndErase);
 
-    fb.clampView(term);
+    file.clampView(term);
 
     // draw lines
     drawLines();
@@ -54,60 +54,60 @@ class Editor {
     // draw cursor
     drawCursor();
 
-    term.write(rb.toString());
+    term.write(buff.toString());
   }
 
   void drawLines() {
-    final lines = fb.lines;
-    final view = fb.view;
+    final lines = file.lines;
+    final view = file.view;
     final lineStart = view.l;
     final lineEnd = view.l + term.height - 1;
 
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
       if (l > lines.length - 1) {
-        rb.writeln('~');
+        buff.writeln('~');
         continue;
       }
       // for empty lines draw empty line
       if (lines[l].isEmpty) {
-        rb.writeln();
+        buff.writeln();
         continue;
       }
       // get substring of line in view based on render width
       final line = lines[l].text.getRenderLine(view.c, term.width);
-      rb.writeln(line);
+      buff.writeln(line);
     }
   }
 
   void drawCursor() {
-    final view = fb.view;
-    final cursor = fb.cursor;
-    final curlen = fb.lines[cursor.l].text.renderLength(cursor.c);
+    final view = file.view;
+    final cursor = file.cursor;
+    final curlen = file.lines[cursor.l].text.renderLength(cursor.c);
     final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
-    rb.write(VT100.cursorPosition(c: curpos.c, l: curpos.l));
+    buff.write(VT100.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
   void drawStatus() {
-    rb.write(VT100.invertColors(true));
-    rb.write(VT100.cursorPosition(c: 1, l: term.height));
+    buff.write(VT100.invertColors(true));
+    buff.write(VT100.cursorPosition(c: 1, l: term.height));
 
-    final cursor = fb.cursor;
-    final modified = fb.isModified;
-    final nameStr = fb.path ?? '[No Name]';
-    final modeStr = getModeStatusStr(fb.mode);
+    final cursor = file.cursor;
+    final modified = file.isModified;
+    final nameStr = file.path ?? '[No Name]';
+    final modeStr = getModeStatusStr(file.mode);
     final left = ' $modeStr  $nameStr ${modified ? '* ' : ''}$message ';
     final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     final padLeft = term.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
 
     if (status.length <= term.width - 1) {
-      rb.write(status);
+      buff.write(status);
     } else {
-      rb.write(status.substring(0, term.width));
+      buff.write(status.substring(0, term.width));
     }
 
-    rb.write(VT100.invertColors(false));
+    buff.write(VT100.invertColors(false));
   }
 
   String getModeStatusStr(Mode mode) {
@@ -136,7 +136,7 @@ class Editor {
   }
 
   void inputChar(String char, {bool testMode = false}) {
-    switch (fb.mode) {
+    switch (file.mode) {
       case Mode.insert:
         insert(char);
       case Mode.normal:
@@ -155,77 +155,77 @@ class Editor {
   void insert(String char) {
     InsertAction? insertAction = insertActions[char];
     if (insertAction != null) {
-      insertAction(fb);
+      insertAction(file);
       return;
     }
-    defaultInsert(fb, char);
+    defaultInsert(file, char);
   }
 
   void normal(String char) {
     // accumulate countInput: if char is a number, add it to countInput
     // if char is not a number, parse countInput and set fileBuffer.count
     final count = int.tryParse(char);
-    if (count != null && (count > 0 || fb.countInput.isNotEmpty)) {
-      fb.countInput += char;
+    if (count != null && (count > 0 || file.countInput.isNotEmpty)) {
+      file.countInput += char;
       return;
     }
-    if (fb.countInput.isNotEmpty) {
-      fb.count = int.parse(fb.countInput);
-      fb.countInput = '';
+    if (file.countInput.isNotEmpty) {
+      file.count = int.parse(file.countInput);
+      file.countInput = '';
     }
 
     // accumulate fileBuffer.input until maxInput is reached and try to match
     // a command in the bindings map
-    fb.input += char;
+    file.input += char;
     const int maxInput = 2;
-    if (fb.input.length > maxInput) {
-      fb.input = char;
+    if (file.input.length > maxInput) {
+      file.input = char;
     }
 
-    NormalAction? action = normalActions[fb.input];
+    NormalAction? action = normalActions[file.input];
     if (action != null) {
-      action(this, fb);
-      fb.input = '';
-      fb.count = null;
+      action(this, file);
+      file.input = '';
+      file.count = null;
       return;
     }
 
-    OperatorAction? pending = operatorActions[fb.input];
+    OperatorAction? pending = operatorActions[file.input];
     if (pending != null) {
-      fb.input = '';
-      fb.count = null;
-      fb.mode = Mode.operator;
-      fb.pendingAction = pending;
+      file.input = '';
+      file.count = null;
+      file.mode = Mode.operator;
+      file.pendingAction = pending;
     }
   }
 
   void operator(String char) {
-    Function? pendingAction = fb.pendingAction;
+    Function? pendingAction = file.pendingAction;
     if (pendingAction == null) {
       return;
     }
     if (pendingAction is FindAction) {
-      pendingAction(fb, fb.cursor, char);
+      pendingAction(file, file.cursor, char);
       return;
     }
     if (pendingAction is OperatorAction) {
       TextObject? textObject = textObjects[char];
       if (textObject != null) {
-        Range range = textObject(fb, fb.cursor);
-        pendingAction(fb, range);
+        Range range = textObject(file, file.cursor);
+        pendingAction(file, range);
         return;
       }
       Motion? motion = motionActions[char];
       if (motion != null) {
-        Position pEnd = motion(fb, fb.cursor);
-        Range range = Range(start: fb.cursor, end: pEnd);
-        pendingAction(fb, range);
+        Position pEnd = motion(file, file.cursor);
+        Range range = Range(start: file.cursor, end: pEnd);
+        pendingAction(file, range);
         return;
       }
     }
   }
 
   void replace(String char) {
-    defaultReplace(fb, char);
+    defaultReplace(file, char);
   }
 }

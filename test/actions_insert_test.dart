@@ -9,7 +9,7 @@ import 'package:vid/position.dart';
 void main() {
   test('defaultInsert', () {
     final e = Editor();
-    final f = e.fb;
+    final f = e.file;
     f.text = 'abc\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
@@ -21,7 +21,7 @@ void main() {
 
   test('insertActionEscape', () {
     final e = Editor();
-    final f = e.fb;
+    final f = e.file;
     f.text = 'abc';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
@@ -32,7 +32,7 @@ void main() {
 
   test('insertActionEnter', () {
     final e = Editor();
-    final f = e.fb;
+    final f = e.file;
     f.text = 'abcdef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
@@ -44,7 +44,7 @@ void main() {
 
   test('insertActionBackspace', () {
     final e = Editor();
-    final f = e.fb;
+    final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
