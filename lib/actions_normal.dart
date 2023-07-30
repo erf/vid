@@ -16,12 +16,12 @@ import 'vt100.dart';
 typedef NormalAction = void Function(Editor, FileBuffer);
 
 void actionMoveDownHalfPage(Editor e, FileBuffer f) {
-  f.cursor.l += e.terminal.height ~/ 2;
+  f.cursor.l += e.term.height ~/ 2;
   f.clampCursor();
 }
 
 void actionMoveUpHalfPage(Editor e, FileBuffer f) {
-  f.cursor.l -= e.terminal.height ~/ 2;
+  f.cursor.l -= e.term.height ~/ 2;
   f.clampCursor();
 }
 
@@ -38,8 +38,8 @@ void actionPasteBefore(Editor e, FileBuffer f) {
 }
 
 void quit(Editor e, FileBuffer f) {
-  e.terminal.write(VT100.resetStyles + VT100.disableAlternativeBuffer);
-  e.terminal.rawMode = false;
+  e.term.write(VT100.resetStyles + VT100.disableAlternativeBuffer);
+  e.term.rawMode = false;
   exit(0);
 }
 

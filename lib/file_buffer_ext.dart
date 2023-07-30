@@ -18,8 +18,8 @@ extension FileBufferExt on FileBuffer {
   void load(List<String> args) {
     if (args.isEmpty) {
       return;
-      print('No file specified');
-      exit(1);
+      //print('No file specified');
+      //exit(1);
     }
     path = args.first;
     if (Directory(path!).existsSync()) {
