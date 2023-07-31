@@ -1,19 +1,19 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:vid/file_buffer_lines.dart';
-
 import 'actions_find.dart';
 import 'actions_motion.dart';
 import 'editor.dart';
+import 'esc.dart';
 import 'file_buffer.dart';
+import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
+import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'undo.dart';
 import 'utils.dart';
-import 'esc.dart';
 
 typedef NormalAction = void Function(Editor, FileBuffer);
 

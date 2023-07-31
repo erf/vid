@@ -15,6 +15,7 @@ import 'config.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
+import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';

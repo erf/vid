@@ -1,11 +1,8 @@
 import 'dart:io';
 
-import 'characters_render.dart';
 import 'file_buffer.dart';
 import 'line.dart';
 import 'string_ext.dart';
-import 'terminal.dart';
-import 'utils.dart';
 
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file
@@ -65,17 +62,4 @@ extension FileBufferLines on FileBuffer {
 
   // check if file is empty, only one line with empty string
   bool get empty => lines.length == 1 && lines.first.isEmpty;
-
-  // clamp cursor position to valid range
-  void clampCursor() {
-    cursor.l = clamp(cursor.l, 0, lines.length - 1);
-    cursor.c = clamp(cursor.c, 0, lines[cursor.l].charLen - 1);
-  }
-
-  // clamp view on cursor position
-  void clampView(Terminal term) {
-    view.l = clamp(view.l, cursor.l, cursor.l - term.height + 2);
-    int cx = lines[cursor.l].text.renderLength(cursor.c);
-    view.c = clamp(view.c, cx, cx - term.width + 1);
-  }
 }
