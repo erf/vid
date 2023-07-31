@@ -38,7 +38,7 @@ void actionPasteBefore(Editor e, FileBuffer f) {
 }
 
 void quit(Editor e, FileBuffer f) {
-  e.term.write(VT100.resetStyles + VT100.disableAlternativeBuffer);
+  e.term.write(VT100.resetStyles + VT100.disableAltBuf);
   e.term.rawMode = false;
   exit(0);
 }

@@ -29,7 +29,7 @@ class Editor {
   void init(List<String> args) {
     file.load(args);
     term.rawMode = true;
-    term.write(VT100.enableAlternativeBuffer + VT100.cursorVisible(true));
+    term.write(VT100.enableAltBuf + VT100.curVis(true));
     term.input.listen(input);
     term.resize.listen(resize);
     draw();
@@ -85,12 +85,12 @@ class Editor {
     final cursor = file.cursor;
     final curlen = file.lines[cursor.l].text.renderLength(cursor.c);
     final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
-    buff.write(VT100.cursorPosition(c: curpos.c, l: curpos.l));
+    buff.write(VT100.curPos(c: curpos.c, l: curpos.l));
   }
 
   void drawStatus() {
-    buff.write(VT100.invertColors(true));
-    buff.write(VT100.cursorPosition(c: 1, l: term.height));
+    buff.write(VT100.invCol(true));
+    buff.write(VT100.curPos(c: 1, l: term.height));
 
     final cursor = file.cursor;
     final modified = file.isModified;
@@ -107,7 +107,7 @@ class Editor {
       buff.write(status.substring(0, term.width));
     }
 
-    buff.write(VT100.invertColors(false));
+    buff.write(VT100.invCol(false));
   }
 
   String getModeStatusStr(Mode mode) {

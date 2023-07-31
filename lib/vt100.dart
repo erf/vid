@@ -5,32 +5,33 @@
 class VT100 {
   VT100._();
 
+  // escape character
+  static const String e = '\x1b';
+
   // move cursor to x,y
-  static String cursorPosition({required int l, required int c}) =>
-      '\x1b[$l;${c}H';
+  static String curPos({required int l, required int c}) => '$e[$l;${c}H';
 
   // cursor visibility
-  static String cursorVisible(bool visible) =>
-      visible ? '\x1b[?25h' : '\x1b[?25l';
+  static String curVis(bool visible) => visible ? '$e[?25h' : '$e[?25l';
 
   // home and erase down
-  static const String homeAndErase = '\x1b[H\x1b[J';
+  static const String homeAndErase = '$e[H$e[J';
 
   // set foreground color
-  static String foreground(int color) => '\x1b[38;5;${color}m';
+  static String fg(int color) => '$e[38;5;${color}m';
 
   // set background color
-  static String background(int color) => '\x1b[48;5;${color}m';
+  static String bk(int color) => '$e[48;5;${color}m';
 
   // set invert
-  static String invertColors(invert) => invert ? '\x1b[7m' : '\x1b[27m';
+  static String invCol(invert) => invert ? '$e[7m' : '$e[27m';
 
   // reset font and background color
-  static const String resetStyles = '\x1b[0m';
+  static const String resetStyles = '$e[0m';
 
   // save screen
-  static const String enableAlternativeBuffer = '\x1b[?1049h';
+  static const String enableAltBuf = '$e[?1049h';
 
   // restore screen
-  static const String disableAlternativeBuffer = '\x1b[?1049l';
+  static const String disableAltBuf = '$e[?1049l';
 }
