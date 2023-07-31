@@ -26,6 +26,12 @@ extension FileBufferLines on FileBuffer {
     }
   }
 
+  // save file to disk
+  void save() {
+    File(path!).writeAsStringSync(text);
+    isModified = false;
+  }
+
   // split text into lines
   void createLines() {
     int byteIndex = 0;

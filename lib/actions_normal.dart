@@ -66,8 +66,7 @@ void actionSave(Editor e, FileBuffer f) {
     e.showMessage('No changes', timed: true);
     return;
   }
-  File(f.path!).writeAsStringSync(f.text);
-  f.isModified = false;
+  f.save();
   e.showMessage('File saved', timed: true);
 }
 
