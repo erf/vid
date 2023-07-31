@@ -19,5 +19,5 @@ class Esc {
   static invCol(bool invert) => invert ? '$e[7m' : '$e[27m';
 
   // alternate buffer
-  static altBuf(bool enabled) => enabled ? '$e[?1049h' : '$e[?1049l';
+  static altBuf(bool enable) => enable ? '$e[?1049h' : '$e[?1049l';
 }
