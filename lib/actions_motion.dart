@@ -23,13 +23,13 @@ Position motionCharPrev(FileBuffer f, Position p) {
 }
 
 Position motionCharUp(FileBuffer f, Position p) {
-  final line = clamp(p.l - 1, 0, f.lines.length - 1);
+  final line = max(0, p.l - 1);
   final char = clamp(p.c, 0, f.lines[line].charLen - 1);
   return Position(l: line, c: char);
 }
 
 Position motionCharDown(FileBuffer f, Position p) {
-  final line = clamp(p.l + 1, 0, f.lines.length - 1);
+  final line = min(p.l + 1, f.lines.length - 1);
   final char = clamp(p.c, 0, f.lines[line].charLen - 1);
   return Position(l: line, c: char);
 }
