@@ -29,7 +29,7 @@ class Editor {
   void init(List<String> args) {
     file.load(args);
     term.rawMode = true;
-    term.write(VT100.enableAltBuf + VT100.curVis(true));
+    term.write(VT100.altBuf(true) + VT100.curVis(true));
     term.input.listen(input);
     term.resize.listen(resize);
     draw();

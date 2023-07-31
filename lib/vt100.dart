@@ -29,9 +29,6 @@ class VT100 {
   // reset font and background color
   static const String resetStyles = '$e[0m';
 
-  // save screen
-  static const String enableAltBuf = '$e[?1049h';
-
-  // restore screen
-  static const String disableAltBuf = '$e[?1049l';
+  // alternate buffer
+  static String altBuf(bool enabled) => enabled ? '$e[?1049h' : '$e[?1049l';
 }
