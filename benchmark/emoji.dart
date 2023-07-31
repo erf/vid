@@ -1,18 +1,23 @@
-// test the performance of looking up emojis in either via a list of via a hashmap
-
 import 'dart:collection';
 import 'dart:math';
 
 import 'package:vid/emojis_15.dart';
 
+// test the performance of looking up emojis
 void main() {
   final List<String> unicodeChars = generateRandomUnicodeChars(100000);
-  testEmojiInListPerformance(unicodeChars);
-  testEmojiInMapPerformance(unicodeChars);
-  testEmojiInSetPerformance(unicodeChars);
+  benchmarkEmojisInList(unicodeChars);
+  benchmarkEmojisInMap(unicodeChars);
+  benchmarkEmojisInSet(unicodeChars);
 }
 
-void testEmojiInListPerformance(List<String> unicodeChars) {
+List<String> generateRandomUnicodeChars(int length) {
+  final rand = Random();
+  return List.generate(
+      length, (i) => String.fromCharCode(rand.nextInt(0x10FFFF + 1)));
+}
+
+void benchmarkEmojisInList(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num = 0;
   for (final unicodeChar in unicodeChars) {
@@ -24,7 +29,7 @@ void testEmojiInListPerformance(List<String> unicodeChars) {
   print('testIfEmojiUsingList: ${stopwatch.elapsedMilliseconds}ms - $num');
 }
 
-void testEmojiInMapPerformance(List<String> unicodeChars) {
+void benchmarkEmojisInMap(List<String> unicodeChars) {
   final emojisMap = HashMap.fromIterable(emojis15);
   final stopwatch = Stopwatch()..start();
   int num = 0;
@@ -37,7 +42,7 @@ void testEmojiInMapPerformance(List<String> unicodeChars) {
   print('testIfEmojiUsingMap: ${stopwatch.elapsedMilliseconds}ms - $num');
 }
 
-void testEmojiInSetPerformance(List<String> unicodeChars) {
+void benchmarkEmojisInSet(List<String> unicodeChars) {
   final emojisSet = Set.from(emojis15);
   final stopwatch = Stopwatch()..start();
   int num = 0;
@@ -48,17 +53,4 @@ void testEmojiInSetPerformance(List<String> unicodeChars) {
   }
   stopwatch.stop();
   print('testIfEmojiUsingSet: ${stopwatch.elapsedMilliseconds}ms - $num');
-}
-
-List<String> generateRandomUnicodeChars(int length) {
-  final List<String> unicodeChars = [];
-  final random = Random();
-
-  for (int i = 0; i < length; i++) {
-    final charCode = random.nextInt(0x10FFFF + 1);
-    final unicodeChar = String.fromCharCode(charCode);
-    unicodeChars.add(unicodeChar);
-  }
-
-  return unicodeChars;
 }
