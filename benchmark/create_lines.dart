@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:vid/file_buffer.dart';
-import 'package:vid/file_buffer_ext.dart';
+import 'package:vid/file_buffer_lines.dart';
 
 void main() {
   benchmarkCreateLines();

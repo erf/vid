@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:vid/actions_operator.dart';
 import 'package:vid/actions_text_objects.dart';
 import 'package:vid/file_buffer.dart';
-import 'package:vid/file_buffer_ext.dart';
+import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/position.dart';
 
 void main() {

@@ -1,5 +1,6 @@
 import 'file_buffer.dart';
-import 'file_buffer_ext.dart';
+import 'file_buffer_lines.dart';
+import 'file_buffer_text.dart';
 import 'modes.dart';
 import 'range.dart';
 

@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:vid/file_buffer_lines.dart';
+
 import 'actions_find.dart';
 import 'actions_motion.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
-import 'file_buffer_ext.dart';
+import 'file_buffer_text.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';

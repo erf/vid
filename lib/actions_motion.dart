@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'file_buffer.dart';
-import 'file_buffer_ext.dart';
+import 'file_buffer_text.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'utils.dart';

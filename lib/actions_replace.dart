@@ -1,7 +1,8 @@
 import 'package:characters/characters.dart';
 
 import 'file_buffer.dart';
-import 'file_buffer_ext.dart';
+import 'file_buffer_lines.dart';
+import 'file_buffer_text.dart';
 import 'modes.dart';
 
 typedef ReplaceAction = void Function(FileBuffer, Characters);

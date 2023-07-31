@@ -12,13 +12,13 @@ import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
 import 'config.dart';
+import 'esc.dart';
 import 'file_buffer.dart';
-import 'file_buffer_ext.dart';
+import 'file_buffer_lines.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
-import 'esc.dart';
 
 class Editor {
   final term = Terminal();
