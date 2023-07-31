@@ -31,6 +31,4 @@ class VT100 {
 
   // alternate buffer
   static String altBuf(bool enabled) => enabled ? '$e[?1049h' : '$e[?1049l';
-
-  static String batch(bool enabled) => enabled ? '$e[?2026h' : '$e[?2026l';
 }
