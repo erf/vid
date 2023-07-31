@@ -41,7 +41,7 @@ Position motionFileStart(FileBuffer f, Position p) {
 Position motionFileEnd(FileBuffer f, Position position) {
   return Position(
     l: max(0, f.lines.length - 1),
-    c: f.lines.last.charLen,
+    c: max(0, f.lines.last.charLen - 1),
   );
 }
 

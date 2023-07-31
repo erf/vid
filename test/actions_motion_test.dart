@@ -59,10 +59,10 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
     f.createLines();
-    expect(motionFileEnd(f, Position(c: 0, l: 0)), Position(c: 4, l: 1));
-    expect(motionFileEnd(f, Position(c: 2, l: 0)), Position(c: 4, l: 1));
-    expect(motionFileEnd(f, Position(c: 0, l: 1)), Position(c: 4, l: 1));
-    expect(motionFileEnd(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
+    expect(motionFileEnd(f, Position(c: 0, l: 0)), Position(c: 3, l: 1));
+    expect(motionFileEnd(f, Position(c: 2, l: 0)), Position(c: 3, l: 1));
+    expect(motionFileEnd(f, Position(c: 0, l: 1)), Position(c: 3, l: 1));
+    expect(motionFileEnd(f, Position(c: 2, l: 1)), Position(c: 3, l: 1));
   });
 
   test('motionFindNextChar', () {
