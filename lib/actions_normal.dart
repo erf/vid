@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'actions_find.dart';
 import 'actions_motion.dart';
 import 'editor.dart';
-import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
@@ -39,22 +37,16 @@ void actionPasteBefore(Editor e, FileBuffer f) {
   f.isModified = true;
 }
 
-void quit(Editor e, FileBuffer f) {
-  e.term.write(Esc.reset + Esc.altBuf(false));
-  e.term.rawMode = false;
-  exit(0);
-}
-
 void actionQuit(Editor e, FileBuffer f) {
   if (f.isModified) {
     e.showMessage('Press \'Q\' to quit without saving', timed: true);
   } else {
-    quit(e, f);
+    e.quit();
   }
 }
 
 void actionQuitWithoutSaving(Editor e, FileBuffer f) {
-  quit(e, f);
+  e.quit();
 }
 
 void actionSave(Editor e, FileBuffer f) {

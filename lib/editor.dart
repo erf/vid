@@ -229,4 +229,10 @@ class Editor {
   void replace(String char) {
     defaultReplace(file, char);
   }
+
+  void quit() {
+    term.write(Esc.reset + Esc.altBuf(false));
+    term.rawMode = false;
+    exit(0);
+  }
 }
