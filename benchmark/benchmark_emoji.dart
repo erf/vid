@@ -1,5 +1,6 @@
 // test the performance of looking up emojis in either via a list of via a hashmap
 
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:vid/emojis_15.dart';
@@ -8,6 +9,7 @@ void main() {
   final List<String> unicodeChars = generateRandomUnicodeChars(100000);
   testEmojiInListPerformance(unicodeChars);
   testEmojiInMapPerformance(unicodeChars);
+  testEmojiInSetPerformance(unicodeChars);
 }
 
 void testEmojiInListPerformance(List<String> unicodeChars) {
@@ -23,15 +25,29 @@ void testEmojiInListPerformance(List<String> unicodeChars) {
 }
 
 void testEmojiInMapPerformance(List<String> unicodeChars) {
+  final emojisMap = HashMap.fromIterable(emojis15);
   final stopwatch = Stopwatch()..start();
   int num = 0;
   for (final unicodeChar in unicodeChars) {
-    if (emojis15Map.containsKey(unicodeChar.runes.first)) {
+    if (emojisMap.containsKey(unicodeChar.runes.first)) {
       num++;
     }
   }
   stopwatch.stop();
   print('testIfEmojiUsingMap: ${stopwatch.elapsedMilliseconds}ms - $num');
+}
+
+void testEmojiInSetPerformance(List<String> unicodeChars) {
+  final emojisSet = Set.from(emojis15);
+  final stopwatch = Stopwatch()..start();
+  int num = 0;
+  for (final unicodeChar in unicodeChars) {
+    if (emojisSet.contains(unicodeChar.runes.first)) {
+      num++;
+    }
+  }
+  stopwatch.stop();
+  print('testIfEmojiUsingSet: ${stopwatch.elapsedMilliseconds}ms - $num');
 }
 
 List<String> generateRandomUnicodeChars(int length) {

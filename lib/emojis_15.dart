@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 const emojis15 = [
   8986,
   8987,
@@ -1208,4 +1206,4 @@ const emojis15 = [
   129784
 ];
 
-final emojis15Map = HashMap.fromIterable(emojis15);
+final emojis15Set = Set.from(emojis15);

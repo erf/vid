@@ -19,7 +19,7 @@ extension StringExt on String {
       return true;
     }
     // check if first codeUnit is in pre-generated emoji hashmap
-    if (emojis15Map.containsKey(runes.first)) {
+    if (emojis15Set.contains(runes.first)) {
       return true;
     }
     return false;
