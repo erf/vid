@@ -12,14 +12,8 @@ class Esc {
   // home and erase down
   static const clear = '$e[H$e[J';
 
-  // reset font and background color
-  static const reset = '$e[0m';
-
   // move cursor to x,y
   static curPos({required int l, required int c}) => '$e[$l;${c}H';
-
-  // cursor visibility
-  static curVis(bool visible) => visible ? '$e[?25h' : '$e[?25l';
 
   // set invert
   static invCol(bool invert) => invert ? '$e[7m' : '$e[27m';

@@ -30,10 +30,16 @@ class Editor {
   void init(List<String> args) {
     file.load(args);
     term.rawMode = true;
-    term.write(Esc.altBuf(true) + Esc.curVis(true));
+    term.write(Esc.altBuf(true));
     term.input.listen(input);
     term.resize.listen(resize);
     draw();
+  }
+
+  void quit() {
+    term.write(Esc.altBuf(false));
+    term.rawMode = false;
+    exit(0);
   }
 
   void resize(ProcessSignal signal) {
@@ -228,11 +234,5 @@ class Editor {
 
   void replace(String char) {
     defaultReplace(file, char);
-  }
-
-  void quit() {
-    term.write(Esc.reset + Esc.altBuf(false));
-    term.rawMode = false;
-    exit(0);
   }
 }
