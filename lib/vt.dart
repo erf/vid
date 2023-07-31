@@ -2,8 +2,8 @@
 // https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 // https://en.wikipedia.org/wiki/ANSI_escape_code
 
-class VT100 {
-  VT100._();
+class VT {
+  VT._();
 
   // escape character
   static const String e = '\x1b';
