@@ -11,7 +11,7 @@ import 'position.dart';
 import 'range.dart';
 import 'undo.dart';
 import 'utils.dart';
-import 'vt.dart';
+import 'esc.dart';
 
 typedef NormalAction = void Function(Editor, FileBuffer);
 
@@ -38,7 +38,7 @@ void actionPasteBefore(Editor e, FileBuffer f) {
 }
 
 void quit(Editor e, FileBuffer f) {
-  e.term.write(VT.resetStyles + VT.altBuf(false));
+  e.term.write(Esc.reset + Esc.altBuf(false));
   e.term.rawMode = false;
   exit(0);
 }
