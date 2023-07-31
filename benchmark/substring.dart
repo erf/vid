@@ -4,14 +4,13 @@ import 'package:vid/string_ext.dart';
 void main() {
   const text = 'this is a longer text 🥹🥹abc';
   const iterations = 1000000;
-  substringString(text, iterations);
-  substringCharacters(text, iterations);
+  benchmarkSubstringString(text, iterations);
+  benchmarkSubstringCharacters(text, iterations);
 }
 
 // benchmark String.substring
-void substringString(String text, int iterations) {
+void benchmarkSubstringString(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
-  stopwatch.reset();
   for (int i = 0; i < iterations; i++) {
     text.substring(10, 16);
   }
@@ -20,9 +19,8 @@ void substringString(String text, int iterations) {
 }
 
 // benchmark CharactersExt.substring
-void substringCharacters(String text, int iterations) {
+void benchmarkSubstringCharacters(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
-  stopwatch.reset();
   for (int i = 0; i < iterations; i++) {
     text.ch.substring(10, 16);
   }
