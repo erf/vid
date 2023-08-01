@@ -58,8 +58,11 @@ void actionSave(Editor e, FileBuffer f) {
     e.showMessage('No changes', timed: true);
     return;
   }
-  f.save();
-  e.showMessage('File saved', timed: true);
+  if (f.save()) {
+    e.showMessage('File saved', timed: true);
+  } else {
+    e.showMessage('Error: Could not save file', timed: true);
+  }
 }
 
 void actionCursorCharNext(Editor e, FileBuffer f) {

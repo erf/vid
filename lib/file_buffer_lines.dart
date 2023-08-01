@@ -27,9 +27,15 @@ extension FileBufferLines on FileBuffer {
   }
 
   // save file to disk
-  void save() {
-    File(path!).writeAsStringSync(text);
-    isModified = false;
+  bool save() {
+    try {
+      File(path!).writeAsStringSync(text);
+      isModified = false;
+      return true;
+    } catch (e) {
+      print('Error: $e');
+      return false;
+    }
   }
 
   // split text into lines
