@@ -52,11 +52,11 @@ class Editor {
 
     file.clampView(term);
 
-    // draw lines
-    drawLines();
+    // draw text lines
+    drawTextLines();
 
-    // draw status
-    drawStatus();
+    // draw status line
+    drawStatusLine();
 
     // draw cursor
     drawCursor();
@@ -64,7 +64,7 @@ class Editor {
     term.write(buff.toString());
   }
 
-  void drawLines() {
+  void drawTextLines() {
     final lines = file.lines;
     final view = file.view;
     final lineStart = view.l;
@@ -95,7 +95,7 @@ class Editor {
     buff.write(Esc.curPos(c: curpos.c, l: curpos.l));
   }
 
-  void drawStatus() {
+  void drawStatusLine() {
     buff.write(Esc.invCol(true));
     buff.write(Esc.curPos(c: 1, l: term.height));
 
