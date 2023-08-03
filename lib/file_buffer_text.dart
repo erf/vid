@@ -22,7 +22,7 @@ extension FileBufferText on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, String textNew, undoType) {
+  void replace(int start, int end, String textNew, UndoType undoType) {
     // undo
     final textPrev = text.substring(start, end);
     undoList.add(Undo(undoType, textNew, textPrev, start, cursor.clone));
@@ -42,23 +42,20 @@ extension FileBufferText on FileBuffer {
     replace(start, end, '', UndoType.delete);
   }
 
-  void insertAt(Position p, String str) {
+  void insertAt(Position p, String s) {
     final index = byteIndexFromPosition(p);
-    replace(index, index, str, UndoType.insert);
+    replace(index, index, s, UndoType.insert);
   }
 
-  void replaceAt(Position p, String str) {
+  void replaceAt(Position p, String s, [UndoType undoType = UndoType.replace]) {
     final index = byteIndexFromPosition(p);
     final r = CharacterRange.at(text, index)..moveNext();
     final length = r.current.length;
-    replace(index, index + length, str, UndoType.replace);
+    replace(index, index + length, s, undoType);
   }
 
   void deleteAt(Position p) {
-    final index = byteIndexFromPosition(p);
-    final r = CharacterRange.at(text, index)..moveNext();
-    final length = r.current.length;
-    replace(index, index + length, '', UndoType.delete);
+    replaceAt(p, '', UndoType.delete);
   }
 
   void yankRange(Range range) {
