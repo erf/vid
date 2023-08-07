@@ -223,13 +223,15 @@ class Editor {
     if (operator == null) {
       return;
     }
+
     if (file.find != null) {
-      Position newPos = file.find!(file, file.cursor, char, true);
-      Range range = Range(start: file.cursor, end: newPos);
+      Position end = file.find!(file, file.cursor, char, true);
+      Range range = Range(start: file.cursor, end: end);
       operator(file, range);
       file.find = null;
       return;
     }
+
     FindAction? findAction = findActions[char];
     if (findAction != null) {
       file.find = findAction;
@@ -242,10 +244,11 @@ class Editor {
       operator(file, range);
       return;
     }
+
     Motion? motion = motionActions[char];
     if (motion != null) {
-      Position pEnd = motion(file, file.cursor);
-      Range range = Range(start: file.cursor, end: pEnd);
+      Position end = motion(file, file.cursor);
+      Range range = Range(start: file.cursor, end: end);
       operator(file, range);
       return;
     }
