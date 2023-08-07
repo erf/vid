@@ -197,36 +197,36 @@ class Editor {
       return;
     }
 
-    OperatorAction? pending = operatorActions[file.input];
-    if (pending != null) {
+    OperatorAction? operator = operatorActions[file.input];
+    if (operator != null) {
       file.input = '';
       file.count = null;
       file.mode = Mode.operator;
-      file.pendingAction = pending;
+      file.operator = operator;
     }
   }
 
   void operator(String char) {
-    Function? pendingAction = file.pendingAction;
-    if (pendingAction == null) {
+    Function? operator = file.operator;
+    if (operator == null) {
       return;
     }
-    if (pendingAction is FindAction) {
-      pendingAction(file, file.cursor, char);
+    if (operator is FindAction) {
+      operator(file, file.cursor, char);
       return;
     }
-    if (pendingAction is OperatorAction) {
+    if (operator is OperatorAction) {
       TextObject? textObject = textObjects[char];
       if (textObject != null) {
         Range range = textObject(file, file.cursor);
-        pendingAction(file, range);
+        operator(file, range);
         return;
       }
       Motion? motion = motionActions[char];
       if (motion != null) {
         Position pEnd = motion(file, file.cursor);
         Range range = Range(start: file.cursor, end: pEnd);
-        pendingAction(file, range);
+        operator(file, range);
         return;
       }
     }

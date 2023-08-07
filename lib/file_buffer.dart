@@ -24,7 +24,7 @@ class FileBuffer {
   var mode = Mode.normal;
 
   // the pending action to be executed
-  Function? pendingAction;
+  Function? operator;
 
   // the accumulated text input
   var input = '';

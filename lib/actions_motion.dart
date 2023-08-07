@@ -133,7 +133,7 @@ Position motionWordEndPrev(FileBuffer f, Position p) {
 // exit insert mode
 Position motionEscape(FileBuffer f, Position p) {
   f.mode = Mode.normal;
-  f.pendingAction = null;
+  f.operator = null;
   return p;
 }
 

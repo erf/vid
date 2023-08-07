@@ -195,22 +195,22 @@ void actionChangeLineEnd(Editor e, FileBuffer f) {
 
 void actionFindCharNext(Editor e, FileBuffer f) {
   f.mode = Mode.operator;
-  f.pendingAction = findNextChar;
+  f.operator = findNextChar;
 }
 
 void actionFindCharPrev(Editor e, FileBuffer f) {
   f.mode = Mode.operator;
-  f.pendingAction = findPrevChar;
+  f.operator = findPrevChar;
 }
 
 void actionTillCharNext(Editor e, FileBuffer f) {
   f.mode = Mode.operator;
-  f.pendingAction = tillNextChar;
+  f.operator = tillNextChar;
 }
 
 void actionTillCharPrev(Editor e, FileBuffer f) {
   f.mode = Mode.operator;
-  f.pendingAction = tillPrevChar;
+  f.operator = tillPrevChar;
 }
 
 void actionJoinLines(Editor e, FileBuffer f) {
