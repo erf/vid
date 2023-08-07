@@ -190,7 +190,7 @@ class Editor {
     }
 
     if (file.find != null) {
-      file.cursor = file.find!(file, file.cursor, char);
+      file.cursor = file.find!(file, file.cursor, char, false);
       file.find = null;
       file.input = '';
       return;
@@ -225,7 +225,7 @@ class Editor {
       return;
     }
     if (file.find != null) {
-      Position newPos = file.find!(file, file.cursor, char);
+      Position newPos = file.find!(file, file.cursor, char, true);
       Range range = Range(start: file.cursor, end: newPos);
       operator(file, range);
       file.find = null;
