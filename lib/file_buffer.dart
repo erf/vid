@@ -1,3 +1,6 @@
+import 'package:vid/actions_find.dart';
+import 'package:vid/actions_operator.dart';
+
 import 'line.dart';
 import 'modes.dart';
 import 'position.dart';
@@ -24,7 +27,10 @@ class FileBuffer {
   var mode = Mode.normal;
 
   // the pending action to be executed
-  Function? operator;
+  OperatorAction? operator;
+
+  // find action
+  FindAction? find;
 
   // the accumulated text input
   var input = '';

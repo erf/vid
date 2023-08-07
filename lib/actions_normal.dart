@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'actions_find.dart';
 import 'actions_motion.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
@@ -191,26 +190,6 @@ void actionChangeLineEnd(Editor e, FileBuffer f) {
   final r = Range(start: f.cursor.clone, end: pEnd);
   f.deleteRange(r);
   f.mode = Mode.insert;
-}
-
-void actionFindCharNext(Editor e, FileBuffer f) {
-  f.mode = Mode.operator;
-  f.operator = findNextChar;
-}
-
-void actionFindCharPrev(Editor e, FileBuffer f) {
-  f.mode = Mode.operator;
-  f.operator = findPrevChar;
-}
-
-void actionTillCharNext(Editor e, FileBuffer f) {
-  f.mode = Mode.operator;
-  f.operator = tillNextChar;
-}
-
-void actionTillCharPrev(Editor e, FileBuffer f) {
-  f.mode = Mode.operator;
-  f.operator = tillPrevChar;
 }
 
 void actionJoinLines(Editor e, FileBuffer f) {

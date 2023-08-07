@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:vid/actions_find.dart';
 import 'package:vid/actions_motion.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_lines.dart';
@@ -70,9 +71,9 @@ void main() {
     f.text = 'abca\ndef\n';
     f.createLines();
     final cursor = Position(c: 0, l: 0);
-    expect(motionFindNextChar(f, cursor, 'a'), Position(c: 3, l: 0));
-    expect(motionFindNextChar(f, cursor, 'b'), Position(c: 1, l: 0));
-    expect(motionFindNextChar(f, cursor, 'c'), Position(c: 2, l: 0));
+    expect(findNextChar(f, cursor, 'a'), Position(c: 3, l: 0));
+    expect(findNextChar(f, cursor, 'b'), Position(c: 1, l: 0));
+    expect(findNextChar(f, cursor, 'c'), Position(c: 2, l: 0));
   });
 
   test('motionFindPrevChar', () {
@@ -80,9 +81,9 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     final cursor = Position(c: 2, l: 0);
-    expect(motionFindPrevChar(f, cursor, 'a'), Position(c: 0, l: 0));
-    expect(motionFindPrevChar(f, cursor, 'b'), Position(c: 1, l: 0));
-    expect(motionFindPrevChar(f, cursor, 'c'), Position(c: 2, l: 0));
+    expect(findPrevChar(f, cursor, 'a'), Position(c: 0, l: 0));
+    expect(findPrevChar(f, cursor, 'b'), Position(c: 1, l: 0));
+    expect(findPrevChar(f, cursor, 'c'), Position(c: 2, l: 0));
   });
 
   test('motionWordNext', () {

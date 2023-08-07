@@ -1,28 +1,39 @@
-import 'actions_motion.dart';
+import 'dart:math';
+
 import 'file_buffer.dart';
-import 'modes.dart';
+import 'file_buffer_text.dart';
 import 'position.dart';
 
-typedef FindAction = void Function(FileBuffer, Position, String);
+typedef FindAction = Position Function(FileBuffer, Position, String);
 
 // find the next occurence of the given character on the current line
-void findNextChar(FileBuffer f, Position p, String c) {
-  f.cursor = motionFindNextChar(f, p, c);
-  f.mode = Mode.normal;
+Position findNextChar(FileBuffer f, Position p, String char) {
+  final pnew = Position(c: p.c + 1, l: p.l);
+  final start = f.byteIndexFromPosition(pnew);
+  final match = char.allMatches(f.text, start).firstOrNull;
+  if (match == null) return p;
+  return f.positionFromByteIndex(match.start);
+}
+
+// find the next occurence of the given character
+Position tillNextChar(FileBuffer f, Position p, String char) {
+  final pnew = findNextChar(f, p, char);
+  pnew.c = max(pnew.c - 1, p.c);
+  return pnew;
 }
 
 // find the previous occurence of the given character on the current line
-void findPrevChar(FileBuffer f, Position p, String c) {
-  f.cursor = motionFindPrevChar(f, p, c);
-  f.mode = Mode.normal;
+Position findPrevChar(FileBuffer f, Position p, String char) {
+  final start = f.byteIndexFromPosition(p);
+  final matches = char.allMatches(f.text.substring(0, start));
+  if (matches.isEmpty) return p;
+  final match = matches.last;
+  return f.positionFromByteIndex(match.start);
 }
 
-void tillNextChar(FileBuffer f, Position p, String c) {
-  f.cursor = motionTillNextChar(f, p, c);
-  f.mode = Mode.normal;
-}
-
-void tillPrevChar(FileBuffer f, Position p, String c) {
-  f.cursor = motionTillPrevChar(f, p, c);
-  f.mode = Mode.normal;
+// find the previous occurence of the given character
+Position tillPrevChar(FileBuffer f, Position p, String char) {
+  final pnew = findPrevChar(f, p, char);
+  pnew.c = min(pnew.c + 1, p.c);
+  return pnew;
 }

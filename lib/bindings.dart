@@ -1,3 +1,4 @@
+import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
@@ -44,10 +45,6 @@ final normalActions = <String, NormalAction>{
   'P': actionPasteBefore,
   '\u0004': actionMoveDownHalfPage,
   '\u0015': actionMoveUpHalfPage,
-  'f': actionFindCharNext,
-  'F': actionFindCharPrev,
-  't': actionTillCharNext,
-  'T': actionTillCharPrev,
   'J': actionJoinLines,
   'C': actionChangeLineEnd,
   'u': actionUndo,
@@ -84,4 +81,11 @@ final motionActions = <String, Motion>{
   '^': motionFirstNonBlank,
   '\$': motionLineEnd,
   '\x1b': motionEscape,
+};
+
+final findActions = <String, FindAction>{
+  'f': findNextChar,
+  'F': findPrevChar,
+  't': tillNextChar,
+  'T': tillPrevChar,
 };

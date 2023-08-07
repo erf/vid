@@ -189,6 +189,17 @@ class Editor {
       file.input = char;
     }
 
+    if (file.find != null) {
+      file.cursor = file.find!(file, file.cursor, char);
+      file.find = null;
+      return;
+    }
+    FindAction? find = findActions[char];
+    if (find != null) {
+      file.find = find;
+      return;
+    }
+
     NormalAction? action = normalActions[file.input];
     if (action != null) {
       action(this, file);
@@ -207,28 +218,35 @@ class Editor {
   }
 
   void operator(String char) {
-    Function? operator = file.operator;
+    OperatorAction? operator = file.operator;
     if (operator == null) {
       return;
     }
-    if (operator is FindAction) {
-      operator(file, file.cursor, char);
+    if (file.find != null) {
+      Position newPos = file.find!(file, file.cursor, char);
+      Range range = Range(start: file.cursor, end: newPos);
+      operator(file, range);
+      file.find = null;
       return;
     }
-    if (operator is OperatorAction) {
-      TextObject? textObject = textObjects[char];
-      if (textObject != null) {
-        Range range = textObject(file, file.cursor);
-        operator(file, range);
-        return;
-      }
-      Motion? motion = motionActions[char];
-      if (motion != null) {
-        Position pEnd = motion(file, file.cursor);
-        Range range = Range(start: file.cursor, end: pEnd);
-        operator(file, range);
-        return;
-      }
+    FindAction? find = findActions[char];
+    if (find != null) {
+      file.find = find;
+      return;
+    }
+
+    TextObject? textObject = textObjects[char];
+    if (textObject != null) {
+      Range range = textObject(file, file.cursor);
+      operator(file, range);
+      return;
+    }
+    Motion? motion = motionActions[char];
+    if (motion != null) {
+      Position pEnd = motion(file, file.cursor);
+      Range range = Range(start: file.cursor, end: pEnd);
+      operator(file, range);
+      return;
     }
   }
 
