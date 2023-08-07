@@ -31,8 +31,8 @@ class Editor {
     file.load(args);
     term.rawMode = true;
     term.write(Esc.altBuf(true));
-    term.input.listen(input);
-    term.resize.listen(resize);
+    term.input.listen(onInput);
+    term.resize.listen(onResize);
     draw();
   }
 
@@ -42,7 +42,7 @@ class Editor {
     exit(0);
   }
 
-  void resize(ProcessSignal signal) {
+  void onResize(ProcessSignal signal) {
     draw();
   }
 
@@ -137,12 +137,11 @@ class Editor {
     }
   }
 
-  void input(List<int> codes) {
-    final char = utf8.decode(codes);
-    inputChar(char);
+  void onInput(List<int> codes) {
+    input(utf8.decode(codes));
   }
 
-  void inputChar(String char, {bool redraw = true}) {
+  void input(String char, {bool redraw = true}) {
     switch (file.mode) {
       case Mode.insert:
         insert(char);

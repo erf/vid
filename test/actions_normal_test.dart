@@ -66,7 +66,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 2, l: 1);
     actionInsertLineStart(e, f);
-    e.inputChar('x', redraw: false);
+    e.input('x', redraw: false);
     expect(f.text, 'abc\nxdef\n');
     expect(f.cursor, Position(c: 1, l: 1));
   });
@@ -78,7 +78,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     actionAppendLineEnd(e, f);
-    e.inputChar('x', redraw: false);
+    e.input('x', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
 
@@ -89,7 +89,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
     actionAppendCharNext(e, f);
-    e.inputChar('x', redraw: false);
+    e.input('x', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
 }
