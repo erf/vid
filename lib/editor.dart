@@ -61,7 +61,7 @@ class Editor {
     // draw cursor
     drawCursor();
 
-    term.write(buff.toString());
+    term.write(buff);
   }
 
   void drawTextLines() {
