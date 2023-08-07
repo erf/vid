@@ -142,7 +142,7 @@ class Editor {
     inputChar(char);
   }
 
-  void inputChar(String char, {bool testMode = false}) {
+  void inputChar(String char, {bool redraw = true}) {
     switch (file.mode) {
       case Mode.insert:
         insert(char);
@@ -153,7 +153,7 @@ class Editor {
       case Mode.replace:
         replace(char);
     }
-    if (!testMode) {
+    if (redraw) {
       draw();
     }
     message = '';
