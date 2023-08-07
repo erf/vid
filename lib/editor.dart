@@ -192,17 +192,19 @@ class Editor {
     if (file.find != null) {
       file.cursor = file.find!(file, file.cursor, char);
       file.find = null;
+      file.input = '';
       return;
     }
-    FindAction? find = findActions[char];
-    if (find != null) {
-      file.find = find;
+    FindAction? findAction = findActions[file.input];
+    if (findAction != null) {
+      file.find = findAction;
+      file.input = '';
       return;
     }
 
-    NormalAction? action = normalActions[file.input];
-    if (action != null) {
-      action(this, file);
+    NormalAction? normalAtion = normalActions[file.input];
+    if (normalAtion != null) {
+      normalAtion(this, file);
       file.input = '';
       file.count = null;
       return;
@@ -229,9 +231,9 @@ class Editor {
       file.find = null;
       return;
     }
-    FindAction? find = findActions[char];
-    if (find != null) {
-      file.find = find;
+    FindAction? findAction = findActions[char];
+    if (findAction != null) {
+      file.find = findAction;
       return;
     }
 
