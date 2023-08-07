@@ -30,14 +30,14 @@ class Editor {
   void init(List<String> args) {
     file.load(args);
     term.rawMode = true;
-    term.write(Esc.altBuf(true));
+    term.write(Esc.enableAltBuffer(true));
     term.input.listen(onInput);
     term.resize.listen(onResize);
     draw();
   }
 
   void quit() {
-    term.write(Esc.altBuf(false));
+    term.write(Esc.enableAltBuffer(false));
     term.rawMode = false;
     exit(0);
   }
@@ -48,7 +48,7 @@ class Editor {
 
   void draw() {
     buff.clear();
-    buff.write(Esc.clear);
+    buff.write(Esc.homeAndEraseDown);
 
     file.clampView(term);
 
@@ -92,12 +92,12 @@ class Editor {
     final cursor = file.cursor;
     final curlen = file.lines[cursor.l].text.renderLength(cursor.c);
     final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
-    buff.write(Esc.curPos(c: curpos.c, l: curpos.l));
+    buff.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
   void drawStatusLine() {
-    buff.write(Esc.invCol(true));
-    buff.write(Esc.curPos(c: 1, l: term.height));
+    buff.write(Esc.invertColors(true));
+    buff.write(Esc.cursorPosition(c: 1, l: term.height));
 
     final cursor = file.cursor;
     final modified = file.isModified;
@@ -114,7 +114,7 @@ class Editor {
       buff.write(status.substring(0, term.width));
     }
 
-    buff.write(Esc.invCol(false));
+    buff.write(Esc.invertColors(false));
   }
 
   String getModeStatusStr(Mode mode) {

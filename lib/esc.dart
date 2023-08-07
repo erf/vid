@@ -10,14 +10,14 @@ class Esc {
   static const e = '\x1b';
 
   // home and erase down
-  static const clear = '$e[H$e[J';
+  static const homeAndEraseDown = '$e[H$e[J';
 
-  // move cursor to x,y
-  static curPos({required int l, required int c}) => '$e[$l;${c}H';
+  // move cursor to spesific line and column
+  static cursorPosition({required int l, required int c}) => '$e[$l;${c}H';
 
-  // set invert
-  static invCol(bool invert) => invert ? '$e[7m' : '$e[27m';
+  // invert colors
+  static invertColors(bool invert) => invert ? '$e[7m' : '$e[27m';
 
-  // alternate buffer
-  static altBuf(bool enable) => enable ? '$e[?1049h' : '$e[?1049l';
+  // enable alternative buffer
+  static enableAltBuffer(bool enable) => enable ? '$e[?1049h' : '$e[?1049l';
 }
