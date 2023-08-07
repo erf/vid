@@ -221,10 +221,10 @@ void actionJoinLines(Editor e, FileBuffer f) {
 void actionUndo(Editor e, FileBuffer f) {
   if (f.undoList.isEmpty) return;
   final u = f.undoList.removeLast();
-  f.text = switch (u.type) {
-    UndoType.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
-    UndoType.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
-    UndoType.delete => f.text.replaceRange(u.i, u.i, u.prev),
+  f.text = switch (u.op) {
+    TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
+    TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
+    TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
   };
   f.createLines();
   f.isModified = true;

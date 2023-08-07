@@ -22,12 +22,12 @@ extension FileBufferText on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, String textNew, UndoType undoType) {
+  void replace(int start, int end, String textNew, TextOp op) {
     // undo
     final textPrev = text.substring(start, end);
-    undoList.add(Undo(undoType, textNew, textPrev, start, cursor.clone));
+    undoList.add(Undo(op, textNew, textPrev, start, cursor.clone));
     // yank
-    if (undoType == UndoType.delete || undoType == UndoType.replace) {
+    if (op == TextOp.delete || op == TextOp.replace) {
       yankBuffer = textPrev;
     }
     // replace text and create lines
@@ -39,23 +39,23 @@ extension FileBufferText on FileBuffer {
   void deleteRange(Range r) {
     final start = byteIndexFromPosition(r.start);
     final end = byteIndexFromPosition(r.end);
-    replace(start, end, '', UndoType.delete);
+    replace(start, end, '', TextOp.delete);
   }
 
   void insertAt(Position p, String s) {
     final index = byteIndexFromPosition(p);
-    replace(index, index, s, UndoType.insert);
+    replace(index, index, s, TextOp.insert);
   }
 
-  void replaceAt(Position p, String s, [UndoType undoType = UndoType.replace]) {
+  void replaceAt(Position p, String s, [var op = TextOp.replace]) {
     final index = byteIndexFromPosition(p);
     final r = CharacterRange.at(text, index)..moveNext();
     final length = r.current.length;
-    replace(index, index + length, s, undoType);
+    replace(index, index + length, s, op);
   }
 
   void deleteAt(Position p) {
-    replaceAt(p, '', UndoType.delete);
+    replaceAt(p, '', TextOp.delete);
   }
 
   void yankRange(Range range) {
