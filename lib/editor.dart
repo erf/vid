@@ -101,9 +101,9 @@ class Editor {
 
     final cursor = file.cursor;
     final modified = file.isModified;
-    final nameStr = file.path ?? '[No Name]';
-    final modeStr = getModeStatusStr(file.mode);
-    final left = ' $modeStr  $nameStr ${modified ? '* ' : ''}$message ';
+    final filename = file.path ?? '[No Name]';
+    final mode = statusModeStr(file.mode);
+    final left = ' $mode  $filename ${modified ? '* ' : ''}$message ';
     final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     final padLeft = term.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
@@ -117,7 +117,7 @@ class Editor {
     buff.write(Esc.invertColors(false));
   }
 
-  String getModeStatusStr(Mode mode) {
+  String statusModeStr(Mode mode) {
     return switch (mode) {
       Mode.normal => 'NOR',
       Mode.operator => 'PEN',
