@@ -49,22 +49,14 @@ class Editor {
   void draw() {
     buff.clear();
     buff.write(Esc.homeAndEraseDown);
-
     file.clampView(term);
-
-    // draw text lines
-    drawTextLines();
-
-    // draw status line
+    drawTextLinesInView();
     drawStatusLine();
-
-    // draw cursor
     drawCursor();
-
     term.write(buff);
   }
 
-  void drawTextLines() {
+  void drawTextLinesInView() {
     final lines = file.lines;
     final view = file.view;
     final lineStart = view.l;
