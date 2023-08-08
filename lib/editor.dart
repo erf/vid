@@ -101,9 +101,9 @@ class Editor {
 
     final cursor = file.cursor;
     final modified = file.isModified;
-    final name = file.path ?? '[No Name]';
+    final path = file.path ?? '[No Name]';
     final mode = statusModeStr(file.mode);
-    final left = ' $mode  $name ${modified ? '* ' : ''}$message ';
+    final left = ' $mode  $path ${modified ? '* ' : ''}$message ';
     final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     final padLeft = term.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
