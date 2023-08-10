@@ -172,16 +172,16 @@ class Editor {
       file.countInput = '';
     }
 
-    // accumulate fileBuffer.input until maxInput is reached and try to match
-    // a command in the bindings map
+    // accumulate input until maxInput is reached and try to match an action
     file.input += char;
     const int maxInput = 2;
     if (file.input.length > maxInput) {
       file.input = char;
     }
 
+    // if file.find is set, try to find the next occurence of char
     if (file.find != null) {
-      file.cursor = file.find!(file, file.cursor, char, false);
+      file.cursor = file.find!(file, file.cursor, file.input, false);
       file.find = null;
       file.input = '';
       return;
@@ -194,9 +194,9 @@ class Editor {
       return;
     }
 
-    NormalAction? normalAtion = normalActions[file.input];
-    if (normalAtion != null) {
-      normalAtion(this, file);
+    NormalAction? normalAction = normalActions[file.input];
+    if (normalAction != null) {
+      normalAction(this, file);
       file.input = '';
       file.count = null;
       return;
