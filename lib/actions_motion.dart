@@ -7,6 +7,8 @@ import 'position.dart';
 import 'utils.dart';
 
 class Motions {
+  static final wordRegex = RegExp(r'\w+');
+
   static Position charNext(FileBuffer f, Position p) {
     return Position(
       l: p.l,
@@ -59,7 +61,7 @@ class Motions {
 
   static Position wordNext(FileBuffer f, Position p) {
     final start = f.byteIndexFromPosition(p);
-    final matches = RegExp(r'\w+').allMatches(f.text, start);
+    final matches = wordRegex.allMatches(f.text, start);
     if (matches.isEmpty) return p;
     final match =
         matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
@@ -68,7 +70,7 @@ class Motions {
 
   static Position sameWordNext(FileBuffer f, Position p) {
     final start = f.byteIndexFromPosition(p);
-    final matches = RegExp(r'\w+').allMatches(f.text);
+    final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
     final match =
         matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
@@ -86,7 +88,7 @@ class Motions {
 
   static Position sameWordPrev(FileBuffer f, Position p) {
     final start = f.byteIndexFromPosition(p);
-    final matches = RegExp(r'\w+').allMatches(f.text);
+    final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
     final match =
         matches.firstWhere((e) => e.end >= start, orElse: () => matches.first);
@@ -106,7 +108,7 @@ class Motions {
 
   static Position wordEnd(FileBuffer f, Position p) {
     final start = f.byteIndexFromPosition(p);
-    final matches = RegExp(r'\w+').allMatches(f.text, start);
+    final matches = wordRegex.allMatches(f.text, start);
     if (matches.isEmpty) return p;
     final match = matches.firstWhere((m) => m.end - 1 > start,
         orElse: () => matches.first);
@@ -115,14 +117,14 @@ class Motions {
 
   static Position wordPrev(FileBuffer f, Position p) {
     final start = f.byteIndexFromPosition(p);
-    final matches = RegExp(r'\w+').allMatches(f.text.substring(0, start));
+    final matches = wordRegex.allMatches(f.text.substring(0, start));
     if (matches.isEmpty) return p;
     return f.positionFromByteIndex(matches.last.start);
   }
 
   static Position wordEndPrev(FileBuffer f, Position p) {
     final start = f.byteIndexFromPosition(p);
-    final matches = RegExp(r'\w+').allMatches(f.text);
+    final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
     final match =
         matches.lastWhere((e) => e.end < start, orElse: () => matches.last);
