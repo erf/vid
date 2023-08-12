@@ -13,6 +13,10 @@ void main() {
     expect(findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
     expect(findNextChar(f, cursor, 'b', false), Position(c: 1, l: 0));
     expect(findNextChar(f, cursor, 'c', false), Position(c: 2, l: 0));
+    // inclusive
+    expect(findNextChar(f, cursor, 'a', true), Position(c: 4, l: 0));
+    expect(findNextChar(f, cursor, 'b', true), Position(c: 2, l: 0));
+    expect(findNextChar(f, cursor, 'c', true), Position(c: 3, l: 0));
   });
 
   test('motionFindPrevChar', () {
