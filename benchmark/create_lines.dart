@@ -8,10 +8,11 @@ void main() {
 }
 
 void benchmarkCreateLines() {
+  final stopWatch = Stopwatch()..start();
   final fb = FileBuffer();
   fb.text = File('sample-data/eval.c').readAsStringSync();
-  final stopWatch = Stopwatch()..start();
+  print('load file: ${stopWatch.elapsedMilliseconds} ms');
   fb.createLines();
-  stopWatch.stop();
   print('create lines: ${stopWatch.elapsedMilliseconds} ms');
+  stopWatch.stop();
 }
