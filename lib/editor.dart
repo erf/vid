@@ -212,6 +212,7 @@ class Editor {
     if (operator == null) {
       return;
     }
+    file.prevOperatorLinewise = false;
 
     if (file.find != null) {
       Position end = file.find!(file, file.cursor, char, true);
@@ -229,14 +230,15 @@ class Editor {
 
     // if char is the same as the previous input, use the current line (linewise operator)
     if (char == file.prevOperatorInput) {
+      file.prevOperatorLinewise = true;
       Range range = objectCurrentLine(file, file.cursor);
       operator(file, range);
       return;
     }
 
-    final textCommand = textObjectCommands[char];
-    if (textCommand != null) {
-      Range range = textCommand.action(file, file.cursor);
+    final textObjectCommand = textObjectCommands[char];
+    if (textObjectCommand != null) {
+      Range range = textObjectCommand.action(file, file.cursor);
       operator(file, range);
       return;
     }

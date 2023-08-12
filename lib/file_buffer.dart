@@ -33,9 +33,6 @@ class FileBuffer {
   // the accumulated text input
   var input = '';
 
-  // the previous input for the operator (used for linewise operator)
-  var prevOperatorInput = '';
-
   // the accumulated count input
   var countInput = '';
 
@@ -50,4 +47,10 @@ class FileBuffer {
 
   // list of undo operations
   List<Undo> undoList = [];
+
+  // the previous input for the operator (used for linewise operator)
+  var prevOperatorInput = '';
+
+  // if the previous operator was linewise
+  bool prevOperatorLinewise = false;
 }

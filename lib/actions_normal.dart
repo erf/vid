@@ -24,7 +24,7 @@ void actionMoveUpHalfPage(Editor e, FileBuffer f) {
 
 void actionPasteAfter(Editor e, FileBuffer f) {
   if (f.yankBuffer == null) return;
-  if (f.prevOperatorInput.isNotEmpty) {
+  if (f.prevOperatorLinewise) {
     f.insertAt(
         Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), f.yankBuffer!);
     f.cursor = Position(l: f.cursor.l + 1, c: 0);
@@ -36,7 +36,7 @@ void actionPasteAfter(Editor e, FileBuffer f) {
 
 void actionPasteBefore(Editor e, FileBuffer f) {
   if (f.yankBuffer == null) return;
-  if (f.prevOperatorInput.isNotEmpty) {
+  if (f.prevOperatorLinewise) {
     f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
     f.cursor = Position(l: f.cursor.l, c: 0);
   } else {

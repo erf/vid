@@ -5,7 +5,7 @@ import 'package:vid/modes.dart';
 import 'package:vid/position.dart';
 
 void main() {
-  test('operatorActionDelete', () {
+  test('operatorActionDelete dd', () {
     final e = Editor();
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
@@ -24,7 +24,7 @@ void main() {
     expect(f.text, 'abc\ndef\nghi\ndef\n');
   });
 
-  test('operatorActionChange', () {
+  test('operatorActionChange cc', () {
     final e = Editor();
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
@@ -38,7 +38,7 @@ void main() {
     expect(f.mode, Mode.insert);
   });
 
-  test('operatorActionYank', () {
+  test('operatorActionYank yyP (linewise)', () {
     final e = Editor();
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
@@ -51,5 +51,18 @@ void main() {
     expect(f.text, 'abc\ndef\ndef\nghi\n');
     expect(f.cursor.l, 1);
     expect(f.cursor.c, 0);
+  });
+
+  test('operatorActionYank ywP (not linewise)', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'abc def ghi\n';
+    f.createLines();
+    f.cursor = Position(c: 4, l: 0);
+    e.input('y', redraw: false);
+    e.input('w', redraw: false);
+    expect(f.yankBuffer, 'def ');
+    e.input('P', redraw: false);
+    expect(f.text, 'abc def def ghi\n');
   });
 }
