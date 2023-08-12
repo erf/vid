@@ -7,7 +7,6 @@ import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
-import 'command.dart';
 import 'config.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
@@ -208,7 +207,7 @@ class Editor {
   }
 
   void operator(String char) {
-    OperatorAction? operator = file.operator;
+    final operator = file.operator;
     if (operator == null) {
       return;
     }
