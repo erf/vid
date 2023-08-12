@@ -160,6 +160,19 @@ class Editor {
   }
 
   void normal(String char) {
+    // if file.find is set, try to find the next occurence of char
+    if (file.find != null) {
+      file.cursor = file.find!(file, file.cursor, char, false);
+      file.find = null;
+      return;
+    }
+
+    FindAction? findAction = findActions[char];
+    if (findAction != null) {
+      file.find = findAction;
+      return;
+    }
+
     // accumulate countInput: if char is a number, add it to countInput
     // if char is not a number, parse countInput and set fileBuffer.count
     final count = int.tryParse(char);
@@ -177,21 +190,6 @@ class Editor {
     const int maxInput = 2;
     if (file.input.length > maxInput) {
       file.input = char;
-    }
-
-    // if file.find is set, try to find the next occurence of char
-    if (file.find != null) {
-      file.cursor = file.find!(file, file.cursor, file.input, false);
-      file.find = null;
-      file.input = '';
-      return;
-    }
-
-    FindAction? findAction = findActions[file.input];
-    if (findAction != null) {
-      file.find = findAction;
-      file.input = '';
-      return;
     }
 
     NormalAction? normalAction = normalActions[file.input];
