@@ -9,4 +9,3 @@
 - undo operations are added to a list on replace
 - optimize text changes later (if needed)
 - we add newline to eof if missing (unix)
-
