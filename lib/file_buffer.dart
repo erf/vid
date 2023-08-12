@@ -1,4 +1,4 @@
-import 'actions.dart';
+import 'action_typedefs.dart';
 import 'line.dart';
 import 'modes.dart';
 import 'position.dart';

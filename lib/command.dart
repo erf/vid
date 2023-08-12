@@ -1,4 +1,4 @@
-import 'actions.dart';
+import 'action_typedefs.dart';
 
 sealed class Command<T extends Function> {
   T action;
