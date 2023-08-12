@@ -26,7 +26,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     actionInsert(e, f);
-    insertActionEscape(f);
+    actionInsertEscape(f);
     expect(f.mode, Mode.normal);
   });
 
@@ -37,7 +37,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
     actionInsert(e, f);
-    insertActionEnter(f);
+    actionInsertEnter(f);
     expect(f.text, 'abc\ndef\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
@@ -48,7 +48,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
-    insertActionBackspace(f);
+    actionInsertBackspace(f);
     expect(f.text, 'abcdef\nghi\n');
     expect(f.cursor, Position(c: 3, l: 0));
   });

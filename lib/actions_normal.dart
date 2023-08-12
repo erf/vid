@@ -74,18 +74,18 @@ void actionSave(Editor e, FileBuffer f) {
 }
 
 void actionCursorCharNext(Editor e, FileBuffer f) {
-  f.cursor = motionCharNext(f, f.cursor);
+  f.cursor = actionMotionCharNext(f, f.cursor);
 }
 
 void actionCursorCharPrev(Editor e, FileBuffer f) {
-  f.cursor = motionCharPrev(f, f.cursor);
+  f.cursor = actionMotionCharPrev(f, f.cursor);
 }
 
 void actionCursorLineBottomOrCount(Editor e, FileBuffer f) {
   if (f.count != null) {
     f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
   } else {
-    f.cursor = motionFileEnd(f, f.cursor);
+    f.cursor = actionMotionFileEnd(f, f.cursor);
   }
 }
 
@@ -93,7 +93,7 @@ void actionCursorLineTopOrCount(Editor e, FileBuffer f) {
   if (f.count != null) {
     f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
   } else {
-    f.cursor = motionFileStart(f, f.cursor);
+    f.cursor = actionMotionFileStart(f, f.cursor);
   }
 }
 
@@ -133,38 +133,38 @@ void actionAppendCharNext(Editor e, FileBuffer f) {
 }
 
 void actionCursorLineEnd(Editor e, FileBuffer f) {
-  f.cursor = motionLineEnd(f, f.cursor);
+  f.cursor = actionMotionLineEnd(f, f.cursor);
   if (f.lines[f.cursor.l].isNotEmpty) f.cursor.c--;
 }
 
 void actionCursorLineStart(Editor e, FileBuffer f) {
-  f.cursor = motionLineStart(f, f.cursor);
+  f.cursor = actionMotionLineStart(f, f.cursor);
   f.view.c = 0;
 }
 
 void actionLineFirstNonBlank(Editor e, FileBuffer f) {
-  f.cursor = motionFirstNonBlank(f, f.cursor);
+  f.cursor = actionMotionFirstNonBlank(f, f.cursor);
 }
 
 void actionCursorCharUp(Editor e, FileBuffer f) {
-  f.cursor = motionCharUp(f, f.cursor);
+  f.cursor = actionMotionCharUp(f, f.cursor);
 }
 
 void actionCursorCharDown(Editor e, FileBuffer f) {
-  f.cursor = motionCharDown(f, f.cursor);
+  f.cursor = actionMotionCharDown(f, f.cursor);
 }
 
 void actionCursorWordNext(Editor e, FileBuffer f) {
-  f.cursor = motionWordNext(f, f.cursor);
+  f.cursor = actionMotionWordNext(f, f.cursor);
 }
 
 void actionCursorWordEnd(Editor v, FileBuffer f) {
-  f.cursor = motionWordEnd(f, f.cursor);
+  f.cursor = actionMotionWordEnd(f, f.cursor);
   f.cursor.c--;
 }
 
 void actionCursorWordPrev(Editor e, FileBuffer f) {
-  f.cursor = motionWordPrev(f, f.cursor);
+  f.cursor = actionMotionWordPrev(f, f.cursor);
 }
 
 void actionSameWordNext(Editor v, FileBuffer f) {
@@ -187,7 +187,7 @@ void actionReplaceMode(Editor e, FileBuffer f) {
 
 void actionDeleteLineEnd(Editor e, FileBuffer f) {
   if (f.empty) return;
-  final pEnd = motionLineEnd(f, f.cursor);
+  final pEnd = actionMotionLineEnd(f, f.cursor);
   final r = Range(start: f.cursor.clone, end: pEnd);
   f.deleteRange(r);
   f.clampCursor();
@@ -195,7 +195,7 @@ void actionDeleteLineEnd(Editor e, FileBuffer f) {
 
 void actionChangeLineEnd(Editor e, FileBuffer f) {
   if (f.empty) return;
-  final pEnd = motionLineEnd(f, f.cursor);
+  final pEnd = actionMotionLineEnd(f, f.cursor);
   final r = Range(start: f.cursor.clone, end: pEnd);
   f.deleteRange(r);
   f.mode = Mode.insert;

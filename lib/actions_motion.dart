@@ -6,57 +6,57 @@ import 'modes.dart';
 import 'position.dart';
 import 'utils.dart';
 
-Position motionCharNext(FileBuffer f, Position p) {
+Position actionMotionCharNext(FileBuffer f, Position p) {
   return Position(
     l: p.l,
     c: min(p.c + 1, f.lines[p.l].charLen - 1),
   );
 }
 
-Position motionCharPrev(FileBuffer f, Position p) {
+Position actionMotionCharPrev(FileBuffer f, Position p) {
   return Position(
     l: p.l,
     c: max(0, p.c - 1),
   );
 }
 
-Position motionCharUp(FileBuffer f, Position p) {
+Position actionMotionCharUp(FileBuffer f, Position p) {
   final line = max(0, p.l - 1);
   final char = clamp(p.c, 0, f.lines[line].charLen - 1);
   return Position(l: line, c: char);
 }
 
-Position motionCharDown(FileBuffer f, Position p) {
+Position actionMotionCharDown(FileBuffer f, Position p) {
   final line = min(p.l + 1, f.lines.length - 1);
   final char = clamp(p.c, 0, f.lines[line].charLen - 1);
   return Position(l: line, c: char);
 }
 
-Position motionFileStart(FileBuffer f, Position p) {
+Position actionMotionFileStart(FileBuffer f, Position p) {
   return Position(l: 0, c: 0);
 }
 
-Position motionFileEnd(FileBuffer f, Position position) {
+Position actionMotionFileEnd(FileBuffer f, Position position) {
   return Position(
     l: max(0, f.lines.length - 1),
     c: max(0, f.lines.last.charLen - 1),
   );
 }
 
-Position motionLineStart(FileBuffer f, Position p) {
+Position actionMotionLineStart(FileBuffer f, Position p) {
   return Position(l: p.l, c: 0);
 }
 
-Position motionFirstNonBlank(FileBuffer f, Position p) {
+Position actionMotionFirstNonBlank(FileBuffer f, Position p) {
   final firstNonBlank = f.lines[p.l].text.string.indexOf(RegExp(r'\S'));
   return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
 }
 
-Position motionLineEnd(FileBuffer f, Position p) {
+Position actionMotionLineEnd(FileBuffer f, Position p) {
   return Position(l: p.l, c: f.lines[p.l].charLen - 1);
 }
 
-Position motionWordNext(FileBuffer f, Position p) {
+Position actionMotionWordNext(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
@@ -103,7 +103,7 @@ Position motionSameWordPrev(FileBuffer f, Position p) {
       : f.positionFromByteIndex(index);
 }
 
-Position motionWordEnd(FileBuffer f, Position p) {
+Position actionMotionWordEnd(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text, start);
   if (matches.isEmpty) return p;
@@ -112,7 +112,7 @@ Position motionWordEnd(FileBuffer f, Position p) {
   return f.positionFromByteIndex(match.end);
 }
 
-Position motionWordPrev(FileBuffer f, Position p) {
+Position actionMotionWordPrev(FileBuffer f, Position p) {
   final start = f.byteIndexFromPosition(p);
   final matches = RegExp(r'\w+').allMatches(f.text.substring(0, start));
   if (matches.isEmpty) return p;
@@ -129,7 +129,7 @@ Position motionWordEndPrev(FileBuffer f, Position p) {
 }
 
 // exit insert mode
-Position motionEscape(FileBuffer f, Position p) {
+Position actionMotionEscape(FileBuffer f, Position p) {
   f.mode = Mode.normal;
   f.operator = null;
   return p;

@@ -13,16 +13,16 @@ void defaultInsert(FileBuffer f, String s) {
   f.cursor.c += s.characters.length;
 }
 
-void insertActionEscape(FileBuffer f) {
+void actionInsertEscape(FileBuffer f) {
   f.mode = Mode.normal;
   f.clampCursor();
 }
 
-void insertActionEnter(FileBuffer f) {
+void actionInsertEnter(FileBuffer f) {
   f.insertAt(f.cursor, '\n');
   f.cursor.c = 0;
   f.view.c = 0;
-  f.cursor = motionCharDown(f, f.cursor);
+  f.cursor = actionMotionCharDown(f, f.cursor);
 }
 
 void joinLines(FileBuffer f) {
@@ -38,7 +38,7 @@ void deleteCharPrev(FileBuffer f) {
   f.deleteAt(f.cursor);
 }
 
-void insertActionBackspace(FileBuffer f) {
+void actionInsertBackspace(FileBuffer f) {
   if (f.cursor.c == 0) {
     joinLines(f);
   } else {

@@ -23,7 +23,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(l: 1, c: 0);
-    Range r = objectLineUp(f, f.cursor);
+    Range r = actionTextObjectLineUp(f, f.cursor);
     expect(r.start, Position(l: 0, c: 0));
     expect(r.end, Position(l: 1, c: 4));
   });
@@ -34,7 +34,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(l: 1, c: 0);
-    Range r = objectLineDown(f, f.cursor);
+    Range r = actionTextObjectLineDown(f, f.cursor);
     expect(r.start, Position(l: 1, c: 0));
     expect(r.end, Position(l: 2, c: 4));
   });

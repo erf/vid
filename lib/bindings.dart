@@ -7,9 +7,9 @@ import 'actions_text_objects.dart';
 import 'command.dart';
 
 final insertCommands = <String, InsertCommand>{
-  '\x1b': InsertCommand(insertActionEscape),
-  '\x7f': InsertCommand(insertActionBackspace),
-  '\n': InsertCommand(insertActionEnter),
+  '\x1b': InsertCommand(actionInsertEscape),
+  '\x7f': InsertCommand(actionInsertBackspace),
+  '\n': InsertCommand(actionInsertEnter),
 };
 
 final normalCommands = <String, NormalCommand>{
@@ -54,37 +54,37 @@ final normalCommands = <String, NormalCommand>{
 };
 
 final operatorCommands = <String, OperatorCommand>{
-  'c': OperatorCommand(operatorActionChange),
-  'd': OperatorCommand(operatorActionDelete),
-  'y': OperatorCommand(operatorActionYank),
+  'c': OperatorCommand(actionOperatorChange),
+  'd': OperatorCommand(actionOperatorDelete),
+  'y': OperatorCommand(actionOperatorYank),
 };
 
 final textObjectCommands = <String, TextObjectCommand>{
-  'k': TextObjectCommand(objectLineUp),
-  'j': TextObjectCommand(objectLineDown),
-  'g': TextObjectCommand(objectFirstLine),
-  'G': TextObjectCommand(objectLastLine),
+  'k': TextObjectCommand(actionTextObjectLineUp),
+  'j': TextObjectCommand(actionTextObjectLineDown),
+  'g': TextObjectCommand(actionTextObjectFirstLine),
+  'G': TextObjectCommand(actionTextObjectLastLine),
 };
 
 final motionCommands = <String, MotionCommand>{
-  'h': MotionCommand(motionCharPrev),
-  'l': MotionCommand(motionCharNext),
-  'j': MotionCommand(motionCharDown),
-  'k': MotionCommand(motionCharUp),
-  'g': MotionCommand(motionFileStart),
-  'G': MotionCommand(motionFileEnd),
-  'w': MotionCommand(motionWordNext),
-  'b': MotionCommand(motionWordPrev),
-  'e': MotionCommand(motionWordEnd),
-  '0': MotionCommand(motionLineStart),
-  '^': MotionCommand(motionFirstNonBlank),
-  '\$': MotionCommand(motionLineEnd),
-  '\x1b': MotionCommand(motionEscape),
+  'h': MotionCommand(actionMotionCharPrev),
+  'l': MotionCommand(actionMotionCharNext),
+  'j': MotionCommand(actionMotionCharDown),
+  'k': MotionCommand(actionMotionCharUp),
+  'g': MotionCommand(actionMotionFileStart),
+  'G': MotionCommand(actionMotionFileEnd),
+  'w': MotionCommand(actionMotionWordNext),
+  'b': MotionCommand(actionMotionWordPrev),
+  'e': MotionCommand(actionMotionWordEnd),
+  '0': MotionCommand(actionMotionLineStart),
+  '^': MotionCommand(actionMotionFirstNonBlank),
+  '\$': MotionCommand(actionMotionLineEnd),
+  '\x1b': MotionCommand(actionMotionEscape),
 };
 
 final findCommands = <String, FindCommand>{
-  'f': FindCommand(findNextChar),
-  'F': FindCommand(findPrevChar),
-  't': FindCommand(tillNextChar),
-  'T': FindCommand(tillPrevChar),
+  'f': FindCommand(actionFindNextChar),
+  'F': FindCommand(actionFindPrevChar),
+  't': FindCommand(actionFindTillNextChar),
+  'T': FindCommand(actionFindTillPrevChar),
 };
