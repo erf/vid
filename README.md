@@ -20,7 +20,7 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 - no 100 % vim compat (only a minimal subset)
 - no pre-built binaries (just build it yourself)
 
-## Keyboard shortcuts
+## Keyboard shortcuts ⌨
 
 See [bindings.dart](lib/bindings.dart)
 
