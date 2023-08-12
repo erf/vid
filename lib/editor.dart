@@ -47,13 +47,13 @@ class Editor {
     buff.clear();
     buff.write(Esc.homeAndEraseDown);
     file.clampView(term);
-    drawTextLinesInView();
-    drawStatusLine();
+    drawLines();
+    drawStatus();
     drawCursor();
     term.write(buff);
   }
 
-  void drawTextLinesInView() {
+  void drawLines() {
     final lines = file.lines;
     final view = file.view;
     final lineStart = view.l;
@@ -84,7 +84,7 @@ class Editor {
     buff.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
-  void drawStatusLine() {
+  void drawStatus() {
     buff.write(Esc.invertColors(true));
     buff.write(Esc.cursorPosition(c: 1, l: term.height));
 
