@@ -204,7 +204,7 @@ class Editor {
 
     OperatorAction? operator = operatorActions[file.input];
     if (operator != null) {
-      file.prevInput = file.input;
+      file.prevOperatorInput = file.input;
       file.input = '';
       file.count = null;
       file.mode = Mode.operator;
@@ -233,7 +233,7 @@ class Editor {
     }
 
     // if char is the same as the previous input, use the current line (linewise operator)
-    if (char == file.prevInput) {
+    if (char == file.prevOperatorInput) {
       Range range = objectCurrentLine(file, file.cursor);
       operator(file, range);
       return;

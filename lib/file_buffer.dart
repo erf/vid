@@ -35,8 +35,8 @@ class FileBuffer {
   // the accumulated text input
   var input = '';
 
-  // the previous accumulated text input
-  var prevInput = '';
+  // the previous input for the operator (used for linewise operator)
+  var prevOperatorInput = '';
 
   // the accumulated count input
   var countInput = '';
