@@ -155,17 +155,16 @@ class Editor {
     InsertActions.defaultInsert(file, char);
   }
 
+  String readNextCharSync() {
+    return utf8.decode([stdin.readByteSync()]);
+  }
+
   void normal(String char) {
     // if file.find is set, try to find the next occurence of char
-    if (file.find != null) {
-      file.cursor = file.find!(file, file.cursor, char, false);
-      file.find = null;
-      return;
-    }
-
     final findCommand = findCommands[char];
     if (findCommand != null) {
-      file.find = findCommand.action;
+      String nextChar = readNextCharSync();
+      file.cursor = findCommand.action(file, file.cursor, nextChar, false);
       return;
     }
 
@@ -213,17 +212,13 @@ class Editor {
     }
     file.prevOperatorLinewise = false;
 
-    if (file.find != null) {
-      Position end = file.find!(file, file.cursor, char, true);
-      Range range = Range(start: file.cursor, end: end);
-      operator(file, range);
-      file.find = null;
-      return;
-    }
-
+    // get the next char and try to match an action
     final findCommand = findCommands[char];
     if (findCommand != null) {
-      file.find = findCommand.action;
+      String nextChar = readNextCharSync();
+      Position end = findCommand.action(file, file.cursor, nextChar, true);
+      Range range = Range(start: file.cursor, end: end);
+      operator(file, range);
       return;
     }
 

@@ -27,9 +27,6 @@ class FileBuffer {
   // the pending action to be executed
   OperatorAction? operator;
 
-  // find action
-  FindAction? find;
-
   // the accumulated text input
   var input = '';
 
