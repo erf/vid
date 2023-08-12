@@ -13,8 +13,8 @@ void main() {
     f.text = 'abc\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
-    actionInsert(e, f);
-    defaultInsert(f, 'd');
+    Normals.insert(e, f);
+    Inserts.defaultInsert(f, 'd');
     expect(f.text, 'adbc\n');
     expect(f.cursor, Position(c: 2, l: 0));
   });
@@ -25,8 +25,8 @@ void main() {
     f.text = 'abc';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    actionInsert(e, f);
-    actionInsertEscape(f);
+    Normals.insert(e, f);
+    Inserts.escape(f);
     expect(f.mode, Mode.normal);
   });
 
@@ -36,8 +36,8 @@ void main() {
     f.text = 'abcdef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
-    actionInsert(e, f);
-    actionInsertEnter(f);
+    Normals.insert(e, f);
+    Inserts.enter(f);
     expect(f.text, 'abc\ndef\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
@@ -48,7 +48,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
-    actionInsertBackspace(f);
+    Inserts.backspace(f);
     expect(f.text, 'abcdef\nghi\n');
     expect(f.cursor, Position(c: 3, l: 0));
   });

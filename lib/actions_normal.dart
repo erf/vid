@@ -12,209 +12,211 @@ import 'range.dart';
 import 'undo.dart';
 import 'utils.dart';
 
-void actionMoveDownHalfPage(Editor e, FileBuffer f) {
-  f.cursor.l += e.term.height ~/ 2;
-  f.clampCursor();
-}
-
-void actionMoveUpHalfPage(Editor e, FileBuffer f) {
-  f.cursor.l -= e.term.height ~/ 2;
-  f.clampCursor();
-}
-
-void actionPasteAfter(Editor e, FileBuffer f) {
-  if (f.yankBuffer == null) return;
-  if (f.prevOperatorLinewise) {
-    f.insertAt(
-        Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), f.yankBuffer!);
-    f.cursor = Position(l: f.cursor.l + 1, c: 0);
-  } else {
-    f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
+class Normals {
+  static void moveDownHalfPage(Editor e, FileBuffer f) {
+    f.cursor.l += e.term.height ~/ 2;
+    f.clampCursor();
   }
-  f.isModified = true;
-}
 
-void actionPasteBefore(Editor e, FileBuffer f) {
-  if (f.yankBuffer == null) return;
-  if (f.prevOperatorLinewise) {
-    f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
-    f.cursor = Position(l: f.cursor.l, c: 0);
-  } else {
-    f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
+  static void moveUpHalfPage(Editor e, FileBuffer f) {
+    f.cursor.l -= e.term.height ~/ 2;
+    f.clampCursor();
   }
-  f.isModified = true;
-}
 
-void actionQuit(Editor e, FileBuffer f) {
-  if (f.isModified) {
-    e.showMessage('Press \'Q\' to quit without saving', timed: true);
-  } else {
+  static void pasteAfter(Editor e, FileBuffer f) {
+    if (f.yankBuffer == null) return;
+    if (f.prevOperatorLinewise) {
+      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
+          f.yankBuffer!);
+      f.cursor = Position(l: f.cursor.l + 1, c: 0);
+    } else {
+      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
+    }
+    f.isModified = true;
+  }
+
+  static void pasteBefore(Editor e, FileBuffer f) {
+    if (f.yankBuffer == null) return;
+    if (f.prevOperatorLinewise) {
+      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+      f.cursor = Position(l: f.cursor.l, c: 0);
+    } else {
+      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
+    }
+    f.isModified = true;
+  }
+
+  static void quit(Editor e, FileBuffer f) {
+    if (f.isModified) {
+      e.showMessage('Press \'Q\' to quit without saving', timed: true);
+    } else {
+      e.quit();
+    }
+  }
+
+  static void quitWithoutSaving(Editor e, FileBuffer f) {
     e.quit();
   }
-}
 
-void actionQuitWithoutSaving(Editor e, FileBuffer f) {
-  e.quit();
-}
-
-void actionSave(Editor e, FileBuffer f) {
-  if (f.path == null) {
-    e.showMessage('Error: No filename', timed: true);
-    return;
+  static void save(Editor e, FileBuffer f) {
+    if (f.path == null) {
+      e.showMessage('Error: No filename', timed: true);
+      return;
+    }
+    if (f.isModified == false) {
+      e.showMessage('No changes', timed: true);
+      return;
+    }
+    if (f.save()) {
+      e.showMessage('File saved', timed: true);
+    } else {
+      e.showMessage('Error: Could not save file', timed: true);
+    }
   }
-  if (f.isModified == false) {
-    e.showMessage('No changes', timed: true);
-    return;
+
+  static void cursorCharNext(Editor e, FileBuffer f) {
+    f.cursor = Motions.charNext(f, f.cursor);
   }
-  if (f.save()) {
-    e.showMessage('File saved', timed: true);
-  } else {
-    e.showMessage('Error: Could not save file', timed: true);
+
+  static void cursorCharPrev(Editor e, FileBuffer f) {
+    f.cursor = Motions.charPrev(f, f.cursor);
   }
-}
 
-void actionCursorCharNext(Editor e, FileBuffer f) {
-  f.cursor = actionMotionCharNext(f, f.cursor);
-}
-
-void actionCursorCharPrev(Editor e, FileBuffer f) {
-  f.cursor = actionMotionCharPrev(f, f.cursor);
-}
-
-void actionCursorLineBottomOrCount(Editor e, FileBuffer f) {
-  if (f.count != null) {
-    f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
-  } else {
-    f.cursor = actionMotionFileEnd(f, f.cursor);
+  static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
+    if (f.count != null) {
+      f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
+    } else {
+      f.cursor = Motions.fileEnd(f, f.cursor);
+    }
   }
-}
 
-void actionCursorLineTopOrCount(Editor e, FileBuffer f) {
-  if (f.count != null) {
-    f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
-  } else {
-    f.cursor = actionMotionFileStart(f, f.cursor);
+  static void cursorLineTopOrCount(Editor e, FileBuffer f) {
+    if (f.count != null) {
+      f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
+    } else {
+      f.cursor = Motions.fileStart(f, f.cursor);
+    }
   }
-}
 
-void actionCursorWordEndPrev(Editor e, FileBuffer f) {
-  f.cursor = motionWordEndPrev(f, f.cursor);
-}
+  static void cursorWordEndPrev(Editor e, FileBuffer f) {
+    f.cursor = Motions.wordEndPrev(f, f.cursor);
+  }
 
-void actionOpenLineAbove(Editor e, FileBuffer f) {
-  f.mode = Mode.insert;
-  f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
-  f.cursor.c = 0;
-}
+  static void openLineAbove(Editor e, FileBuffer f) {
+    f.mode = Mode.insert;
+    f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
+    f.cursor.c = 0;
+  }
 
-void actionOpenLineBelow(Editor e, FileBuffer f) {
-  f.mode = Mode.insert;
-  f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n');
-  actionCursorCharDown(e, f);
-}
+  static void openLineBelow(Editor e, FileBuffer f) {
+    f.mode = Mode.insert;
+    f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n');
+    cursorCharDown(e, f);
+  }
 
-void actionInsert(Editor e, FileBuffer f) {
-  f.mode = Mode.insert;
-}
+  static void insert(Editor e, FileBuffer f) {
+    f.mode = Mode.insert;
+  }
 
-void actionInsertLineStart(Editor e, FileBuffer f) {
-  f.mode = Mode.insert;
-  f.cursor.c = 0;
-}
+  static void insertLineStart(Editor e, FileBuffer f) {
+    f.mode = Mode.insert;
+    f.cursor.c = 0;
+  }
 
-void actionAppendLineEnd(Editor e, FileBuffer f) {
-  f.mode = Mode.insert;
-  f.cursor.c = max(0, f.lines[f.cursor.l].charLen - 1);
-}
+  static void appendLineEnd(Editor e, FileBuffer f) {
+    f.mode = Mode.insert;
+    f.cursor.c = max(0, f.lines[f.cursor.l].charLen - 1);
+  }
 
-void actionAppendCharNext(Editor e, FileBuffer f) {
-  f.mode = Mode.insert;
-  f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
-}
+  static void appendCharNext(Editor e, FileBuffer f) {
+    f.mode = Mode.insert;
+    f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
+  }
 
-void actionCursorLineEnd(Editor e, FileBuffer f) {
-  f.cursor = actionMotionLineEnd(f, f.cursor);
-  if (f.lines[f.cursor.l].isNotEmpty) f.cursor.c--;
-}
+  static void cursorLineEnd(Editor e, FileBuffer f) {
+    f.cursor = Motions.lineEnd(f, f.cursor);
+    if (f.lines[f.cursor.l].isNotEmpty) f.cursor.c--;
+  }
 
-void actionCursorLineStart(Editor e, FileBuffer f) {
-  f.cursor = actionMotionLineStart(f, f.cursor);
-  f.view.c = 0;
-}
+  static void cursorLineStart(Editor e, FileBuffer f) {
+    f.cursor = Motions.lineStart(f, f.cursor);
+    f.view.c = 0;
+  }
 
-void actionLineFirstNonBlank(Editor e, FileBuffer f) {
-  f.cursor = actionMotionFirstNonBlank(f, f.cursor);
-}
+  static void lineFirstNonBlank(Editor e, FileBuffer f) {
+    f.cursor = Motions.firstNonBlank(f, f.cursor);
+  }
 
-void actionCursorCharUp(Editor e, FileBuffer f) {
-  f.cursor = actionMotionCharUp(f, f.cursor);
-}
+  static void cursorCharUp(Editor e, FileBuffer f) {
+    f.cursor = Motions.charUp(f, f.cursor);
+  }
 
-void actionCursorCharDown(Editor e, FileBuffer f) {
-  f.cursor = actionMotionCharDown(f, f.cursor);
-}
+  static void cursorCharDown(Editor e, FileBuffer f) {
+    f.cursor = Motions.charDown(f, f.cursor);
+  }
 
-void actionCursorWordNext(Editor e, FileBuffer f) {
-  f.cursor = actionMotionWordNext(f, f.cursor);
-}
+  static void cursorWordNext(Editor e, FileBuffer f) {
+    f.cursor = Motions.wordNext(f, f.cursor);
+  }
 
-void actionCursorWordEnd(Editor v, FileBuffer f) {
-  f.cursor = actionMotionWordEnd(f, f.cursor);
-  f.cursor.c--;
-}
+  static void cursorWordEnd(Editor v, FileBuffer f) {
+    f.cursor = Motions.wordEnd(f, f.cursor);
+    f.cursor.c--;
+  }
 
-void actionCursorWordPrev(Editor e, FileBuffer f) {
-  f.cursor = actionMotionWordPrev(f, f.cursor);
-}
+  static void cursorWordPrev(Editor e, FileBuffer f) {
+    f.cursor = Motions.wordPrev(f, f.cursor);
+  }
 
-void actionSameWordNext(Editor v, FileBuffer f) {
-  f.cursor = motionSameWordNext(f, f.cursor);
-}
+  static void sameWordNext(Editor v, FileBuffer f) {
+    f.cursor = Motions.sameWordNext(f, f.cursor);
+  }
 
-void actionSameWordPrev(Editor v, FileBuffer f) {
-  f.cursor = motionSameWordPrev(f, f.cursor);
-}
+  static void sameWordPrev(Editor v, FileBuffer f) {
+    f.cursor = Motions.sameWordPrev(f, f.cursor);
+  }
 
-void actionDeleteCharNext(Editor e, FileBuffer f) {
-  if (f.empty) return;
-  f.deleteAt(f.cursor);
-  f.clampCursor();
-}
+  static void deleteCharNext(Editor e, FileBuffer f) {
+    if (f.empty) return;
+    f.deleteAt(f.cursor);
+    f.clampCursor();
+  }
 
-void actionReplaceMode(Editor e, FileBuffer f) {
-  f.mode = Mode.replace;
-}
+  static void replace(Editor e, FileBuffer f) {
+    f.mode = Mode.replace;
+  }
 
-void actionDeleteLineEnd(Editor e, FileBuffer f) {
-  if (f.empty) return;
-  final pEnd = actionMotionLineEnd(f, f.cursor);
-  final r = Range(start: f.cursor.clone, end: pEnd);
-  f.deleteRange(r);
-  f.clampCursor();
-}
+  static void deleteLineEnd(Editor e, FileBuffer f) {
+    if (f.empty) return;
+    final pEnd = Motions.lineEnd(f, f.cursor);
+    final r = Range(start: f.cursor.clone, end: pEnd);
+    f.deleteRange(r);
+    f.clampCursor();
+  }
 
-void actionChangeLineEnd(Editor e, FileBuffer f) {
-  if (f.empty) return;
-  final pEnd = actionMotionLineEnd(f, f.cursor);
-  final r = Range(start: f.cursor.clone, end: pEnd);
-  f.deleteRange(r);
-  f.mode = Mode.insert;
-}
+  static void changeLineEnd(Editor e, FileBuffer f) {
+    if (f.empty) return;
+    final pEnd = Motions.lineEnd(f, f.cursor);
+    final r = Range(start: f.cursor.clone, end: pEnd);
+    f.deleteRange(r);
+    f.mode = Mode.insert;
+  }
 
-void actionJoinLines(Editor e, FileBuffer f) {
-  if (f.lines.length <= 1) return;
-  f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
-}
+  static void joinLines(Editor e, FileBuffer f) {
+    if (f.lines.length <= 1) return;
+    f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
+  }
 
-void actionUndo(Editor e, FileBuffer f) {
-  if (f.undoList.isEmpty) return;
-  final u = f.undoList.removeLast();
-  f.text = switch (u.op) {
-    TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
-    TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
-    TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
-  };
-  f.createLines();
-  f.isModified = true;
-  f.cursor = u.cursor.clone;
+  static void undo(Editor e, FileBuffer f) {
+    if (f.undoList.isEmpty) return;
+    final u = f.undoList.removeLast();
+    f.text = switch (u.op) {
+      TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
+      TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
+      TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
+    };
+    f.createLines();
+    f.isModified = true;
+    f.cursor = u.cursor.clone;
+  }
 }

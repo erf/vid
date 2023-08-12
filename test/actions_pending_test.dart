@@ -11,8 +11,8 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    final r = objectCurrentLine(f, f.cursor);
-    actionOperatorDelete(f, r);
+    final r = TextObjects.currentLine(f, f.cursor);
+    Operators.delete(f, r);
     expect(f.text, 'def\nghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
@@ -22,8 +22,8 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    final r = actionTextObjectLineUp(f, f.cursor);
-    actionOperatorDelete(f, r);
+    final r = TextObjects.lineUp(f, f.cursor);
+    Operators.delete(f, r);
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
@@ -33,8 +33,8 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
-    final r = actionTextObjectLineDown(f, f.cursor);
-    actionOperatorDelete(f, r);
+    final r = TextObjects.lineDown(f, f.cursor);
+    Operators.delete(f, r);
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });

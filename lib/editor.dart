@@ -153,7 +153,7 @@ class Editor {
       command.action(file);
       return;
     }
-    defaultInsert(file, char);
+    Inserts.defaultInsert(file, char);
   }
 
   void normal(String char) {
@@ -231,7 +231,7 @@ class Editor {
     // if char is the same as the previous input, use the current line (linewise operator)
     if (char == file.prevOperatorInput) {
       file.prevOperatorLinewise = true;
-      Range range = objectCurrentLine(file, file.cursor);
+      Range range = TextObjects.currentLine(file, file.cursor);
       operator(file, range);
       return;
     }

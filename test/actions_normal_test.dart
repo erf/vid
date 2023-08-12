@@ -11,7 +11,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
-    actionJoinLines(e, f);
+    Normals.joinLines(e, f);
     expect(f.text, 'abc\ndefghi\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
@@ -22,7 +22,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    actionDeleteLineEnd(e, f);
+    Normals.deleteLineEnd(e, f);
     expect(f.text, 'abc\nd\nghi\n');
     expect(f.cursor, Position(c: 1, l: 1));
   });
@@ -33,7 +33,7 @@ void main() {
     f.text = 'hello world\n';
     f.createLines();
     f.cursor = Position(c: 5, l: 0);
-    actionChangeLineEnd(e, f);
+    Normals.changeLineEnd(e, f);
     expect(f.text, 'hello\n');
   });
 
@@ -43,7 +43,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    actionDeleteCharNext(e, f);
+    Normals.deleteCharNext(e, f);
     expect(f.text, 'abc\ndf\nghi\n');
     expect(f.cursor, Position(c: 1, l: 1));
   });
@@ -54,7 +54,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(l: 0, c: 3);
-    actionDeleteCharNext(e, f);
+    Normals.deleteCharNext(e, f);
     expect(f.text, 'abcdef\n');
     expect(f.cursor, Position(l: 0, c: 3));
   });
@@ -65,7 +65,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 2, l: 1);
-    actionInsertLineStart(e, f);
+    Normals.insertLineStart(e, f);
     e.input('x', redraw: false);
     expect(f.text, 'abc\nxdef\n');
     expect(f.cursor, Position(c: 1, l: 1));
@@ -77,7 +77,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    actionAppendLineEnd(e, f);
+    Normals.appendLineEnd(e, f);
     e.input('x', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
@@ -88,7 +88,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
-    actionAppendCharNext(e, f);
+    Normals.appendCharNext(e, f);
     e.input('x', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
