@@ -14,10 +14,10 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 
 ## Non-goals 🛑
 
-- no syntax highlighting (just use terminal bg / fg colors)
+- no syntax highlighting (just terminal bg / fg colors)
 - no plugins (let's keep things minimal)
 - no window manager (just open a new tab)
-- no 100 % vim compat (only a minimal subset is supported)
+- no 100 % vim compat (only a minimal subset)
 - no pre-built binaries (just build it yourself)
 
 ## Keyboard shortcuts
