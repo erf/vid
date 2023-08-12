@@ -160,7 +160,7 @@ class Editor {
   }
 
   void normal(String char) {
-    // if file.find is set, try to find the next occurence of char
+    // if find command, get the next char to search for
     final findCommand = findCommands[char];
     if (findCommand != null) {
       String nextChar = readNextCharSync();
@@ -212,7 +212,7 @@ class Editor {
     }
     file.prevOperatorLinewise = false;
 
-    // get the next char and try to match an action
+    // if find command, get the next char to search for
     final findCommand = findCommands[char];
     if (findCommand != null) {
       String nextChar = readNextCharSync();
