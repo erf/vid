@@ -6,13 +6,13 @@ import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'actions_text_objects.dart';
 
-final insertCommands = <String, InsertAction>{
+final insertActions = <String, InsertAction>{
   '\x1b': InsertActions.escape,
   '\x7f': InsertActions.backspace,
   '\n': InsertActions.enter,
 };
 
-final normalCommands = <String, NormalAction>{
+final normalActions = <String, NormalAction>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   's': NormalActions.save,
@@ -53,20 +53,20 @@ final normalCommands = <String, NormalAction>{
   '#': NormalActions.sameWordPrev,
 };
 
-final operatorCommands = <String, OperatorAction>{
+final operatorActions = <String, OperatorAction>{
   'c': Operators.change,
   'd': Operators.delete,
   'y': Operators.yank,
 };
 
-final textObjectCommands = <String, TextObjectAction>{
+final textObjectActions = <String, TextObjectAction>{
   'k': TextObjects.lineUp,
   'j': TextObjects.lineDown,
   'g': TextObjects.firstLine,
   'G': TextObjects.lastLine,
 };
 
-final motionCommands = <String, MotionAction>{
+final motionActions = <String, MotionAction>{
   'h': Motions.charPrev,
   'l': Motions.charNext,
   'j': Motions.charDown,
@@ -82,7 +82,7 @@ final motionCommands = <String, MotionAction>{
   '\x1b': Motions.escape,
 };
 
-final findCommands = <String, FindAction>{
+final findActions = <String, FindAction>{
   'f': Find.findNextChar,
   'F': Find.findPrevChar,
   't': Find.tillNextChar,

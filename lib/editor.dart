@@ -147,7 +147,7 @@ class Editor {
   }
 
   void insert(String char) {
-    final insertCommand = insertCommands[char];
+    final insertCommand = insertActions[char];
     if (insertCommand != null) {
       insertCommand(file);
       return;
@@ -161,10 +161,10 @@ class Editor {
 
   void normal(String char) {
     // if find command, get the next char to search for
-    final findCommand = findCommands[char];
-    if (findCommand != null) {
+    final find = findActions[char];
+    if (find != null) {
       String nextChar = readNextCharSync();
-      file.cursor = findCommand(file, file.cursor, nextChar, false);
+      file.cursor = find(file, file.cursor, nextChar, false);
       return;
     }
 
@@ -187,21 +187,21 @@ class Editor {
       file.input = char;
     }
 
-    final normalCommand = normalCommands[file.input];
-    if (normalCommand != null) {
-      normalCommand(this, file);
+    final normal = normalActions[file.input];
+    if (normal != null) {
+      normal(this, file);
       file.input = '';
       file.count = null;
       return;
     }
 
-    final operatorCommand = operatorCommands[file.input];
-    if (operatorCommand != null) {
+    final operator = operatorActions[file.input];
+    if (operator != null) {
       file.prevOperatorInput = file.input;
       file.input = '';
       file.count = null;
       file.mode = Mode.operator;
-      file.operator = operatorCommand;
+      file.operator = operator;
     }
   }
 
@@ -213,10 +213,10 @@ class Editor {
     file.prevOperatorLinewise = false;
 
     // if find command, get the next char to search for
-    final findCommand = findCommands[char];
-    if (findCommand != null) {
+    final find = findActions[char];
+    if (find != null) {
       String nextChar = readNextCharSync();
-      Position end = findCommand(file, file.cursor, nextChar, true);
+      Position end = find(file, file.cursor, nextChar, true);
       Range range = Range(start: file.cursor, end: end);
       operator(file, range);
       return;
@@ -230,16 +230,16 @@ class Editor {
       return;
     }
 
-    final textObjectCommand = textObjectCommands[char];
-    if (textObjectCommand != null) {
-      Range range = textObjectCommand(file, file.cursor);
+    final textObject = textObjectActions[char];
+    if (textObject != null) {
+      Range range = textObject(file, file.cursor);
       operator(file, range);
       return;
     }
 
-    final motionCommand = motionCommands[char];
-    if (motionCommand != null) {
-      Position end = motionCommand(file, file.cursor);
+    final motion = motionActions[char];
+    if (motion != null) {
+      Position end = motion(file, file.cursor);
       Range range = Range(start: file.cursor, end: end);
       operator(file, range);
       return;
