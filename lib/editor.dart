@@ -155,7 +155,7 @@ class Editor {
     InsertActions.defaultInsert(file, char);
   }
 
-  String readNextCharSync() {
+  String readNextChar() {
     return utf8.decode([stdin.readByteSync()]);
   }
 
@@ -163,8 +163,7 @@ class Editor {
     // if find command, get the next char to search for
     final find = findActions[char];
     if (find != null) {
-      String nextChar = readNextCharSync();
-      file.cursor = find(file, file.cursor, nextChar, false);
+      file.cursor = find(file, file.cursor, readNextChar(), false);
       return;
     }
 
@@ -215,33 +214,28 @@ class Editor {
     // if find command, get the next char to search for
     final find = findActions[char];
     if (find != null) {
-      String nextChar = readNextCharSync();
-      Position end = find(file, file.cursor, nextChar, true);
-      Range range = Range(start: file.cursor, end: end);
-      operator(file, range);
+      final end = find(file, file.cursor, readNextChar(), true);
+      operator(file, Range(start: file.cursor, end: end));
       return;
     }
 
     // if char is the same as the previous input, use the current line (linewise operator)
     if (char == file.prevOperatorInput) {
       file.prevOperatorLinewise = true;
-      Range range = TextObjects.currentLine(file, file.cursor);
-      operator(file, range);
+      operator(file, TextObjects.currentLine(file, file.cursor));
       return;
     }
 
     final textObject = textObjectActions[char];
     if (textObject != null) {
-      Range range = textObject(file, file.cursor);
-      operator(file, range);
+      operator(file, textObject(file, file.cursor));
       return;
     }
 
     final motion = motionActions[char];
     if (motion != null) {
-      Position end = motion(file, file.cursor);
-      Range range = Range(start: file.cursor, end: end);
-      operator(file, range);
+      final end = motion(file, file.cursor);
+      operator(file, Range(start: file.cursor, end: end));
       return;
     }
   }

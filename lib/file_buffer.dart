@@ -48,6 +48,6 @@ class FileBuffer {
   // the previous input for the operator (used for linewise operator)
   var prevOperatorInput = '';
 
-  // if the previous operator was linewise
+  // if the previous operator was linewise (hacky)
   bool prevOperatorLinewise = false;
 }
