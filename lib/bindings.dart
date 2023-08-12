@@ -1,90 +1,90 @@
+import 'action_typedefs.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'actions_text_objects.dart';
-import 'command.dart';
 
-final insertCommands = <String, InsertCommand>{
-  '\x1b': InsertCommand(InsertActions.escape),
-  '\x7f': InsertCommand(InsertActions.backspace),
-  '\n': InsertCommand(InsertActions.enter),
+final insertCommands = <String, InsertAction>{
+  '\x1b': InsertActions.escape,
+  '\x7f': InsertActions.backspace,
+  '\n': InsertActions.enter,
 };
 
-final normalCommands = <String, NormalCommand>{
-  'q': NormalCommand(NormalActions.quit),
-  'Q': NormalCommand(NormalActions.quitWithoutSaving),
-  's': NormalCommand(NormalActions.save),
-  'h': NormalCommand(NormalActions.cursorCharPrev),
-  'l': NormalCommand(NormalActions.cursorCharNext),
-  'j': NormalCommand(NormalActions.cursorCharDown),
-  'k': NormalCommand(NormalActions.cursorCharUp),
-  '\x1b[A': NormalCommand(NormalActions.cursorCharUp),
-  '\x1b[B': NormalCommand(NormalActions.cursorCharDown),
-  '\x1b[C': NormalCommand(NormalActions.cursorCharNext),
-  '\x1b[D': NormalCommand(NormalActions.cursorCharPrev),
-  'w': NormalCommand(NormalActions.cursorWordNext),
-  'b': NormalCommand(NormalActions.cursorWordPrev),
-  'e': NormalCommand(NormalActions.cursorWordEnd),
-  'x': NormalCommand(NormalActions.deleteCharNext),
-  '0': NormalCommand(NormalActions.cursorLineStart),
-  '^': NormalCommand(NormalActions.lineFirstNonBlank),
-  '\$': NormalCommand(NormalActions.cursorLineEnd),
-  'i': NormalCommand(NormalActions.insert),
-  'a': NormalCommand(NormalActions.appendCharNext),
-  'A': NormalCommand(NormalActions.appendLineEnd),
-  'I': NormalCommand(NormalActions.insertLineStart),
-  'o': NormalCommand(NormalActions.openLineBelow),
-  'O': NormalCommand(NormalActions.openLineAbove),
-  'G': NormalCommand(NormalActions.cursorLineBottomOrCount),
-  'gg': NormalCommand(NormalActions.cursorLineTopOrCount),
-  'ge': NormalCommand(NormalActions.cursorWordEndPrev),
-  'r': NormalCommand(NormalActions.replace),
-  'D': NormalCommand(NormalActions.deleteLineEnd),
-  'p': NormalCommand(NormalActions.pasteAfter),
-  'P': NormalCommand(NormalActions.pasteBefore),
-  '\u0004': NormalCommand(NormalActions.moveDownHalfPage),
-  '\u0015': NormalCommand(NormalActions.moveUpHalfPage),
-  'J': NormalCommand(NormalActions.joinLines),
-  'C': NormalCommand(NormalActions.changeLineEnd),
-  'u': NormalCommand(NormalActions.undo),
-  '*': NormalCommand(NormalActions.sameWordNext),
-  '#': NormalCommand(NormalActions.sameWordPrev),
+final normalCommands = <String, NormalAction>{
+  'q': NormalActions.quit,
+  'Q': NormalActions.quitWithoutSaving,
+  's': NormalActions.save,
+  'h': NormalActions.cursorCharPrev,
+  'l': NormalActions.cursorCharNext,
+  'j': NormalActions.cursorCharDown,
+  'k': NormalActions.cursorCharUp,
+  '\x1b[A': NormalActions.cursorCharUp,
+  '\x1b[B': NormalActions.cursorCharDown,
+  '\x1b[C': NormalActions.cursorCharNext,
+  '\x1b[D': NormalActions.cursorCharPrev,
+  'w': NormalActions.cursorWordNext,
+  'b': NormalActions.cursorWordPrev,
+  'e': NormalActions.cursorWordEnd,
+  'x': NormalActions.deleteCharNext,
+  '0': NormalActions.cursorLineStart,
+  '^': NormalActions.lineFirstNonBlank,
+  '\$': NormalActions.cursorLineEnd,
+  'i': NormalActions.insert,
+  'a': NormalActions.appendCharNext,
+  'A': NormalActions.appendLineEnd,
+  'I': NormalActions.insertLineStart,
+  'o': NormalActions.openLineBelow,
+  'O': NormalActions.openLineAbove,
+  'G': NormalActions.cursorLineBottomOrCount,
+  'gg': NormalActions.cursorLineTopOrCount,
+  'ge': NormalActions.cursorWordEndPrev,
+  'r': NormalActions.replace,
+  'D': NormalActions.deleteLineEnd,
+  'p': NormalActions.pasteAfter,
+  'P': NormalActions.pasteBefore,
+  '\u0004': NormalActions.moveDownHalfPage,
+  '\u0015': NormalActions.moveUpHalfPage,
+  'J': NormalActions.joinLines,
+  'C': NormalActions.changeLineEnd,
+  'u': NormalActions.undo,
+  '*': NormalActions.sameWordNext,
+  '#': NormalActions.sameWordPrev,
 };
 
-final operatorCommands = <String, OperatorCommand>{
-  'c': OperatorCommand(Operators.change),
-  'd': OperatorCommand(Operators.delete),
-  'y': OperatorCommand(Operators.yank),
+final operatorCommands = <String, OperatorAction>{
+  'c': Operators.change,
+  'd': Operators.delete,
+  'y': Operators.yank,
 };
 
-final textObjectCommands = <String, TextObjectCommand>{
-  'k': TextObjectCommand(TextObjects.lineUp),
-  'j': TextObjectCommand(TextObjects.lineDown),
-  'g': TextObjectCommand(TextObjects.firstLine),
-  'G': TextObjectCommand(TextObjects.lastLine),
+final textObjectCommands = <String, TextObjectAction>{
+  'k': TextObjects.lineUp,
+  'j': TextObjects.lineDown,
+  'g': TextObjects.firstLine,
+  'G': TextObjects.lastLine,
 };
 
-final motionCommands = <String, MotionCommand>{
-  'h': MotionCommand(Motions.charPrev),
-  'l': MotionCommand(Motions.charNext),
-  'j': MotionCommand(Motions.charDown),
-  'k': MotionCommand(Motions.charUp),
-  'g': MotionCommand(Motions.fileStart),
-  'G': MotionCommand(Motions.fileEnd),
-  'w': MotionCommand(Motions.wordNext),
-  'b': MotionCommand(Motions.wordPrev),
-  'e': MotionCommand(Motions.wordEnd),
-  '0': MotionCommand(Motions.lineStart),
-  '^': MotionCommand(Motions.firstNonBlank),
-  '\$': MotionCommand(Motions.lineEnd),
-  '\x1b': MotionCommand(Motions.escape),
+final motionCommands = <String, MotionAction>{
+  'h': Motions.charPrev,
+  'l': Motions.charNext,
+  'j': Motions.charDown,
+  'k': Motions.charUp,
+  'g': Motions.fileStart,
+  'G': Motions.fileEnd,
+  'w': Motions.wordNext,
+  'b': Motions.wordPrev,
+  'e': Motions.wordEnd,
+  '0': Motions.lineStart,
+  '^': Motions.firstNonBlank,
+  '\$': Motions.lineEnd,
+  '\x1b': Motions.escape,
 };
 
-final findCommands = <String, FindCommand>{
-  'f': FindCommand(Find.findNextChar),
-  'F': FindCommand(Find.findPrevChar),
-  't': FindCommand(Find.tillNextChar),
-  'T': FindCommand(Find.tillPrevChar),
+final findCommands = <String, FindAction>{
+  'f': Find.findNextChar,
+  'F': Find.findPrevChar,
+  't': Find.tillNextChar,
+  'T': Find.tillPrevChar,
 };

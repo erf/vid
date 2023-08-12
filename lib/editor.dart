@@ -147,9 +147,9 @@ class Editor {
   }
 
   void insert(String char) {
-    final command = insertCommands[char];
-    if (command != null) {
-      command.action(file);
+    final insertCommand = insertCommands[char];
+    if (insertCommand != null) {
+      insertCommand(file);
       return;
     }
     InsertActions.defaultInsert(file, char);
@@ -164,7 +164,7 @@ class Editor {
     final findCommand = findCommands[char];
     if (findCommand != null) {
       String nextChar = readNextCharSync();
-      file.cursor = findCommand.action(file, file.cursor, nextChar, false);
+      file.cursor = findCommand(file, file.cursor, nextChar, false);
       return;
     }
 
@@ -189,7 +189,7 @@ class Editor {
 
     final normalCommand = normalCommands[file.input];
     if (normalCommand != null) {
-      normalCommand.action(this, file);
+      normalCommand(this, file);
       file.input = '';
       file.count = null;
       return;
@@ -201,7 +201,7 @@ class Editor {
       file.input = '';
       file.count = null;
       file.mode = Mode.operator;
-      file.operator = operatorCommand.action;
+      file.operator = operatorCommand;
     }
   }
 
@@ -216,7 +216,7 @@ class Editor {
     final findCommand = findCommands[char];
     if (findCommand != null) {
       String nextChar = readNextCharSync();
-      Position end = findCommand.action(file, file.cursor, nextChar, true);
+      Position end = findCommand(file, file.cursor, nextChar, true);
       Range range = Range(start: file.cursor, end: end);
       operator(file, range);
       return;
@@ -232,14 +232,14 @@ class Editor {
 
     final textObjectCommand = textObjectCommands[char];
     if (textObjectCommand != null) {
-      Range range = textObjectCommand.action(file, file.cursor);
+      Range range = textObjectCommand(file, file.cursor);
       operator(file, range);
       return;
     }
 
     final motionCommand = motionCommands[char];
     if (motionCommand != null) {
-      Position end = motionCommand.action(file, file.cursor);
+      Position end = motionCommand(file, file.cursor);
       Range range = Range(start: file.cursor, end: end);
       operator(file, range);
       return;
