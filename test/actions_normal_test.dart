@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:vid/actions_normal.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/position.dart';
@@ -11,7 +10,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
-    Normals.joinLines(e, f);
+    e.input('J', redraw: false);
     expect(f.text, 'abc\ndefghi\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
@@ -22,7 +21,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    Normals.deleteLineEnd(e, f);
+    e.input('D', redraw: false);
     expect(f.text, 'abc\nd\nghi\n');
     expect(f.cursor, Position(c: 1, l: 1));
   });
@@ -33,7 +32,7 @@ void main() {
     f.text = 'hello world\n';
     f.createLines();
     f.cursor = Position(c: 5, l: 0);
-    Normals.changeLineEnd(e, f);
+    e.input('C', redraw: false);
     expect(f.text, 'hello\n');
   });
 
@@ -43,7 +42,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    Normals.deleteCharNext(e, f);
+    e.input('x', redraw: false);
     expect(f.text, 'abc\ndf\nghi\n');
     expect(f.cursor, Position(c: 1, l: 1));
   });
@@ -54,7 +53,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(l: 0, c: 3);
-    Normals.deleteCharNext(e, f);
+    e.input('x', redraw: false);
     expect(f.text, 'abcdef\n');
     expect(f.cursor, Position(l: 0, c: 3));
   });
@@ -65,7 +64,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 2, l: 1);
-    Normals.insertLineStart(e, f);
+    e.input('I', redraw: false);
     e.input('x', redraw: false);
     expect(f.text, 'abc\nxdef\n');
     expect(f.cursor, Position(c: 1, l: 1));
@@ -77,7 +76,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    Normals.appendLineEnd(e, f);
+    e.input('A', redraw: false);
     e.input('x', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
@@ -88,7 +87,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
-    Normals.appendCharNext(e, f);
+    e.input('a', redraw: false);
     e.input('x', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
