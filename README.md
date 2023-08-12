@@ -24,6 +24,6 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 
 See [bindings.dart](lib/bindings.dart)
 
-NOTE:
+Note the following different keybindings (as we don't have command mode yet):
 Save with 's'
-Quit with 'q' or force quit with 'Q' (ignore changes)
+Quit with 'q' or force quit with 'Q' (ignoring changes)
