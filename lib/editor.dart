@@ -148,12 +148,12 @@ class Editor {
   }
 
   void insert(String char) {
-    Command? command = insertCommands[char];
+    final command = insertCommands[char];
     if (command != null) {
       command.action(file);
       return;
     }
-    Inserts.defaultInsert(file, char);
+    InsertActions.defaultInsert(file, char);
   }
 
   void normal(String char) {

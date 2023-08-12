@@ -12,7 +12,7 @@ import 'range.dart';
 import 'undo.dart';
 import 'utils.dart';
 
-class Normals {
+class NormalActions {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
     f.cursor.l += e.term.height ~/ 2;
     f.clampCursor();

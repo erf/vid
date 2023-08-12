@@ -4,7 +4,7 @@ import 'file_buffer.dart';
 import 'file_buffer_text.dart';
 import 'position.dart';
 
-class Finds {
+class Find {
 // find the next occurence of the given character on the current line
   static Position findNextChar(
       FileBuffer f, Position p, String char, bool inclusive) {

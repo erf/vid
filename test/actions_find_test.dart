@@ -10,13 +10,13 @@ void main() {
     f.text = 'abca\ndef\n';
     f.createLines();
     final cursor = Position(c: 0, l: 0);
-    expect(Finds.findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
-    expect(Finds.findNextChar(f, cursor, 'b', false), Position(c: 1, l: 0));
-    expect(Finds.findNextChar(f, cursor, 'c', false), Position(c: 2, l: 0));
+    expect(Find.findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
+    expect(Find.findNextChar(f, cursor, 'b', false), Position(c: 1, l: 0));
+    expect(Find.findNextChar(f, cursor, 'c', false), Position(c: 2, l: 0));
     // inclusive
-    expect(Finds.findNextChar(f, cursor, 'a', true), Position(c: 4, l: 0));
-    expect(Finds.findNextChar(f, cursor, 'b', true), Position(c: 2, l: 0));
-    expect(Finds.findNextChar(f, cursor, 'c', true), Position(c: 3, l: 0));
+    expect(Find.findNextChar(f, cursor, 'a', true), Position(c: 4, l: 0));
+    expect(Find.findNextChar(f, cursor, 'b', true), Position(c: 2, l: 0));
+    expect(Find.findNextChar(f, cursor, 'c', true), Position(c: 3, l: 0));
   });
 
   test('motionFindPrevChar', () {
@@ -24,8 +24,8 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     final cursor = Position(c: 2, l: 0);
-    expect(Finds.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));
-    expect(Finds.findPrevChar(f, cursor, 'b', false), Position(c: 1, l: 0));
-    expect(Finds.findPrevChar(f, cursor, 'c', false), Position(c: 2, l: 0));
+    expect(Find.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));
+    expect(Find.findPrevChar(f, cursor, 'b', false), Position(c: 1, l: 0));
+    expect(Find.findPrevChar(f, cursor, 'c', false), Position(c: 2, l: 0));
   });
 }
