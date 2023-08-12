@@ -8,8 +8,6 @@ import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
 
-typedef InsertAction = void Function(FileBuffer);
-
 void defaultInsert(FileBuffer f, String s) {
   f.insertAt(f.cursor, s);
   f.cursor.c += s.characters.length;

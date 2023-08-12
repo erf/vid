@@ -2,11 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'actions_find.dart';
 import 'actions_insert.dart';
-import 'actions_motion.dart';
-import 'actions_normal.dart';
-import 'actions_operator.dart';
 import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
@@ -168,9 +164,9 @@ class Editor {
       return;
     }
 
-    Command? findCommand = findCommands[char];
+    final findCommand = findCommands[char];
     if (findCommand != null) {
-      file.find = findCommand.action as FindAction;
+      file.find = findCommand.action;
       return;
     }
 
@@ -193,7 +189,7 @@ class Editor {
       file.input = char;
     }
 
-    Command? normalCommand = normalCommands[file.input];
+    final normalCommand = normalCommands[file.input];
     if (normalCommand != null) {
       normalCommand.action(this, file);
       file.input = '';
@@ -201,13 +197,13 @@ class Editor {
       return;
     }
 
-    Command? operatorCommand = operatorCommands[file.input];
+    final operatorCommand = operatorCommands[file.input];
     if (operatorCommand != null) {
       file.prevOperatorInput = file.input;
       file.input = '';
       file.count = null;
       file.mode = Mode.operator;
-      file.operator = operatorCommand.action as OperatorAction;
+      file.operator = operatorCommand.action;
     }
   }
 
@@ -225,9 +221,9 @@ class Editor {
       return;
     }
 
-    Command? findCommand = findCommands[char];
+    final findCommand = findCommands[char];
     if (findCommand != null) {
-      file.find = findCommand.action as FindAction;
+      file.find = findCommand.action;
       return;
     }
 
@@ -238,14 +234,14 @@ class Editor {
       return;
     }
 
-    Command? textCommand = textObjectCommands[char];
+    final textCommand = textObjectCommands[char];
     if (textCommand != null) {
       Range range = textCommand.action(file, file.cursor);
       operator(file, range);
       return;
     }
 
-    Command? motionCommand = motionCommands[char];
+    final motionCommand = motionCommands[char];
     if (motionCommand != null) {
       Position end = motionCommand.action(file, file.cursor);
       Range range = Range(start: file.cursor, end: end);

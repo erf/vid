@@ -4,9 +4,6 @@ import 'file_buffer.dart';
 import 'file_buffer_text.dart';
 import 'position.dart';
 
-typedef FindAction = Position Function(
-    FileBuffer, Position, String, bool inclusive);
-
 // find the next occurence of the given character on the current line
 Position findNextChar(FileBuffer f, Position p, String char, bool inclusive) {
   final pnew = Position(c: p.c + 1, l: p.l);

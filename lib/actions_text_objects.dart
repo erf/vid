@@ -5,8 +5,6 @@ import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
 
-typedef TextObject = Range Function(FileBuffer, Position);
-
 Range objectCurrentLine(FileBuffer f, Position p) {
   return Range(
     start: Position(l: p.l, c: 0),

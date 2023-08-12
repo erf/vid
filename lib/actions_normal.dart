@@ -12,8 +12,6 @@ import 'range.dart';
 import 'undo.dart';
 import 'utils.dart';
 
-typedef NormalAction = void Function(Editor, FileBuffer);
-
 void actionMoveDownHalfPage(Editor e, FileBuffer f) {
   f.cursor.l += e.term.height ~/ 2;
   f.clampCursor();

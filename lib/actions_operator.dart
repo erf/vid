@@ -4,8 +4,6 @@ import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'range.dart';
 
-typedef OperatorAction = void Function(FileBuffer, Range);
-
 void operatorActionChange(FileBuffer file, Range range) {
   operatorActionDelete(file, range);
   file.mode = Mode.insert;

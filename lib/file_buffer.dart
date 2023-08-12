@@ -1,6 +1,4 @@
-import 'package:vid/actions_find.dart';
-import 'package:vid/actions_operator.dart';
-
+import 'command.dart';
 import 'line.dart';
 import 'modes.dart';
 import 'position.dart';

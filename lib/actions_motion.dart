@@ -6,8 +6,6 @@ import 'modes.dart';
 import 'position.dart';
 import 'utils.dart';
 
-typedef Motion = Position Function(FileBuffer, Position);
-
 Position motionCharNext(FileBuffer f, Position p) {
   return Position(
     l: p.l,
