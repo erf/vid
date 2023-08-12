@@ -11,6 +11,7 @@ import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
+import 'command.dart';
 import 'config.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
@@ -151,9 +152,9 @@ class Editor {
   }
 
   void insert(String char) {
-    InsertAction? insertAction = insertActions[char];
-    if (insertAction != null) {
-      insertAction(file);
+    Command? command = insertCommands[char];
+    if (command != null) {
+      command.action(file);
       return;
     }
     defaultInsert(file, char);
@@ -167,9 +168,9 @@ class Editor {
       return;
     }
 
-    FindAction? findAction = findActions[char];
-    if (findAction != null) {
-      file.find = findAction;
+    Command? findCommand = findCommands[char];
+    if (findCommand != null) {
+      file.find = findCommand.action as FindAction;
       return;
     }
 
@@ -192,21 +193,21 @@ class Editor {
       file.input = char;
     }
 
-    NormalAction? normalAction = normalActions[file.input];
-    if (normalAction != null) {
-      normalAction(this, file);
+    Command? normalCommand = normalCommands[file.input];
+    if (normalCommand != null) {
+      normalCommand.action(this, file);
       file.input = '';
       file.count = null;
       return;
     }
 
-    OperatorAction? operator = operatorActions[file.input];
-    if (operator != null) {
+    Command? operatorCommand = operatorCommands[file.input];
+    if (operatorCommand != null) {
       file.prevOperatorInput = file.input;
       file.input = '';
       file.count = null;
       file.mode = Mode.operator;
-      file.operator = operator;
+      file.operator = operatorCommand.action as OperatorAction;
     }
   }
 
@@ -224,9 +225,9 @@ class Editor {
       return;
     }
 
-    FindAction? findAction = findActions[char];
-    if (findAction != null) {
-      file.find = findAction;
+    Command? findCommand = findCommands[char];
+    if (findCommand != null) {
+      file.find = findCommand.action as FindAction;
       return;
     }
 
@@ -237,16 +238,16 @@ class Editor {
       return;
     }
 
-    TextObject? textObject = textObjects[char];
-    if (textObject != null) {
-      Range range = textObject(file, file.cursor);
+    Command? textCommand = textObjectCommands[char];
+    if (textCommand != null) {
+      Range range = textCommand.action(file, file.cursor);
       operator(file, range);
       return;
     }
 
-    Motion? motion = motionActions[char];
-    if (motion != null) {
-      Position end = motion(file, file.cursor);
+    Command? motionCommand = motionCommands[char];
+    if (motionCommand != null) {
+      Position end = motionCommand.action(file, file.cursor);
       Range range = Range(start: file.cursor, end: end);
       operator(file, range);
       return;
