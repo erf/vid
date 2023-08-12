@@ -23,3 +23,7 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 ## Keyboard shortcuts
 
 See [bindings.dart](lib/bindings.dart)
+
+PS:
+Save with 's'
+Quit with 'q' or force quit with 'Q'
