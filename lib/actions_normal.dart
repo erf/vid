@@ -75,11 +75,15 @@ class NormalActions {
   }
 
   static void cursorCharNext(Editor e, FileBuffer f) {
-    f.cursor = Motions.charNext(f, f.cursor);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.cursor = Motions.charNext(f, f.cursor);
+    }
   }
 
   static void cursorCharPrev(Editor e, FileBuffer f) {
-    f.cursor = Motions.charPrev(f, f.cursor);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.cursor = Motions.charPrev(f, f.cursor);
+    }
   }
 
   static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
