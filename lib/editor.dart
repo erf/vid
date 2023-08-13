@@ -147,9 +147,9 @@ class Editor {
   }
 
   void insert(String char) {
-    final insertCommand = insertActions[char];
-    if (insertCommand != null) {
-      insertCommand(filebuf);
+    final insertAction = insertActions[char];
+    if (insertAction != null) {
+      insertAction(filebuf);
       return;
     }
     InsertActions.defaultInsert(filebuf, char);
@@ -160,7 +160,7 @@ class Editor {
   }
 
   void normal(String char) {
-    // if find command, get the next char to search for
+    // if has find action, get the next char to search for
     final find = findActions[char];
     if (find != null) {
       filebuf.cursor = find(filebuf, filebuf.cursor, readNextChar(), false);
@@ -211,7 +211,7 @@ class Editor {
     }
     filebuf.prevOperatorLinewise = false;
 
-    // if find command, get the next char to search for
+    // if has find action, get the next char to search for
     final find = findActions[char];
     if (find != null) {
       final end = find(filebuf, filebuf.cursor, readNextChar(), true);
