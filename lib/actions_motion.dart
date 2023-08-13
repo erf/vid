@@ -131,7 +131,6 @@ class Motions {
     return f.positionFromByteIndex(match.end - 1);
   }
 
-// exit insert mode
   static Position escape(FileBuffer f, Position p) {
     f.mode = Mode.normal;
     f.operator = null;
