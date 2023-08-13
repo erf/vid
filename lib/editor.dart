@@ -180,7 +180,8 @@ class Editor {
     // if has find action, get the next char to search for
     final find = findActions[filebuf.input];
     if (find != null) {
-      filebuf.cursor = find(filebuf, filebuf.cursor, readNextChar(), false);
+      final nextChar = readNextChar();
+      filebuf.cursor = find(filebuf, filebuf.cursor, nextChar, false);
       filebuf.input = '';
       return;
     }
@@ -213,7 +214,8 @@ class Editor {
     // if has find action, get the next char to search for
     final find = findActions[char];
     if (find != null) {
-      final end = find(filebuf, filebuf.cursor, readNextChar(), true);
+      final nextChar = readNextChar();
+      final end = find(filebuf, filebuf.cursor, nextChar, true);
       operator(filebuf, Range(start: filebuf.cursor, end: end));
       return;
     }
