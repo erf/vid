@@ -167,8 +167,10 @@ class Editor {
       filebuf.countInput += char;
       return;
     }
-    filebuf.count = int.tryParse(filebuf.countInput) ?? 1;
-    filebuf.countInput = '';
+    if (filebuf.countInput.isNotEmpty) {
+      filebuf.count = int.parse(filebuf.countInput);
+      filebuf.countInput = '';
+    }
 
     // accumulate input until maxInput is reached and try to match an action
     filebuf.input += char;
