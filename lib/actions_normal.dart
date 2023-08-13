@@ -185,7 +185,9 @@ class NormalActions {
   }
 
   static void cursorWordPrev(Editor e, FileBuffer f) {
-    f.cursor = Motions.wordPrev(f, f.cursor);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.cursor = Motions.wordPrev(f, f.cursor);
+    }
   }
 
   static void sameWordNext(Editor v, FileBuffer f) {
