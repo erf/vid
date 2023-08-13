@@ -7,9 +7,11 @@ import 'range.dart';
 
 class TextObjects {
   static Range currentLine(FileBuffer f, Position p) {
+    int count = f.count ?? 1;
+    int endline = min(p.l + count - 1, f.lines.length - 1);
     return Range(
       start: Position(l: p.l, c: 0),
-      end: Position(l: p.l, c: f.lines[p.l].charLen),
+      end: Position(l: endline, c: f.lines[endline].charLen),
     );
   }
 

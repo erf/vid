@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:characters/characters.dart';
 
 import 'actions_insert.dart';
+import 'actions_motion.dart';
 import 'actions_replace.dart';
 import 'actions_text_objects.dart';
 import 'bindings.dart';
@@ -232,9 +233,8 @@ class Editor {
     // if char is the same as the previous input, use the current line (linewise operator)
     if (char == filebuf.prevOperatorInput) {
       filebuf.prevOperatorLinewise = true;
-      for (int i = 0; i < (filebuf.count ?? 1); i++) {
-        operator(filebuf, TextObjects.currentLine(filebuf, filebuf.cursor));
-      }
+      operator(filebuf, TextObjects.currentLine(filebuf, filebuf.cursor));
+      filebuf.cursor = Motions.firstNonBlank(filebuf, filebuf.cursor);
       return;
     }
 
