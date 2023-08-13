@@ -178,8 +178,10 @@ class NormalActions {
   }
 
   static void cursorWordEnd(Editor v, FileBuffer f) {
-    f.cursor = Motions.wordEnd(f, f.cursor);
-    f.cursor.c--;
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.cursor = Motions.wordEnd(f, f.cursor);
+      f.cursor.c--;
+    }
   }
 
   static void cursorWordPrev(Editor e, FileBuffer f) {
