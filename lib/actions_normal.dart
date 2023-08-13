@@ -107,7 +107,9 @@ class NormalActions {
   }
 
   static void cursorWordEndPrev(Editor e, FileBuffer f) {
-    f.cursor = Motions.wordEndPrev(f, f.cursor);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.cursor = Motions.wordEndPrev(f, f.cursor);
+    }
   }
 
   static void openLineAbove(Editor e, FileBuffer f) {
