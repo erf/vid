@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:characters/characters.dart';
+
 import 'actions_insert.dart';
 import 'actions_replace.dart';
 import 'actions_text_objects.dart';
@@ -129,16 +131,18 @@ class Editor {
     input(utf8.decode(codes));
   }
 
-  void input(String char, {bool redraw = true}) {
-    switch (filebuf.mode) {
-      case Mode.insert:
-        insert(char);
-      case Mode.normal:
-        normal(char);
-      case Mode.operator:
-        operator(char);
-      case Mode.replace:
-        replace(char);
+  void input(String str, {bool redraw = true}) {
+    for (String char in str.characters) {
+      switch (filebuf.mode) {
+        case Mode.insert:
+          insert(char);
+        case Mode.normal:
+          normal(char);
+        case Mode.operator:
+          operator(char);
+        case Mode.replace:
+          replace(char);
+      }
     }
     if (redraw) {
       draw();
