@@ -11,8 +11,7 @@ void main() {
     f.text = 'abc\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
-    e.input('i', redraw: false);
-    e.input('d', redraw: false);
+    e.input('id', redraw: false);
     expect(f.text, 'adbc\n');
     expect(f.cursor, Position(c: 2, l: 0));
   });
@@ -23,8 +22,7 @@ void main() {
     f.text = 'abc';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    e.input('i', redraw: false);
-    e.input('\x1b', redraw: false);
+    e.input('i\x1b', redraw: false);
     expect(f.mode, Mode.normal);
   });
 
@@ -34,8 +32,7 @@ void main() {
     f.text = 'abcdef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
-    e.input('i', redraw: false);
-    e.input('\n', redraw: false);
+    e.input('i\n', redraw: false);
     expect(f.text, 'abc\ndef\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });

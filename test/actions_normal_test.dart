@@ -64,8 +64,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 2, l: 1);
-    e.input('I', redraw: false);
-    e.input('x', redraw: false);
+    e.input('Ix', redraw: false);
     expect(f.text, 'abc\nxdef\n');
     expect(f.cursor, Position(c: 1, l: 1));
   });
@@ -76,8 +75,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    e.input('A', redraw: false);
-    e.input('x', redraw: false);
+    e.input('Ax', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
 
@@ -87,8 +85,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);
-    e.input('a', redraw: false);
-    e.input('x', redraw: false);
+    e.input('ax', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
 
@@ -108,8 +105,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    e.input('2', redraw: false);
-    e.input('G', redraw: false);
+    e.input('2G', redraw: false);
     expect(f.cursor, Position(c: 0, l: 1));
   });
 
@@ -119,8 +115,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 2);
-    e.input('g', redraw: false);
-    e.input('g', redraw: false);
+    e.input('gg', redraw: false);
     expect(f.cursor, Position(c: 0, l: 0));
   });
 
@@ -130,9 +125,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 2);
-    e.input('2', redraw: false);
-    e.input('g', redraw: false);
-    e.input('g', redraw: false);
+    e.input('2gg', redraw: false);
     expect(f.cursor, Position(c: 0, l: 1));
   });
 }

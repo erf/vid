@@ -11,8 +11,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    e.input('d', redraw: false);
-    e.input('d', redraw: false);
+    e.input('dd', redraw: false);
     expect(f.text, 'def\nghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
@@ -23,8 +22,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('d', redraw: false);
-    e.input('k', redraw: false);
+    e.input('dk', redraw: false);
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
@@ -35,8 +33,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
-    e.input('d', redraw: false);
-    e.input('j', redraw: false);
+    e.input('dj', redraw: false);
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
@@ -46,16 +43,14 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('d', redraw: false);
-    e.input('d', redraw: false);
+    e.input('dd', redraw: false);
     expect(f.text, 'abc\nghi\n');
     expect(f.cursor.l, 1);
     expect(f.cursor.c, 0);
     e.input('p', redraw: false);
     expect(f.text, 'abc\nghi\ndef\n');
     expect(f.cursor.l, 2);
-    e.input('k', redraw: false);
-    e.input('P', redraw: false);
+    e.input('kP', redraw: false);
     expect(f.text, 'abc\ndef\nghi\ndef\n');
   });
 
@@ -65,8 +60,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('c', redraw: false);
-    e.input('c', redraw: false);
+    e.input('cc', redraw: false);
     expect(f.text, 'abc\nghi\n');
     expect(f.cursor.l, 1);
     expect(f.cursor.c, 0);
@@ -79,8 +73,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('y', redraw: false);
-    e.input('y', redraw: false);
+    e.input('yy', redraw: false);
     expect(f.yankBuffer, 'def\n');
     e.input('P', redraw: false);
     expect(f.text, 'abc\ndef\ndef\nghi\n');
@@ -94,8 +87,7 @@ void main() {
     f.text = 'abc def ghi\n';
     f.createLines();
     f.cursor = Position(c: 4, l: 0);
-    e.input('y', redraw: false);
-    e.input('w', redraw: false);
+    e.input('yw', redraw: false);
     expect(f.yankBuffer, 'def ');
     e.input('P', redraw: false);
     expect(f.text, 'abc def def ghi\n');
