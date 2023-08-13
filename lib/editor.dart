@@ -206,7 +206,6 @@ class Editor {
     if (operator != null) {
       filebuf.prevOperatorInput = filebuf.input;
       filebuf.input = '';
-      filebuf.count = null;
       filebuf.mode = Mode.operator;
       filebuf.operator = operator;
     }
@@ -231,7 +230,9 @@ class Editor {
     // if char is the same as the previous input, use the current line (linewise operator)
     if (char == filebuf.prevOperatorInput) {
       filebuf.prevOperatorLinewise = true;
-      operator(filebuf, TextObjects.currentLine(filebuf, filebuf.cursor));
+      for (int i = 0; i < (filebuf.count ?? 1); i++) {
+        operator(filebuf, TextObjects.currentLine(filebuf, filebuf.cursor));
+      }
       return;
     }
 
