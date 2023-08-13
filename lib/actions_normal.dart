@@ -240,15 +240,19 @@ class NormalActions {
   }
 
   static void undo(Editor e, FileBuffer f) {
-    if (f.undoList.isEmpty) return;
-    final u = f.undoList.removeLast();
-    f.text = switch (u.op) {
-      TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
-      TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
-      TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
-    };
-    f.createLines();
-    f.isModified = true;
-    f.cursor = u.cursor.clone;
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      if (f.undoList.isEmpty) {
+        return;
+      }
+      final u = f.undoList.removeLast();
+      f.text = switch (u.op) {
+        TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
+        TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
+        TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
+      };
+      f.createLines();
+      f.isModified = true;
+      f.cursor = u.cursor.clone;
+    }
   }
 }
