@@ -181,7 +181,9 @@ class Editor {
     final find = findActions[filebuf.input];
     if (find != null) {
       final nextChar = readNextChar();
-      filebuf.cursor = find(filebuf, filebuf.cursor, nextChar, false);
+      for (int i = 0; i < (filebuf.count ?? 1); i++) {
+        filebuf.cursor = find(filebuf, filebuf.cursor, nextChar, false);
+      }
       filebuf.input = '';
       return;
     }
