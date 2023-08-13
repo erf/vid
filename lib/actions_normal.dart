@@ -148,11 +148,15 @@ class NormalActions {
   }
 
   static void cursorCharUp(Editor e, FileBuffer f) {
-    f.cursor = Motions.charUp(f, f.cursor);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.cursor = Motions.charUp(f, f.cursor);
+    }
   }
 
   static void cursorCharDown(Editor e, FileBuffer f) {
-    f.cursor = Motions.charDown(f, f.cursor);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.cursor = Motions.charDown(f, f.cursor);
+    }
   }
 
   static void cursorWordNext(Editor e, FileBuffer f) {
