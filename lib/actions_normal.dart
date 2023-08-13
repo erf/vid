@@ -25,23 +25,27 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevOperatorLinewise) {
-      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
-          f.yankBuffer!);
-      f.cursor = Position(l: f.cursor.l + 1, c: 0);
-    } else {
-      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      if (f.prevOperatorLinewise) {
+        f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
+            f.yankBuffer!);
+        f.cursor = Position(l: f.cursor.l + 1, c: 0);
+      } else {
+        f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
+      }
     }
     f.isModified = true;
   }
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevOperatorLinewise) {
-      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
-      f.cursor = Position(l: f.cursor.l, c: 0);
-    } else {
-      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      if (f.prevOperatorLinewise) {
+        f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+        f.cursor = Position(l: f.cursor.l, c: 0);
+      } else {
+        f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
+      }
     }
     f.isModified = true;
   }
