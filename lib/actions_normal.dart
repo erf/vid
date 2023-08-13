@@ -204,8 +204,10 @@ class NormalActions {
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.deleteAt(f.cursor);
-    f.clampCursor();
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.deleteAt(f.cursor);
+      f.clampCursor();
+    }
   }
 
   static void replace(Editor e, FileBuffer f) {
