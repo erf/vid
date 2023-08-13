@@ -112,13 +112,17 @@ class NormalActions {
 
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
+    }
     f.cursor.c = 0;
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n');
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n');
+    }
     cursorCharDown(e, f);
   }
 
