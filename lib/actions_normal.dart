@@ -14,12 +14,12 @@ import 'utils.dart';
 
 class NormalActions {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
-    f.cursor.l += e.term.height ~/ 2;
+    f.cursor.l += e.terminal.height ~/ 2;
     f.clampCursor();
   }
 
   static void moveUpHalfPage(Editor e, FileBuffer f) {
-    f.cursor.l -= e.term.height ~/ 2;
+    f.cursor.l -= e.terminal.height ~/ 2;
     f.clampCursor();
   }
 

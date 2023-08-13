@@ -6,7 +6,7 @@ import 'package:vid/position.dart';
 void main() {
   test('joinLines', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
@@ -17,7 +17,7 @@ void main() {
 
   test('actionDeleteLineEnd', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
@@ -28,7 +28,7 @@ void main() {
 
   test('actionChangeLineEnd', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'hello world\n';
     f.createLines();
     f.cursor = Position(c: 5, l: 0);
@@ -38,7 +38,7 @@ void main() {
 
   test('actionDeleteCharNext', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
@@ -49,7 +49,7 @@ void main() {
 
   test('actionDeleteCharNext delete newline', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(l: 0, c: 3);
@@ -60,7 +60,7 @@ void main() {
 
   test('actionInsertLineStart', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 2, l: 1);
@@ -72,7 +72,7 @@ void main() {
 
   test('actionAppendLineEnd', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
@@ -83,7 +83,7 @@ void main() {
 
   test('actionAppendCharNext', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 3, l: 0);

@@ -7,7 +7,7 @@ import 'package:vid/position.dart';
 void main() {
   test('dd', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
@@ -19,7 +19,7 @@ void main() {
 
   test('dk', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
@@ -31,7 +31,7 @@ void main() {
 
   test('dj', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
@@ -42,7 +42,7 @@ void main() {
   });
   test('dd p kP', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
@@ -61,7 +61,7 @@ void main() {
 
   test('cc', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
@@ -75,7 +75,7 @@ void main() {
 
   test('yyP', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
@@ -90,7 +90,7 @@ void main() {
 
   test('ywP', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc def ghi\n';
     f.createLines();
     f.cursor = Position(c: 4, l: 0);

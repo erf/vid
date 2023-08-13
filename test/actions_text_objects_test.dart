@@ -8,7 +8,7 @@ import 'package:vid/range.dart';
 void main() {
   test('objectCurrentLine', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 1);
@@ -19,7 +19,7 @@ void main() {
 
   test('objectLineUp', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(l: 1, c: 0);
@@ -30,7 +30,7 @@ void main() {
 
   test('objectLineDown', () {
     final e = Editor();
-    final f = e.file;
+    final f = e.filebuf;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(l: 1, c: 0);
