@@ -93,19 +93,19 @@ class NormalActions {
   static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
     if (f.count != null) {
       f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
-      f.cursor = Motions.firstNonBlank(f, f.cursor);
     } else {
       f.cursor = Motions.fileEnd(f, f.cursor);
     }
+    f.cursor = Motions.firstNonBlank(f, f.cursor);
   }
 
   static void cursorLineTopOrCount(Editor e, FileBuffer f) {
     if (f.count != null) {
       f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
-      f.cursor = Motions.firstNonBlank(f, f.cursor);
     } else {
       f.cursor = Motions.fileStart(f, f.cursor);
     }
+    f.cursor = Motions.firstNonBlank(f, f.cursor);
   }
 
   static void cursorWordEndPrev(Editor e, FileBuffer f) {

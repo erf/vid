@@ -91,4 +91,48 @@ void main() {
     e.input('x', redraw: false);
     expect(f.text, 'abcx\ndef\n');
   });
+
+  test('cursorLineBottomOrCount G', () {
+    final e = Editor();
+    final f = e.filebuf;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('G', redraw: false);
+    expect(f.cursor, Position(c: 0, l: 2));
+  });
+
+  test('cursorLineBottomOrCount 2G', () {
+    final e = Editor();
+    final f = e.filebuf;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('2', redraw: false);
+    e.input('G', redraw: false);
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
+
+  test('cursorLineTopOrCount gg', () {
+    final e = Editor();
+    final f = e.filebuf;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 2);
+    e.input('g', redraw: false);
+    e.input('g', redraw: false);
+    expect(f.cursor, Position(c: 0, l: 0));
+  });
+
+  test('cursorLineTopOrCount 2gg', () {
+    final e = Editor();
+    final f = e.filebuf;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 2);
+    e.input('2', redraw: false);
+    e.input('g', redraw: false);
+    e.input('g', redraw: false);
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
 }
