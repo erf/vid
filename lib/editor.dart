@@ -240,9 +240,7 @@ class Editor {
 
     final textObject = textObjectActions[char];
     if (textObject != null) {
-      for (int i = 0; i < (filebuf.count ?? 1); i++) {
-        operator(filebuf, textObject(filebuf, filebuf.cursor));
-      }
+      operator(filebuf, textObject(filebuf, filebuf.cursor));
       return;
     }
 
