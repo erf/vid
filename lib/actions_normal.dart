@@ -231,8 +231,12 @@ class NormalActions {
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    if (f.lines.length <= 1) return;
-    f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
+    for (int i = 0; i < (f.count ?? 1); i++) {
+      if (f.lines.length <= 1) {
+        return;
+      }
+      f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
+    }
   }
 
   static void undo(Editor e, FileBuffer f) {
