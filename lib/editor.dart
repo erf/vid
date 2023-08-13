@@ -222,8 +222,10 @@ class Editor {
     final find = findActions[char];
     if (find != null) {
       final nextChar = readNextChar();
-      final end = find(filebuf, filebuf.cursor, nextChar, true);
-      operator(filebuf, Range(start: filebuf.cursor, end: end));
+      for (int i = 0; i < (filebuf.count ?? 1); i++) {
+        final end = find(filebuf, filebuf.cursor, nextChar, true);
+        operator(filebuf, Range(start: filebuf.cursor, end: end));
+      }
       return;
     }
 
