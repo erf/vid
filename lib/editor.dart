@@ -160,13 +160,6 @@ class Editor {
   }
 
   void normal(String char) {
-    // if has find action, get the next char to search for
-    final find = findActions[char];
-    if (find != null) {
-      filebuf.cursor = find(filebuf, filebuf.cursor, readNextChar(), false);
-      return;
-    }
-
     // accumulate countInput: if char is a number, add it to countInput
     // if char is not a number, parse countInput and set fileBuffer.count
     final count = int.tryParse(char);
@@ -184,6 +177,14 @@ class Editor {
     const int maxInput = 2;
     if (filebuf.input.length > maxInput) {
       filebuf.input = char;
+    }
+
+    // if has find action, get the next char to search for
+    final find = findActions[filebuf.input];
+    if (find != null) {
+      filebuf.cursor = find(filebuf, filebuf.cursor, readNextChar(), false);
+      filebuf.input = '';
+      return;
     }
 
     final normal = normalActions[filebuf.input];
