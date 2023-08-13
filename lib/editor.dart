@@ -248,8 +248,10 @@ class Editor {
 
     final motion = motionActions[char];
     if (motion != null) {
-      final end = motion(filebuf, filebuf.cursor);
-      operator(filebuf, Range(start: filebuf.cursor, end: end));
+      for (int i = 0; i < (filebuf.count ?? 1); i++) {
+        final end = motion(filebuf, filebuf.cursor);
+        operator(filebuf, Range(start: filebuf.cursor, end: end));
+      }
       return;
     }
   }
