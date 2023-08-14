@@ -22,12 +22,12 @@ import 'terminal.dart';
 
 class Editor {
   final terminal = Terminal();
-  final filebuf = FileBuffer();
+  final file = FileBuffer();
   final renderbuf = StringBuffer();
   String message = '';
 
   void init(List<String> args) {
-    filebuf.load(args);
+    file.load(args);
     terminal.rawMode = true;
     terminal.write(Esc.enableAltBuffer(true));
     terminal.input.listen(onInput);
@@ -48,7 +48,7 @@ class Editor {
   void draw() {
     renderbuf.clear();
     renderbuf.write(Esc.homeAndEraseDown);
-    filebuf.clampView(terminal);
+    file.clampView(terminal);
     drawLines();
     drawStatus();
     drawCursor();
@@ -56,8 +56,8 @@ class Editor {
   }
 
   void drawLines() {
-    final lines = filebuf.lines;
-    final view = filebuf.view;
+    final lines = file.lines;
+    final view = file.view;
     final lineStart = view.l;
     final lineEnd = view.l + terminal.height - 1;
 
@@ -79,9 +79,9 @@ class Editor {
   }
 
   void drawCursor() {
-    final view = filebuf.view;
-    final cursor = filebuf.cursor;
-    final curlen = filebuf.lines[cursor.l].text.renderLength(cursor.c);
+    final view = file.view;
+    final cursor = file.cursor;
+    final curlen = file.lines[cursor.l].text.renderLength(cursor.c);
     final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
     renderbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
@@ -90,10 +90,10 @@ class Editor {
     renderbuf.write(Esc.invertColors(true));
     renderbuf.write(Esc.cursorPosition(c: 1, l: terminal.height));
 
-    final cursor = filebuf.cursor;
-    final modified = filebuf.isModified;
-    final path = filebuf.path ?? '[No Name]';
-    final mode = statusModeStr(filebuf.mode);
+    final cursor = file.cursor;
+    final modified = file.isModified;
+    final path = file.path ?? '[No Name]';
+    final mode = statusModeStr(file.mode);
     final left = ' $mode  $path ${modified ? '* ' : ''}$message ';
     final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     final padLeft = terminal.width - left.length - 1;
@@ -134,7 +134,7 @@ class Editor {
 
   void input(String str, {bool redraw = true}) {
     for (String char in str.characters) {
-      switch (filebuf.mode) {
+      switch (file.mode) {
         case Mode.insert:
           insert(char);
         case Mode.normal:
@@ -154,10 +154,10 @@ class Editor {
   void insert(String char) {
     final insertAction = insertActions[char];
     if (insertAction != null) {
-      insertAction(filebuf);
+      insertAction(file);
       return;
     }
-    InsertActions.defaultInsert(filebuf, char);
+    InsertActions.defaultInsert(file, char);
   }
 
   String readNextChar() {
@@ -168,97 +168,97 @@ class Editor {
     // accumulate countInput: if char is a number, add it to countInput
     // if char is not a number, parse countInput and set fileBuffer.count
     final count = int.tryParse(char);
-    if (count != null && (count > 0 || filebuf.countInput.isNotEmpty)) {
-      filebuf.countInput += char;
+    if (count != null && (count > 0 || file.countInput.isNotEmpty)) {
+      file.countInput += char;
       return;
     }
-    if (filebuf.countInput.isNotEmpty) {
-      filebuf.count = int.parse(filebuf.countInput);
-      filebuf.countInput = '';
+    if (file.countInput.isNotEmpty) {
+      file.count = int.parse(file.countInput);
+      file.countInput = '';
     }
 
     // accumulate input until maxInput is reached and try to match an action
-    filebuf.input += char;
+    file.input += char;
     const int maxInput = 2;
-    if (filebuf.input.length > maxInput) {
-      filebuf.input = char;
+    if (file.input.length > maxInput) {
+      file.input = char;
     }
 
     // if has find action, get the next char to search for
-    final find = findActions[filebuf.input];
+    final find = findActions[file.input];
     if (find != null) {
       final nextChar = readNextChar();
-      for (int i = 0; i < (filebuf.count ?? 1); i++) {
-        filebuf.cursor = find(filebuf, filebuf.cursor, nextChar, false);
+      for (int i = 0; i < (file.count ?? 1); i++) {
+        file.cursor = find(file, file.cursor, nextChar, false);
       }
-      filebuf.input = '';
+      file.input = '';
       return;
     }
 
-    final normal = normalActions[filebuf.input];
+    final normal = normalActions[file.input];
     if (normal != null) {
-      normal(this, filebuf);
-      filebuf.input = '';
-      filebuf.count = null;
+      normal(this, file);
+      file.input = '';
+      file.count = null;
       return;
     }
 
-    final operator = operatorActions[filebuf.input];
+    final operator = operatorActions[file.input];
     if (operator != null) {
-      filebuf.prevOperatorInput = filebuf.input;
-      filebuf.input = '';
-      filebuf.mode = Mode.operator;
-      filebuf.operator = operator;
+      file.prevOperatorInput = file.input;
+      file.input = '';
+      file.mode = Mode.operator;
+      file.operator = operator;
     }
   }
 
   void operator(String char) {
-    final operator = filebuf.operator;
+    final operator = file.operator;
     if (operator == null) {
       return;
     }
-    filebuf.prevOperatorLinewise = false;
+    file.prevOperatorLinewise = false;
 
     // if has find action, get the next char to search for
     final find = findActions[char];
     if (find != null) {
       final nextChar = readNextChar();
-      for (int i = 0; i < (filebuf.count ?? 1); i++) {
-        final end = find(filebuf, filebuf.cursor, nextChar, true);
-        operator(filebuf, Range(start: filebuf.cursor, end: end));
+      for (int i = 0; i < (file.count ?? 1); i++) {
+        final end = find(file, file.cursor, nextChar, true);
+        operator(file, Range(start: file.cursor, end: end));
       }
-      filebuf.count = null;
+      file.count = null;
       return;
     }
 
     // if char is the same as the previous input, use the current line (linewise operator)
-    if (char == filebuf.prevOperatorInput) {
-      filebuf.prevOperatorLinewise = true;
-      operator(filebuf, TextObjects.currentLine(filebuf, filebuf.cursor));
-      filebuf.cursor = Motions.firstNonBlank(filebuf, filebuf.cursor);
-      filebuf.count = null;
+    if (char == file.prevOperatorInput) {
+      file.prevOperatorLinewise = true;
+      operator(file, TextObjects.currentLine(file, file.cursor));
+      file.cursor = Motions.firstNonBlank(file, file.cursor);
+      file.count = null;
       return;
     }
 
     final textObject = textObjectActions[char];
     if (textObject != null) {
-      operator(filebuf, textObject(filebuf, filebuf.cursor));
-      filebuf.count = null;
+      operator(file, textObject(file, file.cursor));
+      file.count = null;
       return;
     }
 
     final motion = motionActions[char];
     if (motion != null) {
-      for (int i = 0; i < (filebuf.count ?? 1); i++) {
-        final end = motion(filebuf, filebuf.cursor);
-        operator(filebuf, Range(start: filebuf.cursor, end: end));
+      for (int i = 0; i < (file.count ?? 1); i++) {
+        final end = motion(file, file.cursor);
+        operator(file, Range(start: file.cursor, end: end));
       }
-      filebuf.count = null;
+      file.count = null;
       return;
     }
   }
 
   void replace(String char) {
-    defaultReplace(filebuf, char);
+    defaultReplace(file, char);
   }
 }
