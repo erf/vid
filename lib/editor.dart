@@ -227,6 +227,7 @@ class Editor {
         final end = find(filebuf, filebuf.cursor, nextChar, true);
         operator(filebuf, Range(start: filebuf.cursor, end: end));
       }
+      filebuf.count = null;
       return;
     }
 
@@ -235,12 +236,14 @@ class Editor {
       filebuf.prevOperatorLinewise = true;
       operator(filebuf, TextObjects.currentLine(filebuf, filebuf.cursor));
       filebuf.cursor = Motions.firstNonBlank(filebuf, filebuf.cursor);
+      filebuf.count = null;
       return;
     }
 
     final textObject = textObjectActions[char];
     if (textObject != null) {
       operator(filebuf, textObject(filebuf, filebuf.cursor));
+      filebuf.count = null;
       return;
     }
 
@@ -250,6 +253,7 @@ class Editor {
         final end = motion(filebuf, filebuf.cursor);
         operator(filebuf, Range(start: filebuf.cursor, end: end));
       }
+      filebuf.count = null;
       return;
     }
   }
