@@ -7,7 +7,7 @@ import 'position.dart';
 import 'utils.dart';
 
 class Motions {
-  static final wordRegex = RegExp(r'(\w+|[^\w\s]+)');
+  static final wordRegex = RegExp(r'(\w+|[^\w\s]+|(?<=\n)\n)');
 
   static Position charNext(FileBuffer f, Position p) {
     return Position(
