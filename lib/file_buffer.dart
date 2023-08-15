@@ -10,28 +10,28 @@ class FileBuffer {
   String? path;
 
   // the text of the file
-  var text = '';
+  String text = '';
 
   // text split by '\n' character, created by createLines when text is changed
-  var lines = [Line.empty];
+  List<Line> lines = [Line.empty];
 
   // the cursor position (0 based, in grapheme cluster space)
-  var cursor = Position();
+  Position cursor = Position();
 
   // the view offset (0 based, in grapheme cluster space)
-  var view = Position();
+  Position view = Position();
 
   // the current mode
-  var mode = Mode.normal;
+  Mode mode = Mode.normal;
 
   // the pending action to be executed
   OperatorAction? operator;
 
   // the accumulated text input
-  var input = '';
+  String input = '';
 
   // the accumulated count input
-  var countInput = '';
+  String countInput = '';
 
   // the count of the pending action
   int? count;
@@ -46,7 +46,7 @@ class FileBuffer {
   List<Undo> undoList = [];
 
   // the previous input for the operator (used for linewise operator)
-  var prevOperatorInput = '';
+  String prevOperatorInput = '';
 
   // if the previous operator was linewise (hacky)
   bool prevOperatorLinewise = false;
