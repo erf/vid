@@ -50,4 +50,13 @@ class FileBuffer {
 
   // if the previous operator was linewise (hacky)
   bool prevOperatorLinewise = false;
+
+  // the previous action char (used for dot command)
+  String? prevOperatorActionChar;
+
+  // the previous count (used for dot command)
+  int? prevCount;
+
+  // the previous find action char (used for dot command)
+  String? prevFindNextChar;
 }

@@ -259,4 +259,12 @@ class NormalActions {
       f.cursor = u.cursor.clone;
     }
   }
+
+  static void repeat(Editor e, FileBuffer f) {
+    if (f.operator == null || f.prevOperatorActionChar == null) {
+      return;
+    }
+    f.count = f.prevCount;
+    e.operator(f.prevOperatorActionChar!, f.prevFindNextChar);
+  }
 }

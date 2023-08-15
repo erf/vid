@@ -175,6 +175,7 @@ class Editor {
     if (file.countInput.isNotEmpty) {
       file.count = int.parse(file.countInput);
       file.countInput = '';
+      file.prevCount = file.count;
     }
 
     // accumulate input until maxInput is reached and try to match an action
@@ -212,22 +213,24 @@ class Editor {
     }
   }
 
-  void operator(String char) {
+  void operator(String char, [String? findChar]) {
     final operator = file.operator;
     if (operator == null) {
       return;
     }
     file.prevOperatorLinewise = false;
+    file.prevOperatorActionChar = char;
 
     // if has find action, get the next char to search for
     final find = findActions[char];
     if (find != null) {
-      final nextChar = readNextChar();
+      final nextChar = findChar ?? readNextChar();
       for (int i = 0; i < (file.count ?? 1); i++) {
         final end = find(file, file.cursor, nextChar, true);
         operator(file, Range(start: file.cursor, end: end));
       }
       file.count = null;
+      file.prevFindNextChar = nextChar;
       return;
     }
 

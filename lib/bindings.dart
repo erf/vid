@@ -51,6 +51,7 @@ final normalActions = <String, NormalAction>{
   'u': NormalActions.undo,
   '*': NormalActions.sameWordNext,
   '#': NormalActions.sameWordPrev,
+  '.': NormalActions.repeat,
 };
 
 final operatorActions = <String, OperatorAction>{
