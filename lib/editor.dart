@@ -193,6 +193,8 @@ class Editor {
         file.cursor = find(file, file.cursor, nextChar, false);
       }
       file.input = '';
+      file.count = null;
+      file.prevOperatorActionChar = null;
       return;
     }
 
@@ -201,6 +203,7 @@ class Editor {
       normal(this, file);
       file.input = '';
       file.count = null;
+      file.prevOperatorActionChar = null;
       return;
     }
 
@@ -229,8 +232,8 @@ class Editor {
         final end = find(file, file.cursor, nextChar, true);
         operator(file, Range(start: file.cursor, end: end));
       }
-      file.count = null;
       file.prevFindNextChar = nextChar;
+      file.count = null;
       return;
     }
 
