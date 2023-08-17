@@ -48,11 +48,11 @@ class FileBuffer {
   // the previous input for the operator (used for linewise operator)
   String prevOperatorInput = '';
 
-  // if the previous operator was linewise (hacky)
+  // if the previous operator was linewise (used for paste)
   bool prevOperatorLinewise = false;
 
   // the previous action char (used for dot command)
-  String? prevOperatorActionChar;
+  String? prevOperatorActionInput;
 
   // the previous count (used for dot command)
   int? prevCount;

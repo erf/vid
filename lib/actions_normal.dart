@@ -261,10 +261,10 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.operator == null || f.prevOperatorActionChar == null) {
+    if (f.operator == null || f.prevOperatorActionInput == null) {
       return;
     }
     f.count = f.prevCount;
-    e.operator(f.prevOperatorActionChar!, f.prevFindNextChar);
+    e.operator(f.prevOperatorActionInput!, f.prevFindNextChar);
   }
 }

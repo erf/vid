@@ -194,7 +194,7 @@ class Editor {
       }
       file.input = '';
       file.count = null;
-      file.prevOperatorActionChar = null;
+      file.prevOperatorActionInput = null;
       return;
     }
 
@@ -203,7 +203,7 @@ class Editor {
       normal(this, file);
       file.input = '';
       file.count = null;
-      file.prevOperatorActionChar = null;
+      file.prevOperatorActionInput = null;
       return;
     }
 
@@ -221,8 +221,8 @@ class Editor {
     if (operator == null) {
       return;
     }
+    file.prevOperatorActionInput = char;
     file.prevOperatorLinewise = false;
-    file.prevOperatorActionChar = char;
 
     // if has find action, get the next char to search for
     final find = findActions[char];
