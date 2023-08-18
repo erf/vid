@@ -175,7 +175,6 @@ class Editor {
     if (action.countInput.isNotEmpty) {
       action.count = int.parse(action.countInput);
       action.countInput = '';
-      //prevAction!.count = action.count;
     }
     return false;
   }
