@@ -133,7 +133,7 @@ class Motions {
 
   static Position escape(FileBuffer f, Position p) {
     f.mode = Mode.normal;
-    f.operator = null;
+    f.action = Action();
     return p;
   }
 }

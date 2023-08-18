@@ -7,7 +7,7 @@ import 'range.dart';
 
 class TextObjects {
   static Range currentLine(FileBuffer f, Position p) {
-    int count = f.count ?? 1;
+    int count = f.action.count ?? 1;
     int endline = min(p.l + count - 1, f.lines.length - 1);
     return Range(
       start: Position(l: p.l, c: 0),
@@ -16,14 +16,14 @@ class TextObjects {
   }
 
   static Range lineUp(FileBuffer f, Position p) {
-    final start = Position(l: max(0, p.l - (f.count ?? 1)), c: 0);
+    final start = Position(l: max(0, p.l - (f.action.count ?? 1)), c: 0);
     final end = Position(l: p.l, c: f.lines[p.l].charLen);
     return Range(start: start, end: end);
   }
 
   static Range lineDown(FileBuffer f, Position p) {
     final start = Position(l: p.l, c: 0);
-    final line = min(p.l + (f.count ?? 1), f.lines.length - 1);
+    final line = min(p.l + (f.action.count ?? 1), f.lines.length - 1);
     final end = Position(l: line, c: f.lines[line].charLen);
     return Range(start: start, end: end);
   }

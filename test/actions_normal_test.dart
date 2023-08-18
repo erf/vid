@@ -128,4 +128,22 @@ void main() {
     e.input('2gg', redraw: false);
     expect(f.cursor, Position(c: 0, l: 1));
   });
+
+  test('repeat dw.', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines();
+    e.input('dw.', redraw: false);
+    expect(f.text, 'ghi\n');
+  });
+
+  test('repeat twice dw..', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\njkl\n';
+    f.createLines();
+    e.input('dw..', redraw: false);
+    expect(f.text, 'jkl\n');
+  });
 }

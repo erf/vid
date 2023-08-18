@@ -164,104 +164,123 @@ class Editor {
     return utf8.decode([stdin.readByteSync()]);
   }
 
-  void normal(String char) {
-    // accumulate countInput: if char is a number, add it to countInput
-    // if char is not a number, parse countInput and set fileBuffer.count
+  // accumulate countInput: if char is a number, add it to countInput
+  // if char is not a number, parse countInput and set fileBuffer.count
+  bool count(String char, Action action) {
     final count = int.tryParse(char);
-    if (count != null && (count > 0 || file.countInput.isNotEmpty)) {
-      file.countInput += char;
-      return;
+    if (count != null && (count > 0 || action.countInput.isNotEmpty)) {
+      action.countInput += char;
+      return true;
     }
-    if (file.countInput.isNotEmpty) {
-      file.count = int.parse(file.countInput);
-      file.countInput = '';
-      file.prevCount = file.count;
+    if (action.countInput.isNotEmpty) {
+      action.count = int.parse(action.countInput);
+      action.countInput = '';
+      //prevAction!.count = action.count;
     }
+    return false;
+  }
 
-    // accumulate input until maxInput is reached and try to match an action
-    file.input += char;
+  // accumulate input until maxInput is reached and try to match an action
+  void accumInput(String char, Action action) {
     const int maxInput = 2;
-    if (file.input.length > maxInput) {
-      file.input = char;
-    }
-
-    // if has find action, get the next char to search for
-    final find = findActions[file.input];
-    if (find != null) {
-      final nextChar = readNextChar();
-      for (int i = 0; i < (file.count ?? 1); i++) {
-        file.cursor = find(file, file.cursor, nextChar, false);
-      }
-      file.input = '';
-      file.count = null;
-      file.prevOperatorActionInput = null;
-      return;
-    }
-
-    final normal = normalActions[file.input];
-    if (normal != null) {
-      normal(this, file);
-      file.input = '';
-      file.count = null;
-      file.prevOperatorActionInput = null;
-      return;
-    }
-
-    final operator = operatorActions[file.input];
-    if (operator != null) {
-      file.prevOperatorInput = file.input;
-      file.input = '';
-      file.mode = Mode.operator;
-      file.operator = operator;
+    action.input += char;
+    if (action.input.length > maxInput) {
+      action.input = char;
     }
   }
 
-  void operator(String char, [String? findChar]) {
-    final operator = file.operator;
+  void normal(String char) {
+    Action action = file.action;
+
+    // if char is a number, accumulate countInput
+    if (count(char, action)) {
+      return;
+    }
+
+    // acummulate input until maxInput is reached
+    accumInput(char, action);
+
+    // if has find action, get the next char to search for
+    final find = findActions[action.input];
+    if (find != null) {
+      final nextChar = readNextChar();
+      for (int i = 0; i < (action.count ?? 1); i++) {
+        file.cursor = find(file, file.cursor, nextChar, false);
+      }
+      resetAction();
+      return;
+    }
+
+    // if has normal action, execute it
+    final normal = normalActions[action.input];
+    if (normal != null) {
+      normal(this, file);
+      resetAction();
+      return;
+    }
+
+    // if has operator action, set operator and change to operator mode
+    final operator = operatorActions[action.input];
+    if (operator != null) {
+      action.operator = operator;
+      file.mode = Mode.operator;
+    }
+  }
+
+  void operator(String char, [bool shouldResetAction = true]) {
+    final action = file.action;
+    final operator = action.operator;
     if (operator == null) {
       return;
     }
-    file.prevOperatorActionInput = char;
-    file.prevOperatorLinewise = false;
+    action.operatorInput = char;
 
     // if has find action, get the next char to search for
     final find = findActions[char];
     if (find != null) {
-      final nextChar = findChar ?? readNextChar();
-      for (int i = 0; i < (file.count ?? 1); i++) {
-        final end = find(file, file.cursor, nextChar, true);
+      action.findChar = action.findChar ?? readNextChar();
+      for (int i = 0; i < (action.count ?? 1); i++) {
+        final end = find(file, file.cursor, action.findChar!, true);
         operator(file, Range(start: file.cursor, end: end));
       }
-      file.prevFindNextChar = nextChar;
-      file.count = null;
+      if (shouldResetAction) resetAction();
       return;
     }
 
-    // if char is the same as the previous input, use the current line (linewise operator)
-    if (char == file.prevOperatorInput) {
-      file.prevOperatorLinewise = true;
+    // if the input is the same as the operator input, execute the operator with
+    // the current line
+    if (file.action.input == char) {
+      action.operatorLineWise = true;
+      // TODO pass operator context with linewise etc. to operator ?
       operator(file, TextObjects.currentLine(file, file.cursor));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
-      file.count = null;
+      if (shouldResetAction) resetAction();
       return;
     }
 
+    // if has text object action, execute it and pass it to operator
     final textObject = textObjectActions[char];
     if (textObject != null) {
       operator(file, textObject(file, file.cursor));
-      file.count = null;
+      if (shouldResetAction) resetAction();
       return;
     }
 
+    // if has motion action, execute it and pass it to operator
     final motion = motionActions[char];
     if (motion != null) {
-      for (int i = 0; i < (file.count ?? 1); i++) {
+      for (int i = 0; i < (action.count ?? 1); i++) {
         final end = motion(file, file.cursor);
         operator(file, Range(start: file.cursor, end: end));
       }
-      file.count = null;
+      if (shouldResetAction) resetAction();
       return;
     }
+  }
+
+  void resetAction() {
+    file.prevAction = file.action;
+    file.action = Action();
   }
 
   void replace(String char) {

@@ -25,8 +25,8 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    for (int i = 0; i < (f.count ?? 1); i++) {
-      if (f.prevOperatorLinewise) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
+      if (f.prevAction?.operatorLineWise ?? false) {
         f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
             f.yankBuffer!);
         f.cursor = Position(l: f.cursor.l + 1, c: 0);
@@ -39,8 +39,8 @@ class NormalActions {
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    for (int i = 0; i < (f.count ?? 1); i++) {
-      if (f.prevOperatorLinewise) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
+      if (f.prevAction?.operatorLineWise ?? false) {
         f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
         f.cursor = Position(l: f.cursor.l, c: 0);
       } else {
@@ -79,20 +79,20 @@ class NormalActions {
   }
 
   static void cursorCharNext(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.charNext(f, f.cursor);
     }
   }
 
   static void cursorCharPrev(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.charPrev(f, f.cursor);
     }
   }
 
   static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
-    if (f.count != null) {
-      f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
+    if (f.action.count != null) {
+      f.cursor.l = clamp(f.action.count! - 1, 0, f.lines.length - 1);
     } else {
       f.cursor = Motions.fileEnd(f, f.cursor);
     }
@@ -100,8 +100,8 @@ class NormalActions {
   }
 
   static void cursorLineTopOrCount(Editor e, FileBuffer f) {
-    if (f.count != null) {
-      f.cursor.l = clamp(f.count! - 1, 0, f.lines.length - 1);
+    if (f.action.count != null) {
+      f.cursor.l = clamp(f.action.count! - 1, 0, f.lines.length - 1);
     } else {
       f.cursor = Motions.fileStart(f, f.cursor);
     }
@@ -109,14 +109,14 @@ class NormalActions {
   }
 
   static void cursorWordEndPrev(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.wordEndPrev(f, f.cursor);
     }
   }
 
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
     }
     f.cursor.c = 0;
@@ -124,7 +124,7 @@ class NormalActions {
 
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n');
     }
     cursorCharDown(e, f);
@@ -164,51 +164,51 @@ class NormalActions {
   }
 
   static void cursorCharUp(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.charUp(f, f.cursor);
     }
   }
 
   static void cursorCharDown(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.charDown(f, f.cursor);
     }
   }
 
   static void cursorWordNext(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.wordNext(f, f.cursor);
     }
   }
 
   static void cursorWordEnd(Editor v, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.wordEnd(f, f.cursor);
       f.cursor.c--;
     }
   }
 
   static void cursorWordPrev(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.wordPrev(f, f.cursor);
     }
   }
 
   static void sameWordNext(Editor v, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.sameWordNext(f, f.cursor);
     }
   }
 
   static void sameWordPrev(Editor v, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.cursor = Motions.sameWordPrev(f, f.cursor);
     }
   }
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     if (f.empty) return;
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       f.deleteAt(f.cursor);
       f.clampCursor();
     }
@@ -235,7 +235,7 @@ class NormalActions {
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       if (f.lines.length <= 1) {
         return;
       }
@@ -244,7 +244,7 @@ class NormalActions {
   }
 
   static void undo(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.count ?? 1); i++) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
       if (f.undoList.isEmpty) {
         return;
       }
@@ -261,10 +261,10 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.operator == null || f.prevOperatorActionInput == null) {
+    if (f.prevAction == null || f.prevAction?.operatorInput == null) {
       return;
     }
-    f.count = f.prevCount;
-    e.operator(f.prevOperatorActionInput!, f.prevFindNextChar);
+    f.action = f.prevAction!;
+    e.operator(f.action.operatorInput, false);
   }
 }
