@@ -1,16 +1,17 @@
 import 'dart:io';
 
+import 'package:characters/characters.dart';
+
 import 'file_buffer.dart';
 import 'line.dart';
-import 'string_ext.dart';
 
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file
   void load(List<String> args) {
     if (args.isEmpty) {
-      return;
       //print('No file specified');
       //exit(1);
+      return;
     }
     path = args.first;
     if (Directory(path!).existsSync()) {
@@ -48,12 +49,12 @@ extension FileBufferLines on FileBuffer {
 
     // split text into lines with some metadata used for cursor positioning etc.
     lines.clear();
-    int byteIndex = 0;
+    int byteStart = 0;
     for (int i = 0; i < splits.length; i++) {
-      final s = splits[i];
-      final lnsp = '$s '.ch;
-      final line = Line(byteStart: byteIndex, text: lnsp, lineNo: i);
-      byteIndex += lnsp.string.length;
+      final String ln = splits[i];
+      final Characters lnspc = '$ln '.characters;
+      final Line line = Line(byteStart: byteStart, text: lnspc, lineNo: i);
+      byteStart += lnspc.string.length;
       lines.add(line);
     }
   }
