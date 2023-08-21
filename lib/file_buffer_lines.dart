@@ -9,8 +9,7 @@ extension FileBufferLines on FileBuffer {
   // load file from disk or create new file
   void load(List<String> args) {
     if (args.isEmpty) {
-      //print('No file specified');
-      //exit(1);
+      createLines();
       return;
     }
     path = args.first;
@@ -18,9 +17,9 @@ extension FileBufferLines on FileBuffer {
       print('Cannot open directory \'$path\'');
       exit(1);
     }
+    // load file if it exists
     final file = File(path!);
     if (file.existsSync()) {
-      // load file
       text = file.readAsStringSync();
     }
     // split text into lines
