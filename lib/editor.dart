@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 
+import 'action.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_replace.dart';
