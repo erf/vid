@@ -36,7 +36,7 @@ class FileBuffer {
   String text = '';
 
   // text split by '\n' character, created by createLines when text is changed
-  List<Line> lines = [Line.empty];
+  List<Line> lines = [];
 
   // the cursor position (0 based, in grapheme cluster space)
   Position cursor = Position();

@@ -11,12 +11,6 @@ class Line {
     required this.lineNo,
   });
 
-  static const empty = Line(
-    text: Characters.empty,
-    byteStart: 0,
-    lineNo: 0,
-  );
-
   int get charLen => text.length;
 
   int get byteLen => text.string.length;

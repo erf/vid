@@ -21,9 +21,9 @@ extension FileBufferLines on FileBuffer {
     if (file.existsSync()) {
       // load file
       text = file.readAsStringSync();
-      // split text into lines
-      createLines();
     }
+    // split text into lines
+    createLines();
   }
 
   // save file to disk
@@ -44,32 +44,19 @@ extension FileBufferLines on FileBuffer {
     int lineNo = 0;
 
     // add missing newline
-    if (!text.endsWith('\n')) {
-      text += '\n';
-    }
+    if (!text.endsWith('\n')) text += '\n';
+
+    // split text into lines (remove last empty line)
+    final strLines = text.split('\n')..removeLast();
 
     // split text into lines with some metadata used for cursor positioning etc.
-    lines = text.split('\n').map((s) {
-      final l = '$s '.ch;
-      final line = Line(
-        byteStart: byteIndex,
-        text: l,
-        lineNo: lineNo,
-      );
-      byteIndex += l.string.length;
+    lines = strLines.map((s) {
+      final lnsp = '$s '.ch;
+      final line = Line(byteStart: byteIndex, text: lnsp, lineNo: lineNo);
+      byteIndex += lnsp.string.length;
       lineNo++;
       return line;
     }).toList();
-
-    // remove last empty line
-    if (lines.isNotEmpty) {
-      lines.removeLast();
-    }
-
-    // add empty line if file is empty
-    if (lines.isEmpty) {
-      lines = [Line.empty];
-    }
   }
 
   // check if file is empty, only one line with empty string
