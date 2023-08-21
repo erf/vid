@@ -1,1 +1,1 @@
-const String nl = '\n'; // later use Platform.lineSeparator ?
+const String nl = '\n'; // use Platform.lineTerminator ?

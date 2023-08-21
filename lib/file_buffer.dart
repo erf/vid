@@ -35,7 +35,7 @@ class FileBuffer {
   // the text of the file
   String text = '';
 
-  // text split by '\n' character, created by createLines when text is changed
+  // the lines of the file with metadata, built by createLines() on text changes
   List<Line> lines = [];
 
   // the cursor position (0 based, in grapheme cluster space)
