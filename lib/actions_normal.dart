@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/file_buffer_io.dart';
+
 import 'actions_motion.dart';
 import 'editor.dart';
 import 'file_buffer.dart';

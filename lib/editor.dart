@@ -13,7 +13,7 @@ import 'characters_render.dart';
 import 'config.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
-import 'file_buffer_lines.dart';
+import 'file_buffer_io.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
