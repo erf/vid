@@ -50,11 +50,9 @@ extension FileBufferLines on FileBuffer {
     lines.clear();
     int byteStart = 0;
     for (int i = 0; i < splits.length; i++) {
-      final String ln = splits[i];
-      final Characters lnspc = '$ln '.characters;
-      final Line line = Line(byteStart: byteStart, text: lnspc, lineNo: i);
+      final Characters lnspc = '${splits[i]} '.characters;
+      lines.add(Line(byteStart: byteStart, text: lnspc, lineNo: i));
       byteStart += lnspc.string.length;
-      lines.add(line);
     }
   }
 
