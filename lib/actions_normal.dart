@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:vid/file_buffer_io.dart';
 
 import 'actions_motion.dart';
+import 'constants.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
@@ -131,7 +132,7 @@ class NormalActions {
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
     for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.insertAt(Position(l: f.cursor.l, c: 0), '\n');
+      f.insertAt(Position(l: f.cursor.l, c: 0), nl);
     }
     f.cursor.c = 0;
   }
@@ -139,7 +140,7 @@ class NormalActions {
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
     for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), '\n');
+      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), nl);
     }
     cursorCharDown(e, f);
   }

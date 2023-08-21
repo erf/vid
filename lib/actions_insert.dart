@@ -1,6 +1,7 @@
 import 'package:characters/characters.dart';
 
 import 'actions_motion.dart';
+import 'constants.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
@@ -20,7 +21,7 @@ class InsertActions {
   }
 
   static void enter(FileBuffer f) {
-    f.insertAt(f.cursor, '\n');
+    f.insertAt(f.cursor, nl);
     f.cursor.c = 0;
     f.view.c = 0;
     f.cursor = Motions.charDown(f, f.cursor);
