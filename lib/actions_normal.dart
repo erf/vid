@@ -90,6 +90,18 @@ class NormalActions {
     }
   }
 
+  static void cursorCharUp(Editor e, FileBuffer f) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
+      f.cursor = Motions.charUp(f, f.cursor);
+    }
+  }
+
+  static void cursorCharDown(Editor e, FileBuffer f) {
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
+      f.cursor = Motions.charDown(f, f.cursor);
+    }
+  }
+
   static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
     if (f.action.count != null) {
       f.cursor.l = clamp(f.action.count! - 1, 0, f.lines.length - 1);
@@ -161,18 +173,6 @@ class NormalActions {
 
   static void lineFirstNonBlank(Editor e, FileBuffer f) {
     f.cursor = Motions.firstNonBlank(f, f.cursor);
-  }
-
-  static void cursorCharUp(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.charUp(f, f.cursor);
-    }
-  }
-
-  static void cursorCharDown(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.charDown(f, f.cursor);
-    }
   }
 
   static void cursorWordNext(Editor e, FileBuffer f) {
