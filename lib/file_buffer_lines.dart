@@ -1,17 +1,17 @@
 import 'package:characters/characters.dart';
 
+import 'constants.dart';
 import 'file_buffer.dart';
 import 'line.dart';
 
 extension FileBufferLines on FileBuffer {
   // split text into lines
   void createLines() {
-    const lineEnding = '\n';
     // add missing newline
-    if (!text.endsWith(lineEnding)) text += lineEnding;
+    if (!text.endsWith(nl)) text += nl;
 
     // split text into lines (remove last empty line)
-    final splits = text.split(lineEnding)..removeLast();
+    final splits = text.split(nl)..removeLast();
 
     // split text into lines with some metadata used for cursor positioning etc.
     lines.clear();
