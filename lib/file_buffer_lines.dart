@@ -40,11 +40,12 @@ extension FileBufferLines on FileBuffer {
 
   // split text into lines
   void createLines() {
+    const lineEnding = '\n';
     // add missing newline
-    if (!text.endsWith('\n')) text += '\n';
+    if (!text.endsWith(lineEnding)) text += lineEnding;
 
     // split text into lines (remove last empty line)
-    final splits = text.split('\n')..removeLast();
+    final splits = text.split(lineEnding)..removeLast();
 
     // split text into lines with some metadata used for cursor positioning etc.
     lines.clear();
