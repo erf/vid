@@ -188,6 +188,11 @@ class Editor {
     }
   }
 
+  bool findNextCharIsValid(String nextChar) {
+    // TODO check if nextChar is valid
+    return true;
+  }
+
   void normal(String char) {
     Action action = file.action;
 
@@ -203,10 +208,12 @@ class Editor {
     final find = findActions[action.input];
     if (find != null) {
       final nextChar = readNextChar();
-      for (int i = 0; i < (action.count ?? 1); i++) {
-        file.cursor = find(file, file.cursor, nextChar, false);
+      if (findNextCharIsValid(nextChar)) {
+        for (int i = 0; i < (action.count ?? 1); i++) {
+          file.cursor = find(file, file.cursor, nextChar, false);
+        }
+        resetAction();
       }
-      resetAction();
       return;
     }
 
@@ -237,10 +244,13 @@ class Editor {
     // if has find action, get the next char to search for
     final find = findActions[char];
     if (find != null) {
-      action.findChar = action.findChar ?? readNextChar();
-      for (int i = 0; i < (action.count ?? 1); i++) {
-        final end = find(file, file.cursor, action.findChar!, true);
-        operator(file, Range(start: file.cursor, end: end));
+      final nextChar = action.findChar ?? readNextChar();
+      if (findNextCharIsValid(nextChar)) {
+        for (int i = 0; i < (action.count ?? 1); i++) {
+          final end = find(file, file.cursor, action.findChar!, true);
+          operator(file, Range(start: file.cursor, end: end));
+        }
+        action.findChar = nextChar;
       }
       if (shouldResetAction) resetAction();
       return;
