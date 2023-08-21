@@ -40,23 +40,22 @@ extension FileBufferLines on FileBuffer {
 
   // split text into lines
   void createLines() {
-    int byteIndex = 0;
-    int lineNo = 0;
-
     // add missing newline
     if (!text.endsWith('\n')) text += '\n';
 
     // split text into lines (remove last empty line)
-    final strLines = text.split('\n')..removeLast();
+    final splits = text.split('\n')..removeLast();
 
     // split text into lines with some metadata used for cursor positioning etc.
-    lines = strLines.map((s) {
+    lines.clear();
+    int byteIndex = 0;
+    for (int i = 0; i < splits.length; i++) {
+      final s = splits[i];
       final lnsp = '$s '.ch;
-      final line = Line(byteStart: byteIndex, text: lnsp, lineNo: lineNo);
+      final line = Line(byteStart: byteIndex, text: lnsp, lineNo: i);
       byteIndex += lnsp.string.length;
-      lineNo++;
-      return line;
-    }).toList();
+      lines.add(line);
+    }
   }
 
   // check if file is empty, only one line with empty string
