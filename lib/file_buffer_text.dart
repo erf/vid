@@ -24,7 +24,7 @@ extension FileBufferText on FileBuffer {
   // the main method used to replace, delete and insert text in the buffer
   void replace(int start, int end, String newText, TextOp op) {
     // don't delete or replace the last newline
-    if (newText.isEmpty) {
+    if (op == TextOp.delete || op == TextOp.replace) {
       if (end >= text.length) {
         end = text.length - 1;
       }
@@ -32,6 +32,7 @@ extension FileBufferText on FileBuffer {
         return;
       }
     }
+
     // undo
     final prevText = text.substring(start, end);
     undoList.add(Undo(op, newText, prevText, start, cursor.clone));
