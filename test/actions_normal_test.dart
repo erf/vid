@@ -146,4 +146,15 @@ void main() {
     e.input('dw..', redraw: false);
     expect(f.text, 'jkl\n');
   });
+
+  test('repeat find fc;;', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'abc abc abc abc\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    f.action.findChar = 'c';
+    e.input('f;;', redraw: false);
+    expect(f.cursor, Position(c: 10, l: 0));
+  });
 }
