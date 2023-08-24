@@ -250,7 +250,7 @@ class Editor {
       final nextChar = action.findChar ?? readNextChar();
       if (findNextCharIsValid(nextChar)) {
         for (int i = 0; i < (action.count ?? 1); i++) {
-          final end = find(file, file.cursor, action.findChar!, true);
+          final end = find(file, file.cursor, nextChar, true);
           operator(file, Range(start: file.cursor, end: end));
         }
         action.findChar = nextChar;
