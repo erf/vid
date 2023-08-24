@@ -52,6 +52,7 @@ final normalActions = <String, NormalAction>{
   '*': NormalActions.sameWordNext,
   '#': NormalActions.sameWordPrev,
   '.': NormalActions.repeat,
+  ';': NormalActions.repeatFindNext,
 };
 
 final operatorActions = <String, OperatorAction>{

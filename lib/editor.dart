@@ -194,7 +194,7 @@ class Editor {
     return true;
   }
 
-  void normal(String char) {
+  void normal(String char, [bool shouldResetAction = true]) {
     Action action = file.action;
 
     // if char is a number, accumulate countInput
@@ -208,12 +208,14 @@ class Editor {
     // if has find action, get the next char to search for
     final find = findActions[action.input];
     if (find != null) {
-      final nextChar = readNextChar();
+      final nextChar = action.findChar ?? readNextChar();
       if (findNextCharIsValid(nextChar)) {
         for (int i = 0; i < (action.count ?? 1); i++) {
           file.cursor = find(file, file.cursor, nextChar, false);
         }
-        resetAction();
+        action.findAction = find;
+        action.findChar = nextChar;
+        if (shouldResetAction) resetAction();
       }
       return;
     }

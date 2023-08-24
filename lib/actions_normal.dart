@@ -270,4 +270,14 @@ class NormalActions {
     f.action = f.prevAction!;
     e.operator(f.action.operatorInput, false);
   }
+
+  static void repeatFindNext(Editor e, FileBuffer f) {
+    if (f.prevAction == null ||
+        f.prevAction?.findAction == null ||
+        f.prevAction?.findChar == null) {
+      return;
+    }
+    f.action = f.prevAction!;
+    e.normal(f.action.operatorInput, false);
+  }
 }
