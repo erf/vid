@@ -16,10 +16,10 @@ class Action {
   // the count of the pending action
   int? count;
 
-  // the pending find action
+  // the find action
   FindAction? findAction;
 
-  // the pending find action
+  // the find char
   String? findChar;
 
   // if the pending operator is linewise

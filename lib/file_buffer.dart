@@ -30,7 +30,7 @@ class FileBuffer {
   // the previous action
   Action? prevAction;
 
-  // the register to use for the pending action
+  // the yanked text
   String? yankBuffer;
 
   // if the file has been modified and not saved
