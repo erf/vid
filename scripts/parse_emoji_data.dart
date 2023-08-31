@@ -7,7 +7,7 @@ int main(List<String> args) {
     print('Usage: dart parse_emoji_data.dart <path to emoji-data.txt>');
     return 1;
   }
-  final path = args.first;
+  final String path = args.first;
   if (Uri.tryParse(path) == null) {
     print('Invalid path: $path');
     return 1;
@@ -20,21 +20,21 @@ int main(List<String> args) {
   final lines = file.readAsLinesSync();
 
   final emojis = <int>[];
-  for (var line in lines) {
+  for (final String line in lines) {
     if (line.startsWith('#')) {
       continue;
     }
-    final parts = line.split(';');
+    final List<String> parts = line.split(';');
     if (parts.length < 2) {
       continue;
     }
-    final name = parts[1].trim();
+    final String name = parts[1].trim();
     if (!name.contains('Emoji_Presentation') && !name.contains('emoji')) {
       continue;
     }
-    final value = parts[0].trim();
+    final String value = parts[0].trim();
 
-    // The unicode docs > 1.0, can have a range of code points
+    // Unicode v15.0 can have a range of code points
     if (value.contains('..')) {
       final List<String> codePointRange = value.split('..');
       final int codePointFirst = int.parse(codePointRange.first, radix: 16);
@@ -46,6 +46,7 @@ int main(List<String> args) {
         }
       }
     } else {
+      // Unicode v1.0 can have 1 or 2 code points (15.0 has 1 here)
       final Iterable<int> codePoints =
           value.split(' ').map((e) => int.parse(e, radix: 16));
       emojis.add(codePoints.first);
