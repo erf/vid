@@ -17,9 +17,9 @@ int main(List<String> args) {
     print('File must be named emoji-data.txt');
     return 1;
   }
-  final lines = file.readAsLinesSync();
+  final List<String> lines = file.readAsLinesSync();
 
-  final emojis = <int>[];
+  final List<int> emojis = [];
   for (final String line in lines) {
     if (line.startsWith('#')) {
       continue;
