@@ -28,3 +28,8 @@ Note the following keybindings differ from **vim** as we don't have command mode
 
 - Save with 's'
 - Quit with 'q' or force quit with 'Q' (ignoring changes)
+
+## Contribute 🙋‍♂️
+
+This is a personal project and i'd prefer to figure out stuff on my own. However, if you'd like to contribute, i might accept a PR in good taste but not issues suggesting improvements without actually contributing code.
+
