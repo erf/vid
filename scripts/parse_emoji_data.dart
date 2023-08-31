@@ -1,12 +1,7 @@
 import 'dart:io';
 
-// This script parses a list of emoji code points from the 'emoji-data.txt' file
-// downloaded from unicode.org
+// This script parses a list of emoji code points from:
 // https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
-// https://unicode.org/Public/emoji/1.0/emoji-data.txt
-//
-// The script is used to generate the list of emoji code points used in
-// lib/emojis.dart
 int main(List<String> args) {
   if (args.isEmpty) {
     print('Usage: dart parse_emoji_data.dart <path to emoji-data.txt>');
@@ -51,8 +46,8 @@ int main(List<String> args) {
         }
       }
     } else {
-      final List<int> codePoints =
-          value.split(' ').map((e) => int.parse(e, radix: 16)).toList();
+      final Iterable<int> codePoints =
+          value.split(' ').map((e) => int.parse(e, radix: 16));
       emojis.add(codePoints.first);
     }
   }
