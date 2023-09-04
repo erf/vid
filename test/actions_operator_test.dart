@@ -92,4 +92,13 @@ void main() {
     e.input('P', redraw: false);
     expect(f.text, 'abc def def ghi\n');
   });
+
+  test('ddjp', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'abc\n\ndef\n\nghi\n';
+    f.createLines();
+    e.input('ddjp', redraw: false);
+    expect(f.text, '\ndef\nabc\n\nghi\n');
+  }, skip: true);
 }
