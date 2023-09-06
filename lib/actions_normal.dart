@@ -28,27 +28,23 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      if (f.prevAction?.operatorLineWise ?? false) {
-        f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
-            f.yankBuffer!);
-        f.cursor = Position(l: f.cursor.l + 1, c: 0);
-      } else {
-        f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
-      }
+    if (f.prevAction?.operatorLineWise ?? false) {
+      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
+          f.yankBuffer!);
+      f.cursor = Position(l: f.cursor.l + 1, c: 0);
+    } else {
+      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
     }
     f.isModified = true;
   }
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      if (f.prevAction?.operatorLineWise ?? false) {
-        f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
-        f.cursor = Position(l: f.cursor.l, c: 0);
-      } else {
-        f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
-      }
+    if (f.prevAction?.operatorLineWise ?? false) {
+      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+      f.cursor = Position(l: f.cursor.l, c: 0);
+    } else {
+      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
     }
     f.isModified = true;
   }
@@ -82,27 +78,19 @@ class NormalActions {
   }
 
   static void cursorCharNext(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.charNext(f, f.cursor);
-    }
+    f.cursor = Motions.charNext(f, f.cursor);
   }
 
   static void cursorCharPrev(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.charPrev(f, f.cursor);
-    }
+    f.cursor = Motions.charPrev(f, f.cursor);
   }
 
   static void cursorCharUp(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.charUp(f, f.cursor);
-    }
+    f.cursor = Motions.charUp(f, f.cursor);
   }
 
   static void cursorCharDown(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.charDown(f, f.cursor);
-    }
+    f.cursor = Motions.charDown(f, f.cursor);
   }
 
   static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
@@ -124,24 +112,18 @@ class NormalActions {
   }
 
   static void cursorWordEndPrev(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.wordEndPrev(f, f.cursor);
-    }
+    f.cursor = Motions.wordEndPrev(f, f.cursor);
   }
 
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.insertAt(Position(l: f.cursor.l, c: 0), nl);
-    }
+    f.insertAt(Position(l: f.cursor.l, c: 0), nl);
     f.cursor.c = 0;
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), nl);
-    }
+    f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), nl);
     cursorCharDown(e, f);
   }
 
@@ -179,42 +161,30 @@ class NormalActions {
   }
 
   static void cursorWordNext(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.wordNext(f, f.cursor);
-    }
+    f.cursor = Motions.wordNext(f, f.cursor);
   }
 
   static void cursorWordEnd(Editor v, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.wordEnd(f, f.cursor);
-      f.cursor.c--;
-    }
+    f.cursor = Motions.wordEnd(f, f.cursor);
+    f.cursor.c--;
   }
 
   static void cursorWordPrev(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.wordPrev(f, f.cursor);
-    }
+    f.cursor = Motions.wordPrev(f, f.cursor);
   }
 
   static void sameWordNext(Editor v, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.sameWordNext(f, f.cursor);
-    }
+    f.cursor = Motions.sameWordNext(f, f.cursor);
   }
 
   static void sameWordPrev(Editor v, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.cursor = Motions.sameWordPrev(f, f.cursor);
-    }
+    f.cursor = Motions.sameWordPrev(f, f.cursor);
   }
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     if (f.empty) return;
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      f.deleteAt(f.cursor);
-      f.clampCursor();
-    }
+    f.deleteAt(f.cursor);
+    f.clampCursor();
   }
 
   static void replace(Editor e, FileBuffer f) {
@@ -238,29 +208,25 @@ class NormalActions {
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      if (f.lines.length <= 1) {
-        return;
-      }
-      f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
+    if (f.lines.length <= 1) {
+      return;
     }
+    f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
   }
 
   static void undo(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
-      if (f.undoList.isEmpty) {
-        return;
-      }
-      final u = f.undoList.removeLast();
-      f.text = switch (u.op) {
-        TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
-        TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
-        TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
-      };
-      f.createLines();
-      f.isModified = true;
-      f.cursor = u.cursor.clone;
+    if (f.undoList.isEmpty) {
+      return;
     }
+    final u = f.undoList.removeLast();
+    f.text = switch (u.op) {
+      TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
+      TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
+      TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
+    };
+    f.createLines();
+    f.isModified = true;
+    f.cursor = u.cursor.clone;
   }
 
   static void repeat(Editor e, FileBuffer f) {

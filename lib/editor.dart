@@ -218,9 +218,7 @@ class Editor {
     if (find != null) {
       final nextChar = action.findChar ?? readNextChar();
       if (findNextCharIsValid(nextChar)) {
-        for (int i = 0; i < (action.count ?? 1); i++) {
-          file.cursor = find(file, file.cursor, nextChar, false);
-        }
+        file.cursor = find(file, file.cursor, nextChar, false);
         action.findAction = find;
         action.findChar = nextChar;
         if (shouldResetAction) resetAction();
@@ -257,10 +255,8 @@ class Editor {
     if (find != null) {
       final nextChar = action.findChar ?? readNextChar();
       if (findNextCharIsValid(nextChar)) {
-        for (int i = 0; i < (action.count ?? 1); i++) {
-          final end = find(file, file.cursor, nextChar, true);
-          operator(file, Range(start: file.cursor, end: end));
-        }
+        final end = find(file, file.cursor, nextChar, true);
+        operator(file, Range(start: file.cursor, end: end));
         action.findChar = nextChar;
       }
       if (shouldResetAction) resetAction();
@@ -289,10 +285,8 @@ class Editor {
     // if has motion action, execute it and pass it to operator
     final motion = motionActions[char];
     if (motion != null) {
-      for (int i = 0; i < (action.count ?? 1); i++) {
-        final end = motion(file, file.cursor);
-        operator(file, Range(start: file.cursor, end: end));
-      }
+      final end = motion(file, file.cursor);
+      operator(file, Range(start: file.cursor, end: end));
       if (shouldResetAction) resetAction();
       return;
     }
