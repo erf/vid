@@ -9,44 +9,25 @@ extension StringExt on String {
 
   // Shorthand for Emoji checking a String
   bool get isEmoji {
-    // Check if contains a Variation Selector(VS) of type 16 (emoji) or 15 (text)
-    const int vs15 = 0xFE0E; // text
-    if (codeUnits.contains(vs15)) {
-      return false;
-    }
-    const int vs16 = 0xFE0F; // emoji
-    if (codeUnits.contains(vs16)) {
-      return true;
-    }
-    // check if first codeUnit is in pre-generated emoji hashmap
-    if (emojis15Set.contains(runes.first)) {
-      return true;
-    }
-    return false;
+    if (codeUnits.contains(0xFE0E)) return false; // text presentation
+
+    if (codeUnits.contains(0xFE0F)) return true; // emoji presentation
+
+    return defaultEmojiPresentation.contains(runes.first);
   }
 
   // Try to determine the rendered width of a single character
   int get renderWidth {
     // if the string is empty, return 0
-    if (isEmpty) {
-      return 0;
-    }
+    if (isEmpty) return 0;
 
     // if the string is a single space, return 1
-    if (this == ' ') {
-      return 1;
-    }
+    if (this == ' ') return 1;
 
     // if the string is a single tab, return 4 ?
-    if ('\t'.contains(this)) {
-      return Config.tabWidth;
-    }
+    if ('\t'.contains(this)) return Config.tabWidth;
 
     // If the string is a emoji, return 2
-    if (isEmoji) {
-      return 2;
-    }
-
-    return 1;
+    return isEmoji ? 2 : 1;
   }
 }

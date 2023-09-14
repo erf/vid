@@ -1206,4 +1206,4 @@ const emojis15 = [
   129784
 ];
 
-final emojis15Set = Set.from(emojis15);
+final defaultEmojiPresentation = Set.from(emojis15);
