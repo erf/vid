@@ -7,49 +7,49 @@ int main(List<String> args) {
     print('Usage: dart parse_emoji_data.dart <path to emoji-data.txt>');
     return 1;
   }
-  final String path = args.first;
+  String path = args.first;
   if (Uri.tryParse(path) == null) {
     print('Invalid path: $path');
     return 1;
   }
-  final file = File(path);
+  File file = File(path);
   if (!file.path.endsWith('emoji-data.txt')) {
     print('File must be named emoji-data.txt');
     return 1;
   }
-  final List<String> lines = file.readAsLinesSync();
+  List<String> lines;
+  try {
+    lines = file.readAsLinesSync();
+  } catch (e) {
+    print('Error reading file: $e');
+    return 1;
+  }
 
-  final List<int> emojis = [];
+  List<int> emojis = [];
   for (final String line in lines) {
     if (line.startsWith('#')) {
       continue;
     }
-    final List<String> parts = line.split(';');
+    List<String> parts = line.split(';');
     if (parts.length < 2) {
       continue;
     }
-    final String name = parts[1].trim();
-    if (!name.contains('Emoji_Presentation') && !name.contains('emoji')) {
+    String name = parts[1].trim();
+    if (!name.contains('Emoji_Presentation')) {
       continue;
     }
-    final String value = parts[0].trim();
+    String codePointRange = parts[0].trim();
 
     // Unicode v15.0 can have a range of code points
-    if (value.contains('..')) {
-      final List<String> codePointRange = value.split('..');
-      final int codePointFirst = int.parse(codePointRange.first, radix: 16);
-      emojis.add(codePointFirst);
-      if (codePointRange.length > 1) {
-        final int codePointLast = int.parse(codePointRange.last, radix: 16);
-        for (int i = codePointFirst + 1; i <= codePointLast; i++) {
-          emojis.add(i);
-        }
+    if (codePointRange.contains('..')) {
+      List<String> rangeParts = codePointRange.split('..');
+      int start = int.parse(rangeParts.first, radix: 16);
+      int end = int.parse(rangeParts.last, radix: 16);
+      for (int code = start; code <= end; code++) {
+        emojis.add(code);
       }
     } else {
-      // Unicode v1.0 can have 1 or 2 code points (15.0 has 1 here)
-      final Iterable<int> codePoints =
-          value.split(' ').map((e) => int.parse(e, radix: 16));
-      emojis.add(codePoints.first);
+      emojis.add(int.parse(codePointRange, radix: 16));
     }
   }
   // print emojis as a comma separated list
