@@ -1,8 +1,9 @@
 import 'dart:io';
 
-// This script parses a list of emoji code points from:
+// Parse default emoji presentation code points from:
 // https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
 int main(List<String> args) {
+  // validate
   if (args.isEmpty) {
     print('Usage: dart parse_emoji_data.dart <path to emoji-data.txt>');
     return 1;
@@ -25,8 +26,12 @@ int main(List<String> args) {
     return 1;
   }
 
+  // parse
   List<int> emojis = [];
   for (final String line in lines) {
+    if (line.isEmpty) {
+      continue;
+    }
     if (line.startsWith('#')) {
       continue;
     }
@@ -40,7 +45,7 @@ int main(List<String> args) {
     }
     String codePointRange = parts[0].trim();
 
-    // Unicode v15.0 can have a range of code points
+    // Unicode 15.0 can have a range of code points
     if (codePointRange.contains('..')) {
       List<String> rangeParts = codePointRange.split('..');
       int start = int.parse(rangeParts.first, radix: 16);
