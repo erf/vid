@@ -9,4 +9,4 @@ build/
 .idea
 
 sample-data
-install.sh
+build.sh
