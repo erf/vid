@@ -12,33 +12,26 @@ class RangeList {
   const RangeList(this.ranges);
 
   // Factory constructor to return a merged version of the list
-  factory RangeList.merged(List<Range> inputRanges) {
-    var mergedRanges = _mergeRanges(inputRanges);
-    return RangeList(mergedRanges);
-  }
+  factory RangeList.merged(List<Range> inputRanges) =>
+      RangeList(_mergeRanges(inputRanges));
 
   get length => ranges.length;
-
-  void sort() {
-    ranges.sort((a, b) => a.low.compareTo(b.low));
-  }
 
   static List<Range> _mergeRanges(List<Range> inputRanges) {
     if (inputRanges.isEmpty) return [];
 
-    var sortedRanges = [...inputRanges]..sort((a, b) => a.low.compareTo(b.low));
+    final sortedRanges = [...inputRanges]
+      ..sort((a, b) => a.low.compareTo(b.low));
 
-    List<Range> merged = [sortedRanges[0]];
+    final merged = [sortedRanges.first];
 
     for (int i = 1; i < sortedRanges.length; i++) {
-      var currentRange = sortedRanges[i];
-      var lastMergedRange = merged.last;
+      final currentRange = sortedRanges[i];
+      final lastMergedRange = merged.last;
 
       if (currentRange.low <= lastMergedRange.high) {
-        // We create a new Range instead of modifying the existing one
-        var newRange = Range(
+        merged[merged.length - 1] = Range(
             lastMergedRange.low, max(lastMergedRange.high, currentRange.high));
-        merged[merged.length - 1] = newRange;
       } else {
         merged.add(currentRange);
       }
