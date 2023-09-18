@@ -2,12 +2,13 @@ import 'dart:io';
 
 import 'package:vid/range_list.dart';
 
-// Parse default emoji presentation code points from:
-// https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
+// Parse EastAsianWidth code point ranges of type 'W' and 'F' from
+// https://www.unicode.org/Public/15.0.0/ucd/EastAsianWidth.txt
 int main(List<String> args) {
   // validate
   if (args.isEmpty) {
-    print('Usage: dart parse_emoji_data.dart <path to emoji-data.txt>');
+    print(
+        'Usage: dart parse_east_asian_width.dart <path to EastAsianWidth.txt>');
     return 1;
   }
   String path = args.first;
@@ -16,8 +17,8 @@ int main(List<String> args) {
     return 1;
   }
   File file = File(path);
-  if (!file.path.endsWith('emoji-data.txt')) {
-    print('File must be named emoji-data.txt');
+  if (!file.path.endsWith('EastAsianWidth.txt')) {
+    print('File must be named EastAsianWidth.txt');
     return 1;
   }
   List<String> lines;
@@ -41,8 +42,9 @@ int main(List<String> args) {
     if (parts.length < 2) {
       continue;
     }
-    String name = parts[1].trim();
-    if (!name.contains('Emoji_Presentation')) {
+    String property = parts[1][0];
+
+    if (property != 'W' && property != 'F') {
       continue;
     }
     String codePointRange = parts[0].trim();
@@ -58,14 +60,14 @@ int main(List<String> args) {
       ranges.add(IntRange(value, value));
     }
   }
-  // print emojis as a comma separated list
+  // print eastAsianWidth as a comma separated list
   final rangeList = RangeList.merged(ranges);
-  print('final emojiRanges = RangeList.merged([');
+  print('final eastAsianWidth = RangeList.merged([');
   for (final IntRange range in rangeList.ranges) {
     print('  IntRange(${range.low}, ${range.high}),');
   }
   print(']);');
-  // print lenght
-  print('final emojiCount = ${rangeList.length};');
+  // print length
+  print('final eastAsianWidthLength = ${rangeList.length};');
   return 0;
 }
