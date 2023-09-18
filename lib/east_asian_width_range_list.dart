@@ -284,4 +284,18 @@ final eastAsianWidth = RangeList.merged([
   IntRange(201547, 201551),
   IntRange(201552, 205743),
   IntRange(205744, 262141),
+  // https://www.unicode.org/Public/15.0.0/ucd/EastAsianWidth.txt
+  // #  - The unassigned code points in the following blocks default to "W":
+  // #         CJK Unified Ideographs Extension A: U+3400..U+4DBF
+  // #         CJK Unified Ideographs:             U+4E00..U+9FFF
+  // #         CJK Compatibility Ideographs:       U+F900..U+FAFF
+  IntRange(0x3400, 0x4DBF),
+  IntRange(0x4E00, 0x9FFF),
+  IntRange(0xF900, 0xFAFF),
+  // #  - All undesignated code points in Planes 2 and 3, whether inside or
+  // #      outside of allocated blocks, default to "W":
+  // #         Plane 2:                            U+20000..U+2FFFD
+  // #         Plane 3:                            U+30000..U+3FFFD
+  IntRange(0x20000, 0x2FFFD),
+  IntRange(0x30000, 0x3FFFD),
 ]);
