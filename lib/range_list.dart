@@ -20,18 +20,20 @@ class RangeList {
   static List<Range> _mergeRanges(List<Range> inputRanges) {
     if (inputRanges.isEmpty) return [];
 
-    final sortedRanges = [...inputRanges]
+    final List<Range> sortedRanges = [...inputRanges]
       ..sort((a, b) => a.low.compareTo(b.low));
 
-    final merged = [sortedRanges.first];
+    final List<Range> merged = [sortedRanges.first];
 
     for (int i = 1; i < sortedRanges.length; i++) {
-      final currentRange = sortedRanges[i];
-      final lastMergedRange = merged.last;
+      final Range currentRange = sortedRanges[i];
+      final Range lastMergedRange = merged.last;
 
       if (currentRange.low <= lastMergedRange.high) {
         merged[merged.length - 1] = Range(
-            lastMergedRange.low, max(lastMergedRange.high, currentRange.high));
+          lastMergedRange.low,
+          max(lastMergedRange.high, currentRange.high),
+        );
       } else {
         merged.add(currentRange);
       }
