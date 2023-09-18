@@ -1,6 +1,7 @@
 import 'package:characters/characters.dart';
 
 import 'config.dart';
+import 'east_asian_width_range_list.dart';
 import 'emojis_15.dart';
 
 extension StringExt on String {
@@ -16,6 +17,10 @@ extension StringExt on String {
     return defaultEmojiPresentation.contains(runes.first);
   }
 
+  bool get isEastAsianWidth {
+    return eastAsianWidth.contains(runes.first);
+  }
+
   // Try to determine the rendered width of a single character
   int get renderWidth {
     // if the string is empty, return 0
@@ -27,7 +32,10 @@ extension StringExt on String {
     // if the string is a single tab, return 4 ?
     if ('\t'.contains(this)) return Config.tabWidth;
 
-    // If the string is a emoji, return 2
-    return isEmoji ? 2 : 1;
+    if (isEastAsianWidth) return 2;
+
+    if (isEmoji) return 2;
+
+    return 1;
   }
 }
