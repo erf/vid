@@ -2,13 +2,15 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:vid/emojis_15.dart';
+import 'package:vid/emojis_15_range_list.dart';
 
 // test the performance of looking up emojis
 void main() {
-  final List<String> unicodeChars = generateRandomUnicodeChars(100000);
+  final List<String> unicodeChars = generateRandomUnicodeChars(1000000);
   benchmarkEmojisInList(unicodeChars);
   benchmarkEmojisInMap(unicodeChars);
   benchmarkEmojisInSet(unicodeChars);
+  benchmarkEmojisInRangeList(unicodeChars);
 }
 
 List<String> generateRandomUnicodeChars(int length) {
@@ -53,4 +55,16 @@ void benchmarkEmojisInSet(List<String> unicodeChars) {
   }
   stopwatch.stop();
   print('testIfEmojiUsingSet: ${stopwatch.elapsedMilliseconds}ms - $num');
+}
+
+void benchmarkEmojisInRangeList(List<String> unicodeChars) {
+  final stopwatch = Stopwatch()..start();
+  int num = 0;
+  for (final unicodeChar in unicodeChars) {
+    if (emojiRanges.contains(unicodeChar.runes.first)) {
+      num++;
+    }
+  }
+  stopwatch.stop();
+  print('testIfEmojiUsingRangeList: ${stopwatch.elapsedMilliseconds}ms - $num');
 }
