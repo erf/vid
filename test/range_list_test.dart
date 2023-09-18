@@ -21,9 +21,7 @@ void main() {
     });
 
     test('should merge overlapping or adjacent ranges', () {
-      var rList = RangeList([Range(10, 15), Range(1, 4), Range(4, 8)]);
-      rList.sort();
-      rList.merge();
+      var rList = RangeList.merged([Range(10, 15), Range(1, 4), Range(4, 8)]);
       expect(rList.contains(3), true);
       expect(rList.contains(7), true);
       expect(rList.length, 2);

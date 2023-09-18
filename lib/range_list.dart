@@ -1,46 +1,60 @@
 import 'dart:math';
 
 class Range {
-  int low, high;
-  Range(this.low, this.high);
+  final int low, high;
+  const Range(this.low, this.high);
 }
 
 class RangeList {
-  List<Range> ranges;
+  final List<Range> ranges;
 
-  RangeList(this.ranges);
+  // Default constructor takes the list as-is
+  const RangeList(this.ranges);
 
-  int get length => ranges.length;
+  // Factory constructor to return a merged version of the list
+  factory RangeList.merged(List<Range> inputRanges) {
+    var mergedRanges = _mergeRanges(inputRanges);
+    return RangeList(mergedRanges);
+  }
 
-  // Sort the ranges based on their 'low' values
+  get length => ranges.length;
+
   void sort() {
     ranges.sort((a, b) => a.low.compareTo(b.low));
   }
 
-  // Merge overlapping ranges
-  void merge() {
-    if (ranges.isEmpty) return;
+  static List<Range> _mergeRanges(List<Range> inputRanges) {
+    if (inputRanges.isEmpty) return [];
 
-    List<Range> merged = [];
-    merged.add(ranges[0]);
+    var sortedRanges = [...inputRanges]..sort((a, b) => a.low.compareTo(b.low));
 
-    for (int i = 1; i < ranges.length; i++) {
-      var currentRange = ranges[i];
+    List<Range> merged = [sortedRanges[0]];
+
+    for (int i = 1; i < sortedRanges.length; i++) {
+      var currentRange = sortedRanges[i];
       var lastMergedRange = merged.last;
 
       if (currentRange.low <= lastMergedRange.high) {
-        // Overlapping or adjacent ranges, so merge them
-        lastMergedRange.high = max(lastMergedRange.high, currentRange.high);
+        // We create a new Range instead of modifying the existing one
+        var newRange = Range(
+            lastMergedRange.low, max(lastMergedRange.high, currentRange.high));
+        merged[merged.length - 1] = newRange;
       } else {
         merged.add(currentRange);
       }
     }
 
-    ranges = merged;
+    return merged;
   }
 
-  // Check if a value is in any of the ranges
   bool contains(int value) {
+    if (ranges.isEmpty) return false;
+
+    // Check against the overall range first
+    if (value < ranges.first.low || value > ranges.last.high) {
+      return false;
+    }
+
     int start = 0, end = ranges.length - 1;
 
     while (start <= end) {
@@ -48,14 +62,12 @@ class RangeList {
       if (ranges[mid].low <= value && ranges[mid].high >= value) {
         return true;
       }
-
       if (ranges[mid].low > value) {
         end = mid - 1;
       } else {
         start = mid + 1;
       }
     }
-
     return false;
   }
 }
