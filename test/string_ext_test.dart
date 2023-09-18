@@ -45,4 +45,11 @@ void main() {
     expect('⌨︎'.renderWidth, 1, reason: '⌨︎ text + VS15');
     expect('⌨️'.renderWidth, 2, reason: '⌨️ text + VS16');
   });
+
+  test('test EastAsianWidth, english vs chinese characters', () {
+    expect('h'.renderWidth, 1);
+    expect('X'.renderWidth, 1);
+    expect('吉'.renderWidth, 2);
+    expect('龍'.renderWidth, 2);
+  });
 }
