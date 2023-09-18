@@ -60,7 +60,10 @@ int main(List<String> args) {
   }
   // print emojis as a comma separated list
   final rangeList = RangeList.merged(emojis);
-  print(StringBuffer()..writeAll(rangeList, ', '));
-  print('Emoji ranges: ${emojis.length}');
+  print('final emojiRanges = RangeList.merged([');
+  for (final IntRange range in rangeList.ranges) {
+    print('  IntRange(${range.low}, ${range.high}),');
+  }
+  print(']);');
   return 0;
 }
