@@ -59,14 +59,3 @@ class RangeList {
     return false;
   }
 }
-
-// void main() {
-//   var ranges = RangeList([Range(10, 15), Range(1, 4), Range(4, 8)]);
-
-//   ranges.sort();
-//   ranges.merge();
-
-//   print(ranges.contains(3)); // true (because 3 is in the merged range [1,8])
-//   print(ranges.contains(6)); // true (because 6 is in the merged range [1,8])
-//   print(ranges.contains(9)); // false (no range contains 9)
-// }
