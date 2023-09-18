@@ -8,7 +8,7 @@ class IntRange {
   String toString() => '($low, $high)';
 }
 
-class RangeList extends Iterable<IntRange> {
+class RangeList {
   final List<IntRange> ranges;
 
   // Constructor does not merge the ranges
@@ -44,9 +44,7 @@ class RangeList extends Iterable<IntRange> {
     return merged;
   }
 
-  @override
-  bool contains(Object? element) {
-    final value = element as int;
+  bool contains(int value) {
     if (ranges.isEmpty) return false;
 
     // Check against the overall range first
@@ -70,9 +68,5 @@ class RangeList extends Iterable<IntRange> {
     return false;
   }
 
-  @override
   get length => ranges.length;
-
-  @override
-  Iterator<IntRange> get iterator => ranges.iterator;
 }
