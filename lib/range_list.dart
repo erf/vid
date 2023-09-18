@@ -5,22 +5,19 @@ class IntRange {
   const IntRange(this.low, this.high);
 
   @override
-  String toString() {
-    return '($low, $high)';
-  }
+  String toString() => '($low, $high)';
 }
 
 class RangeList extends Iterable<IntRange> {
   final List<IntRange> ranges;
 
-  // Default constructor takes the list as-is
+  // Constructor does not merge the ranges
   const RangeList(this.ranges);
 
-  // Factory constructor to return a merged version of the list
-  factory RangeList.merged(List<IntRange> inputRanges) =>
-      RangeList(_mergeRanges(inputRanges));
-
-  get length => ranges.length;
+  // Factory constructor merges the ranges
+  factory RangeList.merged(List<IntRange> inputRanges) {
+    return RangeList(_mergeRanges(inputRanges));
+  }
 
   static List<IntRange> _mergeRanges(List<IntRange> inputRanges) {
     if (inputRanges.isEmpty) return [];
@@ -48,8 +45,8 @@ class RangeList extends Iterable<IntRange> {
   }
 
   @override
-  bool contains(Object? obj) {
-    final value = obj as int;
+  bool contains(Object? element) {
+    final value = element as int;
     if (ranges.isEmpty) return false;
 
     // Check against the overall range first
@@ -74,7 +71,8 @@ class RangeList extends Iterable<IntRange> {
   }
 
   @override
-  Iterator<IntRange> get iterator {
-    return ranges.iterator;
-  }
+  get length => ranges.length;
+
+  @override
+  Iterator<IntRange> get iterator => ranges.iterator;
 }
