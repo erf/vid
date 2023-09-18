@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:vid/range_list.dart';
+
 // Parse default emoji presentation code points from:
 // https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
 int main(List<String> args) {
@@ -27,7 +29,7 @@ int main(List<String> args) {
   }
 
   // parse
-  List<int> emojis = [];
+  List<IntRange> emojis = [];
   for (final String line in lines) {
     if (line.isEmpty) {
       continue;
@@ -50,15 +52,15 @@ int main(List<String> args) {
       List<String> rangeParts = codePointRange.split('..');
       int start = int.parse(rangeParts.first, radix: 16);
       int end = int.parse(rangeParts.last, radix: 16);
-      for (int code = start; code <= end; code++) {
-        emojis.add(code);
-      }
+      emojis.add(IntRange(start, end));
     } else {
-      emojis.add(int.parse(codePointRange, radix: 16));
+      final value = int.parse(codePointRange, radix: 16);
+      emojis.add(IntRange(value, value));
     }
   }
   // print emojis as a comma separated list
-  print(StringBuffer()..writeAll(emojis, ', '));
-  print('Total numer of emojis: ${emojis.length}');
+  final rangeList = RangeList.merged(emojis);
+  print(StringBuffer()..writeAll(rangeList, ', '));
+  print('Emoji ranges: ${emojis.length}');
   return 0;
 }

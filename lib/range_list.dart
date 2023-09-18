@@ -1,36 +1,41 @@
 import 'dart:math';
 
-class Range {
+class IntRange {
   final int low, high;
-  const Range(this.low, this.high);
+  const IntRange(this.low, this.high);
+
+  @override
+  String toString() {
+    return '($low, $high)';
+  }
 }
 
-class RangeList {
-  final List<Range> ranges;
+class RangeList extends Iterable<IntRange> {
+  final List<IntRange> ranges;
 
   // Default constructor takes the list as-is
   const RangeList(this.ranges);
 
   // Factory constructor to return a merged version of the list
-  factory RangeList.merged(List<Range> inputRanges) =>
+  factory RangeList.merged(List<IntRange> inputRanges) =>
       RangeList(_mergeRanges(inputRanges));
 
   get length => ranges.length;
 
-  static List<Range> _mergeRanges(List<Range> inputRanges) {
+  static List<IntRange> _mergeRanges(List<IntRange> inputRanges) {
     if (inputRanges.isEmpty) return [];
 
-    final List<Range> sortedRanges = [...inputRanges]
+    final List<IntRange> sortedRanges = [...inputRanges]
       ..sort((a, b) => a.low.compareTo(b.low));
 
-    final List<Range> merged = [sortedRanges.first];
+    final List<IntRange> merged = [sortedRanges.first];
 
     for (int i = 1; i < sortedRanges.length; i++) {
-      final Range currentRange = sortedRanges[i];
-      final Range lastMergedRange = merged.last;
+      final IntRange currentRange = sortedRanges[i];
+      final IntRange lastMergedRange = merged.last;
 
       if (currentRange.low <= lastMergedRange.high) {
-        merged[merged.length - 1] = Range(
+        merged[merged.length - 1] = IntRange(
           lastMergedRange.low,
           max(lastMergedRange.high, currentRange.high),
         );
@@ -42,7 +47,9 @@ class RangeList {
     return merged;
   }
 
-  bool contains(int value) {
+  @override
+  bool contains(Object? obj) {
+    final value = obj as int;
     if (ranges.isEmpty) return false;
 
     // Check against the overall range first
@@ -64,5 +71,10 @@ class RangeList {
       }
     }
     return false;
+  }
+
+  @override
+  Iterator<IntRange> get iterator {
+    return ranges.iterator;
   }
 }
