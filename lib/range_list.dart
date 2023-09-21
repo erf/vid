@@ -2,10 +2,11 @@ import 'dart:math';
 
 class IntRange {
   final int low, high;
+
   const IntRange(this.low, this.high);
 
   @override
-  String toString() => '($low, $high)';
+  String toString() => ('IntRange($low, $high)');
 }
 
 class RangeList {

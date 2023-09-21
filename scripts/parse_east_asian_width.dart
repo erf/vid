@@ -64,7 +64,7 @@ int main(List<String> args) {
   final rangeList = RangeList.merged(ranges);
   print('final eastAsianWidth = RangeList.merged([');
   for (final IntRange range in rangeList.ranges) {
-    print('  IntRange(${range.low}, ${range.high}),');
+    print('  ${range.toString()},');
   }
   print(']);');
   // print length
