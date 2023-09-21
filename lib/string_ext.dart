@@ -17,7 +17,7 @@ extension StringExt on String {
     if (this == ' ') return 1;
 
     // if the string is a single tab, return 4 ?
-    if ('\t'.contains(this)) return Config.tabWidth;
+    if (this == '\t') return Config.tabWidth;
 
     if (codeUnits.contains(0xFE0E)) return 1; // text presentation
 
