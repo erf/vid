@@ -44,6 +44,7 @@ class RangeList {
     return merged;
   }
 
+  // Returns true if the value is contained in any of the ranges
   bool contains(int value) {
     if (ranges.isEmpty) {
       return false;
