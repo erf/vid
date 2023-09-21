@@ -45,7 +45,9 @@ class RangeList {
   }
 
   bool contains(int value) {
-    if (ranges.isEmpty) return false;
+    if (ranges.isEmpty) {
+      return false;
+    }
 
     // Check against the overall range first
     if (value < ranges.first.low || value > ranges.last.high) {
@@ -55,11 +57,12 @@ class RangeList {
     int start = 0, end = ranges.length - 1;
 
     while (start <= end) {
-      int mid = start + (end - start) ~/ 2;
-      if (ranges[mid].low <= value && ranges[mid].high >= value) {
+      final int mid = start + (end - start) ~/ 2;
+      final IntRange range = ranges[mid];
+      if (range.low <= value && range.high >= value) {
         return true;
       }
-      if (ranges[mid].low > value) {
+      if (range.low > value) {
         end = mid - 1;
       } else {
         start = mid + 1;
