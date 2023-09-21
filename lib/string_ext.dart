@@ -1,8 +1,8 @@
 import 'package:characters/characters.dart';
 
 import 'config.dart';
-import 'east_asian_width_range_list.dart';
-import 'emojis_15_range_list.dart';
+import 'east_asian_width.dart';
+import 'emoji_data.dart';
 
 extension StringExt on String {
   // Shorthand for characters (Characters(this))
@@ -23,7 +23,7 @@ extension StringExt on String {
 
     if (codeUnits.contains(0xFE0F)) return 2; // emoji presentation
 
-    if (emojiRanges.contains(runes.first)) return 2;
+    if (emojiData.contains(runes.first)) return 2;
 
     if (eastAsianWidth.contains(runes.first)) return 2;
 

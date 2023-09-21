@@ -1,6 +1,7 @@
 import 'range_list.dart';
 
-final emojiRanges = RangeList.merged([
+// https://unicode.org/Public/15.0.0/ucd/emoji/emoji-data.txt
+final emojiData = RangeList.merged([
   IntRange(8986, 8987),
   IntRange(9193, 9196),
   IntRange(9200, 9200),

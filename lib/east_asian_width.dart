@@ -1,5 +1,6 @@
 import 'range_list.dart';
 
+// https://www.unicode.org/Public/15.0.0/ucd/EastAsianWidth.txt
 final eastAsianWidth = RangeList.merged([
   IntRange(4352, 4447),
   IntRange(8986, 8987),
@@ -284,7 +285,6 @@ final eastAsianWidth = RangeList.merged([
   IntRange(201547, 201551),
   IntRange(201552, 205743),
   IntRange(205744, 262141),
-  // https://www.unicode.org/Public/15.0.0/ucd/EastAsianWidth.txt
   // #  - The unassigned code points in the following blocks default to "W":
   // #         CJK Unified Ideographs Extension A: U+3400..U+4DBF
   // #         CJK Unified Ideographs:             U+4E00..U+9FFF

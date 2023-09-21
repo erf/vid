@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:vid/emojis_15_range_list.dart';
+import 'package:vid/emoji_data.dart';
 
 // test the performance of looking up emojis
 void main() {
@@ -18,7 +18,7 @@ void benchmarkEmojisInRangeList(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num = 0;
   for (final unicodeChar in unicodeChars) {
-    if (emojiRanges.contains(unicodeChar.runes.first)) {
+    if (emojiData.contains(unicodeChar.runes.first)) {
       num++;
     }
   }
