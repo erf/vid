@@ -11,13 +11,19 @@ extension FileBufferLines on FileBuffer {
     // split text into lines (remove last empty line)
     final splits = text.split(nl)..removeLast();
 
-    // split text into lines with some metadata used for cursor positioning etc.
+    // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
     int byteStart = 0;
     for (int i = 0; i < splits.length; i++) {
-      final String lnspc = '${splits[i]} ';
-      lines.add(Line(lnspc, byteStart: byteStart, lineNo: i));
-      byteStart += lnspc.length;
+      final lineWithSpace = '${splits[i]} ';
+      lines.add(
+        Line(
+          lineWithSpace,
+          lineNo: i,
+          byteStart: byteStart,
+        ),
+      );
+      byteStart += lineWithSpace.length;
     }
   }
 
