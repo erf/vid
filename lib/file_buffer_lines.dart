@@ -1,5 +1,3 @@
-import 'package:characters/characters.dart';
-
 import 'constants.dart';
 import 'file_buffer.dart';
 import 'line.dart';
@@ -17,9 +15,9 @@ extension FileBufferLines on FileBuffer {
     lines.clear();
     int byteStart = 0;
     for (int i = 0; i < splits.length; i++) {
-      final Characters lnspc = '${splits[i]} '.characters;
-      lines.add(Line(byteStart: byteStart, text: lnspc, lineNo: i));
-      byteStart += lnspc.string.length;
+      final String lnspc = '${splits[i]} ';
+      lines.add(Line(lnspc, byteStart: byteStart, lineNo: i));
+      byteStart += lnspc.length;
     }
   }
 

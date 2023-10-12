@@ -52,7 +52,7 @@ class Motions {
   }
 
   static Position firstNonBlank(FileBuffer f, Position p) {
-    final firstNonBlank = f.lines[p.l].text.string.indexOf(RegExp(r'\S'));
+    final firstNonBlank = f.lines[p.l].str.indexOf(RegExp(r'\S'));
     return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
   }
 

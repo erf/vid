@@ -12,7 +12,7 @@ extension FileBufferText on FileBuffer {
     final line = lines.firstWhere((line) => index < line.byteEnd);
     return Position(
       l: line.lineNo,
-      c: line.text.byteToCharLength(index - line.byteStart),
+      c: line.chars.byteToCharLength(index - line.byteStart),
     );
   }
 

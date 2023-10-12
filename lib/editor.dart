@@ -74,7 +74,7 @@ class Editor {
         continue;
       }
       // get substring of line in view based on render width
-      final line = lines[l].text.getRenderLine(view.c, terminal.width);
+      final line = lines[l].chars.getRenderLine(view.c, terminal.width);
       renderbuf.writeln(line);
     }
   }
@@ -82,7 +82,7 @@ class Editor {
   void drawCursor() {
     final view = file.view;
     final cursor = file.cursor;
-    final curlen = file.lines[cursor.l].text.renderLength(cursor.c);
+    final curlen = file.lines[cursor.l].chars.renderLength(cursor.c);
     final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
     renderbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
