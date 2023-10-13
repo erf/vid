@@ -30,6 +30,7 @@ class Editor {
   void init(List<String> args) {
     file.load(args);
     terminal.rawMode = true;
+    terminal.write(Esc.enableMode2027(true));
     terminal.write(Esc.enableAltBuffer(true));
     terminal.input.listen(onInput);
     terminal.resize.listen(onResize);

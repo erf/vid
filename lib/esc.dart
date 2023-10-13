@@ -20,4 +20,7 @@ class Esc {
 
   // enable alternative buffer
   static enableAltBuffer(bool enable) => enable ? '$e[?1049h' : '$e[?1049l';
+
+  // enable mode 2027 for grapheme cluster support
+  static enableMode2027(bool enable) => enable ? '$e[?2027h' : '$e[?2027l';
 }
