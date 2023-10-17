@@ -7,20 +7,23 @@ class Esc {
   Esc._();
 
   // escape character
-  static const e = '\x1b';
+  static const String e = '\x1b';
 
   // home and erase down
-  static const homeAndEraseDown = '$e[H$e[J';
+  static const String homeAndEraseDown = '$e[H$e[J';
 
   // move cursor to spesific line and column
-  static cursorPosition({required int l, required int c}) => '$e[$l;${c}H';
+  static String cursorPosition({required int l, required int c}) =>
+      '$e[$l;${c}H';
 
   // invert colors
-  static invertColors(bool invert) => invert ? '$e[7m' : '$e[27m';
+  static String invertColors(bool invert) => invert ? '$e[7m' : '$e[27m';
 
   // enable alternative buffer
-  static enableAltBuffer(bool enable) => enable ? '$e[?1049h' : '$e[?1049l';
+  static String enableAltBuffer(bool enable) =>
+      enable ? '$e[?1049h' : '$e[?1049l';
 
   // enable mode 2027 for grapheme cluster support
-  static enableMode2027(bool enable) => enable ? '$e[?2027h' : '$e[?2027l';
+  static String enableMode2027(bool enable) =>
+      enable ? '$e[?2027h' : '$e[?2027l';
 }
