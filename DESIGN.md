@@ -7,5 +7,8 @@
 - use lines for rendering and cursor movement
 - minimal API to replace, insert and delete for a given range on `text`
 - undo operations are added to a list on replace
-- optimize text changes later (if needed)
 - we add newline to eof if missing (unix)
+
+## TODO 
+
+- better data-structure for text changes (later if needed)
