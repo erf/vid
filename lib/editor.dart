@@ -95,7 +95,7 @@ class Editor {
     final cursor = file.cursor;
     final modified = file.isModified;
     final path = file.path ?? '[No Name]';
-    final mode = statusModeStr(file.mode);
+    final mode = statusModeLabel(file.mode);
     final left = ' $mode  $path ${modified ? '* ' : ''}$message ';
     final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     final padLeft = terminal.width - left.length - 1;
@@ -110,7 +110,7 @@ class Editor {
     renderbuf.write(Esc.invertColors(false));
   }
 
-  String statusModeStr(Mode mode) {
+  String statusModeLabel(Mode mode) {
     return switch (mode) {
       Mode.normal => 'NOR',
       Mode.operator => 'PEN',
