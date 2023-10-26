@@ -26,6 +26,9 @@ class Editor {
   final file = FileBuffer();
   final renderbuf = StringBuffer();
   String message = '';
+  File? logFile;
+  String logPath = 'log.txt';
+  bool loggingEnabled = false;
 
   void init(List<String> args) {
     file.load(args);
@@ -135,6 +138,10 @@ class Editor {
   }
 
   void input(String str, {bool redraw = true}) {
+    if (loggingEnabled) {
+      logFile ??= File(logPath);
+      logFile?.writeAsStringSync(str, mode: FileMode.append);
+    }
     for (String char in str.characters) {
       switch (file.mode) {
         case Mode.insert:
