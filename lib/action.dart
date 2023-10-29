@@ -2,7 +2,7 @@ import 'action_typedefs.dart';
 
 class Action {
   // the pending action to be executed
-  OperatorAction? operator;
+  OperatorFun? operator;
 
   // the accumulated text input
   String input = '';
@@ -17,7 +17,7 @@ class Action {
   int? count;
 
   // the find action
-  FindAction? findAction;
+  FindFun? findAction;
 
   // the find char
   String? findChar;
