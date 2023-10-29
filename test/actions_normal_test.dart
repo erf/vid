@@ -157,4 +157,15 @@ void main() {
     e.input('f;;', redraw: false);
     expect(f.cursor, Position(c: 10, l: 0));
   });
+
+  test('delete line, move down and paste', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'abc\n\ndef\n\nghi\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('ddjp', redraw: false);
+    expect(f.text, '\ndef\nabc\n\nghi\n');
+    expect(f.cursor, Position(c: 0, l: 2));
+  });
 }
