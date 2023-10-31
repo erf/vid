@@ -293,7 +293,11 @@ class Editor {
   }
 
   void resetAction() {
-    file.prevAction = file.action;
+    if (file.action.operator != null) {
+      file.prevOperatorAction = file.action;
+    } else {
+      file.prevAction = file.action;
+    }
     file.action = Action();
   }
 

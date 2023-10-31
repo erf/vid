@@ -30,6 +30,9 @@ class FileBuffer {
   // the previous action
   Action? prevAction;
 
+  // the previous operator action
+  Action? prevOperatorAction;
+
   // the yanked text
   String? yankBuffer;
 

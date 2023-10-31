@@ -28,7 +28,7 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevAction?.operatorLineWise ?? false) {
+    if (f.prevOperatorAction?.operatorLineWise ?? false) {
       f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
@@ -40,7 +40,7 @@ class NormalActions {
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevAction?.operatorLineWise ?? false) {
+    if (f.prevOperatorAction?.operatorLineWise ?? false) {
       f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
@@ -230,10 +230,10 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevAction == null || f.prevAction?.operatorInput == null) {
+    if (f.prevOperatorAction == null || f.prevOperatorAction?.operatorInput == null) {
       return;
     }
-    f.action = f.prevAction!;
+    f.action = f.prevOperatorAction!;
     e.operator(f.action.operatorInput, false);
   }
 
