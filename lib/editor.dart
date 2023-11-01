@@ -278,6 +278,7 @@ class Editor {
     final textObject = textObjectActions[char];
     if (textObject != null) {
       operator(file, textObject(file, file.cursor));
+      action.operatorLineWise = true;
       if (shouldResetAction) resetAction();
       return;
     }
