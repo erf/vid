@@ -16,9 +16,6 @@ class Action {
   // the count of the pending action
   int? count;
 
-  // the find action
-  FindFn? findAction;
-
   // the find char
   String? findChar;
 

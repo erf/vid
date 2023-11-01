@@ -219,7 +219,6 @@ class Editor {
       final nextChar = action.findChar ?? readNextChar();
       if (findNextCharIsValid(nextChar)) {
         file.cursor = find(file, file.cursor, nextChar, false);
-        action.findAction = find;
         action.findChar = nextChar;
         if (shouldResetAction) resetAction();
       }
