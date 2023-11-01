@@ -230,7 +230,8 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevOperatorAction == null || f.prevOperatorAction?.operatorInput == null) {
+    if (f.prevOperatorAction == null ||
+        f.prevOperatorAction?.operatorInput == null) {
       return;
     }
     f.action = f.prevOperatorAction!;
