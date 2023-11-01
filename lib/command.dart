@@ -6,26 +6,26 @@ sealed class Command<T extends Function> {
   Command(this.action);
 }
 
-class InsertCommand extends Command<InsertFun> {
+class InsertCommand extends Command<InsertFn> {
   InsertCommand(super.action);
 }
 
-class NormalCommand extends Command<NormalFun> {
+class NormalCommand extends Command<NormalFn> {
   NormalCommand(super.action);
 }
 
-class OperatorCommand extends Command<OperatorFun> {
+class OperatorCommand extends Command<OperatorFn> {
   OperatorCommand(super.action);
 }
 
-class TextObjectCommand extends Command<TextObjectFun> {
+class TextObjectCommand extends Command<TextObjectFn> {
   TextObjectCommand(super.action);
 }
 
-class MotionCommand extends Command<MotionFun> {
+class MotionCommand extends Command<MotionFn> {
   MotionCommand(super.action);
 }
 
-class FindCommand extends Command<FindFun> {
+class FindCommand extends Command<FindFn> {
   FindCommand(super.action);
 }

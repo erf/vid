@@ -3,14 +3,14 @@ import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
 
-typedef InsertFun = void Function(FileBuffer);
+typedef InsertFn = void Function(FileBuffer);
 
-typedef NormalFun = void Function(Editor, FileBuffer);
+typedef NormalFn = void Function(Editor, FileBuffer);
 
-typedef OperatorFun = void Function(FileBuffer, Range);
+typedef OperatorFn = void Function(FileBuffer, Range);
 
-typedef TextObjectFun = Range Function(FileBuffer, Position);
+typedef TextObjectFn = Range Function(FileBuffer, Position);
 
-typedef MotionFun = Position Function(FileBuffer, Position);
+typedef MotionFn = Position Function(FileBuffer, Position);
 
-typedef FindFun = Position Function(FileBuffer, Position, String, bool incl);
+typedef FindFn = Position Function(FileBuffer, Position, String, bool incl);
