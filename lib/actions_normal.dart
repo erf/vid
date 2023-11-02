@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:vid/file_buffer_io.dart';
 
+import 'action.dart';
 import 'actions_motion.dart';
 import 'constants.dart';
 import 'editor.dart';
@@ -185,6 +186,9 @@ class NormalActions {
     if (f.empty) return;
     f.deleteAt(f.cursor);
     f.clampCursor();
+    f.action.linewise = false;
+    f.prevOperatorAction = f.action;
+    f.action = Action();
   }
 
   static void replace(Editor e, FileBuffer f) {
