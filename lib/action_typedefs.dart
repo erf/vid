@@ -9,8 +9,6 @@ typedef NormalFn = void Function(Editor, FileBuffer);
 
 typedef OperatorFn = void Function(FileBuffer, Range);
 
-typedef TextObjectFn = Range Function(FileBuffer, Position);
-
 typedef MotionFn = Position Function(FileBuffer, Position);
 
 typedef FindFn = Position Function(FileBuffer, Position, String, bool incl);

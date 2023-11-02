@@ -4,7 +4,6 @@ import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator.dart';
-import 'actions_text_objects.dart';
 
 final insertActions = <String, InsertFn>{
   '\x1b': InsertActions.escape,
@@ -61,26 +60,17 @@ final operatorActions = <String, OperatorFn>{
   'y': Operators.yank,
 };
 
-final textObjectActions = <String, TextObjectFn>{
-  'k': TextObjects.lineUp,
-  'j': TextObjects.lineDown,
-  'g': TextObjects.firstLine,
-  'G': TextObjects.lastLine,
-};
-
 class Motion {
   final MotionFn fn;
-  final bool lineWise;
-  const Motion(this.fn, {this.lineWise = false});
+  final bool linewise;
+  const Motion(this.fn, {this.linewise = false});
 }
 
 final motionActions = <String, Motion>{
   'h': Motion(Motions.charPrev),
   'l': Motion(Motions.charNext),
-  'j': Motion(Motions.charDown),
-  'k': Motion(Motions.charUp),
-  'g': Motion(Motions.fileStart),
-  'G': Motion(Motions.fileEnd),
+  'k': Motion(Motions.lineUp, linewise: true),
+  'j': Motion(Motions.lineDown, linewise: true),
   'w': Motion(Motions.wordNext),
   'b': Motion(Motions.wordPrev),
   'e': Motion(Motions.wordEnd),
@@ -88,6 +78,8 @@ final motionActions = <String, Motion>{
   '^': Motion(Motions.firstNonBlank),
   '\$': Motion(Motions.lineEnd),
   '\x1b': Motion(Motions.escape),
+  'gg': Motion(Motions.fileStart),
+  'G': Motion(Motions.fileEnd),
 };
 
 final findActions = <String, FindFn>{

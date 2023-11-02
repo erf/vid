@@ -20,5 +20,5 @@ class Action {
   String? findChar;
 
   // if the pending operator is linewise
-  bool operatorLineWise = false;
+  bool linewise = false;
 }

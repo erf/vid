@@ -29,20 +29,20 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
     f.createLines();
-    expect(Motions.charUp(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.charUp(f, Position(c: 2, l: 0)), Position(c: 2, l: 0));
-    expect(Motions.charUp(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
-    expect(Motions.charUp(f, Position(c: 2, l: 1)), Position(c: 2, l: 0));
+    expect(Motions.lineUp(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(Motions.lineUp(f, Position(c: 2, l: 0)), Position(c: 2, l: 0));
+    expect(Motions.lineUp(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
+    expect(Motions.lineUp(f, Position(c: 2, l: 1)), Position(c: 2, l: 0));
   });
 
   test('motionCharDown', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
     f.createLines();
-    expect(Motions.charDown(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
-    expect(Motions.charDown(f, Position(c: 2, l: 0)), Position(c: 2, l: 1));
-    expect(Motions.charDown(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
-    expect(Motions.charDown(f, Position(c: 2, l: 1)), Position(c: 2, l: 1));
+    expect(Motions.lineDown(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
+    expect(Motions.lineDown(f, Position(c: 2, l: 0)), Position(c: 2, l: 1));
+    expect(Motions.lineDown(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
+    expect(Motions.lineDown(f, Position(c: 2, l: 1)), Position(c: 2, l: 1));
   });
 
   test('motionFileStart', () {

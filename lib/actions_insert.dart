@@ -24,7 +24,7 @@ class InsertActions {
     f.insertAt(f.cursor, nl);
     f.cursor.c = 0;
     f.view.c = 0;
-    f.cursor = Motions.charDown(f, f.cursor);
+    f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void _joinLines(FileBuffer f) {

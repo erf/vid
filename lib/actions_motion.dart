@@ -24,13 +24,13 @@ class Motions {
     );
   }
 
-  static Position charUp(FileBuffer f, Position p) {
+  static Position lineUp(FileBuffer f, Position p) {
     final line = max(0, p.l - 1);
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
     return Position(l: line, c: char);
   }
 
-  static Position charDown(FileBuffer f, Position p) {
+  static Position lineDown(FileBuffer f, Position p) {
     final line = min(p.l + 1, f.lines.length - 1);
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
     return Position(l: line, c: char);
@@ -51,13 +51,13 @@ class Motions {
     return Position(l: p.l, c: 0);
   }
 
+  static Position lineEnd(FileBuffer f, Position p, {bool inclNL = false}) {
+    return Position(l: p.l, c: f.lines[p.l].charLen - (inclNL ? 0 : 1));
+  }
+
   static Position firstNonBlank(FileBuffer f, Position p) {
     final firstNonBlank = f.lines[p.l].str.indexOf(RegExp(r'\S'));
     return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
-  }
-
-  static Position lineEnd(FileBuffer f, Position p) {
-    return Position(l: p.l, c: f.lines[p.l].charLen - 1);
   }
 
   static Position wordNext(FileBuffer f, Position p) {

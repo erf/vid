@@ -28,7 +28,7 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevOperatorAction?.operatorLineWise ?? false) {
+    if (f.prevOperatorAction?.linewise ?? false) {
       f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
@@ -40,7 +40,7 @@ class NormalActions {
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevOperatorAction?.operatorLineWise ?? false) {
+    if (f.prevOperatorAction?.linewise ?? false) {
       f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
@@ -86,11 +86,11 @@ class NormalActions {
   }
 
   static void cursorCharUp(Editor e, FileBuffer f) {
-    f.cursor = Motions.charUp(f, f.cursor);
+    f.cursor = Motions.lineUp(f, f.cursor);
   }
 
   static void cursorCharDown(Editor e, FileBuffer f) {
-    f.cursor = Motions.charDown(f, f.cursor);
+    f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
@@ -193,17 +193,17 @@ class NormalActions {
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
     if (f.empty) return;
-    final pEnd = Motions.lineEnd(f, f.cursor);
-    final r = Range(start: f.cursor.clone, end: pEnd);
-    f.deleteRange(r);
+    final end = Motions.lineEnd(f, f.cursor);
+    final range = Range(start: f.cursor.clone, end: end);
+    f.deleteRange(range);
     f.clampCursor();
   }
 
   static void changeLineEnd(Editor e, FileBuffer f) {
     if (f.empty) return;
-    final pEnd = Motions.lineEnd(f, f.cursor);
-    final r = Range(start: f.cursor.clone, end: pEnd);
-    f.deleteRange(r);
+    final end = Motions.lineEnd(f, f.cursor);
+    final range = Range(start: f.cursor.clone, end: end);
+    f.deleteRange(range);
     f.mode = Mode.insert;
   }
 

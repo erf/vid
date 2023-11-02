@@ -18,10 +18,6 @@ class OperatorCommand extends Command<OperatorFn> {
   OperatorCommand(super.action);
 }
 
-class TextObjectCommand extends Command<TextObjectFn> {
-  TextObjectCommand(super.action);
-}
-
 class MotionCommand extends Command<MotionFn> {
   MotionCommand(super.action);
 }

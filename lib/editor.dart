@@ -8,7 +8,6 @@ import 'action.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_replace.dart';
-import 'actions_text_objects.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
 import 'config.dart';
@@ -265,19 +264,11 @@ class Editor {
     // if the input is the same as the operator input, execute the operator with
     // the current line
     if (file.action.input == char) {
-      action.operatorLineWise = true;
-      // TODO pass operator context with linewise etc. to operator ?
-      operator(file, TextObjects.currentLine(file, file.cursor));
+      action.linewise = true;
+      final start = Motions.lineStart(file, file.cursor);
+      final end = Motions.lineEnd(file, file.cursor, inclNL: true);
+      operator(file, Range(start: start, end: end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
-      if (shouldResetAction) resetAction();
-      return;
-    }
-
-    // if has text object action, execute it and pass it to operator
-    final textObject = textObjectActions[char];
-    if (textObject != null) {
-      operator(file, textObject(file, file.cursor));
-      action.operatorLineWise = true;
       if (shouldResetAction) resetAction();
       return;
     }
@@ -285,8 +276,15 @@ class Editor {
     // if has motion action, execute it and pass it to operator
     final motion = motionActions[char];
     if (motion != null) {
-      final end = motion.fn(file, file.cursor);
-      operator(file, Range(start: file.cursor, end: end));
+      action.linewise = motion.linewise;
+      Position start = file.cursor;
+      Position end = motion.fn(file, file.cursor);
+      if (motion.linewise) {
+        final range = Range(start: start, end: end).normalized();
+        start = Motions.lineStart(file, range.start);
+        end = Motions.lineEnd(file, range.end, inclNL: true);
+      }
+      operator(file, Range(start: start, end: end));
       if (shouldResetAction) resetAction();
       return;
     }
