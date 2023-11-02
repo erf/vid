@@ -68,20 +68,26 @@ final textObjectActions = <String, TextObjectFn>{
   'G': TextObjects.lastLine,
 };
 
-final motionActions = <String, MotionFn>{
-  'h': Motions.charPrev,
-  'l': Motions.charNext,
-  'j': Motions.charDown,
-  'k': Motions.charUp,
-  'g': Motions.fileStart,
-  'G': Motions.fileEnd,
-  'w': Motions.wordNext,
-  'b': Motions.wordPrev,
-  'e': Motions.wordEnd,
-  '0': Motions.lineStart,
-  '^': Motions.firstNonBlank,
-  '\$': Motions.lineEnd,
-  '\x1b': Motions.escape,
+class Motion {
+  final MotionFn fn;
+  final bool lineWise;
+  const Motion(this.fn, {this.lineWise = false});
+}
+
+final motionActions = <String, Motion>{
+  'h': Motion(Motions.charPrev),
+  'l': Motion(Motions.charNext),
+  'j': Motion(Motions.charDown),
+  'k': Motion(Motions.charUp),
+  'g': Motion(Motions.fileStart),
+  'G': Motion(Motions.fileEnd),
+  'w': Motion(Motions.wordNext),
+  'b': Motion(Motions.wordPrev),
+  'e': Motion(Motions.wordEnd),
+  '0': Motion(Motions.lineStart),
+  '^': Motion(Motions.firstNonBlank),
+  '\$': Motion(Motions.lineEnd),
+  '\x1b': Motion(Motions.escape),
 };
 
 final findActions = <String, FindFn>{

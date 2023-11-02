@@ -285,7 +285,7 @@ class Editor {
     // if has motion action, execute it and pass it to operator
     final motion = motionActions[char];
     if (motion != null) {
-      final end = motion(file, file.cursor);
+      final end = motion.fn(file, file.cursor);
       operator(file, Range(start: file.cursor, end: end));
       if (shouldResetAction) resetAction();
       return;
