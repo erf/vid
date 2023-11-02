@@ -4,6 +4,7 @@ import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator.dart';
+import 'motion.dart';
 
 final insertActions = <String, InsertFn>{
   '\x1b': InsertActions.escape,
@@ -59,12 +60,6 @@ final operatorActions = <String, OperatorFn>{
   'd': Operators.delete,
   'y': Operators.yank,
 };
-
-class Motion {
-  final MotionFn fn;
-  final bool linewise;
-  const Motion(this.fn, {this.linewise = false});
-}
 
 final motionActions = <String, Motion>{
   'h': Motion(Motions.charPrev),
