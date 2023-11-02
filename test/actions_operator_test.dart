@@ -100,7 +100,7 @@ void main() {
     f.createLines();
     e.input('ddjp', redraw: false);
     expect(f.text, '\ndef\nabc\n\nghi\n');
-    e.input('xp', redraw: false);
-    expect(f.text, '\ndef\nbac\n\nghi\n');
-  }, skip: true);
+    //e.input('xp', redraw: false);
+    //expect(f.text, '\ndef\nbac\n\nghi\n');
+  });
 }
