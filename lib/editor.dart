@@ -271,7 +271,7 @@ class Editor {
 
     // if the input is the same as the operator input, execute the operator with
     // the current line
-    if (file.action.input == char) {
+    if (action.input == char) {
       action.linewise = true;
       final start = Motions.lineStart(file, file.cursor);
       final end = Motions.lineEnd(file, file.cursor, inclNL: true);
