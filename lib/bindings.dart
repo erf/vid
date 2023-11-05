@@ -16,8 +16,6 @@ final normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   's': NormalActions.save,
-  'w': NormalActions.cursorWordNext,
-  'b': NormalActions.cursorWordPrev,
   'e': NormalActions.cursorWordEnd,
   'x': NormalActions.deleteCharNext,
   '0': NormalActions.cursorLineStart,

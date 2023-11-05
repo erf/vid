@@ -145,17 +145,9 @@ class NormalActions {
     f.cursor = Motions.firstNonBlank(f, f.cursor);
   }
 
-  static void cursorWordNext(Editor e, FileBuffer f) {
-    f.cursor = Motions.wordNext(f, f.cursor);
-  }
-
   static void cursorWordEnd(Editor v, FileBuffer f) {
     f.cursor = Motions.wordEnd(f, f.cursor);
     f.cursor.c--;
-  }
-
-  static void cursorWordPrev(Editor e, FileBuffer f) {
-    f.cursor = Motions.wordPrev(f, f.cursor);
   }
 
   static void sameWordNext(Editor v, FileBuffer f) {
