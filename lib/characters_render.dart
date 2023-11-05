@@ -38,9 +38,8 @@ extension CharactersRender on Characters {
     });
     if (addSpace) {
       return ' '.ch + line;
-    } else {
-      return line;
     }
+    return line;
   }
 
   // take characters until the rendered length of the line is reached
