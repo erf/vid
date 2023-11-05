@@ -232,6 +232,14 @@ class Editor {
       return;
     }
 
+    // if has motion action, execute it and pass it to operator
+    final motion = motionActions[char];
+    if (motion != null) {
+      file.cursor = motion.fn(file, file.cursor);
+      if (shouldResetAction) resetAction();
+      return;
+    }
+
     // if has operator action, set operator and change to operator mode
     final operator = operatorActions[action.input];
     if (operator != null) {

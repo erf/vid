@@ -78,22 +78,6 @@ class NormalActions {
     }
   }
 
-  static void cursorCharNext(Editor e, FileBuffer f) {
-    f.cursor = Motions.charNext(f, f.cursor);
-  }
-
-  static void cursorCharPrev(Editor e, FileBuffer f) {
-    f.cursor = Motions.charPrev(f, f.cursor);
-  }
-
-  static void cursorCharUp(Editor e, FileBuffer f) {
-    f.cursor = Motions.lineUp(f, f.cursor);
-  }
-
-  static void cursorCharDown(Editor e, FileBuffer f) {
-    f.cursor = Motions.lineDown(f, f.cursor);
-  }
-
   static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
     if (f.action.count != null) {
       f.cursor.l = clamp(f.action.count! - 1, 0, f.lines.length - 1);
@@ -125,7 +109,7 @@ class NormalActions {
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
     f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), nl);
-    cursorCharDown(e, f);
+    f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void insert(Editor e, FileBuffer f) {
