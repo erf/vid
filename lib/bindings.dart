@@ -6,13 +6,13 @@ import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'motion.dart';
 
-final insertActions = <String, InsertFn>{
+const insertActions = <String, InsertFn>{
   '\x1b': InsertActions.escape,
   '\x7f': InsertActions.backspace,
   '\n': InsertActions.enter,
 };
 
-final normalActions = <String, NormalFn>{
+const normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   's': NormalActions.save,
@@ -38,13 +38,13 @@ final normalActions = <String, NormalFn>{
   ';': NormalActions.repeatFindNext,
 };
 
-final operatorActions = <String, OperatorFn>{
+const operatorActions = <String, OperatorFn>{
   'c': Operators.change,
   'd': Operators.delete,
   'y': Operators.yank,
 };
 
-final motionActions = <String, Motion>{
+const motionActions = <String, Motion>{
   'h': Motion(Motions.charPrev),
   'l': Motion(Motions.charNext),
   'k': Motion(Motions.lineUp, linewise: true),
@@ -63,7 +63,7 @@ final motionActions = <String, Motion>{
   'G': Motion(Motions.fileEnd, linewise: true),
 };
 
-final findActions = <String, FindFn>{
+const findActions = <String, FindFn>{
   'f': Find.findNextChar,
   'F': Find.findPrevChar,
   't': Find.tillNextChar,
