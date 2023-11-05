@@ -136,11 +136,6 @@ class NormalActions {
     if (f.lines[f.cursor.l].isNotEmpty) f.cursor.c--;
   }
 
-  static void cursorLineStart(Editor e, FileBuffer f) {
-    f.cursor = Motions.lineStart(f, f.cursor);
-    f.view.c = 0;
-  }
-
   static void cursorWordEnd(Editor v, FileBuffer f) {
     f.cursor = Motions.wordEnd(f, f.cursor);
     f.cursor.c--;
