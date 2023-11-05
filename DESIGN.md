@@ -11,4 +11,4 @@
 
 ## TODO 
 
-- better data-structure for text changes (later if needed)
+- better text data-structure (e.g. Rope, if needed)
