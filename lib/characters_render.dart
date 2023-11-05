@@ -4,12 +4,8 @@ import 'config.dart';
 import 'string_ext.dart';
 
 extension CharactersRender on Characters {
-  // a space character
-  static final space = Characters(' ');
-
   // tab space
-  static final tabSpace =
-      List.generate(Config.tabWidth, (_) => space).join().ch;
+  static final tabspace = List.generate(Config.tabWidth, (_) => ' ').join().ch;
 
   // get the rendered length of the string up to the given index
   int renderLength(int count) {
@@ -18,7 +14,7 @@ extension CharactersRender on Characters {
 
   // get the visible string for the given view
   Characters getRenderLine(int index, int width) {
-    return replaceAll('\t'.ch, tabSpace)
+    return replaceAll('\t'.ch, tabspace)
         .skipWhileLessThanRenderedLength(index)
         .takeWhileLessThanRenderedLength(width);
   }
@@ -41,7 +37,7 @@ extension CharactersRender on Characters {
       return total <= start;
     });
     if (addSpace) {
-      return space + line;
+      return ' '.ch + line;
     } else {
       return line;
     }
