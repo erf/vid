@@ -7,23 +7,23 @@ import 'position.dart';
 class Find {
   // find the next occurence of the given character on the current line
   static Position findNextChar(FileBuffer f, Position p, String c, bool incl) {
-    final pnew = Position(c: p.c + 1, l: p.l);
-    final start = f.byteIndexFromPosition(pnew);
+    final pnext = Position(c: p.c + 1, l: p.l);
+    final start = f.byteIndexFromPosition(pnext);
     final match = c.allMatches(f.text, start).firstOrNull;
     if (match == null) return p;
-    final newPos = f.positionFromByteIndex(match.start);
+    final newpos = f.positionFromByteIndex(match.start);
     if (incl) {
-      newPos.c++;
-      return newPos;
+      newpos.c++;
+      return newpos;
     }
-    return newPos;
+    return newpos;
   }
 
   // find the next occurence of the given character
   static Position tillNextChar(FileBuffer f, Position p, String c, bool incl) {
-    final pnew = findNextChar(f, p, c, incl);
-    pnew.c = max(pnew.c - 1, p.c);
-    return pnew;
+    final pnext = findNextChar(f, p, c, incl);
+    pnext.c = max(pnext.c - 1, p.c);
+    return pnext;
   }
 
   // find the previous occurence of the given character on the current line
@@ -37,8 +37,8 @@ class Find {
 
   // find the previous occurence of the given character
   static Position tillPrevChar(FileBuffer f, Position p, String c, bool incl) {
-    final pnew = findPrevChar(f, p, c, incl);
-    pnew.c = min(pnew.c + 1, p.c);
-    return pnew;
+    final prev = findPrevChar(f, p, c, incl);
+    prev.c = min(prev.c + 1, p.c);
+    return prev;
   }
 }
