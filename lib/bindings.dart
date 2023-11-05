@@ -25,7 +25,6 @@ final normalActions = <String, NormalFn>{
   'I': NormalActions.insertLineStart,
   'o': NormalActions.openLineBelow,
   'O': NormalActions.openLineAbove,
-  'gg': NormalActions.cursorLineTopOrCount,
   'r': NormalActions.replace,
   'D': NormalActions.deleteLineEnd,
   'p': NormalActions.pasteAfter,

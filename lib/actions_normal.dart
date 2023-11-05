@@ -78,15 +78,6 @@ class NormalActions {
     }
   }
 
-  static void cursorLineTopOrCount(Editor e, FileBuffer f) {
-    if (f.action.count != null) {
-      f.cursor.l = clamp(f.action.count! - 1, 0, f.lines.length - 1);
-    } else {
-      f.cursor = Motions.fileStart(f, f.cursor);
-    }
-    f.cursor = Motions.firstNonBlank(f, f.cursor);
-  }
-
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
     f.insertAt(Position(l: f.cursor.l, c: 0), nl);

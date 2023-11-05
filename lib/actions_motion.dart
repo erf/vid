@@ -37,7 +37,10 @@ class Motions {
   }
 
   static Position fileStart(FileBuffer f, Position p) {
-    return Position(l: 0, c: 0);
+    int line = f.action.count == null
+        ? 0
+        : clamp(f.action.count! - 1, 0, f.lines.length - 1);
+    return Motions.firstNonBlank(f, Position(l: line, c: 0));
   }
 
   static Position fileEnd(FileBuffer f, Position p) {
