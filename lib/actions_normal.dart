@@ -150,14 +150,6 @@ class NormalActions {
     f.cursor.c--;
   }
 
-  static void sameWordNext(Editor v, FileBuffer f) {
-    f.cursor = Motions.sameWordNext(f, f.cursor);
-  }
-
-  static void sameWordPrev(Editor v, FileBuffer f) {
-    f.cursor = Motions.sameWordPrev(f, f.cursor);
-  }
-
   static void deleteCharNext(Editor e, FileBuffer f) {
     if (f.empty) return;
     f.deleteAt(f.cursor);

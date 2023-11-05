@@ -39,8 +39,6 @@ final normalActions = <String, NormalFn>{
   'J': NormalActions.joinLines,
   'C': NormalActions.changeLineEnd,
   'u': NormalActions.undo,
-  '*': NormalActions.sameWordNext,
-  '#': NormalActions.sameWordPrev,
   '.': NormalActions.repeat,
   ';': NormalActions.repeatFindNext,
 };
@@ -63,6 +61,8 @@ final motionActions = <String, Motion>{
   'w': Motion(Motions.wordNext),
   'b': Motion(Motions.wordPrev),
   'e': Motion(Motions.wordEnd),
+  '#': Motion(Motions.sameWordPrev),
+  '*': Motion(Motions.sameWordNext),
   '0': Motion(Motions.lineStart),
   '^': Motion(Motions.firstNonBlank),
   '\$': Motion(Motions.lineEnd),
