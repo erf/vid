@@ -167,16 +167,12 @@ class NormalActions {
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    if (f.lines.length <= 1) {
-      return;
-    }
+    if (f.lines.length <= 1) return;
     f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
   }
 
   static void undo(Editor e, FileBuffer f) {
-    if (f.undoList.isEmpty) {
-      return;
-    }
+    if (f.undoList.isEmpty) return;
     final u = f.undoList.removeLast();
     f.text = switch (u.op) {
       TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
