@@ -19,7 +19,6 @@ final normalActions = <String, NormalFn>{
   'e': NormalActions.cursorWordEnd,
   'x': NormalActions.deleteCharNext,
   '0': NormalActions.cursorLineStart,
-  '^': NormalActions.lineFirstNonBlank,
   '\$': NormalActions.cursorLineEnd,
   'i': NormalActions.insert,
   'a': NormalActions.appendCharNext,

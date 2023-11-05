@@ -141,10 +141,6 @@ class NormalActions {
     f.view.c = 0;
   }
 
-  static void lineFirstNonBlank(Editor e, FileBuffer f) {
-    f.cursor = Motions.firstNonBlank(f, f.cursor);
-  }
-
   static void cursorWordEnd(Editor v, FileBuffer f) {
     f.cursor = Motions.wordEnd(f, f.cursor);
     f.cursor.c--;
