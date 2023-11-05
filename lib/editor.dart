@@ -265,7 +265,7 @@ class Editor {
     accumInput(char, action);
 
     // if has find action, get the next char to search for
-    final find = findActions[char];
+    final find = findActions[action.operatorInput];
     if (find != null) {
       final nextChar = action.findChar ?? readNextChar();
       if (findNextCharIsValid(nextChar)) {
@@ -279,7 +279,7 @@ class Editor {
 
     // if the input is the same as the operator input, execute the operator with
     // the current line
-    if (action.input == char) {
+    if (action.input == action.operatorInput) {
       action.linewise = true;
       final start = Motions.lineStart(file, file.cursor);
       final end = Motions.lineEnd(file, file.cursor, inclNL: true);
