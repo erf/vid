@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:vid/emoji_data.dart';
+import 'package:vid/east_asian_width.dart';
 
 // test the performance of looking up emojis
 void main() {
   final List<String> unicodeChars = generateRandomUnicodeChars(1000000);
-  benchmarkEmojisInRangeList(unicodeChars);
+  benchmarkEastAsianWidthInRangeList(unicodeChars);
 }
 
 List<String> generateRandomUnicodeChars(int length) {
@@ -14,14 +14,14 @@ List<String> generateRandomUnicodeChars(int length) {
       length, (i) => String.fromCharCode(rand.nextInt(0x10FFFF + 1)));
 }
 
-void benchmarkEmojisInRangeList(List<String> unicodeChars) {
+void benchmarkEastAsianWidthInRangeList(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num = 0;
   for (final unicodeChar in unicodeChars) {
-    if (emojiData.contains(unicodeChar.runes.first)) {
+    if (eastAsianWidth.contains(unicodeChar.runes.first)) {
       num++;
     }
   }
   stopwatch.stop();
-  print('benchmark Emoji data ($num): ${stopwatch.elapsedMilliseconds}ms');
+  print('benchmark EastAsianWidth ($num): ${stopwatch.elapsedMilliseconds}ms');
 }
