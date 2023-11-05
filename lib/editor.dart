@@ -190,9 +190,17 @@ class Editor {
   // accumulate input until maxInput is reached and try to match an action
   void accumInput(String char, Action action) {
     const int maxInput = 2;
-    action.input += char;
-    if (action.input.length > maxInput) {
-      action.input = char;
+    if (file.mode == Mode.normal) {
+      action.input += char;
+      if (action.input.length > maxInput) {
+        action.input = char;
+      }
+    }
+    if (file.mode == Mode.operator) {
+      action.operatorInput += char;
+      if (action.operatorInput.length > maxInput) {
+        action.operatorInput = char;
+      }
     }
   }
 
@@ -254,7 +262,7 @@ class Editor {
     if (operator == null) {
       return;
     }
-    action.operatorInput = char;
+    accumInput(char, action);
 
     // if has find action, get the next char to search for
     final find = findActions[char];
@@ -282,7 +290,7 @@ class Editor {
     }
 
     // if has motion action, execute it and pass it to operator
-    final motion = motionActions[char];
+    final motion = motionActions[action.operatorInput];
     if (motion != null) {
       action.linewise = motion.linewise;
       Position start = file.cursor;
