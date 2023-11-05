@@ -27,7 +27,6 @@ final normalActions = <String, NormalFn>{
   'O': NormalActions.openLineAbove,
   'G': NormalActions.cursorLineBottomOrCount,
   'gg': NormalActions.cursorLineTopOrCount,
-  'ge': NormalActions.cursorWordEndPrev,
   'r': NormalActions.replace,
   'D': NormalActions.deleteLineEnd,
   'p': NormalActions.pasteAfter,
@@ -67,6 +66,7 @@ final motionActions = <String, Motion>{
   '\x1b': Motion(Motions.escape),
   'gg': Motion(Motions.fileStart),
   'G': Motion(Motions.fileEnd),
+  'ge': Motion(Motions.wordEndPrev),
 };
 
 final findActions = <String, FindFn>{

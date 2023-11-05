@@ -96,10 +96,6 @@ class NormalActions {
     f.cursor = Motions.firstNonBlank(f, f.cursor);
   }
 
-  static void cursorWordEndPrev(Editor e, FileBuffer f) {
-    f.cursor = Motions.wordEndPrev(f, f.cursor);
-  }
-
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
     f.insertAt(Position(l: f.cursor.l, c: 0), nl);
