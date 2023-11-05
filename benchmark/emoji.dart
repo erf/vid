@@ -23,6 +23,7 @@ void benchmarkEmojisInRangeList(List<String> unicodeChars) {
     }
   }
   stopwatch.stop();
-  print('emoji data count ${emojiData.ranges.length}');
-  print('benchmark Emoji data ($num): ${stopwatch.elapsedMilliseconds}ms');
+  print('EmojiData benchmark: ${stopwatch.elapsedMilliseconds}ms');
+  print('contains: $num');
+  print('count ${emojiData.ranges.length}');
 }

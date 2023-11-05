@@ -23,5 +23,7 @@ void benchmarkEastAsianWidthInRangeList(List<String> unicodeChars) {
     }
   }
   stopwatch.stop();
-  print('benchmark EastAsianWidth ($num): ${stopwatch.elapsedMilliseconds}ms');
+  print('EastAsianWidth benchmark: ${stopwatch.elapsedMilliseconds}ms');
+  print('contains: $num');
+  print('count ${eastAsianWidth.ranges.length}');
 }
