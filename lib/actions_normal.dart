@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:vid/file_buffer_io.dart';
+import 'file_buffer_io.dart';
 
 import 'action.dart';
 import 'actions_motion.dart';
@@ -14,7 +14,6 @@ import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'undo.dart';
-import 'utils.dart';
 
 class NormalActions {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
