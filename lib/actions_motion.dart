@@ -40,11 +40,11 @@ class Motions {
     return Position(l: 0, c: 0);
   }
 
-  static Position fileEnd(FileBuffer f, Position position) {
-    return Position(
-      l: max(0, f.lines.length - 1),
-      c: max(0, f.lines.last.charLen - 1),
-    );
+  static Position fileEnd(FileBuffer f, Position p) {
+    int line = f.action.count == null
+        ? max(0, f.lines.length - 1)
+        : clamp(f.action.count! - 1, 0, f.lines.length - 1);
+    return Motions.firstNonBlank(f, Position(l: line, c: 0));
   }
 
   static Position lineStart(FileBuffer f, Position p) {

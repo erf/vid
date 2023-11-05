@@ -25,7 +25,6 @@ final normalActions = <String, NormalFn>{
   'I': NormalActions.insertLineStart,
   'o': NormalActions.openLineBelow,
   'O': NormalActions.openLineAbove,
-  'G': NormalActions.cursorLineBottomOrCount,
   'gg': NormalActions.cursorLineTopOrCount,
   'r': NormalActions.replace,
   'D': NormalActions.deleteLineEnd,
@@ -58,15 +57,15 @@ final motionActions = <String, Motion>{
   'w': Motion(Motions.wordNext),
   'b': Motion(Motions.wordPrev),
   'e': Motion(Motions.wordEnd),
+  'ge': Motion(Motions.wordEndPrev),
   '#': Motion(Motions.sameWordPrev),
   '*': Motion(Motions.sameWordNext),
   '0': Motion(Motions.lineStart),
   '^': Motion(Motions.firstNonBlank),
   '\$': Motion(Motions.lineEnd),
   '\x1b': Motion(Motions.escape),
-  'gg': Motion(Motions.fileStart),
-  'G': Motion(Motions.fileEnd),
-  'ge': Motion(Motions.wordEndPrev),
+  'gg': Motion(Motions.fileStart, linewise: true),
+  'G': Motion(Motions.fileEnd, linewise: true),
 };
 
 final findActions = <String, FindFn>{

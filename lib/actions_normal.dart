@@ -78,15 +78,6 @@ class NormalActions {
     }
   }
 
-  static void cursorLineBottomOrCount(Editor e, FileBuffer f) {
-    if (f.action.count != null) {
-      f.cursor.l = clamp(f.action.count! - 1, 0, f.lines.length - 1);
-    } else {
-      f.cursor = Motions.fileEnd(f, f.cursor);
-    }
-    f.cursor = Motions.firstNonBlank(f, f.cursor);
-  }
-
   static void cursorLineTopOrCount(Editor e, FileBuffer f) {
     if (f.action.count != null) {
       f.cursor.l = clamp(f.action.count! - 1, 0, f.lines.length - 1);
