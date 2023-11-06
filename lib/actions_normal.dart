@@ -32,6 +32,8 @@ class NormalActions {
       f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
+    } else if (f.lines[f.cursor.l].str == " ") {
+      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
     } else {
       f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
     }
