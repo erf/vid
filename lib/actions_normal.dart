@@ -1,13 +1,11 @@
 import 'dart:math';
 
-import 'actions_operator.dart';
-import 'file_buffer_io.dart';
-
-import 'action.dart';
 import 'actions_motion.dart';
+import 'actions_operator.dart';
 import 'constants.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
+import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
