@@ -16,13 +16,7 @@ extension FileBufferLines on FileBuffer {
     int byteStart = 0;
     for (int i = 0; i < splits.length; i++) {
       final lineWithSpace = '${splits[i]} ';
-      lines.add(
-        Line(
-          lineWithSpace,
-          lineNo: i,
-          byteStart: byteStart,
-        ),
-      );
+      lines.add(Line(lineWithSpace, lineNo: i, byteStart: byteStart));
       byteStart += lineWithSpace.length;
     }
   }
