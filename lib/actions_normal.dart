@@ -123,11 +123,10 @@ class NormalActions {
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.deleteAt(f.cursor);
-    f.clampCursor();
-    f.action.linewise = false;
-    f.prevOperatorAction = f.action;
-    f.action = Action();
+    f.action.input = 'd';
+    f.action.operator = Operators.delete;
+    f.mode = Mode.operator;
+    e.operator('l');
   }
 
   static void replace(Editor e, FileBuffer f) {
