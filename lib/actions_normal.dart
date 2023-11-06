@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'actions_operator.dart';
 import 'file_buffer_io.dart';
 
 import 'action.dart';
@@ -135,10 +136,10 @@ class NormalActions {
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
     if (f.empty) return;
-    final end = Motions.lineEnd(f, f.cursor);
-    final range = Range(start: f.cursor.clone, end: end);
-    f.deleteRange(range);
-    f.clampCursor();
+    f.action.input = 'd';
+    f.action.operator = Operators.delete;
+    f.mode = Mode.operator;
+    e.operator('\$');
   }
 
   static void changeLineEnd(Editor e, FileBuffer f) {
