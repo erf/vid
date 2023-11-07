@@ -179,6 +179,6 @@ class NormalActions {
       return;
     }
     f.action = f.prevMotionAction!;
-    e.normal(f.action.operatorInput, false);
+    e.normal('', false);
   }
 }
