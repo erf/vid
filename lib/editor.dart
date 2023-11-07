@@ -27,8 +27,6 @@ class Editor {
   final renderbuf = StringBuffer();
   String message = '';
   File? logFile;
-  String logPath = 'log.txt';
-  bool loggingEnabled = false;
 
   void init(List<String> args) {
     file.load(args);
@@ -138,8 +136,8 @@ class Editor {
   }
 
   void input(String str, {bool redraw = true}) {
-    if (loggingEnabled) {
-      logFile ??= File(logPath);
+    if (Config.loggingEnabled) {
+      logFile ??= File(Config.logPath);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
     for (String char in str.characters) {
