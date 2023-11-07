@@ -188,20 +188,21 @@ class Editor {
     return false;
   }
 
-  // accumulate input until maxInput is reached and try to match an action
+  // accumulate input until maxInput is reached
   void accumInput(String char, Action action) {
     const int maxInput = 2;
-    if (file.mode == Mode.normal) {
-      action.input += char;
-      if (action.input.length > maxInput) {
-        action.input = char;
-      }
+    action.input += char;
+    if (action.input.length > maxInput) {
+      action.input = char;
     }
-    if (file.mode == Mode.operator) {
-      action.operatorInput += char;
-      if (action.operatorInput.length > maxInput) {
-        action.operatorInput = char;
-      }
+  }
+
+  // accumulate operator input until maxInput is reached
+  void accumOperatorInput(String char, Action action) {
+    const int maxInput = 2;
+    action.operatorInput += char;
+    if (action.operatorInput.length > maxInput) {
+      action.operatorInput = char;
     }
   }
 
@@ -267,7 +268,7 @@ class Editor {
     if (operator == null) {
       return;
     }
-    accumInput(char, action);
+    accumOperatorInput(char, action);
 
     // if input is same as operator input, execute operator on the current line
     if (action.input == action.operatorInput) {

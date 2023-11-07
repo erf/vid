@@ -171,7 +171,7 @@ class NormalActions {
       return;
     }
     f.action = f.prevOperatorAction!;
-    e.operator(f.action.operatorInput, false);
+    e.operator('', false);
   }
 
   static void repeatFindNext(Editor e, FileBuffer f) {
