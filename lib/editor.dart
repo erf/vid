@@ -246,7 +246,7 @@ class Editor {
     final normal = normalActions[action.input];
     if (normal != null) {
       normal(this, file);
-      resetAction();
+      if (shouldResetAction) resetAction();
       return;
     }
 
