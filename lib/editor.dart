@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/motion.dart';
 
 import 'action.dart';
 import 'actions_insert.dart';
@@ -220,18 +221,6 @@ class Editor {
     // acummulate input until maxInput is reached
     accumInput(char, action);
 
-    // if has find action, get the next char to search for
-    final find = findActions[action.input];
-    if (find != null) {
-      final nextChar = action.findChar ?? readNextChar();
-      if (findNextCharIsValid(nextChar)) {
-        file.cursor = find(file, file.cursor, nextChar, false);
-        action.findChar = nextChar;
-        if (shouldResetAction) resetAction();
-      }
-      return;
-    }
-
     // if has normal action, execute it
     final normal = normalActions[action.input];
     if (normal != null) {
@@ -243,7 +232,18 @@ class Editor {
     // if has motion action, execute it and pass it to operator
     final motion = motionActions[action.input];
     if (motion != null) {
-      file.cursor = motion.fn(file, file.cursor);
+      action.linewise = motion.linewise;
+      if (motion is NormalMotion) {
+        file.cursor = motion.fn(file, file.cursor);
+      }
+      if (motion is FindMotion) {
+        final nextChar = action.findChar ?? readNextChar();
+        if (!findNextCharIsValid(nextChar)) {
+          return;
+        }
+        file.cursor = motion.fn(file, file.cursor, nextChar, false);
+        action.findChar = nextChar;
+      }
       if (shouldResetAction) resetAction();
       return;
     }
@@ -264,19 +264,6 @@ class Editor {
     }
     accumInput(char, action);
 
-    // if has find action, get the next char to search for
-    final find = findActions[action.operatorInput];
-    if (find != null) {
-      final nextChar = action.findChar ?? readNextChar();
-      if (findNextCharIsValid(nextChar)) {
-        final end = find(file, file.cursor, nextChar, true);
-        operator(file, Range(start: file.cursor, end: end));
-        action.findChar = nextChar;
-      }
-      if (shouldResetAction) resetAction();
-      return;
-    }
-
     // if the input is the same as the operator input, execute the operator with
     // the current line
     if (action.input == action.operatorInput) {
@@ -294,7 +281,19 @@ class Editor {
     if (motion != null) {
       action.linewise = motion.linewise;
       Position start = file.cursor;
-      Position end = motion.fn(file, file.cursor);
+      Position end = file.cursor;
+      if (motion is NormalMotion) {
+        end = motion.fn(file, file.cursor);
+      }
+      if (motion is FindMotion) {
+        final nextChar = action.findChar ?? readNextChar();
+        if (!findNextCharIsValid(nextChar)) {
+          return;
+        }
+        end = motion.fn(file, file.cursor, nextChar, true);
+        action.findChar = nextChar;
+      }
+
       if (motion.linewise) {
         final range = Range(start: start, end: end).normalized();
         start = Motions.lineStart(file, range.start);
