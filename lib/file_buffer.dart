@@ -28,7 +28,7 @@ class FileBuffer {
   Action action = Action();
 
   // the previous movement action
-  Action? prevMovementAction;
+  Action? prevMotionAction;
 
   // the previous operator action
   Action? prevOperatorAction;

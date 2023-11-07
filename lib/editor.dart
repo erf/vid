@@ -306,7 +306,7 @@ class Editor {
     if (file.action.operator != null) {
       file.prevOperatorAction = file.action;
     } else {
-      file.prevMovementAction = file.action;
+      file.prevMotionAction = file.action;
     }
     file.action = Action();
   }
