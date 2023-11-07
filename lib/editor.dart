@@ -210,6 +210,22 @@ class Editor {
     return true;
   }
 
+  Position motionEndPosition(Action action, Motion motion) {
+    action.linewise = motion.linewise;
+    if (motion is NormalMotion) {
+      return motion.fn(file, file.cursor);
+    }
+    if (motion is FindMotion) {
+      final nextChar = action.findChar ?? readNextChar();
+      if (!findNextCharIsValid(nextChar)) {
+        return file.cursor;
+      }
+      action.findChar = nextChar;
+      return motion.fn(file, file.cursor, nextChar, false);
+    }
+    return file.cursor;
+  }
+
   void normal(String char, [bool shouldResetAction = true]) {
     Action action = file.action;
 
@@ -232,18 +248,7 @@ class Editor {
     // if has motion action, execute it and pass it to operator
     final motion = motionActions[action.input];
     if (motion != null) {
-      action.linewise = motion.linewise;
-      if (motion is NormalMotion) {
-        file.cursor = motion.fn(file, file.cursor);
-      }
-      if (motion is FindMotion) {
-        final nextChar = action.findChar ?? readNextChar();
-        if (!findNextCharIsValid(nextChar)) {
-          return;
-        }
-        file.cursor = motion.fn(file, file.cursor, nextChar, false);
-        action.findChar = nextChar;
-      }
+      file.cursor = motionEndPosition(action, motion);
       if (shouldResetAction) resetAction();
       return;
     }
@@ -264,8 +269,7 @@ class Editor {
     }
     accumInput(char, action);
 
-    // if the input is the same as the operator input, execute the operator with
-    // the current line
+    // if input is same as operator input, execute operator on the current line
     if (action.input == action.operatorInput) {
       action.linewise = true;
       final start = Motions.lineStart(file, file.cursor);
@@ -279,21 +283,8 @@ class Editor {
     // if has motion action, execute it and pass it to operator
     final motion = motionActions[action.operatorInput];
     if (motion != null) {
-      action.linewise = motion.linewise;
       Position start = file.cursor;
-      Position end = file.cursor;
-      if (motion is NormalMotion) {
-        end = motion.fn(file, file.cursor);
-      }
-      if (motion is FindMotion) {
-        final nextChar = action.findChar ?? readNextChar();
-        if (!findNextCharIsValid(nextChar)) {
-          return;
-        }
-        end = motion.fn(file, file.cursor, nextChar, true);
-        action.findChar = nextChar;
-      }
-
+      Position end = motionEndPosition(action, motion);
       if (motion.linewise) {
         final range = Range(start: start, end: end).normalized();
         start = Motions.lineStart(file, range.start);
