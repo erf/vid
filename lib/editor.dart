@@ -158,6 +158,7 @@ class Editor {
     message = '';
   }
 
+  // insert char at cursor
   void insert(String char) {
     final insertAction = insertActions[char];
     if (insertAction != null) {
@@ -165,6 +166,11 @@ class Editor {
       return;
     }
     InsertActions.defaultInsert(file, char);
+  }
+
+  // replace char at cursor with char
+  void replace(String char) {
+    defaultReplace(file, char);
   }
 
   String readNextChar() {
@@ -244,7 +250,7 @@ class Editor {
       return;
     }
 
-    // if has motion action, execute it and pass it to operator
+    // if motion action, execute it and set cursor
     final motion = motionActions[action.input];
     if (motion != null) {
       file.cursor = motionEndPosition(action, motion);
@@ -252,7 +258,7 @@ class Editor {
       return;
     }
 
-    // if has operator action, set operator and change to operator mode
+    // if operator action, set it and change to operator mode
     final operator = operatorActions[action.input];
     if (operator != null) {
       action.operator = operator;
@@ -268,7 +274,7 @@ class Editor {
     }
     accumOperatorInput(char, action);
 
-    // if input is same as operator input, execute operator on the current line
+    // if input is same as operator input, execute operator on current line
     if (action.input == action.operatorInput) {
       action.linewise = true;
       final start = Motions.lineStart(file, file.cursor);
@@ -279,7 +285,7 @@ class Editor {
       return;
     }
 
-    // if has motion action, execute it and pass it to operator
+    // if motion, execute operator on motion
     final motion = motionActions[action.operatorInput];
     if (motion != null) {
       Position start = file.cursor;
@@ -295,6 +301,7 @@ class Editor {
     }
   }
 
+  // set prevAction and reset action
   void resetAction() {
     if (file.action.operator != null) {
       file.prevOperatorAction = file.action;
@@ -302,9 +309,5 @@ class Editor {
       file.prevMovementAction = file.action;
     }
     file.action = Action();
-  }
-
-  void replace(String char) {
-    defaultReplace(file, char);
   }
 }
