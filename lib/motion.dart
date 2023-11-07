@@ -1,4 +1,4 @@
-import 'package:vid/action_typedefs.dart';
+import 'action_typedefs.dart';
 
 sealed class Motion<T extends Function> {
   final T fn;

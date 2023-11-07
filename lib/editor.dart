@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/motion.dart';
 
 import 'action.dart';
 import 'actions_insert.dart';
@@ -17,6 +16,7 @@ import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
+import 'motion.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
