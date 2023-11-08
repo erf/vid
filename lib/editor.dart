@@ -278,7 +278,7 @@ class Editor {
     if (action.input == action.operatorInput) {
       action.linewise = true;
       final start = Motions.lineStart(file, file.cursor);
-      final end = Motions.lineEnd(file, file.cursor, inclNL: true);
+      final end = Motions.lineEnd(file, file.cursor, includeNewline: true);
       operator(file, Range(start: start, end: end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
       if (shouldResetAction) resetAction();
@@ -293,7 +293,7 @@ class Editor {
       if (motion.linewise) {
         final range = Range(start: start, end: end).normalized();
         start = Motions.lineStart(file, range.start);
-        end = Motions.lineEnd(file, range.end, inclNL: true);
+        end = Motions.lineEnd(file, range.end, includeNewline: true);
       }
       operator(file, Range(start: start, end: end));
       if (shouldResetAction) resetAction();
