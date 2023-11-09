@@ -12,7 +12,7 @@ class Undo {
   final String prev;
   final int i;
   final Position cursor;
-  bool saved;
+  bool savepoint;
 
   Undo(
     this.op,
@@ -20,6 +20,6 @@ class Undo {
     this.prev,
     this.i,
     this.cursor,
-    this.saved,
+    this.savepoint,
   );
 }

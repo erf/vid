@@ -38,16 +38,16 @@ class FileBuffer {
 
   // if the file has been modified (not saved)
   bool get modified {
-    return undoList.isNotEmpty && undoList.last.saved == false;
+    return undoList.isNotEmpty && undoList.last.savepoint == false;
   }
 
   // set if the file has been modified
   void saveUndoList() {
     for (final undo in undoList) {
-      undo.saved = false;
+      undo.savepoint = false;
     }
     if (undoList.isNotEmpty) {
-      undoList.last.saved = true;
+      undoList.last.savepoint = true;
     }
   }
 
