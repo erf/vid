@@ -12,10 +12,7 @@ class Find {
     final match = c.allMatches(f.text, start).firstOrNull;
     if (match == null) return p;
     final newpos = f.positionFromByteIndex(match.start);
-    if (incl) {
-      newpos.c++;
-      return newpos;
-    }
+    if (incl) newpos.c++;
     return newpos;
   }
 
