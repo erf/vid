@@ -253,7 +253,11 @@ class Editor {
     final motion = motionActions[action.input];
     if (motion != null) {
       action.linewise = motion.linewise;
-      file.cursor = motionEndPosition(action, motion, file.cursor);
+      Position position = file.cursor;
+      for (int i = 0; i < (action.count ?? 1); i++) {
+        position = motionEndPosition(action, motion, position);
+      }
+      file.cursor = position;
       if (shouldResetAction) resetAction();
       return;
     }
