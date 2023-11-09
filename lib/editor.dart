@@ -215,18 +215,18 @@ class Editor {
     return true;
   }
 
-  Position motionEndPosition(Action action, Motion motion) {
+  Position motionEndPosition(Action action, Motion motion, Position position) {
     action.linewise = motion.linewise;
     if (motion is NormalMotion) {
-      return motion.fn(file, file.cursor);
+      return motion.fn(file, position);
     }
     if (motion is FindMotion) {
       final nextChar = action.findChar ?? readNextChar();
       if (!findNextCharIsValid(nextChar)) {
-        return file.cursor;
+        return position;
       }
       action.findChar = nextChar;
-      return motion.fn(file, file.cursor, nextChar, false);
+      return motion.fn(file, position, nextChar, false);
     }
     return file.cursor;
   }
@@ -253,7 +253,7 @@ class Editor {
     // if motion action, execute it and set cursor
     final motion = motionActions[action.input];
     if (motion != null) {
-      file.cursor = motionEndPosition(action, motion);
+      file.cursor = motionEndPosition(action, motion, file.cursor);
       if (shouldResetAction) resetAction();
       return;
     }
@@ -289,7 +289,7 @@ class Editor {
     final motion = motionActions[action.operatorInput];
     if (motion != null) {
       Position start = file.cursor;
-      Position end = motionEndPosition(action, motion);
+      Position end = motionEndPosition(action, motion, start);
       if (motion.linewise) {
         final range = Range(start: start, end: end).normalized();
         start = Motions.lineStart(file, range.start);
