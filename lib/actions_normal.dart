@@ -11,7 +11,6 @@ import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
-import 'range.dart';
 import 'undo.dart';
 
 class NormalActions {
