@@ -284,7 +284,6 @@ class Editor {
       Position start = Motions.lineStart(file, file.cursor);
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        // TODO go to start of next line ?
         end = Motions.lineEnd(file, end, inclusive: true);
       }
       operator(file, Range(start: start, end: end));
