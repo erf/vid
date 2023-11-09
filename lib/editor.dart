@@ -136,7 +136,7 @@ class Editor {
   }
 
   void input(String str, {bool redraw = true}) {
-    if (Config.loggingEnabled) {
+    if (Config.log) {
       logFile ??= File(Config.logPath);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
