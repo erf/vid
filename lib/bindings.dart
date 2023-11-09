@@ -18,7 +18,6 @@ const normalActions = <String, NormalFn>{
   's': NormalActions.save,
   'e': NormalActions.cursorWordEnd,
   'x': NormalActions.deleteCharNext,
-  '\$': NormalActions.cursorLineEnd,
   'i': NormalActions.insert,
   'a': NormalActions.appendCharNext,
   'A': NormalActions.appendLineEnd,

@@ -109,11 +109,6 @@ class NormalActions {
     f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
   }
 
-  static void cursorLineEnd(Editor e, FileBuffer f) {
-    f.cursor = Motions.lineEnd(f, f.cursor);
-    if (f.lines[f.cursor.l].isNotEmpty) f.cursor.c--;
-  }
-
   static void cursorWordEnd(Editor v, FileBuffer f) {
     f.cursor = Motions.wordEnd(f, f.cursor);
     f.cursor.c--;
