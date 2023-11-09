@@ -8,7 +8,7 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 
 - a minimal fast modal vi-like text editor for the terminal ⚡️
 - correct rendering, editing and cursor movement of emojis and EastAsianWide ❤️‍🔥
-- made for modern terminals ([Ghostty](https://github.com/mitchellh/ghostty/), [WezTerm](https://github.com/wez/wezterm), [Contour](https://github.com/contour-terminal/contour) etc.) that supports mode 2027 
+- made for modern terminals ([Ghostty](https://github.com/mitchellh/ghostty/), [WezTerm](https://github.com/wez/wezterm), [Contour](https://github.com/contour-terminal/contour) etc.) that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) 🧠
 - written in pragmatic Dart and only depends on the [characters](https://pub.dev/packages/characters) package ✨
 - unlimited undo ↩️
 
