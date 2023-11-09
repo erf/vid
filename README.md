@@ -31,5 +31,6 @@ Note the following keybindings differ from **vim** as we don't have command mode
 
 ## Contribute 🙋‍♂️
 
-This is a personal project and i'd prefer to figure out stuff on my own. However, if you'd like to contribute, i might accept a PR in good taste but not issues suggesting improvements without actually contributing code.
+While this is a personal project and i prefer tackling challenges on my own, I welcome thoughtful PR's that align with the editors minimal philosophy.
 
+I do not accept issues solely for suggestions, but meaningful code contributions are appreciated. Thanks! 🚀
