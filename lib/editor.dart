@@ -21,6 +21,12 @@ import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
 
+enum KeyState {
+  none,
+  match,
+  partial,
+}
+
 class Editor {
   final terminal = Terminal();
   final file = FileBuffer();
@@ -192,24 +198,6 @@ class Editor {
     return false;
   }
 
-  // accumulate input until maxInput is reached
-  void accumInput(String char, Action action) {
-    const int maxInput = 2;
-    action.input += char;
-    if (action.input.length > maxInput) {
-      action.input = char;
-    }
-  }
-
-  // accumulate operator input until maxInput is reached
-  void accumOperatorInput(String char, Action action) {
-    const int maxInput = 2;
-    action.operatorInput += char;
-    if (action.operatorInput.length > maxInput) {
-      action.operatorInput = char;
-    }
-  }
-
   bool findNextCharIsValid(String nextChar) {
     // TODO check if nextChar is valid
     return true;
@@ -230,6 +218,25 @@ class Editor {
     return file.cursor;
   }
 
+  (KeyState, String) accumInput(
+      String input, String char, Iterable<String> keys) {
+    // accumulate input until maxKeyLength is reached
+    const int maxKeyLength = 2;
+    input += char;
+    if (input.length > maxKeyLength) {
+      input = char;
+    }
+    // we have a match if input is a key
+    if (keys.contains(input)) {
+      return (KeyState.match, input);
+    }
+    // check if input is part of a key
+    String key =
+        keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
+    // if input is not part of a key, reset input
+    return key.isEmpty ? (KeyState.none, '') : (KeyState.partial, input);
+  }
+
   void normal(String char, [bool shouldResetAction = true]) {
     Action action = file.action;
 
@@ -237,9 +244,17 @@ class Editor {
     if (count(char, action)) {
       return;
     }
-
-    // acummulate input until maxInput is reached
-    accumInput(char, action);
+    // check if we match a key
+    final (keyState, output) = accumInput(action.input, char, allkeys);
+    switch (keyState) {
+      case KeyState.none:
+      case KeyState.partial:
+        action.input = output;
+        return;
+      case KeyState.match:
+        action.input = output;
+        break;
+    }
 
     // if has normal action, execute it
     final normal = normalActions[action.input];
@@ -276,7 +291,17 @@ class Editor {
     if (operator == null) {
       return;
     }
-    accumOperatorInput(char, action);
+    // check if we match a key
+    final (keyState, output) = accumInput(action.operatorInput, char, allkeys);
+    switch (keyState) {
+      case KeyState.none:
+      case KeyState.partial:
+        action.operatorInput = output;
+        return;
+      case KeyState.match:
+        action.operatorInput = output;
+        break;
+    }
 
     // if input is same as operator input, execute operator on current line
     if (action.input == action.operatorInput) {

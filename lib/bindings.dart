@@ -65,3 +65,9 @@ const motionActions = <String, Motion>{
   't': FindMotion(Find.tillNextChar),
   'T': FindMotion(Find.tillPrevChar),
 };
+
+final allkeys = {
+  ...normalActions.keys,
+  ...motionActions.keys,
+  ...operatorActions.keys
+};
