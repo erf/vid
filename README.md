@@ -31,7 +31,7 @@ Note the following keybindings differ from **vim** as we don't have command mode
 
 ## Contributing 🙋‍♂️
 
-Whilst I prefer tackling challenges on my own, I'm open to thoughtful PRs that align with the editor's minimal philosophy.
+Although I prefer tackling challenges on my own, I'm open to PRs that align with the editor's minimal philosophy.
 
 I won't accept issues solely for suggestions, but meaningful contributions are appreciated.
 
