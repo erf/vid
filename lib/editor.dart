@@ -216,7 +216,6 @@ class Editor {
   }
 
   Position motionEndPosition(Action action, Motion motion, Position position) {
-    action.linewise = motion.linewise;
     if (motion is NormalMotion) {
       return motion.fn(file, position);
     }
@@ -253,6 +252,7 @@ class Editor {
     // if motion action, execute it and set cursor
     final motion = motionActions[action.input];
     if (motion != null) {
+      action.linewise = motion.linewise;
       file.cursor = motionEndPosition(action, motion, file.cursor);
       if (shouldResetAction) resetAction();
       return;
@@ -288,6 +288,7 @@ class Editor {
     // if motion, execute operator on motion
     final motion = motionActions[action.operatorInput];
     if (motion != null) {
+      action.linewise = motion.linewise;
       Position start = file.cursor;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
