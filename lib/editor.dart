@@ -94,7 +94,7 @@ class Editor {
     renderbuf.write(Esc.cursorPosition(c: 1, l: terminal.height));
 
     final cursor = file.cursor;
-    final modified = file.isModified;
+    final modified = file.modified;
     final path = file.path ?? '[No Name]';
     final mode = statusModeLabel(file.mode);
     final left = ' $mode  $path ${modified ? '* ' : ''}$message ';

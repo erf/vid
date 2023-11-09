@@ -36,9 +36,23 @@ class FileBuffer {
   // the yanked text
   String? yankBuffer;
 
-  // if the file has been modified and not saved
-  bool isModified = false;
+  // if the file has been modified (not saved)
+  bool get modified {
+    return undoList.isNotEmpty && undoList.last.saved == false;
+  }
+
+  // set if the file has been modified
+  void saveUndoList() {
+    for (final undo in undoList) {
+      undo.saved = false;
+    }
+    if (undoList.isNotEmpty) {
+      undoList.last.saved = true;
+    }
+  }
 
   // list of undo operations
-  List<Undo> undoList = [];
+  List<Undo> undoList = [
+    Undo(TextOp.insert, '', '', 0, Position(), true),
+  ];
 }

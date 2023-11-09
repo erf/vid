@@ -83,7 +83,7 @@ void main() {
 
   test('multiple undo', () {
     final e = Editor();
-    final f = FileBuffer();
+    final f = e.file;
     f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi\n';
     f.createLines();
     f.deleteRange(Range(

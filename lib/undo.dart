@@ -12,12 +12,14 @@ class Undo {
   final String prev;
   final int i;
   final Position cursor;
+  bool saved;
 
-  const Undo(
+  Undo(
     this.op,
     this.text,
     this.prev,
     this.i,
     this.cursor,
+    this.saved,
   );
 }

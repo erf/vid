@@ -35,7 +35,6 @@ class NormalActions {
     } else {
       f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
     }
-    f.isModified = true;
   }
 
   static void pasteBefore(Editor e, FileBuffer f) {
@@ -46,11 +45,10 @@ class NormalActions {
     } else {
       f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
     }
-    f.isModified = true;
   }
 
   static void quit(Editor e, FileBuffer f) {
-    if (f.isModified) {
+    if (f.modified) {
       e.showMessage('Press \'Q\' to quit without saving', timed: true);
     } else {
       e.quit();
@@ -66,7 +64,7 @@ class NormalActions {
       e.showMessage('Error: No filename', timed: true);
       return;
     }
-    if (f.isModified == false) {
+    if (f.modified == false) {
       e.showMessage('No changes', timed: true);
       return;
     }
@@ -148,7 +146,7 @@ class NormalActions {
   }
 
   static void undo(Editor e, FileBuffer f) {
-    if (f.undoList.isEmpty) return;
+    if (f.undoList.length == 1) return;
     final u = f.undoList.removeLast();
     f.text = switch (u.op) {
       TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
@@ -156,7 +154,6 @@ class NormalActions {
       TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
     };
     f.createLines();
-    f.isModified = true;
     f.cursor = u.cursor.clone;
   }
 
