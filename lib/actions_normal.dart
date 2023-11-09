@@ -146,7 +146,7 @@ class NormalActions {
   }
 
   static void undo(Editor e, FileBuffer f) {
-    if (f.undoList.length == 1) return;
+    if (f.undoList.isEmpty) return;
     final u = f.undoList.removeLast();
     f.text = switch (u.op) {
       TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),

@@ -35,7 +35,7 @@ extension FileBufferText on FileBuffer {
 
     // undo
     final prevText = text.substring(start, end);
-    undoList.add(Undo(op, newText, prevText, start, cursor.clone, false));
+    undoList.add(Undo(op, newText, prevText, start, cursor.clone));
     // yank
     if (op == TextOp.delete || op == TextOp.replace) {
       yankBuffer = prevText;

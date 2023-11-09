@@ -28,7 +28,7 @@ extension FileBufferLines on FileBuffer {
   bool save() {
     try {
       File(path!).writeAsStringSync(text);
-      saveUndoList();
+      setSavepoint();
       return true;
     } catch (e) {
       print('Error: $e');
