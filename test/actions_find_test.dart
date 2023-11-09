@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vid/actions_find.dart';
+import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/position.dart';
@@ -27,5 +28,27 @@ void main() {
     expect(Find.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));
     expect(Find.findPrevChar(f, cursor, 'b', false), Position(c: 1, l: 0));
     expect(Find.findPrevChar(f, cursor, 'c', false), Position(c: 2, l: 0));
+  });
+
+  test('till with delete operator', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'this is a test\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    f.action.findChar = 't';
+    e.input('dt', redraw: false);
+    expect(f.text, 'test\n');
+  });
+
+  test('find with delete operator', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'this is a test\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    f.action.findChar = 't';
+    e.input('df', redraw: false);
+    expect(f.text, 'est\n');
   });
 }
