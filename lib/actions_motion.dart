@@ -59,7 +59,7 @@ class Motions {
       if (p.l + 1 < f.lines.length) {
         return Position(l: p.l + 1, c: 0);
       } else {
-        return Position(l: p.l, c: f.lines[p.l].charLen - 1);
+        return Position(l: p.l, c: f.lines[p.l].charLen);
       }
     }
     return Position(l: p.l, c: f.lines[p.l].charLen - 1);

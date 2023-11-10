@@ -25,7 +25,7 @@ extension FileBufferText on FileBuffer {
   void replace(int start, int end, String newText, TextOp op) {
     // don't delete or replace the last newline
     if (op == TextOp.delete || op == TextOp.replace) {
-      if (end >= text.length) {
+      if (end > text.length) {
         end = text.length - 1;
       }
       if (start >= end) {
