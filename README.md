@@ -31,8 +31,6 @@ Note the following keybindings differ from **vim** as we don't have command mode
 
 ## Contributing 🙋‍♂️
 
-I prefer tackling challenges on my own but open to pull requests that align with the editor's minimal philosophy.
+I prefer tackling challenges on my own but I'm open to pull requests that align with the vid's minimal philosophy.
 
-I won't accept issues solely for suggestions, but meaningful contributions are appreciated.
-
-Thanks for considering! 🚀
+I won't accept issues solely for suggestions. Thanks for considering! 🚀
