@@ -203,18 +203,17 @@ class Editor {
     return true;
   }
 
-  Position motionEndPosition(Action action, Motion motion, Position position,
-      [bool inclusive = false]) {
+  Position motionEnd(Action action, Motion motion, Position pos, bool incl) {
     if (motion is NormalMotion) {
-      return motion.fn(file, position);
+      return motion.fn(file, pos);
     }
     if (motion is FindMotion) {
       final nextChar = action.findChar ?? readNextChar();
       if (!findNextCharIsValid(nextChar)) {
-        return position;
+        return pos;
       }
       action.findChar = nextChar;
-      return motion.fn(file, position, nextChar, inclusive);
+      return motion.fn(file, pos, nextChar, incl);
     }
     return file.cursor;
   }
@@ -271,7 +270,7 @@ class Editor {
       action.linewise = motion.linewise;
       Position position = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        position = motionEndPosition(action, motion, position);
+        position = motionEnd(action, motion, position, false);
       }
       file.cursor = position;
       if (shouldResetAction) resetAction();
@@ -325,7 +324,7 @@ class Editor {
       Position start = file.cursor;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        end = motionEndPosition(action, motion, end, true);
+        end = motionEnd(action, motion, end, true);
       }
       if (motion.linewise) {
         final range = Range(start: start, end: end).normalized();
