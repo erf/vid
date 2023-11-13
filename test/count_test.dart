@@ -24,4 +24,15 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'jkl\n');
   });
+
+  test('2dj', () {
+    final e = Editor();
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\njkl\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('2dj', redraw: false);
+    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.text, 'jkl\n');
+  });
 }
