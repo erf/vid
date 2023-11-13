@@ -77,14 +77,14 @@ class NormalActions {
 
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    final nlstr = List.generate(f.action.count ?? 1, (index) => nl).join();
+    final nlstr = List.generate(f.action.count ?? 1, (_) => nl).join();
     f.insertAt(Position(l: f.cursor.l, c: 0), nlstr);
     f.cursor.c = 0;
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    final nlstr = List.generate(f.action.count ?? 1, (index) => nl).join();
+    final nlstr = List.generate(f.action.count ?? 1, (_) => nl).join();
     f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), nlstr);
     f.cursor = Motions.lineDown(f, f.cursor);
   }
