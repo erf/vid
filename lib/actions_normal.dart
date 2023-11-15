@@ -75,17 +75,24 @@ class NormalActions {
     }
   }
 
+  static String createNewlines(FileBuffer f) {
+    String s = '';
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
+      s += nl;
+    }
+    return s;
+  }
+
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    final nlstr = List.generate(f.action.count ?? 1, (_) => nl).join();
-    f.insertAt(Position(l: f.cursor.l, c: 0), nlstr);
+    f.insertAt(Position(l: f.cursor.l, c: 0), createNewlines(f));
     f.cursor.c = 0;
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    final nlstr = List.generate(f.action.count ?? 1, (_) => nl).join();
-    f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), nlstr);
+    f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
+        createNewlines(f));
     f.cursor = Motions.lineDown(f, f.cursor);
   }
 
