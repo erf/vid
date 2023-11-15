@@ -31,8 +31,8 @@ class Esc {
   static String windowTitle(String path) => '$e]2;vid $path\x07';
 
   // push window title
-  static String get pushWindowTitle => '$e[22;2t';
+  static const String pushWindowTitle = '$e[22;2t';
 
   // pop window title
-  static String get popWindowTitle => '$e[23;2t';
+  static const String popWindowTitle = '$e[23;2t';
 }
