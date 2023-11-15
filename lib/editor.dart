@@ -37,6 +37,7 @@ class Editor {
   void init(List<String> args) {
     String path = file.load(args);
     terminal.rawMode = true;
+    terminal.write(Esc.pushWindowTitle);
     terminal.write(Esc.windowTitle(path));
     terminal.write(Esc.enableMode2027(true));
     terminal.write(Esc.enableAltBuffer(true));
@@ -46,6 +47,7 @@ class Editor {
   }
 
   void quit() {
+    terminal.write(Esc.popWindowTitle);
     terminal.write(Esc.enableAltBuffer(false));
     terminal.rawMode = false;
     exit(0);

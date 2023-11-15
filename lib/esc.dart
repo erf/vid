@@ -29,4 +29,10 @@ class Esc {
 
   // set window title
   static String windowTitle(String path) => '$e]2;vid $path$e\\';
+
+  // push window title
+  static String pushWindowTitle() => '$e[22;2t';
+
+  // pop window title
+  static String popWindowTitle() => '$e[23;2t';
 }
