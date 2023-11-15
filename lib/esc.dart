@@ -26,4 +26,7 @@ class Esc {
   // enable mode 2027 for grapheme cluster support
   static String enableMode2027(bool enable) =>
       enable ? '$e[?2027h' : '$e[?2027l';
+
+  // set window title
+  static String windowTitle(String path) => '$e]2;vid $path$e\\';
 }

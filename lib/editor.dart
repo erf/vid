@@ -35,8 +35,9 @@ class Editor {
   File? logFile;
 
   void init(List<String> args) {
-    file.load(args);
+    String path = file.load(args);
     terminal.rawMode = true;
+    terminal.write(Esc.windowTitle(path));
     terminal.write(Esc.enableMode2027(true));
     terminal.write(Esc.enableAltBuffer(true));
     terminal.input.listen(onInput);

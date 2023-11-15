@@ -5,10 +5,10 @@ import 'file_buffer_lines.dart';
 
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file
-  void load(List<String> args) {
+  String load(List<String> args) {
     if (args.isEmpty) {
       createLines();
-      return;
+      return '';
     }
     path = args.first;
     if (Directory(path!).existsSync()) {
@@ -22,6 +22,7 @@ extension FileBufferLines on FileBuffer {
     }
     // split text into lines
     createLines();
+    return path!;
   }
 
   // save file to disk
