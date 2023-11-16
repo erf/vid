@@ -3,7 +3,6 @@ import 'package:vid/characters_index.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {
-
   test('substring', () {
     expect('abc'.ch.substring(0, 1).string, 'a');
     expect('abc'.ch.substring(0, 2).string, 'ab');
