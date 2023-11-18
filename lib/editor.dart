@@ -21,10 +21,10 @@ import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
 
-enum KeyState {
+enum InputMatch {
   none,
-  match,
   partial,
+  match,
 }
 
 class Editor {
@@ -221,7 +221,7 @@ class Editor {
     return file.cursor;
   }
 
-  (KeyState, String) accumInput(
+  (InputMatch, String) accumInput(
       String input, String char, Iterable<String> keys) {
     // accumulate input until maxKeyLength is reached
     const int maxKeyLength = 2;
@@ -231,13 +231,13 @@ class Editor {
     }
     // we have a match if input is a key
     if (keys.contains(input)) {
-      return (KeyState.match, input);
+      return (InputMatch.match, input);
     }
     // check if input is part of a key
     String key =
         keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
     // if input is not part of a key, reset input
-    return key.isEmpty ? (KeyState.none, '') : (KeyState.partial, input);
+    return key.isEmpty ? (InputMatch.none, '') : (InputMatch.partial, input);
   }
 
   void normal(String char, [bool shouldResetAction = true]) {
@@ -250,11 +250,11 @@ class Editor {
     // check if we match a key
     final (keyState, output) = accumInput(action.input, char, allkeys);
     switch (keyState) {
-      case KeyState.none:
-      case KeyState.partial:
+      case InputMatch.none:
+      case InputMatch.partial:
         action.input = output;
         return;
-      case KeyState.match:
+      case InputMatch.match:
         action.input = output;
         break;
     }
@@ -297,11 +297,11 @@ class Editor {
     // check if we match a key
     final (keyState, output) = accumInput(action.operatorInput, char, allkeys);
     switch (keyState) {
-      case KeyState.none:
-      case KeyState.partial:
+      case InputMatch.none:
+      case InputMatch.partial:
         action.operatorInput = output;
         return;
-      case KeyState.match:
+      case InputMatch.match:
         action.operatorInput = output;
         break;
     }
