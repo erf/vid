@@ -295,9 +295,12 @@ class Editor {
       return;
     }
     // check if we match a key
-    final (keyState, output) = accumInput(action.operatorInput, char, allkeys);
+    final (keyState, output) = accumInput(action.operatorInput, char, opKeys);
     switch (keyState) {
       case InputMatch.none:
+        file.mode = Mode.normal;
+        action.input = '';
+        return;
       case InputMatch.partial:
         action.operatorInput = output;
         return;

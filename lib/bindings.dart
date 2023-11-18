@@ -71,3 +71,8 @@ final allkeys = {
   ...motionActions.keys,
   ...operatorActions.keys
 };
+
+final opKeys = {
+  ...operatorActions.keys,
+  ...motionActions.keys,
+};
