@@ -27,11 +27,11 @@ class FileBuffer {
   // the current action to be executed
   Action action = Action();
 
+  // the previous operator action
+  Action? prevAction;
+
   // the previous movement action
   Action? prevMotionAction;
-
-  // the previous operator action
-  Action? prevOperatorAction;
 
   // the yanked text
   String? yankBuffer;

@@ -346,7 +346,7 @@ class Editor {
   // set prevAction and reset action
   void resetAction() {
     if (file.action.operator != null) {
-      file.prevOperatorAction = file.action;
+      file.prevAction = file.action;
     } else {
       file.prevMotionAction = file.action;
     }
