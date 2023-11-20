@@ -31,7 +31,7 @@ class FileBuffer {
   Action? prevAction;
 
   // the previous movement action
-  Action? prevMotionAction;
+  Action? prevMotion;
 
   // the yanked text
   String? yankBuffer;
