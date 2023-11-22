@@ -2,16 +2,16 @@ import 'action_typedefs.dart';
 
 class Action {
   // the pending action to be executed
-  OperatorFn? operator;
+  OperatorFn? op;
 
   // the accumulated text input
   String input = '';
 
   // the pending operator input
-  String operatorInput = '';
+  String opInput = '';
 
   // the accumulated count input
-  String countInput = '';
+  String countStr = '';
 
   // the count of the pending action
   int? count;

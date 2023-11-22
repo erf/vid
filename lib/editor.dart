@@ -193,13 +193,13 @@ class Editor {
   // if char is not a number, parse countInput and set fileBuffer.count
   bool count(String char, Action action) {
     final count = int.tryParse(char);
-    if (count != null && (count > 0 || action.countInput.isNotEmpty)) {
-      action.countInput += char;
+    if (count != null && (count > 0 || action.countStr.isNotEmpty)) {
+      action.countStr += char;
       return true;
     }
-    if (action.countInput.isNotEmpty) {
-      action.count = int.parse(action.countInput);
-      action.countInput = '';
+    if (action.countStr.isNotEmpty) {
+      action.count = int.parse(action.countStr);
+      action.countStr = '';
     }
     return false;
   }
@@ -278,20 +278,20 @@ class Editor {
     // if operator action, set it and change to operator mode
     final operator = operatorActions[action.input];
     if (operator != null) {
-      action.operator = operator;
+      action.op = operator;
       file.mode = Mode.operator;
     }
   }
 
   void operator(String char, [bool shouldResetAction = true]) {
     final action = file.action;
-    final operator = action.operator;
+    final operator = action.op;
     if (operator == null) {
       return;
     }
     // check if we match a key
-    action.operatorInput += char;
-    final keyState = matchKeys(action.operatorInput, opKeys);
+    action.opInput += char;
+    final keyState = matchKeys(action.opInput, opKeys);
     switch (keyState) {
       case InputMatch.none:
         file.mode = Mode.normal;
@@ -304,7 +304,7 @@ class Editor {
     }
 
     // if input is same as operator input, execute operator on current line
-    if (action.input == action.operatorInput) {
+    if (action.input == action.opInput) {
       action.linewise = true;
       Position start = Motions.lineStart(file, file.cursor);
       Position end = file.cursor;
@@ -318,7 +318,7 @@ class Editor {
     }
 
     // if motion, execute operator on motion
-    final motion = motionActions[action.operatorInput];
+    final motion = motionActions[action.opInput];
     if (motion != null) {
       action.linewise = motion.linewise;
       Position start = file.cursor;
@@ -339,7 +339,7 @@ class Editor {
 
   // set prevAction and reset action
   void resetAction() {
-    if (file.action.operator != null) {
+    if (file.action.op != null) {
       file.prevAction = file.action;
     } else {
       file.prevMotion = file.action;
