@@ -204,24 +204,15 @@ class Editor {
     return false;
   }
 
-  bool findNextCharIsValid(String nextChar) {
-    // TODO check if nextChar is valid
-    return true;
-  }
-
   Position motionEnd(Action action, Motion motion, Position pos, bool incl) {
-    if (motion is NormalMotion) {
-      return motion.fn(file, pos);
+    switch (motion) {
+      case NormalMotion():
+        return motion.fn(file, pos);
+      case FindMotion():
+        final nextChar = action.findChar ?? readNextChar();
+        action.findChar = nextChar;
+        return motion.fn(file, pos, nextChar, incl);
     }
-    if (motion is FindMotion) {
-      final nextChar = action.findChar ?? readNextChar();
-      if (!findNextCharIsValid(nextChar)) {
-        return pos;
-      }
-      action.findChar = nextChar;
-      return motion.fn(file, pos, nextChar, incl);
-    }
-    return file.cursor;
   }
 
   InputMatch matchKeys(String input, Iterable<String> keys) {
