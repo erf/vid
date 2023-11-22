@@ -31,24 +31,24 @@ void main() {
   });
 
   test('till with delete operator', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     f.action.findChar = 't';
-    e.input('dt', redraw: false);
+    e.input('dt');
     expect(f.text, 'test\n');
   });
 
   test('find with delete operator', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     f.action.findChar = 't';
-    e.input('df', redraw: false);
+    e.input('df');
     expect(f.text, 'est\n');
   });
 }

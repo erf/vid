@@ -6,61 +6,63 @@ import 'package:vid/position.dart';
 
 void main() {
   test('dd', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    e.input('dd', redraw: false);
+    e.input('dd');
     expect(f.text, 'def\nghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
 
   test('dk', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('dk', redraw: false);
+    e.input(
+      'dk',
+    );
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
 
   test('dj', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
-    e.input('dj', redraw: false);
+    e.input('dj');
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
   test('dd p kP', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('dd', redraw: false);
+    e.input('dd');
     expect(f.text, 'abc\nghi\n');
     expect(f.cursor.l, 1);
     expect(f.cursor.c, 0);
-    e.input('p', redraw: false);
+    e.input('p');
     expect(f.text, 'abc\nghi\ndef\n');
     expect(f.cursor.l, 2);
-    e.input('kP', redraw: false);
+    e.input('kP');
     expect(f.text, 'abc\ndef\nghi\ndef\n');
   });
 
   test('cc', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('cc', redraw: false);
+    e.input('cc');
     expect(f.text, 'abc\nghi\n');
     expect(f.cursor.l, 1);
     expect(f.cursor.c, 0);
@@ -68,48 +70,48 @@ void main() {
   });
 
   test('yyP', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 1);
-    e.input('yy', redraw: false);
+    e.input('yy');
     expect(f.yankBuffer, 'def\n');
-    e.input('P', redraw: false);
+    e.input('P');
     expect(f.text, 'abc\ndef\ndef\nghi\n');
     expect(f.cursor.l, 1);
     expect(f.cursor.c, 0);
   });
 
   test('ywP', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\n';
     f.createLines();
     f.cursor = Position(c: 4, l: 0);
-    e.input('yw', redraw: false);
+    e.input('yw');
     expect(f.yankBuffer, 'def ');
-    e.input('P', redraw: false);
+    e.input('P');
     expect(f.text, 'abc def def ghi\n');
   });
 
   test('ddjp', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines();
-    e.input('ddjp', redraw: false);
+    e.input('ddjp');
     expect(f.text, '\ndef\nabc\n\nghi\n');
   });
 
   test('ddjpxp', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines();
-    e.input('ddjp', redraw: false);
+    e.input('ddjp');
     expect(f.text, '\ndef\nabc\n\nghi\n');
-    e.input('xp', redraw: false);
+    e.input('xp');
     expect(f.text, '\ndef\nbac\n\nghi\n');
   });
 }

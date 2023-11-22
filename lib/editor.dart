@@ -33,6 +33,9 @@ class Editor {
   final renderbuf = StringBuffer();
   String message = '';
   File? logFile;
+  bool redraw;
+
+  Editor({this.redraw = true});
 
   void init(List<String> args) {
     String path = file.load(args);
@@ -144,7 +147,7 @@ class Editor {
     input(utf8.decode(codes));
   }
 
-  void input(String str, {bool redraw = true}) {
+  void input(String str) {
     if (Config.log) {
       logFile ??= File(Config.logPath);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
