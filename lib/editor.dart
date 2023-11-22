@@ -224,23 +224,16 @@ class Editor {
     return file.cursor;
   }
 
-  (InputMatch, String) accumInput(
-      String input, String char, Iterable<String> keys) {
-    // accumulate input until maxKeyLength is reached
-    const int maxKeyLength = 2;
-    input += char;
-    if (input.length > maxKeyLength) {
-      input = char;
-    }
+  InputMatch matchKeys(String input, Iterable<String> keys) {
     // we have a match if input is a key
     if (keys.contains(input)) {
-      return (InputMatch.match, input);
+      return InputMatch.match;
     }
     // check if input is part of a key
     String key =
         keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
     // if input is not part of a key, reset input
-    return key.isEmpty ? (InputMatch.none, '') : (InputMatch.partial, input);
+    return key.isEmpty ? InputMatch.none : InputMatch.partial;
   }
 
   void normal(String char, [bool shouldResetAction = true]) {
@@ -251,14 +244,13 @@ class Editor {
       return;
     }
     // check if we match a key
-    final (keyState, output) = accumInput(action.input, char, allkeys);
-    switch (keyState) {
+    action.input += char;
+    InputMatch keyMatch = matchKeys(action.input, allkeys);
+    switch (keyMatch) {
       case InputMatch.none:
       case InputMatch.partial:
-        action.input = output;
         return;
       case InputMatch.match:
-        action.input = output;
         break;
     }
 
@@ -298,17 +290,16 @@ class Editor {
       return;
     }
     // check if we match a key
-    final (keyState, output) = accumInput(action.operatorInput, char, opKeys);
+    action.operatorInput += char;
+    final keyState = matchKeys(action.operatorInput, opKeys);
     switch (keyState) {
       case InputMatch.none:
         file.mode = Mode.normal;
         file.action = Action();
         return;
       case InputMatch.partial:
-        action.operatorInput = output;
         return;
       case InputMatch.match:
-        action.operatorInput = output;
         break;
     }
 

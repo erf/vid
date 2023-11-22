@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'actions_motion.dart';
-import 'actions_operator.dart';
 import 'constants.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
@@ -122,8 +121,8 @@ class NormalActions {
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.action.input = 'dl';
-    e.input(f.action.input);
+    f.action.input = '';
+    e.input('dl');
   }
 
   static void replace(Editor e, FileBuffer f) {
@@ -132,14 +131,14 @@ class NormalActions {
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.action.input = 'd\$';
-    e.input(f.action.input);
+    f.action.input = '';
+    e.input('d\$');
   }
 
   static void changeLineEnd(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.action.input = 'd\$i';
-    e.input(f.action.input);
+    f.action.input = '';
+    e.input('d\$i');
   }
 
   static void joinLines(Editor e, FileBuffer f) {
