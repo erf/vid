@@ -122,10 +122,8 @@ class NormalActions {
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.action.input = 'd';
-    f.action.operator = Operators.delete;
-    f.mode = Mode.operator;
-    e.operator('l');
+    f.action.input = 'dl';
+    e.input(f.action.input);
   }
 
   static void replace(Editor e, FileBuffer f) {
@@ -134,19 +132,14 @@ class NormalActions {
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.action.input = 'd';
-    f.action.operator = Operators.delete;
-    f.mode = Mode.operator;
-    e.operator('\$');
+    f.action.input = 'd\$';
+    e.input(f.action.input);
   }
 
   static void changeLineEnd(Editor e, FileBuffer f) {
     if (f.empty) return;
-    f.action.input = 'c';
-    f.action.operator = Operators.change;
-    f.mode = Mode.operator;
-    e.operator('\$');
-    f.mode = Mode.insert;
+    f.action.input = 'd\$i';
+    e.input(f.action.input);
   }
 
   static void joinLines(Editor e, FileBuffer f) {
