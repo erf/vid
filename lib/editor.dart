@@ -299,7 +299,7 @@ class Editor {
     switch (keyState) {
       case InputMatch.none:
         file.mode = Mode.normal;
-        action.input = '';
+        file.action = Action();
         return;
       case InputMatch.partial:
         action.operatorInput = output;
