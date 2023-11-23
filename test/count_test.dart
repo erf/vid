@@ -35,4 +35,24 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'jkl\n');
   });
+
+  test('10w', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('10w');
+    expect(f.cursor, Position(c: 39, l: 0));
+  });
+
+  test('0 (beginning of line)', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
+    f.createLines();
+    f.cursor = Position(c: 39, l: 0);
+    e.input('0');
+    expect(f.cursor, Position(c: 0, l: 0));
+  });
 }
