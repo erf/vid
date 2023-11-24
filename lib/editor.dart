@@ -227,6 +227,19 @@ class Editor {
     return key.isEmpty ? InputMatch.none : InputMatch.partial;
   }
 
+  bool defaultKeyMatchHandling(InputMatch inputMatch) {
+    switch (inputMatch) {
+      case InputMatch.none:
+        file.mode = Mode.normal;
+        file.action = Action();
+        return false;
+      case InputMatch.partial:
+        return false;
+      case InputMatch.match:
+        return true;
+    }
+  }
+
   void normal(String char, [bool shouldResetAction = true]) {
     Action action = file.action;
 
@@ -236,15 +249,8 @@ class Editor {
     }
     // check if we match a key
     action.input += char;
-    InputMatch keyMatch = matchKeys(action.input, allkeys);
-    switch (keyMatch) {
-      case InputMatch.none:
-        file.action = Action();
-        return;
-      case InputMatch.partial:
-        return;
-      case InputMatch.match:
-        break;
+    if (!defaultKeyMatchHandling(matchKeys(action.input, allkeys))) {
+      return;
     }
 
     // if has normal action, execute it
@@ -284,16 +290,8 @@ class Editor {
     }
     // check if we match a key
     action.opInput += char;
-    final keyState = matchKeys(action.opInput, opKeys);
-    switch (keyState) {
-      case InputMatch.none:
-        file.mode = Mode.normal;
-        file.action = Action();
-        return;
-      case InputMatch.partial:
-        return;
-      case InputMatch.match:
-        break;
+    if (!defaultKeyMatchHandling(matchKeys(action.opInput, opKeys))) {
+      return;
     }
 
     // if input is same as operator input, execute operator on current line
