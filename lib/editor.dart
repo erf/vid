@@ -154,12 +154,12 @@ class Editor {
     }
     for (String char in str.characters) {
       switch (file.mode) {
-        case Mode.insert:
-          insert(char);
         case Mode.normal:
           normal(char);
         case Mode.operator:
           operator(char);
+        case Mode.insert:
+          insert(char);
         case Mode.replace:
           replace(char);
       }
