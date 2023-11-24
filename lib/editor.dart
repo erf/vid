@@ -278,8 +278,8 @@ class Editor {
 
   void operator(String char, [bool shouldResetAction = true]) {
     final action = file.action;
-    final operator = action.op;
-    if (operator == null) {
+    final op = action.op;
+    if (op == null) {
       return;
     }
     // check if we match a key
@@ -304,7 +304,7 @@ class Editor {
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = Motions.lineEnd(file, end, inclusive: true);
       }
-      operator(file, Range(start: start, end: end));
+      op(file, Range(start: start, end: end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
       if (shouldResetAction) resetAction();
       return;
@@ -324,7 +324,7 @@ class Editor {
         start = Motions.lineStart(file, range.start);
         end = Motions.lineEnd(file, range.end, inclusive: true);
       }
-      operator(file, Range(start: start, end: end));
+      op(file, Range(start: start, end: end));
       if (shouldResetAction) resetAction();
       return;
     }
