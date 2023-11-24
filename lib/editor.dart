@@ -239,6 +239,8 @@ class Editor {
     InputMatch keyMatch = matchKeys(action.input, allkeys);
     switch (keyMatch) {
       case InputMatch.none:
+        file.action = Action();
+        return;
       case InputMatch.partial:
         return;
       case InputMatch.match:
