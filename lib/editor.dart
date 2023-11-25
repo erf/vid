@@ -265,11 +265,11 @@ class Editor {
     final motion = motionActions[action.input];
     if (motion != null) {
       action.linewise = motion.linewise;
-      Position position = file.cursor;
+      Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        position = motionEnd(action, motion, position, false);
+        end = motionEnd(action, motion, end, false);
       }
-      file.cursor = position;
+      file.cursor = end;
       if (shouldResetAction) resetAction();
       return;
     }
@@ -312,11 +312,11 @@ class Editor {
     final motion = motionActions[action.opInput];
     if (motion != null) {
       action.linewise = motion.linewise;
-      Position start = file.cursor;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = motionEnd(action, motion, end, true);
       }
+      Position start = file.cursor;
       if (motion.linewise) {
         final range = Range(start: start, end: end).normalized();
         start = Motions.lineStart(file, range.start);
