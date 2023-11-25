@@ -227,7 +227,7 @@ class Editor {
     return key.isEmpty ? InputMatch.none : InputMatch.partial;
   }
 
-  bool defaultKeyMatchHandling(InputMatch inputMatch) {
+  bool handleMatchedKeys(InputMatch inputMatch) {
     switch (inputMatch) {
       case InputMatch.none:
         file.mode = Mode.normal;
@@ -249,7 +249,7 @@ class Editor {
     }
     // check if we match a key
     action.input += char;
-    if (!defaultKeyMatchHandling(matchKeys(action.input, allkeys))) {
+    if (!handleMatchedKeys(matchKeys(action.input, allkeys))) {
       return;
     }
 
@@ -290,7 +290,7 @@ class Editor {
     }
     // check if we match a key
     action.opInput += char;
-    if (!defaultKeyMatchHandling(matchKeys(action.opInput, opKeys))) {
+    if (!handleMatchedKeys(matchKeys(action.opInput, opKeys))) {
       return;
     }
 
