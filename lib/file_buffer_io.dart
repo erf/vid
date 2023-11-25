@@ -4,11 +4,11 @@ import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 
 extension FileBufferLines on FileBuffer {
-  // load file from disk or create new file
+  // load file from disk or create new file, return file name
   String load(List<String> args) {
     if (args.isEmpty) {
-      createLines();
-      return '';
+      print('No file name specified');
+      exit(1);
     }
     path = args.first;
     if (Directory(path!).existsSync()) {
