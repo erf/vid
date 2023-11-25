@@ -179,4 +179,30 @@ void main() {
     expect(f.text, '\ndef\nabc\n\nghi\n');
     expect(f.cursor, Position(c: 0, l: 2));
   });
+
+  test('make sure action is reset on wrong key in normal mode', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('Æ');
+    expect(f.action.input, '');
+    expect(f.action.opInput, '');
+    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.text, 'abc\n');
+  });
+
+  test('make sure action is reset on wrong key in operator mode', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('dÆ');
+    expect(f.action.input, '');
+    expect(f.action.opInput, '');
+    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.text, 'abc\n');
+  });
 }
