@@ -249,7 +249,7 @@ class Editor {
     }
     // check if we match a key
     action.input += char;
-    if (!handleMatchedKeys(matchKeys(action.input, allkeys))) {
+    if (!handleMatchedKeys(matchKeys(action.input, normalBindings))) {
       return;
     }
 
@@ -290,7 +290,7 @@ class Editor {
     }
     // check if we match a key
     action.opInput += char;
-    if (!handleMatchedKeys(matchKeys(action.opInput, opKeys))) {
+    if (!handleMatchedKeys(matchKeys(action.opInput, opBindings))) {
       return;
     }
 

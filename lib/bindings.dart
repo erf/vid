@@ -66,13 +66,13 @@ const motionActions = <String, Motion>{
   'T': FindMotion(Find.tillPrevChar),
 };
 
-final allkeys = {
+final normalBindings = {
   ...normalActions,
   ...motionActions,
-  ...operatorActions
+  ...operatorActions,
 };
 
-final opKeys = {
+final opBindings = {
   ...operatorActions,
   ...motionActions,
 };
