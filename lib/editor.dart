@@ -215,14 +215,14 @@ class Editor {
     }
   }
 
-  InputMatch matchKeys(String input, Iterable<String> keys) {
+  InputMatch matchKeys(String input, Map<String, Object> map) {
     // we have a match if input is a key
-    if (keys.contains(input)) {
+    if (map.containsKey(input)) {
       return InputMatch.match;
     }
     // check if input is part of a key
     String key =
-        keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
+        map.keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
     // if input is not part of a key, reset input
     return key.isEmpty ? InputMatch.none : InputMatch.partial;
   }

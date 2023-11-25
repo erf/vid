@@ -67,12 +67,12 @@ const motionActions = <String, Motion>{
 };
 
 final allkeys = {
-  ...normalActions.keys,
-  ...motionActions.keys,
-  ...operatorActions.keys
+  ...normalActions,
+  ...motionActions,
+  ...operatorActions
 };
 
 final opKeys = {
-  ...operatorActions.keys,
-  ...motionActions.keys,
+  ...operatorActions,
+  ...motionActions,
 };
