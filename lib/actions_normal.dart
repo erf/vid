@@ -159,11 +159,11 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevAction == null || f.prevAction?.op == null) {
+    if (f.prevAction == null || f.prevAction?.operator == null) {
       return;
     }
     f.action = f.prevAction!;
-    e.operator('', false);
+    e.doAction(f.action, false);
   }
 
   static void repeatFindNext(Editor e, FileBuffer f) {
@@ -171,6 +171,6 @@ class NormalActions {
       return;
     }
     f.action = f.prevMotion!;
-    e.normal('', false);
+    e.doAction(f.action, false);
   }
 }

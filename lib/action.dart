@@ -1,8 +1,10 @@
+import 'package:vid/motion.dart';
+
 import 'action_typedefs.dart';
 
 class Action {
   // the pending action to be executed
-  OperatorFn? op;
+  OperatorFn? operator;
 
   // the accumulated text input
   String input = '';
@@ -21,4 +23,7 @@ class Action {
 
   // if the pending operator is linewise
   bool linewise = false;
+
+  // the pending motion
+  Motion<Function>? motion;
 }
