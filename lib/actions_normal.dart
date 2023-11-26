@@ -100,13 +100,13 @@ class NormalActions {
   }
 
   static void insertLineStart(Editor e, FileBuffer f) {
-    f.mode = Mode.insert;
-    f.cursor.c = 0;
+    f.action.input = '';
+    e.input('0i');
   }
 
   static void appendLineEnd(Editor e, FileBuffer f) {
-    f.mode = Mode.insert;
-    f.cursor.c = max(0, f.lines[f.cursor.l].charLen - 1);
+    f.action.input = '';
+    e.input('\$i');
   }
 
   static void appendCharNext(Editor e, FileBuffer f) {
