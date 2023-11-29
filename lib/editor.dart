@@ -269,41 +269,44 @@ class Editor {
 
   // execute action on range
   void doAction(Action action, [bool shouldResetAction = true]) {
-    final op = action.operator;
-    // if operator is repeated, execute it on line
-    if (op != null && action.input == action.opInput) {
+    // if input is same as opInput, execute linewise
+    final oper = action.operator;
+    if (oper != null && action.input == action.opInput) {
       action.linewise = true;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = Motions.lineEnd(file, end, inclusive: true);
       }
       Position start = Motions.lineStart(file, file.cursor);
-      op(file, Range(start: start, end: end));
+      oper(file, Range(start: start, end: end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
+      if (shouldResetAction) resetAction();
+      return;
     }
+
     // if motion action, execute it and set cursor
-    else if (action.motion != null) {
+    if (action.motion != null) {
       final motion = action.motion!;
       action.linewise = motion.linewise;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = motionEnd(action, motion, end, action.operator != null);
       }
-      // if operator action, execute it on range
-      if (op != null) {
+      if (oper == null) {
+        // if no operator, set cursor to end of motion
+        file.cursor = end;
+      } else {
+        // if operator action, execute it on range
         Position start = file.cursor;
         if (motion.linewise) {
           final range = Range(start: start, end: end).normalized();
           start = Motions.lineStart(file, range.start);
           end = Motions.lineEnd(file, range.end, inclusive: true);
         }
-        op(file, Range(start: start, end: end));
-      } else {
-        // if no operator, set cursor to end of motion
-        file.cursor = end;
+        oper(file, Range(start: start, end: end));
       }
+      if (shouldResetAction) resetAction();
     }
-    if (shouldResetAction) resetAction();
   }
 
   // set prevAction and reset action
