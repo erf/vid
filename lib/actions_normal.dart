@@ -167,10 +167,11 @@ class NormalActions {
   }
 
   static void repeatFindNext(Editor e, FileBuffer f) {
-    if (f.prevMotion == null || f.prevMotion?.findChar == null) {
+    if (f.prevMotion == null || f.prevFindChar == null) {
       return;
     }
-    f.action = f.prevMotion!;
+    f.action.motion = f.prevMotion;
+    f.action.findChar = f.prevFindChar;
     e.doAction(f.action, false);
   }
 }

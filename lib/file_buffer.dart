@@ -1,6 +1,7 @@
 import 'action.dart';
 import 'line.dart';
 import 'modes.dart';
+import 'motion.dart';
 import 'position.dart';
 import 'undo.dart';
 
@@ -30,8 +31,11 @@ class FileBuffer {
   // the previous operator action
   Action? prevAction;
 
-  // the previous movement action
-  Action? prevMotion;
+  // the previous find action
+  Motion<Function>? prevMotion;
+
+  // the previous find character
+  String? prevFindChar;
 
   // the yanked text
   String? yankBuffer;

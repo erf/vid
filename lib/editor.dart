@@ -323,8 +323,12 @@ class Editor {
   void resetAction() {
     if (file.action.operator != null) {
       file.prevAction = file.action;
-    } else if (file.action.motion != null) {
-      file.prevMotion = file.action;
+    }
+    if (file.action.motion != null) {
+      file.prevMotion = file.action.motion;
+    }
+    if (file.action.findChar != null) {
+      file.prevFindChar = file.action.findChar;
     }
     file.action = Action();
   }

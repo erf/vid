@@ -1,4 +1,4 @@
-import 'package:vid/motion.dart';
+import 'motion.dart';
 
 import 'action_typedefs.dart';
 

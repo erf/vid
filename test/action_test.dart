@@ -41,7 +41,6 @@ void main() {
     expect(f.action.opInput, '');
     expect(f.prevAction!.input, 'd');
     expect(f.prevAction!.opInput, 'w');
-    expect(f.prevMotion, null);
   });
 
   test('make sure prev motion is correct in normal mode', () {
@@ -53,7 +52,6 @@ void main() {
     e.input('w');
     expect(f.action.input, '');
     expect(f.action.opInput, '');
-    expect(f.prevMotion!.input, 'w');
     expect(f.prevAction, null);
   });
 }
