@@ -15,17 +15,12 @@ import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_view.dart';
+import 'input_match.dart';
 import 'modes.dart';
 import 'motion.dart';
 import 'position.dart';
 import 'range.dart';
 import 'terminal.dart';
-
-enum InputMatch {
-  none,
-  partial,
-  match,
-}
 
 class Editor {
   final term = Terminal();
@@ -213,18 +208,6 @@ class Editor {
         action.findChar = nextChar;
         return motion.fn(file, pos, nextChar, incl);
     }
-  }
-
-  InputMatch matchKeys(String input, Map<String, Object> map) {
-    // we have a match if input is a key
-    if (map.containsKey(input)) {
-      return InputMatch.match;
-    }
-    // check if input is part of a key
-    String key =
-        map.keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
-    // if input is not part of a key, reset input
-    return key.isEmpty ? InputMatch.none : InputMatch.partial;
   }
 
   bool handleMatchedKeys(InputMatch inputMatch) {
