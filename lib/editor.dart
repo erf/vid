@@ -212,7 +212,7 @@ class Editor {
     }
   }
 
-  void normal(String char, [bool shouldResetAction = true]) {
+  void normal(String char, [bool resetAction = true]) {
     Action action = file.action;
     // if char is a number, accumulate countInput
     if (count(char, action)) {
@@ -227,7 +227,7 @@ class Editor {
     final normal = normalActions[action.input];
     if (normal != null) {
       normal(this, file);
-      if (shouldResetAction) resetAction();
+      if (resetAction) doResetAction();
       return;
     }
     // if motion action, execute it and set cursor
@@ -243,7 +243,7 @@ class Editor {
     }
   }
 
-  void operator(String char, [bool shouldResetAction = true]) {
+  void operator(String char, [bool resetAction = true]) {
     final action = file.action;
     // check if we match a key
     action.opInput += char;
@@ -252,7 +252,7 @@ class Editor {
     }
     // if motion, execute operator on motion
     action.motion = motionActions[action.opInput];
-    doAction(action, shouldResetAction);
+    doAction(action, resetAction);
   }
 
   // execute motion and return end position
@@ -268,7 +268,7 @@ class Editor {
   }
 
   // execute action on range
-  void doAction(Action action, [bool shouldResetAction = true]) {
+  void doAction(Action action, [bool resetAction = true]) {
     // if input is same as opInput, execute linewise
     final oper = action.operator;
     if (oper != null && action.input == action.opInput) {
@@ -280,7 +280,7 @@ class Editor {
       Position start = Motions.lineStart(file, file.cursor);
       oper(file, Range(start: start, end: end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
-      if (shouldResetAction) resetAction();
+      if (resetAction) doResetAction();
       return;
     }
 
@@ -305,12 +305,12 @@ class Editor {
         }
         oper(file, Range(start: start, end: end));
       }
-      if (shouldResetAction) resetAction();
+      if (resetAction) doResetAction();
     }
   }
 
   // set prevAction and reset action
-  void resetAction() {
+  void doResetAction() {
     if (file.action.operator != null) {
       file.prevAction = file.action;
     }
