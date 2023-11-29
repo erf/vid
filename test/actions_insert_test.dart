@@ -47,4 +47,14 @@ void main() {
     expect(f.text, 'abcdef\nghi\n');
     expect(f.cursor, Position(c: 3, l: 0));
   });
+
+  test('insert multiple chars as one insert action', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.createLines();
+    e.input('iabc\x1b');
+    expect(f.text, 'abc\n');
+    expect(f.prevAction!.input, 'abc');
+    expect(f.cursor, Position(c: 3, l: 0));
+  }, skip: true);
 }
