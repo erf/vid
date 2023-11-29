@@ -28,10 +28,10 @@ enum InputMatch {
 }
 
 class Editor {
-  final terminal = Terminal();
+  final term = Terminal();
   final file = FileBuffer();
-  final renderbuf = StringBuffer();
-  String message = '';
+  final rbuf = StringBuffer();
+  String msg = '';
   File? logFile;
   bool redraw;
 
@@ -39,20 +39,20 @@ class Editor {
 
   void init(List<String> args) {
     String path = file.load(args);
-    terminal.rawMode = true;
-    terminal.write(Esc.pushWindowTitle);
-    terminal.write(Esc.windowTitle(path));
-    terminal.write(Esc.enableMode2027(true));
-    terminal.write(Esc.enableAltBuffer(true));
-    terminal.input.listen(onInput);
-    terminal.resize.listen(onResize);
+    term.rawMode = true;
+    term.write(Esc.pushWindowTitle);
+    term.write(Esc.windowTitle(path));
+    term.write(Esc.enableMode2027(true));
+    term.write(Esc.enableAltBuffer(true));
+    term.input.listen(onInput);
+    term.resize.listen(onResize);
     draw();
   }
 
   void quit() {
-    terminal.write(Esc.popWindowTitle);
-    terminal.write(Esc.enableAltBuffer(false));
-    terminal.rawMode = false;
+    term.write(Esc.popWindowTitle);
+    term.write(Esc.enableAltBuffer(false));
+    term.rawMode = false;
     exit(0);
   }
 
@@ -61,35 +61,35 @@ class Editor {
   }
 
   void draw() {
-    renderbuf.clear();
-    renderbuf.write(Esc.homeAndEraseDown);
-    file.clampView(terminal);
+    rbuf.clear();
+    rbuf.write(Esc.homeAndEraseDown);
+    file.clampView(term);
     drawLines();
     drawStatus();
     drawCursor();
-    terminal.write(renderbuf);
+    term.write(rbuf);
   }
 
   void drawLines() {
     final lines = file.lines;
     final view = file.view;
     final lineStart = view.l;
-    final lineEnd = view.l + terminal.height - 1;
+    final lineEnd = view.l + term.height - 1;
 
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
       if (l > lines.length - 1) {
-        renderbuf.writeln('~');
+        rbuf.writeln('~');
         continue;
       }
       // for empty lines draw empty line
       if (lines[l].isEmpty) {
-        renderbuf.writeln();
+        rbuf.writeln();
         continue;
       }
       // get substring of line in view based on render width
-      final line = lines[l].chars.getRenderLine(view.c, terminal.width);
-      renderbuf.writeln(line);
+      final line = lines[l].chars.getRenderLine(view.c, term.width);
+      rbuf.writeln(line);
     }
   }
 
@@ -98,29 +98,29 @@ class Editor {
     final cursor = file.cursor;
     final curlen = file.lines[cursor.l].chars.renderLength(cursor.c);
     final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
-    renderbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
+    rbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
   void drawStatus() {
-    renderbuf.write(Esc.invertColors(true));
-    renderbuf.write(Esc.cursorPosition(c: 1, l: terminal.height));
+    rbuf.write(Esc.invertColors(true));
+    rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
 
     final cursor = file.cursor;
     final modified = file.modified;
     final path = file.path ?? '[No Name]';
     final mode = statusModeLabel(file.mode);
-    final left = ' $mode  $path ${modified ? '* ' : ''}$message ';
+    final left = ' $mode  $path ${modified ? '* ' : ''}$msg ';
     final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
-    final padLeft = terminal.width - left.length - 1;
+    final padLeft = term.width - left.length - 1;
     final status = '$left ${right.padLeft(padLeft)}';
 
-    if (status.length <= terminal.width - 1) {
-      renderbuf.write(status);
+    if (status.length <= term.width - 1) {
+      rbuf.write(status);
     } else {
-      renderbuf.write(status.substring(0, terminal.width));
+      rbuf.write(status.substring(0, term.width));
     }
 
-    renderbuf.write(Esc.invertColors(false));
+    rbuf.write(Esc.invertColors(false));
   }
 
   String statusModeLabel(Mode mode) {
@@ -133,11 +133,11 @@ class Editor {
   }
 
   void showMessage(String text, {bool timed = false}) {
-    message = text;
+    msg = text;
     draw();
     if (timed) {
       Timer(Duration(milliseconds: Config.messageTime), () {
-        message = '';
+        msg = '';
         draw();
       });
     }
@@ -167,7 +167,7 @@ class Editor {
     if (redraw) {
       draw();
     }
-    message = '';
+    msg = '';
   }
 
   // insert char at cursor
