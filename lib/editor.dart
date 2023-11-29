@@ -199,17 +199,6 @@ class Editor {
     return false;
   }
 
-  Position motionEnd(Action action, Motion motion, Position pos, bool incl) {
-    switch (motion) {
-      case NormalMotion():
-        return motion.fn(file, pos);
-      case FindMotion():
-        final nextChar = action.findChar ?? readNextChar();
-        action.findChar = nextChar;
-        return motion.fn(file, pos, nextChar, incl);
-    }
-  }
-
   bool handleMatchedKeys(InputMatch inputMatch) {
     switch (inputMatch) {
       case InputMatch.none:
@@ -266,6 +255,19 @@ class Editor {
     doAction(action, shouldResetAction);
   }
 
+  // execute motion and return end position
+  Position motionEnd(Action action, Motion motion, Position pos, bool incl) {
+    switch (motion) {
+      case NormalMotion():
+        return motion.fn(file, pos);
+      case FindMotion():
+        final nextChar = action.findChar ?? readNextChar();
+        action.findChar = nextChar;
+        return motion.fn(file, pos, nextChar, incl);
+    }
+  }
+
+  // execute action on range
   void doAction(Action action, [bool shouldResetAction = true]) {
     final op = action.operator;
     // if operator is repeated, execute it on line
@@ -287,9 +289,8 @@ class Editor {
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = motionEnd(action, motion, end, action.operator != null);
       }
-      if (op == null) {
-        file.cursor = end;
-      } else {
+      // if operator action, execute it on range
+      if (op != null) {
         Position start = file.cursor;
         if (motion.linewise) {
           final range = Range(start: start, end: end).normalized();
@@ -297,6 +298,9 @@ class Editor {
           end = Motions.lineEnd(file, range.end, inclusive: true);
         }
         op(file, Range(start: start, end: end));
+      } else {
+        // if no operator, set cursor to end of motion
+        file.cursor = end;
       }
     }
     if (shouldResetAction) resetAction();
