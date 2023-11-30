@@ -11,6 +11,7 @@ void main() {
     f.createLines();
     expect(Motions.charNext(f, Position(c: 0, l: 0)), Position(c: 1, l: 0));
     expect(Motions.charNext(f, Position(c: 2, l: 0)), Position(c: 3, l: 0));
+    expect(Motions.charNext(f, Position(c: 3, l: 0)), Position(c: 0, l: 1));
     expect(Motions.charNext(f, Position(c: 0, l: 1)), Position(c: 1, l: 1));
     expect(Motions.charNext(f, Position(c: 2, l: 1)), Position(c: 3, l: 1));
   });
@@ -21,7 +22,7 @@ void main() {
     f.createLines();
     expect(Motions.charPrev(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
     expect(Motions.charPrev(f, Position(c: 2, l: 0)), Position(c: 1, l: 0));
-    expect(Motions.charPrev(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
+    expect(Motions.charPrev(f, Position(c: 0, l: 1)), Position(c: 3, l: 0));
     expect(Motions.charPrev(f, Position(c: 2, l: 1)), Position(c: 1, l: 1));
   });
 

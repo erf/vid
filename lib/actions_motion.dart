@@ -11,17 +11,29 @@ class Motions {
   static final wordRegex = RegExp(r'(\w+|[^\w\s]+|(?<=\n)\n)');
 
   static Position charNext(FileBuffer f, Position p, [bool incl = false]) {
-    return Position(
-      l: p.l,
-      c: min(p.c + 1, f.lines[p.l].charLen - (incl ? 0 : 1)),
-    );
+    int c = p.c + 1;
+    if (c < f.lines[p.l].charLen) {
+      return Position(l: p.l, c: c);
+    } else {
+      int l = p.l + 1;
+      if (l >= f.lines.length) {
+        return p;
+      }
+      return Position(l: l, c: 0);
+    }
   }
 
   static Position charPrev(FileBuffer f, Position p, [bool incl = false]) {
-    return Position(
-      l: p.l,
-      c: max(0, p.c - 1),
-    );
+    int c = p.c - 1;
+    if (c >= 0) {
+      return Position(l: p.l, c: c);
+    } else {
+      int l = p.l - 1;
+      if (l < 0) {
+        return p;
+      }
+      return Position(l: l, c: f.lines[l].charLen - 1);
+    }
   }
 
   static Position lineUp(FileBuffer f, Position p, [bool incl = false]) {
