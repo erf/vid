@@ -82,12 +82,12 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc def ghi\njkl mno pqr\n';
     f.createLines();
-    expect(Motions.wordEnd(f, Position(c: 0, l: 0)), Position(c: 3, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 3, l: 0)), Position(c: 7, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 4, l: 0)), Position(c: 7, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 8, l: 0)), Position(c: 11, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 10, l: 0)), Position(c: 3, l: 1));
-    expect(Motions.wordEnd(f, Position(c: 2, l: 1)), Position(c: 7, l: 1));
+    expect(Motions.wordEnd(f, Position(c: 0, l: 0)), Position(c: 2, l: 0));
+    expect(Motions.wordEnd(f, Position(c: 3, l: 0)), Position(c: 6, l: 0));
+    expect(Motions.wordEnd(f, Position(c: 4, l: 0)), Position(c: 6, l: 0));
+    expect(Motions.wordEnd(f, Position(c: 8, l: 0)), Position(c: 10, l: 0));
+    expect(Motions.wordEnd(f, Position(c: 10, l: 0)), Position(c: 2, l: 1));
+    expect(Motions.wordEnd(f, Position(c: 2, l: 1)), Position(c: 6, l: 1));
   });
 
   test('motionWordPrev', () {

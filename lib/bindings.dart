@@ -16,7 +16,6 @@ const normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   's': NormalActions.save,
-  'e': NormalActions.cursorWordEnd,
   'x': NormalActions.deleteCharNext,
   'i': NormalActions.insert,
   'a': NormalActions.appendCharNext,

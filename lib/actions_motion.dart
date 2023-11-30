@@ -134,7 +134,7 @@ class Motions {
     if (matches.isEmpty) return p;
     final match = matches.firstWhere((m) => m.end - 1 > start,
         orElse: () => matches.first);
-    return f.positionFromByteIndex(match.end);
+    return f.positionFromByteIndex(match.end - (incl ? 0 : 1));
   }
 
   static Position wordPrev(FileBuffer f, Position p, [bool incl = false]) {
