@@ -56,7 +56,7 @@ const motionActions = <String, Motion>{
   '*': NormalMotion(Motions.sameWordNext),
   '0': NormalMotion(Motions.lineStart),
   '^': NormalMotion(Motions.firstNonBlank),
-  '\$': NormalMotion(Motions.lineEnd),
+  '\$': NormalMotion(Motions.lineEndExclusive),
   '\x1b': NormalMotion(Motions.escape),
   'gg': NormalMotion(Motions.fileStart, linewise: true),
   'G': NormalMotion(Motions.fileEnd, linewise: true),

@@ -259,7 +259,7 @@ class Editor {
   Position motionEnd(Action action, Motion motion, Position pos, bool incl) {
     switch (motion) {
       case NormalMotion():
-        return motion.fn(file, pos);
+        return motion.fn(file, pos, incl);
       case FindMotion():
         final nextChar = action.findChar ?? readNextChar();
         action.findChar = nextChar;
@@ -275,7 +275,7 @@ class Editor {
       action.linewise = true;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        end = Motions.lineEnd(file, end, inclusive: true);
+        end = Motions.lineEnd(file, end, true);
       }
       Position start = Motions.lineStart(file, file.cursor);
       oper(file, Range(start: start, end: end));
@@ -301,7 +301,7 @@ class Editor {
         if (motion.linewise) {
           final range = Range(start: start, end: end).normalized();
           start = Motions.lineStart(file, range.start);
-          end = Motions.lineEnd(file, range.end, inclusive: true);
+          end = Motions.lineEnd(file, range.end, true);
         }
         oper(file, Range(start: start, end: end));
       }

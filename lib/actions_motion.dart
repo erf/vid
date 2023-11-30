@@ -10,52 +10,57 @@ import 'utils.dart';
 class Motions {
   static final wordRegex = RegExp(r'(\w+|[^\w\s]+|(?<=\n)\n)');
 
-  static Position charNext(FileBuffer f, Position p) {
+  static Position charNext(FileBuffer f, Position p, [bool incl = false]) {
     return Position(
       l: p.l,
-      c: min(p.c + 1, f.lines[p.l].charLen - 1),
+      c: min(p.c + 1, f.lines[p.l].charLen - (incl ? 0 : 1)),
     );
   }
 
-  static Position charPrev(FileBuffer f, Position p) {
+  static Position charPrev(FileBuffer f, Position p, [bool incl = false]) {
     return Position(
       l: p.l,
       c: max(0, p.c - 1),
     );
   }
 
-  static Position lineUp(FileBuffer f, Position p) {
+  static Position lineUp(FileBuffer f, Position p, [bool incl = false]) {
     final line = max(0, p.l - 1);
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
     return Position(l: line, c: char);
   }
 
-  static Position lineDown(FileBuffer f, Position p) {
+  static Position lineDown(FileBuffer f, Position p, [bool incl = false]) {
     final line = min(p.l + 1, f.lines.length - 1);
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
     return Position(l: line, c: char);
   }
 
-  static Position fileStart(FileBuffer f, Position p) {
+  static Position fileStart(FileBuffer f, Position p, [bool incl = false]) {
     int line = f.action.count == null
         ? 0
         : clamp(f.action.count! - 1, 0, f.lines.length - 1);
-    return Motions.firstNonBlank(f, Position(l: line, c: 0));
+    return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
   }
 
-  static Position fileEnd(FileBuffer f, Position p) {
+  static Position fileEnd(FileBuffer f, Position p, [bool incl = false]) {
     int line = f.action.count == null
         ? max(0, f.lines.length - 1)
         : clamp(f.action.count! - 1, 0, f.lines.length - 1);
-    return Motions.firstNonBlank(f, Position(l: line, c: 0));
+    return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
   }
 
-  static Position lineStart(FileBuffer f, Position p) {
+  static Position lineStart(FileBuffer f, Position p, [bool incl = false]) {
     return Position(l: p.l, c: 0);
   }
 
-  static Position lineEnd(FileBuffer f, Position p, {bool inclusive = false}) {
-    if (inclusive) {
+  static Position lineEndExclusive(FileBuffer f, Position p,
+      [bool incl = false]) {
+    return Position(l: p.l, c: f.lines[p.l].charLen - 1);
+  }
+
+  static Position lineEnd(FileBuffer f, Position p, [bool incl = false]) {
+    if (incl) {
       if (p.l + 1 < f.lines.length) {
         return Position(l: p.l + 1, c: 0);
       } else {
@@ -65,12 +70,12 @@ class Motions {
     return Position(l: p.l, c: f.lines[p.l].charLen - 1);
   }
 
-  static Position firstNonBlank(FileBuffer f, Position p) {
+  static Position firstNonBlank(FileBuffer f, Position p, [bool incl = false]) {
     final firstNonBlank = f.lines[p.l].str.indexOf(RegExp(r'\S'));
     return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
   }
 
-  static Position wordNext(FileBuffer f, Position p) {
+  static Position wordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text, start);
     if (matches.isEmpty) return p;
@@ -79,7 +84,7 @@ class Motions {
     return f.positionFromByteIndex(match.start);
   }
 
-  static Position sameWordNext(FileBuffer f, Position p) {
+  static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
@@ -97,7 +102,7 @@ class Motions {
         : f.positionFromByteIndex(index);
   }
 
-  static Position sameWordPrev(FileBuffer f, Position p) {
+  static Position sameWordPrev(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
@@ -117,7 +122,7 @@ class Motions {
         : f.positionFromByteIndex(index);
   }
 
-  static Position wordEnd(FileBuffer f, Position p) {
+  static Position wordEnd(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text, start);
     if (matches.isEmpty) return p;
@@ -126,14 +131,14 @@ class Motions {
     return f.positionFromByteIndex(match.end);
   }
 
-  static Position wordPrev(FileBuffer f, Position p) {
+  static Position wordPrev(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text.substring(0, start));
     if (matches.isEmpty) return p;
     return f.positionFromByteIndex(matches.last.start);
   }
 
-  static Position wordEndPrev(FileBuffer f, Position p) {
+  static Position wordEndPrev(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
@@ -142,7 +147,7 @@ class Motions {
     return f.positionFromByteIndex(match.end - 1);
   }
 
-  static Position escape(FileBuffer f, Position p) {
+  static Position escape(FileBuffer f, Position p, [bool incl = false]) {
     f.mode = Mode.normal;
     f.action = Action();
     return p;
