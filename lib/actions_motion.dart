@@ -54,20 +54,14 @@ class Motions {
     return Position(l: p.l, c: 0);
   }
 
-  static Position lineEndExclusive(FileBuffer f, Position p,
-      [bool incl = false]) {
+  static Position lineEndExcl(FileBuffer f, Position p, [bool incl = false]) {
     return Position(l: p.l, c: f.lines[p.l].charLen - 1);
   }
 
-  static Position lineEnd(FileBuffer f, Position p, [bool incl = false]) {
-    if (incl) {
-      if (p.l + 1 < f.lines.length) {
-        return Position(l: p.l + 1, c: 0);
-      } else {
-        return Position(l: p.l, c: f.lines[p.l].charLen);
-      }
-    }
-    return Position(l: p.l, c: f.lines[p.l].charLen - 1);
+  static Position lineEndIncl(FileBuffer f, Position p, [bool incl = true]) {
+    return p.l + 1 < f.lines.length
+        ? Position(l: p.l + 1, c: 0)
+        : Position(l: p.l, c: f.lines[p.l].charLen);
   }
 
   static Position firstNonBlank(FileBuffer f, Position p, [bool incl = false]) {
