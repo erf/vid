@@ -115,7 +115,6 @@ class NormalActions {
   }
 
   static void deleteCharNext(Editor e, FileBuffer f) {
-    if (f.empty) return;
     f.action.input = '';
     e.input('dl');
   }
@@ -125,13 +124,11 @@ class NormalActions {
   }
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
-    if (f.empty) return;
     f.action.input = '';
     e.input('d\$');
   }
 
   static void changeLineEnd(Editor e, FileBuffer f) {
-    if (f.empty) return;
     f.action.input = '';
     e.input('d\$i');
   }
