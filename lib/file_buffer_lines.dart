@@ -5,8 +5,10 @@ import 'line.dart';
 extension FileBufferLines on FileBuffer {
   // split text into lines
   void createLines() {
-    // split text into lines (remove last empty line)
+    // split text into lines
     final splits = text.split(nl);
+
+    // remove last empty line if ends with '\n'
     if (text.endsWith('\n')) splits.removeLast();
 
     // split text into lines with metadata used for cursor positioning etc.
