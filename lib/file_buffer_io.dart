@@ -14,6 +14,9 @@ extension FileBufferLines on FileBuffer {
     path = args.last;
     if (args.first.startsWith('+')) {
       cursor.l = int.parse(args.first.substring(1)) - 1;
+    } else if (args.last.startsWith('+')) {
+      cursor.l = int.parse(args.last.substring(1)) - 1;
+      path = args.first;
     }
     if (Directory(path!).existsSync()) {
       print('Cannot open directory \'$path\'');
