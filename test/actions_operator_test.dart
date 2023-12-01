@@ -114,4 +114,13 @@ void main() {
     e.input('xp');
     expect(f.text, '\ndef\nbac\n\nghi\n');
   });
+
+  test('ddu should not produce extra newline', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\n';
+    f.createLines();
+    e.input('ddu');
+    expect(f.text, 'abc\n');
+  });
 }
