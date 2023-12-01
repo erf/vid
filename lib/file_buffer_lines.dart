@@ -6,7 +6,9 @@ extension FileBufferLines on FileBuffer {
   // split text into lines
   void createLines() {
     // add missing newline
-    if (!text.endsWith(nl)) text += nl;
+    if (!text.endsWith(nl)) {
+      text += nl;
+    }
 
     // split text into lines (remove last empty line)
     final splits = text.split(nl)..removeLast();

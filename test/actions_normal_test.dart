@@ -26,17 +26,6 @@ void main() {
     expect(f.cursor, Position(c: 1, l: 1));
   });
 
-  test('delete newline at end of file', () {
-    final e = Editor(redraw: false);
-    final f = e.file;
-    f.text = 'abc\ndef\n\n';
-    f.createLines();
-    f.cursor = Position(c: 0, l: 2);
-    e.input('dd');
-    expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 1));
-  });
-
   test('actionChangeLineEnd', () {
     final e = Editor(redraw: false);
     final f = e.file;

@@ -115,6 +115,17 @@ void main() {
     expect(f.text, '\ndef\nbac\n\nghi\n');
   });
 
+  test('delete newline at end of file', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\n\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 2);
+    e.input('dd');
+    expect(f.text, 'abc\ndef\n');
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
+
   test('ddu should not produce extra newline', () {
     final e = Editor(redraw: false);
     final f = e.file;

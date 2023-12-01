@@ -71,9 +71,11 @@ class Motions {
   }
 
   static Position lineEndIncl(FileBuffer f, Position p, [bool incl = true]) {
-    return p.l + 1 < f.lines.length
-        ? Position(l: p.l + 1, c: 0)
-        : Position(l: p.l, c: f.lines[p.l].charLen);
+    if (p.l + 1 < f.lines.length) {
+      return Position(l: p.l + 1, c: 0);
+    } else {
+      return Position(l: p.l, c: f.lines[p.l].charLen);
+    }
   }
 
   static Position firstNonBlank(FileBuffer f, Position p, [bool incl = false]) {
