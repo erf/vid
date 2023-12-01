@@ -11,13 +11,17 @@ extension FileBufferLines on FileBuffer {
       print('No file name specified');
       exit(1);
     }
-    path = args.last;
-    if (args.first.startsWith('+')) {
+    // parse command line arguments
+    if (args.length == 1) {
+      path = args.first;
+    } else if (args.first.startsWith('+')) {
+      path = args.last;
       cursor.l = int.parse(args.first.substring(1)) - 1;
     } else if (args.last.startsWith('+')) {
-      cursor.l = int.parse(args.last.substring(1)) - 1;
       path = args.first;
+      cursor.l = int.parse(args.last.substring(1)) - 1;
     }
+    // check if path is a directory
     if (Directory(path!).existsSync()) {
       print('Cannot open directory \'$path\'');
       exit(1);
