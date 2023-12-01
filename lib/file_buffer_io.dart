@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
+import 'file_buffer_view.dart';
 
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file, return file name
@@ -10,7 +11,10 @@ extension FileBufferLines on FileBuffer {
       print('No file name specified');
       exit(1);
     }
-    path = args.first;
+    path = args.last;
+    if (args.first.startsWith('+')) {
+      cursor.l = int.parse(args.first.substring(1)) - 1;
+    }
     if (Directory(path!).existsSync()) {
       print('Cannot open directory \'$path\'');
       exit(1);
@@ -22,6 +26,8 @@ extension FileBufferLines on FileBuffer {
     }
     // split text into lines
     createLines();
+    // clamp cursor position to valid range
+    clampCursor();
     return path!;
   }
 
