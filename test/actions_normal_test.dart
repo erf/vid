@@ -67,7 +67,7 @@ void main() {
     e.input('x');
     expect(f.text, 'abcdef\n');
     expect(f.cursor, Position(l: 0, c: 3));
-  }, skip: true);
+  });
 
   test('actionInsertLineStart', () {
     final e = Editor(redraw: false);
