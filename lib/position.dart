@@ -3,10 +3,7 @@ class Position {
   int l;
   int c;
 
-  Position({
-    this.l = 0,
-    this.c = 0,
-  });
+  Position({this.l = 0, this.c = 0});
 
   factory Position.from(Position p) => Position(l: p.l, c: p.c);
 

@@ -5,11 +5,7 @@ class Line {
   final int byteStart;
   final int lineNo;
 
-  const Line(
-    this.str, {
-    required this.byteStart,
-    required this.lineNo,
-  });
+  const Line(this.str, {required this.byteStart, required this.lineNo});
 
   Characters get chars => str.characters;
 
