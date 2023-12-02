@@ -89,7 +89,11 @@ class Motions {
     if (matches.isEmpty) return p;
     final match =
         matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
-    return f.positionFromByteIndex(match.start);
+    if (match.start == start) {
+      return f.positionFromByteIndex(match.end);
+    } else {
+      return f.positionFromByteIndex(match.start);
+    }
   }
 
   static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {

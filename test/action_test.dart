@@ -37,6 +37,7 @@ void main() {
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     e.input('dw');
+    expect(f.text, '\n');
     expect(f.action.input, '');
     expect(f.action.opInput, '');
     expect(f.prevAction!.input, 'd');
