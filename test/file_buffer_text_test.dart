@@ -36,8 +36,8 @@ void main() {
     f.createLines();
     f.deleteRange(
       Range(
-        start: Position(c: 0, l: 0),
-        end: Position(c: 1, l: 1),
+        Position(c: 0, l: 0),
+        Position(c: 1, l: 1),
       ),
     );
     expect(f.text, 'ef\n');
@@ -87,8 +87,8 @@ void main() {
     f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi\n';
     f.createLines();
     f.deleteRange(Range(
-      start: Position(c: 0, l: 0),
-      end: Position(c: 0, l: 1),
+      Position(c: 0, l: 0),
+      Position(c: 0, l: 1),
     ));
     f.deleteAt(Position(c: 0, l: 0));
     f.deleteAt(Position(c: 0, l: 0));

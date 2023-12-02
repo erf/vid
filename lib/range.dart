@@ -5,9 +5,9 @@ class Range {
   final Position start;
   final Position end;
 
-  const Range({required this.start, required this.end});
+  const Range(this.start, this.end);
 
-  factory Range.from(Range r) => Range(start: r.start.clone, end: r.end.clone);
+  factory Range.from(Range r) => Range(r.start.clone, r.end.clone);
 
   Range get clone => Range.from(this);
 
@@ -19,6 +19,6 @@ class Range {
     if (start.l == end.l && start.c <= end.c) {
       return clone;
     }
-    return Range(start: end.clone, end: start.clone);
+    return Range(end.clone, start.clone);
   }
 }
