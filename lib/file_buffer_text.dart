@@ -28,6 +28,10 @@ extension FileBufferText on FileBuffer {
       if (end > text.length) {
         end = text.length - 1;
       }
+      // if the range is the whole text, don't delete the last newline
+      if (end - start == text.length) {
+        end = text.length - 1;
+      }
       if (start >= end) {
         return;
       }
