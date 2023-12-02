@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'string_ext.dart';
 
 import 'action.dart';
 import 'actions_insert.dart';
@@ -83,7 +84,8 @@ class Editor {
         continue;
       }
       // get substring of line in view based on render width
-      final line = lines[l].chars.getRenderLine(view.c, term.width);
+      final line =
+          lines[l].str.tabsToSpaces.ch.getRenderLine(view.c, term.width);
       rbuf.writeln(line);
     }
   }

@@ -1,12 +1,8 @@
 import 'package:characters/characters.dart';
 
-import 'config.dart';
 import 'string_ext.dart';
 
 extension CharactersRender on Characters {
-  // tab space
-  static final tabspace = List.generate(Config.tabWidth, (_) => ' ').join().ch;
-
   // get the rendered length of the string up to the given index
   int renderLength(int count) {
     return take(count).fold(0, (prev, curr) => prev + curr.renderWidth);
@@ -14,8 +10,7 @@ extension CharactersRender on Characters {
 
   // get the visible string for the given view
   Characters getRenderLine(int index, int width) {
-    return replaceAll('\t'.ch, tabspace)
-        .skipWhileLessThanRenderedLength(index)
+    return skipWhileLessThanRenderedLength(index)
         .takeWhileLessThanRenderedLength(width);
   }
 
