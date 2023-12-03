@@ -7,10 +7,6 @@ class Range {
 
   const Range(this.start, this.end);
 
-  factory Range.from(Range r) => Range(r.start.clone, r.end.clone);
-
-  Range get clone => Range.from(this);
-
   // make sure start is before end
   Range get norm {
     if (start.l < end.l) {

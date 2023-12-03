@@ -1,4 +1,3 @@
-import 'characters_render.dart';
 import 'file_buffer.dart';
 import 'terminal.dart';
 import 'utils.dart';
