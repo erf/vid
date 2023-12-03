@@ -9,10 +9,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 1);
+    f.cursor = Caret(c: 0, l: 1);
     e.input('J');
     expect(f.text, 'abc\ndefghi\n');
-    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.cursor, Caret(c: 0, l: 1));
   });
 
   test('actionDeleteLineEnd', () {
@@ -20,10 +20,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 1);
+    f.cursor = Caret(c: 1, l: 1);
     e.input('D');
     expect(f.text, 'abc\nd\nghi\n');
-    expect(f.cursor, Position(c: 1, l: 1));
+    expect(f.cursor, Caret(c: 1, l: 1));
   });
 
   test('actionChangeLineEnd', () {
@@ -31,7 +31,7 @@ void main() {
     final f = e.file;
     f.text = 'hello world\n';
     f.createLines();
-    f.cursor = Position(c: 5, l: 0);
+    f.cursor = Caret(c: 5, l: 0);
     e.input('C');
     expect(f.text, 'hello\n');
   });
@@ -41,10 +41,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 1);
+    f.cursor = Caret(c: 1, l: 1);
     e.input('x');
     expect(f.text, 'abc\ndf\nghi\n');
-    expect(f.cursor, Position(c: 1, l: 1));
+    expect(f.cursor, Caret(c: 1, l: 1));
   });
 
   test('actionDeleteCharNext delete newline', () {
@@ -52,10 +52,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines();
-    f.cursor = Position(l: 0, c: 3);
+    f.cursor = Caret(l: 0, c: 3);
     e.input('x');
     expect(f.text, 'abcdef\n');
-    expect(f.cursor, Position(l: 0, c: 3));
+    expect(f.cursor, Caret(l: 0, c: 3));
   });
 
   test('actionInsertLineStart', () {
@@ -63,10 +63,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines();
-    f.cursor = Position(c: 2, l: 1);
+    f.cursor = Caret(c: 2, l: 1);
     e.input('Ix');
     expect(f.text, 'abc\nxdef\n');
-    expect(f.cursor, Position(c: 1, l: 1));
+    expect(f.cursor, Caret(c: 1, l: 1));
   });
 
   test('actionAppendLineEnd', () {
@@ -74,7 +74,7 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('Ax');
     expect(f.text, 'abcx\ndef\n');
   });
@@ -84,7 +84,7 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines();
-    f.cursor = Position(c: 3, l: 0);
+    f.cursor = Caret(c: 3, l: 0);
     e.input('ax');
     expect(f.text, 'abcx\ndef\n');
   });
@@ -94,9 +94,9 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('G');
-    expect(f.cursor, Position(c: 0, l: 2));
+    expect(f.cursor, Caret(c: 0, l: 2));
   });
 
   test('cursorLineBottomOrCount 2G', () {
@@ -104,9 +104,9 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('2G');
-    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.cursor, Caret(c: 0, l: 1));
   });
 
   test('cursorLineTopOrCount gg', () {
@@ -114,9 +114,9 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 2);
+    f.cursor = Caret(c: 0, l: 2);
     e.input('gg');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.cursor, Caret(c: 0, l: 0));
   });
 
   test('cursorLineTopOrCount 2gg', () {
@@ -124,9 +124,9 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 2);
+    f.cursor = Caret(c: 0, l: 2);
     e.input('2gg');
-    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.cursor, Caret(c: 0, l: 1));
   });
 
   test('repeat dw.', () {
@@ -152,10 +152,10 @@ void main() {
     final f = e.file;
     f.text = 'abc abc abc abc\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     f.action.findChar = 'c';
     e.input('f;;');
-    expect(f.cursor, Position(c: 10, l: 0));
+    expect(f.cursor, Caret(c: 10, l: 0));
   });
 
   test('delete line, move down and paste', () {
@@ -163,9 +163,9 @@ void main() {
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('ddjp');
     expect(f.text, '\ndef\nabc\n\nghi\n');
-    expect(f.cursor, Position(c: 0, l: 2));
+    expect(f.cursor, Caret(c: 0, l: 2));
   });
 }

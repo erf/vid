@@ -2,8 +2,8 @@ import 'position.dart';
 
 // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#range
 class Range {
-  final Position start;
-  final Position end;
+  final Caret start;
+  final Caret end;
 
   const Range(this.start, this.end);
 

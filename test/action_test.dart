@@ -9,11 +9,11 @@ void main() {
     final f = e.file;
     f.text = 'abc\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('Æ');
     expect(f.action.input, '');
     expect(f.action.opInput, '');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.cursor, Caret(c: 0, l: 0));
     expect(f.text, 'abc\n');
   });
 
@@ -22,11 +22,11 @@ void main() {
     final f = e.file;
     f.text = 'abc\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('dÆ');
     expect(f.action.input, '');
     expect(f.action.opInput, '');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.cursor, Caret(c: 0, l: 0));
     expect(f.text, 'abc\n');
   });
 
@@ -35,7 +35,7 @@ void main() {
     final f = e.file;
     f.text = 'abc\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('dw');
     expect(f.text, '\n');
     expect(f.action.input, '');
@@ -49,7 +49,7 @@ void main() {
     final f = e.file;
     f.text = 'abc\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('w');
     expect(f.action.input, '');
     expect(f.action.opInput, '');

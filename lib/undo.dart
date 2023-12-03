@@ -11,7 +11,7 @@ class Undo {
   final String text;
   final String prev;
   final int i;
-  final Position cursor;
+  final Caret cursor;
 
   const Undo(
     this.op,

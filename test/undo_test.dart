@@ -12,7 +12,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines();
     expect(f.modified, false);
-    f.deleteAt(Position(c: 0, l: 0));
+    f.deleteAt(Caret(c: 0, l: 0));
     expect(f.modified, true);
     NormalActions.undo(e, f);
     expect(f.modified, false);

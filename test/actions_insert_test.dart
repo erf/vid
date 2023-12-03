@@ -10,10 +10,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 0);
+    f.cursor = Caret(c: 1, l: 0);
     e.input('id');
     expect(f.text, 'adbc\n');
-    expect(f.cursor, Position(c: 2, l: 0));
+    expect(f.cursor, Caret(c: 2, l: 0));
   });
 
   test('insertActionEscape', () {
@@ -21,7 +21,7 @@ void main() {
     final f = e.file;
     f.text = 'abc';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('i\x1b');
     expect(f.mode, Mode.normal);
   });
@@ -31,10 +31,10 @@ void main() {
     final f = e.file;
     f.text = 'abcdef\n';
     f.createLines();
-    f.cursor = Position(c: 3, l: 0);
+    f.cursor = Caret(c: 3, l: 0);
     e.input('i\n');
     expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.cursor, Caret(c: 0, l: 1));
   });
 
   test('insertActionBackspace', () {
@@ -42,10 +42,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 1);
+    f.cursor = Caret(c: 0, l: 1);
     e.insert('\x7f');
     expect(f.text, 'abcdef\nghi\n');
-    expect(f.cursor, Position(c: 3, l: 0));
+    expect(f.cursor, Caret(c: 3, l: 0));
   });
 
   test('insert multiple chars as one insert action', () {
@@ -55,6 +55,6 @@ void main() {
     e.input('iabc\x1b');
     expect(f.text, 'abc\n');
     expect(f.prevAction!.input, 'abc');
-    expect(f.cursor, Position(c: 3, l: 0));
+    expect(f.cursor, Caret(c: 3, l: 0));
   }, skip: true);
 }

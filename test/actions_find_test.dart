@@ -10,24 +10,24 @@ void main() {
     final f = FileBuffer();
     f.text = 'abca\ndef\n';
     f.createLines();
-    final cursor = Position(c: 0, l: 0);
-    expect(Find.findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
-    expect(Find.findNextChar(f, cursor, 'b', false), Position(c: 1, l: 0));
-    expect(Find.findNextChar(f, cursor, 'c', false), Position(c: 2, l: 0));
+    final cursor = Caret(c: 0, l: 0);
+    expect(Find.findNextChar(f, cursor, 'a', false), Caret(c: 3, l: 0));
+    expect(Find.findNextChar(f, cursor, 'b', false), Caret(c: 1, l: 0));
+    expect(Find.findNextChar(f, cursor, 'c', false), Caret(c: 2, l: 0));
     // inclusive
-    expect(Find.findNextChar(f, cursor, 'a', true), Position(c: 4, l: 0));
-    expect(Find.findNextChar(f, cursor, 'b', true), Position(c: 2, l: 0));
-    expect(Find.findNextChar(f, cursor, 'c', true), Position(c: 3, l: 0));
+    expect(Find.findNextChar(f, cursor, 'a', true), Caret(c: 4, l: 0));
+    expect(Find.findNextChar(f, cursor, 'b', true), Caret(c: 2, l: 0));
+    expect(Find.findNextChar(f, cursor, 'c', true), Caret(c: 3, l: 0));
   });
 
   test('motionFindPrevChar', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
     f.createLines();
-    final cursor = Position(c: 2, l: 0);
-    expect(Find.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));
-    expect(Find.findPrevChar(f, cursor, 'b', false), Position(c: 1, l: 0));
-    expect(Find.findPrevChar(f, cursor, 'c', false), Position(c: 2, l: 0));
+    final cursor = Caret(c: 2, l: 0);
+    expect(Find.findPrevChar(f, cursor, 'a', false), Caret(c: 0, l: 0));
+    expect(Find.findPrevChar(f, cursor, 'b', false), Caret(c: 1, l: 0));
+    expect(Find.findPrevChar(f, cursor, 'c', false), Caret(c: 2, l: 0));
   });
 
   test('till with delete operator', () {
@@ -35,7 +35,7 @@ void main() {
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     f.action.findChar = 't';
     e.input('dt');
     expect(f.text, 'test\n');
@@ -46,7 +46,7 @@ void main() {
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     f.action.findChar = 't';
     e.input('df');
     expect(f.text, 'est\n');

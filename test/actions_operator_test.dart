@@ -10,10 +10,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 0);
+    f.cursor = Caret(c: 0, l: 0);
     e.input('dd');
     expect(f.text, 'def\nghi\n');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.cursor, Caret(c: 0, l: 0));
   });
 
   test('dk', () {
@@ -21,12 +21,12 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 1);
+    f.cursor = Caret(c: 1, l: 1);
     e.input(
       'dk',
     );
     expect(f.text, 'ghi\n');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.cursor, Caret(c: 0, l: 0));
   });
 
   test('dj', () {
@@ -34,17 +34,17 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 0);
+    f.cursor = Caret(c: 1, l: 0);
     e.input('dj');
     expect(f.text, 'ghi\n');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.cursor, Caret(c: 0, l: 0));
   });
   test('dd p kP', () {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 1);
+    f.cursor = Caret(c: 1, l: 1);
     e.input('dd');
     expect(f.text, 'abc\nghi\n');
     expect(f.cursor.l, 1);
@@ -61,7 +61,7 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 1);
+    f.cursor = Caret(c: 1, l: 1);
     e.input('cc');
     expect(f.text, 'abc\nghi\n');
     expect(f.cursor.l, 1);
@@ -74,7 +74,7 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines();
-    f.cursor = Position(c: 1, l: 1);
+    f.cursor = Caret(c: 1, l: 1);
     e.input('yy');
     expect(f.yankBuffer, 'def\n');
     e.input('P');
@@ -88,7 +88,7 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi\n';
     f.createLines();
-    f.cursor = Position(c: 4, l: 0);
+    f.cursor = Caret(c: 4, l: 0);
     e.input('yw');
     expect(f.yankBuffer, 'def ');
     e.input('P');
@@ -120,10 +120,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n\n';
     f.createLines();
-    f.cursor = Position(c: 0, l: 2);
+    f.cursor = Caret(c: 0, l: 2);
     e.input('dd');
     expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.cursor, Caret(c: 0, l: 1));
   });
 
   test('ddu should not produce extra newline', () {
