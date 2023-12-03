@@ -26,7 +26,7 @@ extension FileBufferText on FileBuffer {
     // don't delete or replace the last newline
     if (op == TextOp.delete || op == TextOp.replace) {
       if (end > text.length) {
-        end = text.length - 1;
+        end = text.length;
       }
       // if the range is the whole text, don't delete the last newline
       if (end - start == text.length) {
