@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
-import 'package:vid/caret.dart';
+import 'package:vid/position.dart';
 
 void main() {
   test('move cursor by word 3 times', () {

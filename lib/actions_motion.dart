@@ -4,7 +4,7 @@ import 'action.dart';
 import 'file_buffer.dart';
 import 'file_buffer_text.dart';
 import 'modes.dart';
-import 'caret.dart';
+import 'position.dart';
 import 'utils.dart';
 
 class Motions {

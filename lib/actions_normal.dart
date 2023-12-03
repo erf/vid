@@ -9,7 +9,7 @@ import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
-import 'caret.dart';
+import 'position.dart';
 import 'undo.dart';
 
 class NormalActions {

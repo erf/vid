@@ -7,7 +7,7 @@ import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
-import 'caret.dart';
+import 'position.dart';
 
 class InsertActions {
   static void defaultInsert(FileBuffer f, String s) {

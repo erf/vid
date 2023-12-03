@@ -1,4 +1,4 @@
-import 'caret.dart';
+import 'position.dart';
 
 enum TextOp {
   replace,

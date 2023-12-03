@@ -1,6 +1,6 @@
 import 'editor.dart';
 import 'file_buffer.dart';
-import 'caret.dart';
+import 'position.dart';
 import 'range.dart';
 
 typedef InsertFn = void Function(FileBuffer);
