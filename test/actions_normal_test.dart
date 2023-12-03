@@ -4,17 +4,6 @@ import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/position.dart';
 
 void main() {
-  test('joinLines', () {
-    final e = Editor(redraw: false);
-    final f = e.file;
-    f.text = 'abc\ndef\nghi\n';
-    f.createLines();
-    f.cursor = Position(c: 0, l: 1);
-    e.input('J');
-    expect(f.text, 'abc\ndefghi\n');
-    expect(f.cursor, Position(c: 0, l: 1));
-  });
-
   test('actionDeleteLineEnd', () {
     final e = Editor(redraw: false);
     final f = e.file;
@@ -167,5 +156,27 @@ void main() {
     e.input('ddjp');
     expect(f.text, '\ndef\nabc\n\nghi\n');
     expect(f.cursor, Position(c: 0, l: 2));
+  });
+
+  test('add space when joining lines', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('J');
+    expect(f.text, 'abc def\n');
+    expect(f.cursor, Position(c: 0, l: 0));
+  });
+
+  test('dont add space when joining empty lines', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\n\ndef\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 0);
+    e.input('JJ');
+    expect(f.text, 'abc def\n');
+    expect(f.cursor, Position(c: 0, l: 0));
   });
 }
