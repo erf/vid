@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vid/position.dart';
+import 'package:vid/caret.dart';
 import 'package:vid/range.dart';
 
 void main() {

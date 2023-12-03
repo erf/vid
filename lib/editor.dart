@@ -19,7 +19,7 @@ import 'file_buffer_view.dart';
 import 'input_match.dart';
 import 'modes.dart';
 import 'motion.dart';
-import 'position.dart';
+import 'caret.dart';
 import 'range.dart';
 import 'terminal.dart';
 

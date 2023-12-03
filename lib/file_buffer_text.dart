@@ -3,7 +3,7 @@ import 'package:characters/characters.dart';
 import 'characters_index.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
-import 'position.dart';
+import 'caret.dart';
 import 'range.dart';
 import 'undo.dart';
 

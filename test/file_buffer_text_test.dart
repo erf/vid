@@ -4,7 +4,7 @@ import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/file_buffer_text.dart';
-import 'package:vid/position.dart';
+import 'package:vid/caret.dart';
 import 'package:vid/range.dart';
 
 void main() {

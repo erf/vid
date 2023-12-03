@@ -2,7 +2,7 @@ import 'action.dart';
 import 'line.dart';
 import 'modes.dart';
 import 'motion.dart';
-import 'position.dart';
+import 'caret.dart';
 import 'undo.dart';
 
 // all things related to the file buffer
