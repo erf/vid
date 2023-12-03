@@ -12,7 +12,7 @@ class Range {
   Range get clone => Range.from(this);
 
   // make sure start is before end
-  Range get normalized {
+  Range get norm {
     if (start.l < end.l) {
       return this;
     }

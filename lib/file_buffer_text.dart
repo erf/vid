@@ -74,7 +74,7 @@ extension FileBufferText on FileBuffer {
   }
 
   void yankRange(Range range) {
-    final r = range.normalized;
+    final r = range.norm;
     final start = byteIndexFromPosition(r.start);
     final end = byteIndexFromPosition(r.end);
     yankBuffer = text.substring(start, end);
