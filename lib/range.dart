@@ -14,10 +14,10 @@ class Range {
   // make sure start is before end
   Range normalized() {
     if (start.l < end.l) {
-      return clone;
+      return this;
     }
     if (start.l == end.l && start.c <= end.c) {
-      return clone;
+      return this;
     }
     return Range(end.clone, start.clone);
   }
