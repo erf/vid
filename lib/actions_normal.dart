@@ -134,14 +134,19 @@ class NormalActions {
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    if (f.lines.length <= 1) {
-      return;
-    }
-    final int eol = f.lines[f.cursor.l].charLen - 1;
-    if (f.lines[f.cursor.l + 1].str == ' ') {
-      f.deleteAt(Position(l: f.cursor.l, c: eol));
-    } else {
-      f.replaceAt(Position(l: f.cursor.l, c: eol), ' ');
+    for (int i = 0; i < (f.action.count ?? 1); i++) {
+      if (f.lines.length <= 1) {
+        return;
+      }
+      final int eol = f.lines[f.cursor.l].charLen - 1;
+      if (f.lines[f.cursor.l + 1].str == ' ') {
+        f.deleteAt(Position(l: f.cursor.l, c: eol));
+      } else {
+        f.replaceAt(Position(l: f.cursor.l, c: eol), ' ');
+      }
+      if (i > 0) {
+        f.createLines();
+      }
     }
   }
 
