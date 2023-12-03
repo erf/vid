@@ -147,7 +147,7 @@ class NormalActions {
       TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
     };
     f.createLines();
-    f.cursor = u.cursor.clone;
+    f.cursor = u.cursor;
   }
 
   static void repeat(Editor e, FileBuffer f) {

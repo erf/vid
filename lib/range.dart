@@ -15,6 +15,6 @@ class Range {
     if (start.l == end.l && start.c <= end.c) {
       return this;
     }
-    return Range(end.clone, start.clone);
+    return Range(end, start);
   }
 }

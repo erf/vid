@@ -7,8 +7,6 @@ class Position {
 
   factory Position.from(Position p) => Position(l: p.l, c: p.c);
 
-  Position get clone => Position.from(this);
-
   @override
   String toString() => 'Position(l: $l, c: $c)';
 
