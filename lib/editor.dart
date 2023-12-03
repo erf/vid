@@ -59,10 +59,11 @@ class Editor {
   void draw() {
     rbuf.clear();
     rbuf.write(Esc.homeAndEraseDown);
-    file.clampView(term);
+    int curLen = file.lines[file.cursor.l].chars.renderLength(file.cursor.c);
+    file.clampView(term, curLen);
     drawLines();
     drawStatus();
-    drawCursor();
+    drawCursor(curLen);
     term.write(rbuf);
   }
 
@@ -90,10 +91,9 @@ class Editor {
     }
   }
 
-  void drawCursor() {
+  void drawCursor(int curlen) {
     final view = file.view;
     final cursor = file.cursor;
-    final curlen = file.lines[cursor.l].chars.renderLength(cursor.c);
     final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
     rbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
