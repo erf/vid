@@ -179,4 +179,15 @@ void main() {
     expect(f.text, 'abc def\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
+
+  test('dont add space when joining empty lines on empty line', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\n\ndef\n';
+    f.createLines();
+    f.cursor = Position(c: 0, l: 1);
+    e.input('J');
+    expect(f.text, 'abc\ndef\n');
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
 }
