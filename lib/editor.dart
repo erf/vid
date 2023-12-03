@@ -301,7 +301,7 @@ class Editor {
         // if operator action, execute it on range
         Position start = file.cursor;
         if (motion.linewise) {
-          final range = Range(start, end).normalized();
+          final range = Range(start, end).normalized;
           start = Motions.lineStart(file, range.start);
           end = Motions.lineEndIncl(file, range.end);
         }

@@ -7,7 +7,7 @@ void main() {
     final rNormalized = Range(
       Position(l: 1, c: 1),
       Position(l: 0, c: 0),
-    ).normalized();
+    ).normalized;
     final rExpected = Range(
       Position(l: 0, c: 0),
       Position(l: 1, c: 1),
@@ -20,7 +20,7 @@ void main() {
     final rNormalized = Range(
       Position(l: 0, c: 0),
       Position(l: 1, c: 1),
-    ).normalized();
+    ).normalized;
     final rExpected = Range(
       Position(l: 0, c: 0),
       Position(l: 1, c: 1),
@@ -33,7 +33,7 @@ void main() {
     final rNormalized = Range(
       Position(l: 0, c: 1),
       Position(l: 0, c: 0),
-    ).normalized();
+    ).normalized;
     final rExpected = Range(
       Position(l: 0, c: 0),
       Position(l: 0, c: 1),
@@ -46,7 +46,7 @@ void main() {
     final rNormalized = Range(
       Position(l: 1, c: 0),
       Position(l: 1, c: 1),
-    ).normalized();
+    ).normalized;
     final rExpected = Range(
       Position(l: 1, c: 0),
       Position(l: 1, c: 1),
@@ -59,7 +59,7 @@ void main() {
     final rNormalized = Range(
       Position(l: 1, c: 1),
       Position(l: 1, c: 1),
-    ).normalized();
+    ).normalized;
     final rExpected = Range(
       Position(l: 1, c: 1),
       Position(l: 1, c: 1),
