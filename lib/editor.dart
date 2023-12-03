@@ -94,7 +94,7 @@ class Editor {
   void drawCursor(int curlen) {
     final view = file.view;
     final cursor = file.cursor;
-    final curpos = Caret(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
+    final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
     rbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
@@ -258,7 +258,7 @@ class Editor {
   }
 
   // execute motion and return end position
-  Caret motionEnd(Action action, Motion motion, Caret pos, bool incl) {
+  Position motionEnd(Action action, Motion motion, Position pos, bool incl) {
     switch (motion) {
       case NormalMotion():
         return motion.fn(file, pos, incl);
@@ -275,11 +275,11 @@ class Editor {
     final oper = action.operator;
     if (oper != null && action.input == action.opInput) {
       action.linewise = true;
-      Caret end = file.cursor;
+      Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = Motions.lineEndIncl(file, end);
       }
-      Caret start = Motions.lineStart(file, file.cursor);
+      Position start = Motions.lineStart(file, file.cursor);
       oper(file, Range(start, end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
       if (resetAction) doResetAction();
@@ -290,7 +290,7 @@ class Editor {
     if (action.motion != null) {
       final motion = action.motion!;
       action.linewise = motion.linewise;
-      Caret end = file.cursor;
+      Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = motionEnd(action, motion, end, action.operator != null);
       }
@@ -299,7 +299,7 @@ class Editor {
         file.cursor = end;
       } else {
         // if operator action, execute it on range
-        Caret start = file.cursor;
+        Position start = file.cursor;
         if (motion.linewise) {
           final range = Range(start, end).norm;
           start = Motions.lineStart(file, range.start);

@@ -26,23 +26,23 @@ class NormalActions {
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
     if (f.prevAction?.linewise ?? false) {
-      f.insertAt(
-          Caret(l: f.cursor.l, c: f.lines[f.cursor.l].charLen), f.yankBuffer!);
-      f.cursor = Caret(l: f.cursor.l + 1, c: 0);
+      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
+          f.yankBuffer!);
+      f.cursor = Position(l: f.cursor.l + 1, c: 0);
     } else if (f.lines[f.cursor.l].str == " ") {
-      f.insertAt(Caret(l: f.cursor.l, c: 0), f.yankBuffer!);
+      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
     } else {
-      f.insertAt(Caret(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
+      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
     }
   }
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
     if (f.prevAction?.linewise ?? false) {
-      f.insertAt(Caret(l: f.cursor.l, c: 0), f.yankBuffer!);
-      f.cursor = Caret(l: f.cursor.l, c: 0);
+      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+      f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
-      f.insertAt(Caret(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
+      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
     }
   }
 
@@ -84,13 +84,13 @@ class NormalActions {
 
   static void openLineAbove(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    f.insertAt(Caret(l: f.cursor.l, c: 0), createNewlines(f));
+    f.insertAt(Position(l: f.cursor.l, c: 0), createNewlines(f));
     f.cursor.c = 0;
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
     f.mode = Mode.insert;
-    f.insertAt(Caret(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
+    f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
         createNewlines(f));
     f.cursor = Motions.lineDown(f, f.cursor);
   }
@@ -135,7 +135,7 @@ class NormalActions {
 
   static void joinLines(Editor e, FileBuffer f) {
     if (f.lines.length <= 1) return;
-    f.deleteAt(Caret(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
+    f.deleteAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen - 1));
   }
 
   static void undo(Editor e, FileBuffer f) {

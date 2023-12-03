@@ -10,80 +10,80 @@ import 'utils.dart';
 class Motions {
   static final wordRegex = RegExp(r'(\w+|[^\w\s]+|(?<=\n)\n)');
 
-  static Caret charNext(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position charNext(FileBuffer f, Position p, [bool incl = false]) {
     int c = p.c + 1;
     if (c < f.lines[p.l].charLen) {
-      return Caret(l: p.l, c: c);
+      return Position(l: p.l, c: c);
     } else {
       int l = p.l + 1;
       if (l >= f.lines.length) {
         return p;
       }
-      return Caret(l: l, c: 0);
+      return Position(l: l, c: 0);
     }
   }
 
-  static Caret charPrev(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position charPrev(FileBuffer f, Position p, [bool incl = false]) {
     int c = p.c - 1;
     if (c >= 0) {
-      return Caret(l: p.l, c: c);
+      return Position(l: p.l, c: c);
     } else {
       int l = p.l - 1;
       if (l < 0) {
         return p;
       }
-      return Caret(l: l, c: f.lines[l].charLen - 1);
+      return Position(l: l, c: f.lines[l].charLen - 1);
     }
   }
 
-  static Caret lineUp(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position lineUp(FileBuffer f, Position p, [bool incl = false]) {
     final line = max(0, p.l - 1);
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
-    return Caret(l: line, c: char);
+    return Position(l: line, c: char);
   }
 
-  static Caret lineDown(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position lineDown(FileBuffer f, Position p, [bool incl = false]) {
     final line = min(p.l + 1, f.lines.length - 1);
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
-    return Caret(l: line, c: char);
+    return Position(l: line, c: char);
   }
 
-  static Caret fileStart(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position fileStart(FileBuffer f, Position p, [bool incl = false]) {
     int line = f.action.count == null
         ? 0
         : clamp(f.action.count! - 1, 0, f.lines.length - 1);
-    return Motions.firstNonBlank(f, Caret(l: line, c: 0), incl);
+    return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
   }
 
-  static Caret fileEnd(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position fileEnd(FileBuffer f, Position p, [bool incl = false]) {
     int line = f.action.count == null
         ? max(0, f.lines.length - 1)
         : clamp(f.action.count! - 1, 0, f.lines.length - 1);
-    return Motions.firstNonBlank(f, Caret(l: line, c: 0), incl);
+    return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
   }
 
-  static Caret lineStart(FileBuffer f, Caret p, [bool incl = false]) {
-    return Caret(l: p.l, c: 0);
+  static Position lineStart(FileBuffer f, Position p, [bool incl = false]) {
+    return Position(l: p.l, c: 0);
   }
 
-  static Caret lineEndExcl(FileBuffer f, Caret p, [bool incl = false]) {
-    return Caret(l: p.l, c: f.lines[p.l].charLen - 1);
+  static Position lineEndExcl(FileBuffer f, Position p, [bool incl = false]) {
+    return Position(l: p.l, c: f.lines[p.l].charLen - 1);
   }
 
-  static Caret lineEndIncl(FileBuffer f, Caret p, [bool incl = true]) {
+  static Position lineEndIncl(FileBuffer f, Position p, [bool incl = true]) {
     if (p.l + 1 < f.lines.length) {
-      return Caret(l: p.l + 1, c: 0);
+      return Position(l: p.l + 1, c: 0);
     } else {
-      return Caret(l: p.l, c: f.lines[p.l].charLen);
+      return Position(l: p.l, c: f.lines[p.l].charLen);
     }
   }
 
-  static Caret firstNonBlank(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position firstNonBlank(FileBuffer f, Position p, [bool incl = false]) {
     final firstNonBlank = f.lines[p.l].str.indexOf(RegExp(r'\S'));
-    return Caret(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
+    return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
   }
 
-  static Caret wordNext(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position wordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text, start);
     if (matches.isEmpty) return p;
@@ -96,7 +96,7 @@ class Motions {
     }
   }
 
-  static Caret sameWordNext(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
@@ -114,7 +114,7 @@ class Motions {
         : f.positionFromByteIndex(index);
   }
 
-  static Caret sameWordPrev(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position sameWordPrev(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
@@ -134,7 +134,7 @@ class Motions {
         : f.positionFromByteIndex(index);
   }
 
-  static Caret wordEnd(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position wordEnd(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text, start);
     if (matches.isEmpty) return p;
@@ -143,14 +143,14 @@ class Motions {
     return f.positionFromByteIndex(match.end - (incl ? 0 : 1));
   }
 
-  static Caret wordPrev(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position wordPrev(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text.substring(0, start));
     if (matches.isEmpty) return p;
     return f.positionFromByteIndex(matches.last.start);
   }
 
-  static Caret wordEndPrev(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position wordEndPrev(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = wordRegex.allMatches(f.text);
     if (matches.isEmpty) return p;
@@ -159,7 +159,7 @@ class Motions {
     return f.positionFromByteIndex(match.end - 1);
   }
 
-  static Caret escape(FileBuffer f, Caret p, [bool incl = false]) {
+  static Position escape(FileBuffer f, Position p, [bool incl = false]) {
     f.mode = Mode.normal;
     f.action = Action();
     return p;

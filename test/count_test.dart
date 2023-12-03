@@ -9,9 +9,9 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     f.createLines();
-    f.cursor = Caret(c: 0, l: 0);
+    f.cursor = Position(c: 0, l: 0);
     e.input('3w');
-    expect(f.cursor, Caret(c: 12, l: 0));
+    expect(f.cursor, Position(c: 12, l: 0));
   });
 
   test('delete word 3 times', () {
@@ -19,9 +19,9 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     f.createLines();
-    f.cursor = Caret(c: 0, l: 0);
+    f.cursor = Position(c: 0, l: 0);
     e.input('3dw');
-    expect(f.cursor, Caret(c: 0, l: 0));
+    expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'jkl\n');
   });
 
@@ -30,9 +30,9 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\nghi\njkl\n';
     f.createLines();
-    f.cursor = Caret(c: 0, l: 0);
+    f.cursor = Position(c: 0, l: 0);
     e.input('2dj');
-    expect(f.cursor, Caret(c: 0, l: 0));
+    expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'jkl\n');
   });
 
@@ -41,9 +41,9 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
     f.createLines();
-    f.cursor = Caret(c: 0, l: 0);
+    f.cursor = Position(c: 0, l: 0);
     e.input('10w');
-    expect(f.cursor, Caret(c: 39, l: 0));
+    expect(f.cursor, Position(c: 39, l: 0));
   });
 
   test('0 (beginning of line)', () {
@@ -51,8 +51,8 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
     f.createLines();
-    f.cursor = Caret(c: 39, l: 0);
+    f.cursor = Position(c: 39, l: 0);
     e.input('0');
-    expect(f.cursor, Caret(c: 0, l: 0));
+    expect(f.cursor, Position(c: 0, l: 0));
   });
 }

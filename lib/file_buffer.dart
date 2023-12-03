@@ -17,10 +17,10 @@ class FileBuffer {
   List<Line> lines = [];
 
   // the cursor position (0 based, in grapheme cluster space)
-  Caret cursor = Caret();
+  Position cursor = Position();
 
   // the view offset (0 based, in grapheme cluster space)
-  Caret view = Caret();
+  Position view = Position();
 
   // the current mode
   Mode mode = Mode.normal;

@@ -8,16 +8,16 @@ import 'range.dart';
 import 'undo.dart';
 
 extension FileBufferText on FileBuffer {
-  Caret positionFromByteIndex(int index) {
+  Position positionFromByteIndex(int index) {
     final line = lines.firstWhere((line) => index < line.byteEnd);
-    return Caret(
+    return Position(
       l: line.lineNo,
       c: line.chars.byteToCharLength(index - line.byteStart),
     );
   }
 
   // get the byte index of the cursor in the String text
-  int byteIndexFromPosition(Caret p) {
+  int byteIndexFromPosition(Position p) {
     return lines[p.l].byteIndexAt(p.c);
   }
 
@@ -41,7 +41,7 @@ extension FileBufferText on FileBuffer {
 
     // undo
     final prevText = text.substring(start, end);
-    undoList.add(Undo(op, newText, prevText, start, Caret.from(cursor)));
+    undoList.add(Undo(op, newText, prevText, start, Position.from(cursor)));
     // yank
     if (op == TextOp.delete || op == TextOp.replace) {
       yankBuffer = prevText;
@@ -57,19 +57,19 @@ extension FileBufferText on FileBuffer {
     replace(start, end, '', TextOp.delete);
   }
 
-  void insertAt(Caret p, String s) {
+  void insertAt(Position p, String s) {
     final index = byteIndexFromPosition(p);
     replace(index, index, s, TextOp.insert);
   }
 
-  void replaceAt(Caret p, String s, [var op = TextOp.replace]) {
+  void replaceAt(Position p, String s, [var op = TextOp.replace]) {
     final index = byteIndexFromPosition(p);
     final r = CharacterRange.at(text, index)..moveNext();
     final length = r.current.length;
     replace(index, index + length, s, op);
   }
 
-  void deleteAt(Caret p) {
+  void deleteAt(Position p) {
     replaceAt(p, '', TextOp.delete);
   }
 
