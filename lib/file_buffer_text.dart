@@ -28,7 +28,9 @@ extension FileBufferText on FileBuffer {
       if (end > text.length) {
         end = text.length;
       }
-      // if the range is the whole text, don't delete the last newline
+      // if the range is the whole text, don't include the last newline, because
+      // we don't want to include it in the Undo, as we will add a newline in
+      // crateLines
       if (end - start == text.length) {
         end = text.length - 1;
       }
