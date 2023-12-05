@@ -145,10 +145,29 @@ class Editor {
     input(utf8.decode(codes));
   }
 
+  bool hasScrollEvents(String s) {
+    if (s.contains('\x1b[A') ||
+        s.contains('\x1b[B') ||
+        s.contains('\x1b[C') ||
+        s.contains('\x1b[D')) {
+      return true;
+    }
+    if (s.contains('\x1bOA') ||
+        s.contains('\x1bOB') ||
+        s.contains('\x1bOC') ||
+        s.contains('\x1bOD')) {
+      return true;
+    }
+    return false;
+  }
+
   void input(String str) {
     if (Config.log) {
       logFile ??= File(Config.logPath);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
+    }
+    if (hasScrollEvents(str)) {
+      return;
     }
     for (String char in str.characters) {
       switch (file.mode) {
