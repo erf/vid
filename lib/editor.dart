@@ -37,9 +37,9 @@ class Editor {
     String path = file.load(args);
     term.rawMode = true;
     term.write(Esc.pushWindowTitle);
-    term.write(Esc.windowTitle(path));
-    term.write(Esc.enableMode2027(true));
-    term.write(Esc.enableAltBuffer(true));
+    term.write(Esc.setWindowTitle(path));
+    term.write(Esc.enableMode2027);
+    term.write(Esc.enableAltBuffer);
     term.write(Esc.disableAlternateScrollMode);
     term.input.listen(onInput);
     term.resize.listen(onResize);
@@ -48,7 +48,7 @@ class Editor {
 
   void quit() {
     term.write(Esc.popWindowTitle);
-    term.write(Esc.enableAltBuffer(false));
+    term.write(Esc.disableAltBuffer);
     term.rawMode = false;
     exit(0);
   }
@@ -100,7 +100,7 @@ class Editor {
   }
 
   void drawStatus() {
-    rbuf.write(Esc.invertColors(true));
+    rbuf.write(Esc.invertColors);
     rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
 
     final cursor = file.cursor;
@@ -118,7 +118,7 @@ class Editor {
       rbuf.write(status.substring(0, term.width));
     }
 
-    rbuf.write(Esc.invertColors(false));
+    rbuf.write(Esc.reverseColors);
   }
 
   String statusModeLabel(Mode mode) {

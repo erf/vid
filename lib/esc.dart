@@ -17,18 +17,25 @@ class Esc {
       '$e[$l;${c}H';
 
   // invert colors
-  static String invertColors(bool invert) => invert ? '$e[7m' : '$e[27m';
+  static const String invertColors = '$e[7m';
+
+  // reverse colors
+  static const String reverseColors = '$e[27m';
 
   // enable alternative buffer
-  static String enableAltBuffer(bool enable) =>
-      enable ? '$e[?1049h' : '$e[?1049l';
+  static const String enableAltBuffer = '$e[?1049h';
+
+  // disable alternative buffer
+  static const String disableAltBuffer = '$e[?1049l';
 
   // enable mode 2027 for grapheme cluster support
-  static String enableMode2027(bool enable) =>
-      enable ? '$e[?2027h' : '$e[?2027l';
+  static const String enableMode2027 = '$e[?2027h';
+
+  // disable mode 2027 for grapheme cluster support
+  static const String disableMode2027 = '$e[?2027l';
 
   // set window title
-  static String windowTitle(String path) => '$e]2;vid $path\x07';
+  static String setWindowTitle(String path) => '$e]2;vid $path\x07';
 
   // push window title
   static const String pushWindowTitle = '$e[22;2t';
