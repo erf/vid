@@ -31,6 +31,8 @@ class Editor {
   File? logFile;
   bool redraw;
 
+  static final regexScrollEvents = RegExp('\x1b([O[])[A-D]');
+
   Editor({this.redraw = true});
 
   void init(List<String> args) {
@@ -145,21 +147,7 @@ class Editor {
     input(utf8.decode(codes));
   }
 
-  bool hasScrollEvents(String s) {
-    if (s.contains('\x1b[A') ||
-        s.contains('\x1b[B') ||
-        s.contains('\x1b[C') ||
-        s.contains('\x1b[D')) {
-      return true;
-    }
-    if (s.contains('\x1bOA') ||
-        s.contains('\x1bOB') ||
-        s.contains('\x1bOC') ||
-        s.contains('\x1bOD')) {
-      return true;
-    }
-    return false;
-  }
+  bool hasScrollEvents(String input) => regexScrollEvents.hasMatch(input);
 
   void input(String str) {
     if (Config.log) {
