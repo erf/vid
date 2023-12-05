@@ -40,6 +40,7 @@ class Editor {
     term.write(Esc.windowTitle(path));
     term.write(Esc.enableMode2027(true));
     term.write(Esc.enableAltBuffer(true));
+    term.write(Esc.disableAlternateScrollMode);
     term.input.listen(onInput);
     term.resize.listen(onResize);
     draw();
