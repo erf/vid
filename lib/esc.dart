@@ -35,4 +35,10 @@ class Esc {
 
   // pop window title
   static const String popWindowTitle = '$e[23;2t';
+
+  // enable mouse tracking
+  static const String enableAlternateScrollMode = '$e[?1007h';
+
+  // disable mouse tracking
+  static const String disableAlternateScrollMode = '$e[?1007l';
 }
