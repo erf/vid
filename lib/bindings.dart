@@ -6,12 +6,6 @@ import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'motion.dart';
 
-const insertActions = <String, InsertFn>{
-  '\x1b': InsertActions.escape,
-  '\x7f': InsertActions.backspace,
-  '\n': InsertActions.enter,
-};
-
 const normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
@@ -56,13 +50,17 @@ const motionActions = <String, Motion>{
   '0': NormalMotion(Motions.lineStart),
   '^': NormalMotion(Motions.firstNonBlank),
   '\$': NormalMotion(Motions.lineEndExcl),
-  '\x1b': NormalMotion(Motions.escape),
   'gg': NormalMotion(Motions.fileStart, linewise: true),
   'G': NormalMotion(Motions.fileEnd, linewise: true),
   'f': FindMotion(Find.findNextChar),
   'F': FindMotion(Find.findPrevChar),
   't': FindMotion(Find.tillNextChar),
   'T': FindMotion(Find.tillPrevChar),
+};
+
+const insertActions = <String, InsertFn>{
+  '\x7f': InsertActions.backspace,
+  '\n': InsertActions.enter,
 };
 
 final normalBindings = {

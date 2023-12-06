@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'string_ext.dart';
 
 import 'action.dart';
 import 'actions_insert.dart';
@@ -21,6 +20,7 @@ import 'modes.dart';
 import 'motion.dart';
 import 'position.dart';
 import 'range.dart';
+import 'string_ext.dart';
 import 'terminal.dart';
 
 class Editor {
@@ -177,6 +177,12 @@ class Editor {
 
   // insert char at cursor
   void insert(String char) {
+    if (char == '\x1b') {
+      setMode(this, file, Mode.normal);
+      file.clampCursor();
+      return;
+    }
+
     final insertAction = insertActions[char];
     if (insertAction != null) {
       insertAction(file);
@@ -187,7 +193,7 @@ class Editor {
 
   // replace char at cursor with char
   void replace(String char) {
-    defaultReplace(file, char);
+    defaultReplace(this, file, char);
   }
 
   String readNextChar() {
@@ -212,7 +218,7 @@ class Editor {
   bool handleMatchedKeys(InputMatch inputMatch) {
     switch (inputMatch) {
       case InputMatch.none:
-        setMode(file, Mode.normal);
+        setMode(this, file, Mode.normal);
         file.action = Action();
         return false;
       case InputMatch.partial:
@@ -249,13 +255,18 @@ class Editor {
     // if operator action, set it and change to operator mode
     action.operator = operatorActions[action.input];
     if (action.operator != null) {
-      setMode(file, Mode.operator);
+      setMode(this, file, Mode.operator);
     }
   }
 
   void operator(String char, [bool resetAction = true]) {
-    final action = file.action;
+    if (char == '\x1b') {
+      setMode(this, file, Mode.normal);
+      file.action = Action();
+      return;
+    }
     // check if we match a key
+    final action = file.action;
     action.opInput += char;
     if (!handleMatchedKeys(matchKeys(action.opInput, opBindings))) {
       return;
@@ -288,7 +299,7 @@ class Editor {
         end = Motions.lineEndIncl(file, end);
       }
       Position start = Motions.lineStart(file, file.cursor);
-      oper(file, Range(start, end));
+      oper(this, file, Range(start, end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
       if (resetAction) doResetAction();
       return;
@@ -313,7 +324,7 @@ class Editor {
           start = Motions.lineStart(file, range.start);
           end = Motions.lineEndIncl(file, range.end);
         }
-        oper(file, Range(start, end));
+        oper(this, file, Range(start, end));
       }
       if (resetAction) doResetAction();
     }

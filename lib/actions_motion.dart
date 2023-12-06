@@ -1,9 +1,7 @@
 import 'dart:math';
 
-import 'action.dart';
 import 'file_buffer.dart';
 import 'file_buffer_text.dart';
-import 'modes.dart';
 import 'position.dart';
 import 'utils.dart';
 
@@ -157,11 +155,5 @@ class Motions {
     final match =
         matches.lastWhere((e) => e.end < start, orElse: () => matches.last);
     return f.positionFromByteIndex(match.end - 1);
-  }
-
-  static Position escape(FileBuffer f, Position p, [bool incl = false]) {
-    setMode(f, Mode.normal);
-    f.action = Action();
-    return p;
   }
 }
