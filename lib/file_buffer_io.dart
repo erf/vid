@@ -20,6 +20,9 @@ extension FileBufferLines on FileBuffer {
     } else if (args.last.startsWith('+')) {
       path = args.first;
       cursor.l = int.parse(args.last.substring(1)) - 1;
+    } else {
+      print('Invalid command line arguments');
+      exit(1);
     }
     // check if path is a directory
     if (Directory(path!).existsSync()) {
