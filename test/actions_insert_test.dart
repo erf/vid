@@ -11,9 +11,9 @@ void main() {
     f.text = 'abc\n';
     f.createLines();
     f.cursor = Position(c: 1, l: 0);
-    e.input('id');
+    e.input('id\x1b');
     expect(f.text, 'adbc\n');
-    expect(f.cursor, Position(c: 2, l: 0));
+    expect(f.cursor, Position(c: 1, l: 0));
   });
 
   test('insertActionEscape', () {
