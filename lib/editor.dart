@@ -179,6 +179,7 @@ class Editor {
   void insert(String char) {
     if (char == '\x1b') {
       setMode(this, file, Mode.normal);
+      file.cursor.c--;
       file.clampCursor();
       return;
     }
