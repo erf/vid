@@ -83,20 +83,20 @@ class NormalActions {
   }
 
   static void openLineAbove(Editor e, FileBuffer f) {
-    f.mode = Mode.insert;
+    setMode(f, Mode.insert);
     f.insertAt(Position(l: f.cursor.l, c: 0), createNewlines(f));
     f.cursor.c = 0;
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
-    f.mode = Mode.insert;
+    setMode(f, Mode.insert);
     f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
         createNewlines(f));
     f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void insert(Editor e, FileBuffer f) {
-    f.mode = Mode.insert;
+    setMode(f, Mode.insert);
   }
 
   static void insertLineStart(Editor e, FileBuffer f) {
@@ -110,7 +110,7 @@ class NormalActions {
   }
 
   static void appendCharNext(Editor e, FileBuffer f) {
-    f.mode = Mode.insert;
+    setMode(f, Mode.insert);
     f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
   }
 
@@ -120,7 +120,7 @@ class NormalActions {
   }
 
   static void replace(Editor e, FileBuffer f) {
-    f.mode = Mode.replace;
+    setMode(f, Mode.replace);
   }
 
   static void deleteLineEnd(Editor e, FileBuffer f) {

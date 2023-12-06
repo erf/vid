@@ -7,19 +7,19 @@ import 'range.dart';
 class Operators {
   static void change(FileBuffer f, Range range) {
     delete(f, range);
-    f.mode = Mode.insert;
+    setMode(f, Mode.insert);
   }
 
   static void delete(FileBuffer f, Range range) {
     Range r = range.norm;
     f.deleteRange(r);
     f.cursor = r.start;
+    setMode(f, Mode.normal);
     f.clampCursor();
-    f.mode = Mode.normal;
   }
 
   static void yank(FileBuffer f, Range range) {
     f.yankRange(range);
-    f.mode = Mode.normal;
+    setMode(f, Mode.normal);
   }
 }

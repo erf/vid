@@ -212,7 +212,7 @@ class Editor {
   bool handleMatchedKeys(InputMatch inputMatch) {
     switch (inputMatch) {
       case InputMatch.none:
-        file.mode = Mode.normal;
+        setMode(file, Mode.normal);
         file.action = Action();
         return false;
       case InputMatch.partial:
@@ -249,7 +249,7 @@ class Editor {
     // if operator action, set it and change to operator mode
     action.operator = operatorActions[action.input];
     if (action.operator != null) {
-      file.mode = Mode.operator;
+      setMode(file, Mode.operator);
     }
   }
 

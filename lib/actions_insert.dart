@@ -16,7 +16,7 @@ class InsertActions {
   }
 
   static void escape(FileBuffer f) {
-    f.mode = Mode.normal;
+    setMode(f, Mode.normal);
     f.clampCursor();
   }
 
