@@ -20,6 +20,7 @@ import 'modes.dart';
 import 'motion.dart';
 import 'position.dart';
 import 'range.dart';
+import 'regex.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
 
@@ -30,8 +31,6 @@ class Editor {
   String msg = '';
   File? logFile;
   bool redraw;
-
-  static final regexScrollEvents = RegExp('\x1b([O[])[A-D]');
 
   Editor({this.redraw = true});
 
@@ -147,14 +146,12 @@ class Editor {
     input(utf8.decode(codes));
   }
 
-  bool hasScrollEvents(String input) => regexScrollEvents.hasMatch(input);
-
   void input(String str) {
     if (Config.log) {
       logFile ??= File(Config.logPath);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
-    if (hasScrollEvents(str)) {
+    if (Regex.scrollEvents.hasMatch(str)) {
       return;
     }
     for (String char in str.characters) {

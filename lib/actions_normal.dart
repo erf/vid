@@ -10,6 +10,7 @@ import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
+import 'regex.dart';
 import 'undo.dart';
 
 class NormalActions {
@@ -180,14 +181,12 @@ class NormalActions {
     e.doAction(f.action, false);
   }
 
-  static final numberRegex = RegExp(r'((?:-)?\d+)');
-
   static void increaseNextWord(FileBuffer f, int count) {
     final p = f.cursor;
     final i = f.byteIndexFromPosition(p);
     final line = f.lines[p.l];
     final start = line.byteStart;
-    final matches = numberRegex.allMatches(line.str);
+    final matches = Regex.number.allMatches(line.str);
     if (matches.isEmpty) return;
     final m = matches.firstWhere((m) => i < (m.end + start),
         orElse: () => matches.last);
