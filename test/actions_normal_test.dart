@@ -198,7 +198,7 @@ void main() {
     f.createLines();
     e.input('\u0001');
     expect(f.text, 'abc 124 def\n');
-    //expect(f.cursor.c, 6);
+    expect(f.cursor.c, 6);
   });
 
   test('increase negative number', () {
@@ -208,7 +208,7 @@ void main() {
     f.createLines();
     e.input('\u0001');
     expect(f.text, 'abc -122 def\n');
-    //expect(f.cursor.c, 7);
+    expect(f.cursor.c, 7);
   });
 
   test('decrease next number', () {
@@ -218,7 +218,7 @@ void main() {
     f.createLines();
     e.input('\u0018');
     expect(f.text, 'abc 122 def\n');
-    //expect(f.cursor.c, 6);
+    expect(f.cursor.c, 6);
   });
 
   test('decrease negative number', () {
@@ -228,6 +228,6 @@ void main() {
     f.createLines();
     e.input('\u0018');
     expect(f.text, 'abc -124 def\n');
-    //expect(f.cursor.c, 7);
+    expect(f.cursor.c, 7);
   });
 }
