@@ -180,12 +180,14 @@ class NormalActions {
     e.doAction(f.action, false);
   }
 
+  static final numberRegex = RegExp(r'((?:-)?\d+)');
+
   static void increaseNextWord(FileBuffer f, int count) {
     final p = f.cursor;
     final i = f.byteIndexFromPosition(p);
     final line = f.lines[p.l];
     final start = line.byteStart;
-    final matches = RegExp(r'((?:-)?\d+)').allMatches(line.str);
+    final matches = numberRegex.allMatches(line.str);
     if (matches.isEmpty) return;
     final m = matches.firstWhere((m) => i < (m.end + start),
         orElse: () => matches.last);
