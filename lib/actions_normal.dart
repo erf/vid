@@ -92,7 +92,7 @@ class NormalActions {
     setMode(e, f, Mode.insert);
     f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
         createNewlines(f));
-    f.cursor = Motions.lineDown( f, f.cursor);
+    f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void insert(Editor e, FileBuffer f) {
@@ -178,5 +178,27 @@ class NormalActions {
     f.action.motion = f.prevMotion;
     f.action.findChar = f.prevFindChar;
     e.doAction(f.action, false);
+  }
+
+  static void increaseNextWord(FileBuffer f, int count) {
+    final p = f.cursor;
+    final line = f.lines[p.l].str;
+    final m = RegExp(r'((?:-)?\d+)').firstMatch(line.substring(p.c));
+    if (m == null) return;
+    final s = m.group(1)!;
+    final num = int.parse(s);
+    final i = f.byteIndexFromPosition(p);
+    f.replace(i + m.start, i + m.end, (num + count).toString(), TextOp.replace);
+    //f.cursor.c += m.end - 1;
+  }
+
+  // increase the next number by 1
+  static void increase(Editor e, FileBuffer f) {
+    increaseNextWord(f, 1);
+  }
+
+  // decrease the next number by 1
+  static void decrease(Editor e, FileBuffer f) {
+    increaseNextWord(f, -1);
   }
 }

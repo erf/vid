@@ -190,4 +190,44 @@ void main() {
     expect(f.text, 'abc\ndef\n');
     expect(f.cursor, Position(c: 0, l: 1));
   });
+
+  test('increase next number', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc 123 def\n';
+    f.createLines();
+    e.input('\u0001');
+    expect(f.text, 'abc 124 def\n');
+    //expect(f.cursor.c, 6);
+  });
+
+  test('increase negative number', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc -123 def\n';
+    f.createLines();
+    e.input('\u0001');
+    expect(f.text, 'abc -122 def\n');
+    //expect(f.cursor.c, 7);
+  });
+
+  test('decrease next number', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc 123 def\n';
+    f.createLines();
+    e.input('\u0018');
+    expect(f.text, 'abc 122 def\n');
+    //expect(f.cursor.c, 6);
+  });
+
+  test('decrease negative number', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc -123 def\n';
+    f.createLines();
+    e.input('\u0018');
+    expect(f.text, 'abc -124 def\n');
+    //expect(f.cursor.c, 7);
+  });
 }
