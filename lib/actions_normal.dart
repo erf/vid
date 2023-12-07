@@ -183,15 +183,18 @@ class NormalActions {
   static void increaseNextWord(FileBuffer f, int count) {
     final p = f.cursor;
     final i = f.byteIndexFromPosition(p);
-    final matches = RegExp(r'((?:-)?\d+)').allMatches(f.text);
+    final line = f.lines[p.l];
+    final start = line.byteStart;
+    final matches = RegExp(r'((?:-)?\d+)').allMatches(line.str);
     if (matches.isEmpty) return;
-    final m = matches.firstWhere((m) => i < m.end, orElse: () => matches.last);
-    if (i >= m.end) return;
+    final m = matches.firstWhere((m) => i < (m.end + start),
+        orElse: () => matches.last);
+    if (i >= (m.end + start)) return;
     final s = m.group(1)!;
     final num = int.parse(s);
     final numstr = (num + count).toString();
-    f.replace(m.start, m.end, numstr, TextOp.replace);
-    f.cursor = f.positionFromByteIndex(m.start + numstr.length - 1);
+    f.replace(start + m.start, start + m.end, numstr, TextOp.replace);
+    f.cursor = f.positionFromByteIndex(start + m.start + numstr.length - 1);
   }
 
   // increase the next number by 1
