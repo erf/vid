@@ -58,6 +58,7 @@ const motionActions = <String, Motion>{
   'F': FindMotion(Find.findPrevChar),
   't': FindMotion(Find.tillNextChar),
   'T': FindMotion(Find.tillPrevChar),
+  ' ': NormalMotion(Motions.charNext),
 };
 
 const insertActions = <String, InsertFn>{
