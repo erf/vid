@@ -41,8 +41,7 @@ extension CharactersRender on Characters {
   Characters takeWhileLessThanRenderedLength(int width) {
     int total = 0;
     return takeWhile((char) {
-      int renderWidth = char.renderWidth;
-      total += renderWidth;
+      total += char.renderWidth;
       return total <= width;
     });
   }
