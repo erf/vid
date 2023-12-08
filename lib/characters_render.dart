@@ -9,7 +9,7 @@ extension CharactersRender on Characters {
   }
 
   // get the visible string for the given view
-  Characters getRenderLine(int index, int width) {
+  Characters renderLine(int index, int width) {
     return skipWhileLessThanRenderedLength(index)
         .takeWhileLessThanRenderedLength(width);
   }
@@ -43,9 +43,6 @@ extension CharactersRender on Characters {
     return takeWhile((char) {
       int renderWidth = char.renderWidth;
       total += renderWidth;
-      if (renderWidth == 2) {
-        return (total - 1) <= width;
-      }
       return total <= width;
     });
   }

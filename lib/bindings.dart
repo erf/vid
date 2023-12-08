@@ -41,6 +41,7 @@ const operatorActions = <String, OperatorFn>{
 const motionActions = <String, Motion>{
   'h': NormalMotion(Motions.charPrev),
   'l': NormalMotion(Motions.charNext),
+  ' ': NormalMotion(Motions.charNext),
   'k': NormalMotion(Motions.lineUp, linewise: true),
   'j': NormalMotion(Motions.lineDown, linewise: true),
   'w': NormalMotion(Motions.wordNext),
@@ -58,7 +59,6 @@ const motionActions = <String, Motion>{
   'F': FindMotion(Find.findPrevChar),
   't': FindMotion(Find.tillNextChar),
   'T': FindMotion(Find.tillPrevChar),
-  ' ': NormalMotion(Motions.charNext),
 };
 
 const insertActions = <String, InsertFn>{

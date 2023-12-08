@@ -87,8 +87,7 @@ class Editor {
         continue;
       }
       // get substring of line in view based on render width
-      final line =
-          lines[l].str.tabsToSpaces.ch.getRenderLine(view.c, term.width);
+      final line = lines[l].str.tabsToSpaces.ch.renderLine(view.c, term.width);
       rbuf.writeln(line);
     }
   }
