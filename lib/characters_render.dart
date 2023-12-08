@@ -9,13 +9,12 @@ extension CharactersRender on Characters {
   }
 
   // get the visible string for the given view
-  Characters renderLine(int index, int width) {
-    return skipWhileLessThanRenderedLength(index)
-        .takeWhileLessThanRenderedLength(width);
+  Characters renderLine(int start, int width) {
+    return skipUntilStart(start).takeUntilWidth(width);
   }
 
   // skip characters until the rendered length of the line is reached
-  Characters skipWhileLessThanRenderedLength(int start) {
+  Characters skipUntilStart(int start) {
     int total = 0;
     bool space = false;
     final line = skipWhile((char) {
@@ -35,7 +34,7 @@ extension CharactersRender on Characters {
   }
 
   // take characters until the rendered length of the line is reached
-  Characters takeWhileLessThanRenderedLength(int width) {
+  Characters takeUntilWidth(int width) {
     int total = 0;
     return takeWhile((char) {
       total += char.renderWidth;

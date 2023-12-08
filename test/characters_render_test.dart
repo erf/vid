@@ -4,27 +4,27 @@ import 'package:vid/string_ext.dart';
 
 void main() {
   test('takeWhileLessThanRenderedLength', () {
-    expect('abc'.ch.takeWhileLessThanRenderedLength(1).string, 'a');
-    expect('abc'.ch.takeWhileLessThanRenderedLength(3).string, 'abc');
-    expect('😀😀abc'.ch.takeWhileLessThanRenderedLength(4).string, '😀😀');
-    expect('😀😀abc'.ch.takeWhileLessThanRenderedLength(3).string, '😀',
+    expect('abc'.ch.takeUntilWidth(1).string, 'a');
+    expect('abc'.ch.takeUntilWidth(3).string, 'abc');
+    expect('😀😀abc'.ch.takeUntilWidth(4).string, '😀😀');
+    expect('😀😀abc'.ch.takeUntilWidth(3).string, '😀',
         reason: 'should skip if in middle of emoji');
   });
 
   test('skipWhileLessThanRenderedLength', () {
-    expect('abc'.ch.skipWhileLessThanRenderedLength(1).string, 'bc');
-    expect('abc'.ch.skipWhileLessThanRenderedLength(2).string, 'c');
-    expect('abc'.ch.skipWhileLessThanRenderedLength(3).string, '');
-    expect('😀😀abc'.ch.skipWhileLessThanRenderedLength(4).string, 'abc');
-    expect('😀😀abc'.ch.skipWhileLessThanRenderedLength(3).string, ' abc',
+    expect('abc'.ch.skipUntilStart(1).string, 'bc');
+    expect('abc'.ch.skipUntilStart(2).string, 'c');
+    expect('abc'.ch.skipUntilStart(3).string, '');
+    expect('😀😀abc'.ch.skipUntilStart(4).string, 'abc');
+    expect('😀😀abc'.ch.skipUntilStart(3).string, ' abc',
         reason: 'should add space at start if emoji');
   });
 
   test('skip initial emoji and make space', () {
-    expect('😀abc'.ch.skipWhileLessThanRenderedLength(0).string, '😀abc');
-    expect('😀abc'.ch.skipWhileLessThanRenderedLength(1).string, ' abc');
-    expect('😀abc'.ch.skipWhileLessThanRenderedLength(2).string, 'abc');
-    expect('😀abc'.ch.skipWhileLessThanRenderedLength(3).string, 'bc');
+    expect('😀abc'.ch.skipUntilStart(0).string, '😀abc');
+    expect('😀abc'.ch.skipUntilStart(1).string, ' abc');
+    expect('😀abc'.ch.skipUntilStart(2).string, 'abc');
+    expect('😀abc'.ch.skipUntilStart(3).string, 'bc');
   });
 
   test('renderedLength', () {
