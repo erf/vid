@@ -174,7 +174,7 @@ class Editor {
 
   // insert char at cursor
   void insert(String char) {
-    if (char == '\x1b') {
+    if (char == Esc.e) {
       setMode(this, file, Mode.normal);
       file.cursor.c--;
       file.clampCursor();
@@ -258,7 +258,7 @@ class Editor {
   }
 
   void operator(String char, [bool resetAction = true]) {
-    if (char == '\x1b') {
+    if (char == Esc.e) {
       setMode(this, file, Mode.normal);
       file.action = Action();
       return;
