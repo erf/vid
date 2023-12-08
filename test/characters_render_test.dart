@@ -20,6 +20,13 @@ void main() {
         reason: 'should add space at start if emoji');
   });
 
+  test('skip initial emoji and make space', () {
+    expect('😀abc'.ch.skipWhileLessThanRenderedLength(0).string, '😀abc');
+    expect('😀abc'.ch.skipWhileLessThanRenderedLength(1).string, ' abc');
+    expect('😀abc'.ch.skipWhileLessThanRenderedLength(2).string, 'abc');
+    expect('😀abc'.ch.skipWhileLessThanRenderedLength(3).string, 'bc');
+  });
+
   test('renderedLength', () {
     expect('abc'.ch.renderLength(0), 0);
     expect('abc'.ch.renderLength(2), 2);
