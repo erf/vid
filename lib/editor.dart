@@ -310,18 +310,19 @@ class Editor {
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = motionEnd(action, motion, end, operator != null);
       }
-      if (operator == null) {
-        // if no operator, set cursor to end of motion
-        file.cursor = end;
-      } else {
-        // if operator action, execute it on range
-        Position start = file.cursor;
-        if (motion.linewise) {
-          final range = Range(start, end).norm;
-          start = Motions.lineStart(file, range.start);
-          end = Motions.lineEndIncl(file, range.end);
-        }
-        operator(this, file, Range(start, end));
+      switch (operator) {
+        case null:
+          // motion only
+          file.cursor = end;
+        case _:
+          // motion and operator
+          Position start = file.cursor;
+          if (motion.linewise) {
+            final range = Range(start, end).norm;
+            start = Motions.lineStart(file, range.start);
+            end = Motions.lineEndIncl(file, range.end);
+          }
+          operator(this, file, Range(start, end));
       }
       if (resetAction) doResetAction();
     }
