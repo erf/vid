@@ -17,7 +17,7 @@ extension CharactersRender on Characters {
   // skip characters until the rendered length of the line is reached
   Characters skipWhileLessThanRenderedLength(int start) {
     int total = 0;
-    bool addSpace = false;
+    bool space = false;
     final line = skipWhile((char) {
       int renderWidth = char.renderWidth;
       total += renderWidth;
@@ -25,16 +25,13 @@ extension CharactersRender on Characters {
       // double width character and start is 1 then
       if (renderWidth == 2) {
         if (total - 1 == start) {
-          addSpace = true;
+          space = true;
         }
-        return (total - 1) <= start;
+        return total - 1 <= start;
       }
       return total <= start;
     });
-    if (addSpace) {
-      return ' '.ch + line;
-    }
-    return line;
+    return space ? ' '.ch + line : line;
   }
 
   // take characters until the rendered length of the line is reached
