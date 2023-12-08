@@ -289,15 +289,15 @@ class Editor {
   // execute action on range
   void doAction(Action action, [bool resetAction = true]) {
     // if input is same as opInput, execute linewise
-    final oper = action.operator;
-    if (oper != null && action.input == action.opInput) {
+    final operator = action.operator;
+    if (operator != null && action.input == action.opInput) {
       action.linewise = true;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
         end = Motions.lineEndIncl(file, end);
       }
       Position start = Motions.lineStart(file, file.cursor);
-      oper(this, file, Range(start, end));
+      operator(this, file, Range(start, end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
       if (resetAction) doResetAction();
       return;
@@ -309,9 +309,9 @@ class Editor {
       action.linewise = motion.linewise;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        end = motionEnd(action, motion, end, action.operator != null);
+        end = motionEnd(action, motion, end, operator != null);
       }
-      if (oper == null) {
+      if (operator == null) {
         // if no operator, set cursor to end of motion
         file.cursor = end;
       } else {
@@ -322,7 +322,7 @@ class Editor {
           start = Motions.lineStart(file, range.start);
           end = Motions.lineEndIncl(file, range.end);
         }
-        oper(this, file, Range(start, end));
+        operator(this, file, Range(start, end));
       }
       if (resetAction) doResetAction();
     }
