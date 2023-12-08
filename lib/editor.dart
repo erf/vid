@@ -302,10 +302,9 @@ class Editor {
       if (resetAction) doResetAction();
       return;
     }
-
     // if motion action, execute it and set cursor
-    if (action.motion != null) {
-      final motion = action.motion!;
+    final motion = action.motion;
+    if (motion != null) {
       action.linewise = motion.linewise;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
