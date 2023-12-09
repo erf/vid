@@ -12,7 +12,7 @@ enum Mode {
 void setMode(Editor editor, FileBuffer file, Mode mode) {
   switch (mode) {
     case Mode.normal:
-      editor.term.write(Esc.cursorStyleDefault);
+      editor.term.write(Esc.cursorStyleBlock);
       break;
     case Mode.operator:
       break;

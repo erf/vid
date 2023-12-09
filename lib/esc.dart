@@ -49,9 +49,6 @@ class Esc {
   // disable mouse tracking
   static const String disableAlternateScrollMode = '$e[?1007l';
 
-  // set cursor style to default
-  static const String cursorStyleDefault = '$e[0 q';
-
   // set cursor style to block
   static const String cursorStyleBlock = '$e[1 q';
 
