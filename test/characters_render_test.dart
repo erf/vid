@@ -4,27 +4,27 @@ import 'package:vid/string_ext.dart';
 
 void main() {
   test('takeWhileLessThanRenderedLength', () {
-    expect('abc'.ch.takeUntilWidth(1).string, 'a');
-    expect('abc'.ch.takeUntilWidth(3).string, 'abc');
-    expect('😀😀abc'.ch.takeUntilWidth(4).string, '😀😀');
-    expect('😀😀abc'.ch.takeUntilWidth(3).string, '😀',
+    expect('abc'.ch.renderLineEnd(1).string, 'a');
+    expect('abc'.ch.renderLineEnd(3).string, 'abc');
+    expect('😀😀abc'.ch.renderLineEnd(4).string, '😀😀');
+    expect('😀😀abc'.ch.renderLineEnd(3).string, '😀',
         reason: 'should skip if in middle of emoji');
   });
 
   test('skipWhileLessThanRenderedLength', () {
-    expect('abc'.ch.skipUntilStart(1).string, 'bc');
-    expect('abc'.ch.skipUntilStart(2).string, 'c');
-    expect('abc'.ch.skipUntilStart(3).string, '');
-    expect('😀😀abc'.ch.skipUntilStart(4).string, 'abc');
-    expect('😀😀abc'.ch.skipUntilStart(3).string, ' abc',
+    expect('abc'.ch.renderLineStart(1).string, 'bc');
+    expect('abc'.ch.renderLineStart(2).string, 'c');
+    expect('abc'.ch.renderLineStart(3).string, '');
+    expect('😀😀abc'.ch.renderLineStart(4).string, 'abc');
+    expect('😀😀abc'.ch.renderLineStart(3).string, ' abc',
         reason: 'should add space at start if emoji');
   });
 
   test('skip initial emoji and make space', () {
-    expect('😀abc'.ch.skipUntilStart(0).string, '😀abc');
-    expect('😀abc'.ch.skipUntilStart(1).string, ' abc');
-    expect('😀abc'.ch.skipUntilStart(2).string, 'abc');
-    expect('😀abc'.ch.skipUntilStart(3).string, 'bc');
+    expect('😀abc'.ch.renderLineStart(0).string, '😀abc');
+    expect('😀abc'.ch.renderLineStart(1).string, ' abc');
+    expect('😀abc'.ch.renderLineStart(2).string, 'abc');
+    expect('😀abc'.ch.renderLineStart(3).string, 'bc');
   });
 
   test('renderedLength', () {
