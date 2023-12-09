@@ -12,18 +12,13 @@ extension FileBufferLines on FileBuffer {
       exit(1);
     }
     // parse command line arguments
-    if (args.length == 1) {
-      path = args.first;
-    } else if (args.first.startsWith('+')) {
-      path = args.last;
-      cursor.l = int.parse(args.first.substring(1)) - 1;
-    } else if (args.last.startsWith('+')) {
-      path = args.first;
+    path = args.first;
+
+    // parse line number
+    if (args.last.startsWith('+')) {
       cursor.l = int.parse(args.last.substring(1)) - 1;
-    } else {
-      print('Invalid command line arguments');
-      exit(1);
     }
+
     // check if path is a directory
     if (Directory(path!).existsSync()) {
       print('Cannot open directory \'$path\'');
