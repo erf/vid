@@ -94,6 +94,13 @@ void main() {
     expect(Motions.wordNext(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
   });
 
+  test('motionWordCapNext', () {
+    final f = FileBuffer();
+    f.text = 'abc,def ghi\n';
+    f.createLines();
+    expect(Motions.wordCapNext(f, Position(c: 0, l: 0)), Position(c: 8, l: 0));
+  });
+
   test('motionWordEnd', () {
     final f = FileBuffer();
     f.text = 'abc def ghi\njkl mno pqr\n';

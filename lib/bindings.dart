@@ -46,6 +46,7 @@ const motionActions = <String, Motion>{
   'k': NormalMotion(Motions.lineUp, linewise: true),
   'j': NormalMotion(Motions.lineDown, linewise: true),
   'w': NormalMotion(Motions.wordNext),
+  'W': NormalMotion(Motions.wordCapNext),
   'b': NormalMotion(Motions.wordPrev),
   'e': NormalMotion(Motions.wordEnd),
   'ge': NormalMotion(Motions.wordEndPrev),

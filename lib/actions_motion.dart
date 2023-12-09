@@ -92,10 +92,9 @@ class Motions {
     return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
   }
 
-  // find the next word from the cursor position
-  static Position wordNext(FileBuffer f, Position p, [bool incl = false]) {
+  static Position regexNext(FileBuffer f, Position p, RegExp regex) {
     final start = f.byteIndexFromPosition(p);
-    final matches = Regex.word.allMatches(f.text, start);
+    final matches = regex.allMatches(f.text, start);
     if (matches.isEmpty) return p;
     final match =
         matches.firstWhere((m) => m.start > start, orElse: () => matches.first);
@@ -104,6 +103,16 @@ class Motions {
     } else {
       return f.positionFromByteIndex(match.start);
     }
+  }
+
+  // find the next word from the cursor position
+  static Position wordNext(FileBuffer f, Position p, [bool incl = false]) {
+    return regexNext(f, p, Regex.word);
+  }
+
+  // find the next WORD from the cursor position
+  static Position wordCapNext(FileBuffer f, Position p, [bool incl = false]) {
+    return regexNext(f, p, Regex.wordCap);
   }
 
   // find the prev word from the cursor position
