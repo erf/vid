@@ -3,7 +3,7 @@ import 'file_buffer.dart';
 import 'position.dart';
 import 'range.dart';
 
-typedef InsertFn = void Function(FileBuffer);
+typedef InsertFn = void Function(Editor, FileBuffer);
 
 typedef NormalFn = void Function(Editor, FileBuffer);
 

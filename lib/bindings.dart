@@ -65,6 +65,7 @@ const motionActions = <String, Motion>{
 const insertActions = <String, InsertFn>{
   '\x7f': InsertActions.backspace,
   '\n': InsertActions.enter,
+  '\x1b': InsertActions.escape,
 };
 
 final normalBindings = {

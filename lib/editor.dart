@@ -179,19 +179,12 @@ class Editor {
 
   // insert char at cursor
   void insert(String char) {
-    if (char == Esc.e) {
-      setMode(this, file, Mode.normal);
-      file.cursor.c--;
-      file.clampCursor();
-      return;
-    }
-
     final insertAction = insertActions[char];
     if (insertAction != null) {
-      insertAction(file);
+      insertAction(this, file);
       return;
     }
-    InsertActions.defaultInsert(file, char);
+    InsertActions.defaultInsert(this, file, char);
   }
 
   // replace char at cursor with char
@@ -263,11 +256,6 @@ class Editor {
   }
 
   void operator(String char, [bool resetAction = true]) {
-    if (char == Esc.e) {
-      setMode(this, file, Mode.normal);
-      file.action = Action();
-      return;
-    }
     // check if we match a key
     final action = file.action;
     action.opInput += char;
