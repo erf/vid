@@ -45,6 +45,7 @@ class Editor {
     term.write(Esc.disableAlternateScrollMode);
     term.input.listen(onInput);
     term.resize.listen(onResize);
+    term.sigint.listen(onSigint);
     draw();
   }
 
@@ -57,6 +58,10 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     draw();
+  }
+
+  void onSigint(ProcessSignal event) {
+    // do nothing
   }
 
   void draw() {

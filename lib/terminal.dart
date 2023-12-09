@@ -33,6 +33,11 @@ class Terminal {
     return ProcessSignal.sigwinch.watch();
   }
 
+  // watch for ctrl+c
+  Stream<ProcessSignal> get sigint {
+    return ProcessSignal.sigint.watch();
+  }
+
   // write to stdout
   void write(Object? object) {
     stdout.write(object);
