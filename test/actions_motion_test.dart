@@ -125,6 +125,13 @@ void main() {
     expect(Motions.wordPrev(f, Position(c: 0, l: 1)), Position(c: 8, l: 0));
   });
 
+  test('motionWordCapPrev', () {
+    final f = FileBuffer();
+    f.text = 'abc def, ghi\n';
+    f.createLines();
+    expect(Motions.wordCapPrev(f, Position(c: 9, l: 0)), Position(c: 4, l: 0));
+  });
+
   test('motionWordEndPrev', () {
     final f = FileBuffer();
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';

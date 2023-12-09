@@ -115,12 +115,21 @@ class Motions {
     return regexNext(f, p, Regex.wordCap);
   }
 
-  // find the prev word from the cursor position
-  static Position wordPrev(FileBuffer f, Position p, [bool incl = false]) {
+  static Position regexPrev(FileBuffer f, Position p, RegExp regex) {
     final start = f.byteIndexFromPosition(p);
-    final matches = Regex.word.allMatches(f.text.substring(0, start));
+    final matches = regex.allMatches(f.text.substring(0, start));
     if (matches.isEmpty) return p;
     return f.positionFromByteIndex(matches.last.start);
+  }
+
+  // find the prev word from the cursor position
+  static Position wordPrev(FileBuffer f, Position p, [bool incl = false]) {
+    return regexPrev(f, p, Regex.word);
+  }
+
+  // find the prev WORD from the cursor position
+  static Position wordCapPrev(FileBuffer f, Position p, [bool incl = false]) {
+    return regexPrev(f, p, Regex.wordCap);
   }
 
   // find the end of the word from the cursor position
