@@ -11,26 +11,24 @@ class Motions {
     int c = p.c + 1;
     if (c < f.lines[p.l].charLen) {
       return Position(l: p.l, c: c);
-    } else {
-      int l = p.l + 1;
-      if (l >= f.lines.length) {
-        return p;
-      }
-      return Position(l: l, c: 0);
     }
+    int l = p.l + 1;
+    if (l >= f.lines.length) {
+      return p;
+    }
+    return Position(l: l, c: 0);
   }
 
   static Position charPrev(FileBuffer f, Position p, [bool incl = false]) {
     int c = p.c - 1;
     if (c >= 0) {
       return Position(l: p.l, c: c);
-    } else {
-      int l = p.l - 1;
-      if (l < 0) {
-        return p;
-      }
-      return Position(l: l, c: f.lines[l].charLen - 1);
     }
+    int l = p.l - 1;
+    if (l < 0) {
+      return p;
+    }
+    return Position(l: l, c: f.lines[l].charLen - 1);
   }
 
   static Position lineUp(FileBuffer f, Position p, [bool incl = false]) {
@@ -75,11 +73,13 @@ class Motions {
     }
   }
 
+  // find the first non blank character on the line
   static Position firstNonBlank(FileBuffer f, Position p, [bool incl = false]) {
     final firstNonBlank = f.lines[p.l].str.indexOf(Regex.nonSpace);
     return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
   }
 
+  // find the next word from the cursor position
   static Position wordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = Regex.word.allMatches(f.text, start);
@@ -93,6 +93,35 @@ class Motions {
     }
   }
 
+  // find the prev word from the cursor position
+  static Position wordPrev(FileBuffer f, Position p, [bool incl = false]) {
+    final start = f.byteIndexFromPosition(p);
+    final matches = Regex.word.allMatches(f.text.substring(0, start));
+    if (matches.isEmpty) return p;
+    return f.positionFromByteIndex(matches.last.start);
+  }
+
+  // find the end of the word from the cursor position
+  static Position wordEnd(FileBuffer f, Position p, [bool incl = false]) {
+    final start = f.byteIndexFromPosition(p);
+    final matches = Regex.word.allMatches(f.text, start);
+    if (matches.isEmpty) return p;
+    final match = matches.firstWhere((m) => m.end - 1 > start,
+        orElse: () => matches.first);
+    return f.positionFromByteIndex(match.end - (incl ? 0 : 1));
+  }
+
+  // find the end of the prev word from the cursor position
+  static Position wordEndPrev(FileBuffer f, Position p, [bool incl = false]) {
+    final start = f.byteIndexFromPosition(p);
+    final matches = Regex.word.allMatches(f.text);
+    if (matches.isEmpty) return p;
+    final match =
+        matches.lastWhere((e) => e.end < start, orElse: () => matches.last);
+    return f.positionFromByteIndex(match.end - 1);
+  }
+
+  // find the next same word from the cursor position
   static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = Regex.word.allMatches(f.text);
@@ -111,6 +140,7 @@ class Motions {
         : f.positionFromByteIndex(index);
   }
 
+  // find the prev same word from the cursor position
   static Position sameWordPrev(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
     final matches = Regex.word.allMatches(f.text);
@@ -129,30 +159,5 @@ class Motions {
     return index == -1
         ? f.positionFromByteIndex(match.start)
         : f.positionFromByteIndex(index);
-  }
-
-  static Position wordEnd(FileBuffer f, Position p, [bool incl = false]) {
-    final start = f.byteIndexFromPosition(p);
-    final matches = Regex.word.allMatches(f.text, start);
-    if (matches.isEmpty) return p;
-    final match = matches.firstWhere((m) => m.end - 1 > start,
-        orElse: () => matches.first);
-    return f.positionFromByteIndex(match.end - (incl ? 0 : 1));
-  }
-
-  static Position wordPrev(FileBuffer f, Position p, [bool incl = false]) {
-    final start = f.byteIndexFromPosition(p);
-    final matches = Regex.word.allMatches(f.text.substring(0, start));
-    if (matches.isEmpty) return p;
-    return f.positionFromByteIndex(matches.last.start);
-  }
-
-  static Position wordEndPrev(FileBuffer f, Position p, [bool incl = false]) {
-    final start = f.byteIndexFromPosition(p);
-    final matches = Regex.word.allMatches(f.text);
-    if (matches.isEmpty) return p;
-    final match =
-        matches.lastWhere((e) => e.end < start, orElse: () => matches.last);
-    return f.positionFromByteIndex(match.end - 1);
   }
 }
