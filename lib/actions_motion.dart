@@ -120,7 +120,7 @@ class Motions {
         matches.lastWhere((e) => e.end < start, orElse: () => matches.last);
     return f.positionFromByteIndex(match.end - 1);
   }
-
+  
   // find the next same word from the cursor position
   static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
@@ -129,7 +129,7 @@ class Motions {
     final match =
         matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
     // we are not on the word
-    if (match.start > start || match.end <= start) {
+    if (start < match.start || start >= match.end) {
       return f.positionFromByteIndex(match.start);
     }
     // we are on the word and we want to find the next same word
@@ -146,7 +146,7 @@ class Motions {
     final matches = Regex.word.allMatches(f.text);
     if (matches.isEmpty) return p;
     final match =
-        matches.firstWhere((e) => e.end >= start, orElse: () => matches.first);
+        matches.firstWhere((m) => start <= m.end, orElse: () => matches.first);
     // we are not on the word
     if (start < match.start || start >= match.end) {
       return f.positionFromByteIndex(match.start);
