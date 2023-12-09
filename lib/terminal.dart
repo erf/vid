@@ -44,6 +44,7 @@ class Terminal {
     stdout.write(object);
   }
 
+  // write text to clipboard using OSC 52
   void copyToClipboard(String text) {
     final encodedText = base64Encode(utf8.encode(text));
     final osc52Sequence = '\x1b]52;c;$encodedText\x07';
