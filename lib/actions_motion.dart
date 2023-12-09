@@ -32,13 +32,15 @@ class Motions {
   }
 
   static Position lineUp(FileBuffer f, Position p, [bool incl = false]) {
-    final line = max(0, p.l - 1);
+    if (p.l == 0) return p;
+    final line = p.l - 1;
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
     return Position(l: line, c: char);
   }
 
   static Position lineDown(FileBuffer f, Position p, [bool incl = false]) {
-    final line = min(p.l + 1, f.lines.length - 1);
+    if (p.l == f.lines.length - 1) return p;
+    final line = p.l + 1;
     final char = clamp(p.c, 0, f.lines[line].charLen - 1);
     return Position(l: line, c: char);
   }
@@ -120,7 +122,7 @@ class Motions {
         matches.lastWhere((e) => e.end < start, orElse: () => matches.last);
     return f.positionFromByteIndex(match.end - 1);
   }
-  
+
   // find the next same word from the cursor position
   static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {
     final start = f.byteIndexFromPosition(p);
