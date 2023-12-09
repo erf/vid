@@ -26,7 +26,7 @@ void main() {
     expect(Motions.charPrev(f, Position(c: 2, l: 1)), Position(c: 1, l: 1));
   });
 
-  test('motionCharUp', () {
+  test('motion.lineUp', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
     f.createLines();
@@ -36,7 +36,15 @@ void main() {
     expect(Motions.lineUp(f, Position(c: 2, l: 1)), Position(c: 2, l: 0));
   });
 
-  test('motionCharDown', () {
+  test('motion.lineUp with emojis', () {
+    final f = FileBuffer();
+    f.text = 'abcdef\n😎😍👽\nghijkl\n';
+    f.createLines();
+    expect(Motions.lineUp(f, Position(c: 2, l: 2)), Position(c: 1, l: 1));
+    expect(Motions.lineUp(f, Position(c: 1, l: 1)), Position(c: 2, l: 0));
+  });
+
+  test('motion.lineDown', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
     f.createLines();
@@ -44,6 +52,14 @@ void main() {
     expect(Motions.lineDown(f, Position(c: 2, l: 0)), Position(c: 2, l: 1));
     expect(Motions.lineDown(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
     expect(Motions.lineDown(f, Position(c: 2, l: 1)), Position(c: 2, l: 1));
+  });
+
+  test('motion.lineDown with emojis', () {
+    final f = FileBuffer();
+    f.text = 'abcdef\n😎😍👽\nghijkl\n';
+    f.createLines();
+    expect(Motions.lineDown(f, Position(c: 2, l: 0)), Position(c: 1, l: 1));
+    expect(Motions.lineDown(f, Position(c: 1, l: 1)), Position(c: 2, l: 2));
   });
 
   test('motionFileStart', () {

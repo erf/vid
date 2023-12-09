@@ -1,5 +1,9 @@
 import 'dart:math';
 
+import 'package:characters/characters.dart';
+import 'package:vid/characters_render.dart';
+import 'package:vid/string_ext.dart';
+
 import 'file_buffer.dart';
 import 'file_buffer_text.dart';
 import 'position.dart';
@@ -31,18 +35,25 @@ class Motions {
     return Position(l: l, c: f.lines[l].charLen - 1);
   }
 
+  static Position moveLine(FileBuffer f, Position p, int nextLine) {
+    int curlen = f.lines[p.l].str.ch.renderLength(p.c);
+    int nextlen = 0;
+    Characters chars = f.lines[nextLine].str.ch.takeWhile((c) {
+      nextlen += c.renderWidth;
+      return nextlen <= curlen;
+    });
+    int char = clamp(chars.length, 0, f.lines[nextLine].charLen - 1);
+    return Position(l: nextLine, c: char);
+  }
+
   static Position lineUp(FileBuffer f, Position p, [bool incl = false]) {
     if (p.l == 0) return p;
-    final line = p.l - 1;
-    final char = clamp(p.c, 0, f.lines[line].charLen - 1);
-    return Position(l: line, c: char);
+    return moveLine(f, p, p.l - 1);
   }
 
   static Position lineDown(FileBuffer f, Position p, [bool incl = false]) {
     if (p.l == f.lines.length - 1) return p;
-    final line = p.l + 1;
-    final char = clamp(p.c, 0, f.lines[line].charLen - 1);
-    return Position(l: line, c: char);
+    return moveLine(f, p, p.l + 1);
   }
 
   static Position fileStart(FileBuffer f, Position p, [bool incl = false]) {
