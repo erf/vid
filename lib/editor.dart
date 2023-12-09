@@ -16,6 +16,7 @@ import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_view.dart';
 import 'input_match.dart';
+import 'line.dart';
 import 'modes.dart';
 import 'motion.dart';
 import 'position.dart';
@@ -76,10 +77,10 @@ class Editor {
   }
 
   void drawLines() {
-    final lines = file.lines;
-    final view = file.view;
-    final lineStart = view.l;
-    final lineEnd = view.l + term.height - 1;
+    List<Line> lines = file.lines;
+    Position view = file.view;
+    int lineStart = view.l;
+    int lineEnd = view.l + term.height - 1;
 
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
@@ -99,9 +100,12 @@ class Editor {
   }
 
   void drawCursor(int curlen) {
-    final view = file.view;
-    final cursor = file.cursor;
-    final curpos = Position(l: cursor.l - view.l + 1, c: curlen - view.c + 1);
+    Position view = file.view;
+    Position cursor = file.cursor;
+    Position curpos = Position(
+      l: cursor.l - view.l + 1,
+      c: curlen - view.c + 1,
+    );
     rbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
@@ -109,14 +113,14 @@ class Editor {
     rbuf.write(Esc.invertColors);
     rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
 
-    final cursor = file.cursor;
-    final modified = file.modified;
-    final path = file.path ?? '[No Name]';
-    final mode = statusModeLabel(file.mode);
-    final left = ' $mode  $path ${modified ? '* ' : ''}$msg ';
-    final right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
-    final padLeft = term.width - left.length - 1;
-    final status = '$left ${right.padLeft(padLeft)}';
+    Position cursor = file.cursor;
+    bool modified = file.modified;
+    String path = file.path ?? '[No Name]';
+    String modeStr = statusModeLabel(file.mode);
+    String left = ' $modeStr  $path ${modified ? '* ' : ''}$msg ';
+    String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
+    int padLeft = term.width - left.length - 1;
+    String status = '$left ${right.padLeft(padLeft)}';
 
     if (status.length <= term.width - 1) {
       rbuf.write(status);
