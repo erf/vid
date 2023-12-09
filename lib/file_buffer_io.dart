@@ -1,18 +1,31 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
+
+import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_view.dart';
 
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file, return file name
-  String load(List<String> args) {
+  String load(Editor editor, List<String> args) {
     if (args.isEmpty) {
       print('No file name specified');
       exit(1);
     }
     // parse command line arguments
+    final parser = ArgParser();
+    parser.addOption('log', abbr: 'l', help: 'Log file');
+
+    // parse file name
     path = args.first;
+
+    // parse log file
+    ArgResults argRes = parser.parse(args);
+    if (argRes.wasParsed('log')) {
+      editor.logPath = argRes['log'];
+    }
 
     // parse line number
     if (args.last.startsWith('+')) {

@@ -29,13 +29,14 @@ class Editor {
   final file = FileBuffer();
   final rbuf = StringBuffer();
   String msg = '';
+  String? logPath;
   File? logFile;
   bool redraw;
 
   Editor({this.redraw = true});
 
   void init(List<String> args) {
-    String path = file.load(args);
+    String path = file.load(this, args);
     term.rawMode = true;
     term.write(Esc.pushWindowTitle);
     term.write(Esc.setWindowTitle(path));
@@ -146,8 +147,8 @@ class Editor {
   }
 
   void input(String str) {
-    if (Config.log) {
-      logFile ??= File(Config.logPath);
+    if (logPath != null) {
+      logFile ??= File(logPath!);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
     if (Regex.scrollEvents.hasMatch(str)) {
