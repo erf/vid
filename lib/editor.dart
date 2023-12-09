@@ -61,7 +61,7 @@ class Editor {
   }
 
   void onSigint(ProcessSignal event) {
-    // do nothing
+    input(Esc.e);
   }
 
   void draw() {
