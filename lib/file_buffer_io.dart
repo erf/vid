@@ -29,7 +29,12 @@ extension FileBufferLines on FileBuffer {
 
     // parse line number
     if (args.last.startsWith('+')) {
-      cursor.l = int.parse(args.last.substring(1)) - 1;
+      final lineNo = args.last.substring(1);
+      if (lineNo.isEmpty) {
+        print('No line number specified');
+        exit(1);
+      }
+      cursor.l = int.parse(lineNo) - 1;
     }
 
     // check if path is a directory
@@ -37,15 +42,19 @@ extension FileBufferLines on FileBuffer {
       print('Cannot open directory \'$path\'');
       exit(1);
     }
+
     // load file if it exists
     final file = File(path!);
     if (file.existsSync()) {
       text = file.readAsStringSync();
     }
+
     // split text into lines
     createLines();
+
     // clamp cursor position to valid range
     clampCursor();
+
     return path!;
   }
 
