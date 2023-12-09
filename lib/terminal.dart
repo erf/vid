@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 // provides a simple interface to the terminal
@@ -41,5 +42,11 @@ class Terminal {
   // write to stdout
   void write(Object? object) {
     stdout.write(object);
+  }
+
+  void copyToClipboard(String text) {
+    final encodedText = base64Encode(utf8.encode(text));
+    final osc52Sequence = '\x1b]52;c;$encodedText\x07';
+    stdout.write(osc52Sequence);
   }
 }
