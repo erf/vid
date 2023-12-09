@@ -181,6 +181,15 @@ class NormalActions {
     e.doAction(f.action, false);
   }
 
+  static void findNext(Editor e, FileBuffer f) {
+    if (f.prevMotion == null) {
+      return;
+    }
+    f.action.motion = f.prevMotion;
+    f.action.findChar = f.prevFindChar;
+    e.doAction(f.action, false);
+  }
+
   static void increaseNextWord(FileBuffer f, int count) {
     final p = f.cursor;
     final i = f.byteIndexFromPosition(p);

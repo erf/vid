@@ -28,6 +28,7 @@ const normalActions = <String, NormalFn>{
   'u': NormalActions.undo,
   '.': NormalActions.repeat,
   ';': NormalActions.repeatFindNext,
+  'n': NormalActions.findNext,
   '\u0001': NormalActions.increase,
   '\u0018': NormalActions.decrease,
 };
