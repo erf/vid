@@ -15,39 +15,25 @@ class Terminal {
   }
 
   // get width of terminal
-  int get width {
-    return stdout.terminalColumns;
-  }
+  int get width => stdout.terminalColumns;
 
   // get height of terminal
-  int get height {
-    return stdout.terminalLines;
-  }
+  int get height => stdout.terminalLines;
 
   // watch for input
-  Stream<List<int>> get input {
-    return stdin.asBroadcastStream();
-  }
+  Stream<List<int>> get input => stdin.asBroadcastStream();
 
   // watch for resize signal
-  Stream<ProcessSignal> get resize {
-    return ProcessSignal.sigwinch.watch();
-  }
+  Stream<ProcessSignal> get resize => ProcessSignal.sigwinch.watch();
 
   // watch for ctrl+c
-  Stream<ProcessSignal> get sigint {
-    return ProcessSignal.sigint.watch();
-  }
+  Stream<ProcessSignal> get sigint => ProcessSignal.sigint.watch();
 
   // write to stdout
-  void write(Object? object) {
-    stdout.write(object);
-  }
+  void write(Object? object) => stdout.write(object);
 
   // write text to clipboard using OSC 52
-  void copyToClipboard(String text) {
-    final encodedText = base64Encode(utf8.encode(text));
-    final osc52Sequence = '\x1b]52;c;$encodedText\x07';
-    stdout.write(osc52Sequence);
+  void copyToClipboard(String str) {
+    stdout.write('\x1b]52;c;${base64Encode(utf8.encode(str))}\x07');
   }
 }
