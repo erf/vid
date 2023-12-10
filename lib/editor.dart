@@ -291,7 +291,7 @@ class Editor {
       action.linewise = true;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        end = Motions.lineEndIncl(file, end);
+        end = Motions.lineEnd(file, end, true);
       }
       Position start = Motions.lineStart(file, file.cursor);
       operator(this, file, Range(start, end));
@@ -305,7 +305,11 @@ class Editor {
       action.linewise = motion.linewise;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
-        end = motionEnd(action, motion, end, operator != null);
+        if (motion.inclusive != null) {
+          end = motionEnd(action, motion, end, motion.inclusive!);
+        } else {
+          end = motionEnd(action, motion, end, operator != null);
+        }
       }
       switch (operator) {
         case null:
@@ -317,7 +321,7 @@ class Editor {
           if (motion.linewise) {
             final range = Range(start, end).norm;
             start = Motions.lineStart(file, range.start);
-            end = Motions.lineEndIncl(file, range.end);
+            end = Motions.lineEnd(file, range.end, true);
           }
           operator(this, file, Range(start, end));
       }

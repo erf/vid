@@ -184,9 +184,13 @@ void main() {
     final f = FileBuffer();
     f.text = 'abc def\nghi jkl\n';
     f.createLines();
-    expect(Motions.lineEndExcl(f, Position(l: 0, c: 0)), Position(l: 0, c: 7));
-    expect(Motions.lineEndExcl(f, Position(l: 0, c: 3)), Position(l: 0, c: 7));
-    expect(Motions.lineEndExcl(f, Position(l: 1, c: 0)), Position(l: 1, c: 7));
-    expect(Motions.lineEndExcl(f, Position(l: 1, c: 3)), Position(l: 1, c: 7));
+    expect(
+        Motions.lineEnd(f, Position(l: 0, c: 0), false), Position(l: 0, c: 7));
+    expect(
+        Motions.lineEnd(f, Position(l: 0, c: 3), false), Position(l: 0, c: 7));
+    expect(
+        Motions.lineEnd(f, Position(l: 1, c: 0), false), Position(l: 1, c: 7));
+    expect(
+        Motions.lineEnd(f, Position(l: 1, c: 3), false), Position(l: 1, c: 7));
   });
 }
