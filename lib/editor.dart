@@ -26,7 +26,7 @@ import 'string_ext.dart';
 import 'terminal.dart';
 
 class Editor {
-  final term = Terminal();
+  final term = Terminal.instance;
   final file = FileBuffer();
   final rbuf = StringBuffer();
   String msg = '';

@@ -3,6 +3,10 @@ import 'dart:io';
 
 // provides a simple interface to the terminal
 class Terminal {
+  static Terminal instance = Terminal._();
+
+  Terminal._();
+
   // set raw mode
   set rawMode(bool rawMode) {
     if (rawMode) {
