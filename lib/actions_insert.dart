@@ -2,7 +2,6 @@ import 'package:characters/characters.dart';
 
 import 'actions_motion.dart';
 import 'constants.dart';
-import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
@@ -11,18 +10,18 @@ import 'modes.dart';
 import 'position.dart';
 
 class InsertActions {
-  static void defaultInsert(Editor e, FileBuffer f, String s) {
+  static void defaultInsert(FileBuffer f, String s) {
     f.insertAt(f.cursor, s);
     f.cursor.c += s.characters.length;
   }
 
-  static void escape(Editor e, FileBuffer f) {
-    setMode(e, f, Mode.normal);
+  static void escape(FileBuffer f) {
+    setMode(f, Mode.normal);
     f.cursor.c--;
     f.clampCursor();
   }
 
-  static void enter(Editor e, FileBuffer f) {
+  static void enter(FileBuffer f) {
     f.insertAt(f.cursor, nl);
     f.cursor.c = 0;
     f.view.c = 0;
@@ -42,7 +41,7 @@ class InsertActions {
     f.deleteAt(f.cursor);
   }
 
-  static void backspace(Editor e, FileBuffer f) {
+  static void backspace(FileBuffer f) {
     if (f.cursor.c == 0) {
       _joinLines(f);
     } else {

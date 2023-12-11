@@ -1,6 +1,6 @@
-import 'editor.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
+import 'terminal.dart';
 
 enum Mode {
   normal,
@@ -9,15 +9,15 @@ enum Mode {
   replace,
 }
 
-void setMode(Editor editor, FileBuffer file, Mode mode) {
+void setMode(FileBuffer file, Mode mode) {
   switch (mode) {
     case Mode.normal:
-      editor.term.write(Esc.cursorStyleBlock);
+      Terminal.instance.write(Esc.cursorStyleBlock);
       break;
     case Mode.operator:
       break;
     case Mode.insert:
-      editor.term.write(Esc.cursorStyleLine);
+      Terminal.instance.write(Esc.cursorStyleLine);
       break;
     case Mode.replace:
       break;

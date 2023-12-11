@@ -185,15 +185,15 @@ class Editor {
   void insert(String char) {
     final insertAction = insertActions[char];
     if (insertAction != null) {
-      insertAction(this, file);
+      insertAction(file);
       return;
     }
-    InsertActions.defaultInsert(this, file, char);
+    InsertActions.defaultInsert(file, char);
   }
 
   // replace char at cursor with char
   void replace(String char) {
-    defaultReplace(this, file, char);
+    defaultReplace(file, char);
   }
 
   String readNextChar() {
@@ -218,7 +218,7 @@ class Editor {
   bool handleMatchedKeys(InputMatch inputMatch) {
     switch (inputMatch) {
       case InputMatch.none:
-        setMode(this, file, Mode.normal);
+        setMode(file, Mode.normal);
         file.action = Action();
         return false;
       case InputMatch.partial:
@@ -255,7 +255,7 @@ class Editor {
     // if operator action, set it and change to operator mode
     action.operator = operatorActions[action.input];
     if (action.operator != null) {
-      setMode(this, file, Mode.operator);
+      setMode(file, Mode.operator);
     }
   }
 
@@ -294,7 +294,7 @@ class Editor {
         end = Motions.lineEnd(file, end, true);
       }
       Position start = Motions.lineStart(file, file.cursor);
-      operator(this, file, Range(start, end));
+      operator(file, Range(start, end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
       if (resetAction) doResetAction();
       return;
@@ -323,7 +323,7 @@ class Editor {
             start = Motions.lineStart(file, range.start);
             end = Motions.lineEnd(file, range.end, true);
           }
-          operator(this, file, Range(start, end));
+          operator(file, Range(start, end));
       }
       if (resetAction) doResetAction();
     }
