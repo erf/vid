@@ -158,37 +158,26 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 2));
   });
 
-  test('add space when joining lines', () {
+  test('joining lines', () {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     e.input('J');
-    expect(f.text, 'abc def\n');
+    expect(f.text, 'abcdef\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
 
-  test('dont add space when joining empty lines', () {
+  test('joining lines with empty line', () {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
     e.input('JJ');
-    expect(f.text, 'abc def\n');
+    expect(f.text, 'abcdef\n');
     expect(f.cursor, Position(c: 0, l: 0));
-  });
-
-  test('dont add space when joining empty lines on empty line', () {
-    final e = Editor(redraw: false);
-    final f = e.file;
-    f.text = 'abc\n\ndef\n';
-    f.createLines();
-    f.cursor = Position(c: 0, l: 1);
-    e.input('J');
-    expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 1));
   });
 
   test('increase next number', () {
