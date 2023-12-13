@@ -204,9 +204,9 @@ class Editor {
       case '\x7f':
         if (action.input.isEmpty) {
           setMode(file, Mode.normal);
-          return;
+        } else {
+          action.input = action.input.substring(0, action.input.length - 1);
         }
-        action.input = action.input.substring(0, action.input.length - 1);
       // cancel command mode
       case '\x1b':
         setMode(file, Mode.normal);
@@ -224,16 +224,13 @@ class Editor {
     switch (command) {
       case '':
         setMode(file, Mode.normal);
-        break;
       case 'w':
         setMode(file, Mode.normal);
         NormalActions.save(this, file);
-        break;
       case 'wq':
       case 'x':
         NormalActions.save(this, file);
         quit();
-        break;
       case 'q':
         setMode(file, Mode.normal);
         NormalActions.quit(this, file);
