@@ -226,6 +226,7 @@ class Editor {
         setMode(file, Mode.normal);
         break;
       case 'w':
+        setMode(file, Mode.normal);
         NormalActions.save(this, file);
         break;
       case 'wq':
