@@ -7,6 +7,7 @@ import 'package:characters/characters.dart';
 import 'action.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
+import 'actions_normal.dart';
 import 'actions_replace.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
@@ -71,7 +72,11 @@ class Editor {
     int curLen = file.lines[file.cursor.l].chars.renderLength(file.cursor.c);
     file.clampView(term, curLen);
     drawLines();
-    drawStatus();
+    if (file.mode == Mode.command) {
+      drawCommand();
+    } else {
+      drawStatus();
+    }
     drawCursor(curLen);
     term.write(rbuf);
   }
@@ -109,6 +114,12 @@ class Editor {
     rbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
+  // draw the command input line
+  void drawCommand() {
+    rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
+    rbuf.write(':${file.action.input} ');
+  }
+
   void drawStatus() {
     rbuf.write(Esc.invertColors);
     rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
@@ -137,6 +148,7 @@ class Editor {
       Mode.operator => 'PEN',
       Mode.insert => 'INS',
       Mode.replace => 'REP',
+      Mode.command => 'CMD',
     };
   }
 
@@ -173,12 +185,58 @@ class Editor {
           insert(char);
         case Mode.replace:
           replace(char);
+        case Mode.command:
+          command(char);
+          break;
       }
     }
     if (redraw) {
       draw();
     }
     msg = '';
+  }
+
+  // command mode
+  void command(String char) {
+    final action = file.action;
+    switch (char) {
+      // backspace
+      case '\x7f':
+        if (action.input.isEmpty) {
+          setMode(file, Mode.normal);
+          return;
+        }
+        action.input = action.input.substring(0, action.input.length - 1);
+      // cancel command mode
+      case '\x1b':
+        setMode(file, Mode.normal);
+        action.input = '';
+      // execute command
+      case '\n':
+        executeCommand(action.input);
+        action.input = '';
+      default:
+        action.input += char;
+    }
+  }
+
+  void executeCommand(String command) {
+    switch (command) {
+      case '':
+        setMode(file, Mode.normal);
+        break;
+      case 'w':
+        NormalActions.save(this, file);
+        break;
+      case 'q':
+        setMode(file, Mode.normal);
+        NormalActions.quit(this, file);
+      case 'q!':
+        quit();
+      default:
+        showMessage('Unknown command: $command', timed: true);
+        setMode(file, Mode.normal);
+    }
   }
 
   // insert char at cursor

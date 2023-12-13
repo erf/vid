@@ -31,6 +31,7 @@ const normalActions = <String, NormalFn>{
   'n': NormalActions.findNext,
   '\u0001': NormalActions.increase,
   '\u0018': NormalActions.decrease,
+  ':': NormalActions.command,
 };
 
 const operatorActions = <String, OperatorFn>{

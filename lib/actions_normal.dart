@@ -208,4 +208,8 @@ class NormalActions {
   static void decrease(Editor e, FileBuffer f) {
     increaseNextWord(f, -1);
   }
+
+  static void command(Editor e, FileBuffer f) {
+    setMode(f, Mode.command);
+  }
 }

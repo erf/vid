@@ -7,6 +7,7 @@ enum Mode {
   operator,
   insert,
   replace,
+  command,
 }
 
 void setMode(FileBuffer file, Mode mode) {
@@ -20,6 +21,8 @@ void setMode(FileBuffer file, Mode mode) {
       Terminal.instance.write(Esc.cursorStyleLine);
       break;
     case Mode.replace:
+      break;
+    case Mode.command:
       break;
   }
   file.mode = mode;
