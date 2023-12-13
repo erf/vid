@@ -24,13 +24,8 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 
 See [bindings.dart](lib/bindings.dart)
 
-Note the following keybindings differ from **vim** as we don't have command mode yet; also i quite like these bindings:
-
-- Save with 's'
-- Quit with 'q' or force quit with 'Q' (ignoring changes)
-
 ## Contributing 🙋‍♂️
 
-I prefer tackling challenges on my own but I'm open to PR's that align with vid's minimal philosophy.
+I enjoy building **vid** on my own but I'm open to PR's that align with vid's minimal philosophy.
 
 I won't accept issues solely for suggestions. Thanks for considering! 🚀
