@@ -8,6 +8,7 @@ enum Mode {
   insert,
   replace,
   command,
+  search,
 }
 
 void setMode(FileBuffer file, Mode mode) {
@@ -23,6 +24,8 @@ void setMode(FileBuffer file, Mode mode) {
     case Mode.replace:
       break;
     case Mode.command:
+      break;
+    case Mode.search:
       break;
   }
   file.mode = mode;

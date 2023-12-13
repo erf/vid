@@ -33,6 +33,7 @@ const normalActions = <String, NormalFn>{
   '\u0001': NormalActions.increase,
   '\u0018': NormalActions.decrease,
   ':': NormalActions.command,
+  '/': NormalActions.search,
 };
 
 const operatorActions = <String, OperatorFn>{

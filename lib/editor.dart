@@ -72,11 +72,15 @@ class Editor {
     int curLen = file.lines[file.cursor.l].chars.renderLength(file.cursor.c);
     file.clampView(term, curLen);
     drawLines();
-    if (file.mode == Mode.command) {
-      drawCommand();
-    } else {
-      drawStatus();
+
+    switch (file.mode) {
+      case Mode.command:
+      case Mode.search:
+        drawCommand();
+      default:
+        drawStatus();
     }
+
     drawCursor(curLen);
     term.write(rbuf);
   }
@@ -117,7 +121,11 @@ class Editor {
   // draw the command input line
   void drawCommand() {
     rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
-    rbuf.write(':${file.action.input} ');
+    if (file.mode == Mode.search) {
+      rbuf.write('/${file.action.input} ');
+    } else {
+      rbuf.write(':${file.action.input} ');
+    }
   }
 
   void drawStatus() {
@@ -149,6 +157,7 @@ class Editor {
       Mode.insert => 'INS',
       Mode.replace => 'REP',
       Mode.command => 'CMD',
+      Mode.search => 'SRC',
     };
   }
 
@@ -186,8 +195,8 @@ class Editor {
         case Mode.replace:
           replace(char);
         case Mode.command:
+        case Mode.search:
           command(char);
-          break;
       }
     }
     if (redraw) {
@@ -213,7 +222,11 @@ class Editor {
         action.input = '';
       // execute command
       case '\n':
-        executeCommand(action.input);
+        if (file.mode == Mode.search) {
+          executeSearch(action.input);
+        } else {
+          executeCommand(action.input);
+        }
         action.input = '';
       default:
         action.input += char;
@@ -240,6 +253,11 @@ class Editor {
         showMessage('Unknown command: $command', timed: true);
         setMode(file, Mode.normal);
     }
+  }
+
+  void executeSearch(String pattern) {
+    file.cursor = Motions.regexNext(file, file.cursor, RegExp(pattern));
+    setMode(file, Mode.normal);
   }
 
   // insert char at cursor

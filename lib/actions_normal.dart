@@ -222,4 +222,8 @@ class NormalActions {
   static void command(Editor e, FileBuffer f) {
     setMode(f, Mode.command);
   }
+
+  static void search(Editor e, FileBuffer f) {
+    setMode(f, Mode.search);
+  }
 }
