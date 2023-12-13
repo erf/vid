@@ -15,6 +15,7 @@ import 'config.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
+import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'input_match.dart';
 import 'line.dart';
@@ -256,7 +257,19 @@ class Editor {
   }
 
   void executeSearch(String pattern) {
-    file.cursor = Motions.regexNext(file, file.cursor, RegExp(pattern));
+    Position p = file.cursor;
+    int start = file.byteIndexFromPosition(p);
+    Iterable<Match> matches = pattern.allMatches(file.text, start + 1);
+    if (matches.isEmpty) {
+      setMode(file, Mode.normal);
+      return;
+    }
+    Match? match = matches.firstOrNull;
+    if (match == null) {
+      setMode(file, Mode.normal);
+      return;
+    }
+    file.cursor = file.positionFromByteIndex(match.start);
     setMode(file, Mode.normal);
   }
 
