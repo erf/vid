@@ -9,7 +9,8 @@ import 'motion.dart';
 const normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
-  's': NormalActions.save,
+  'S': NormalActions.substituteLine,
+  's': NormalActions.substitute,
   'x': NormalActions.deleteCharNext,
   'i': NormalActions.insert,
   'a': NormalActions.appendCharNext,

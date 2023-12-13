@@ -100,6 +100,16 @@ class NormalActions {
     setMode(f, Mode.insert);
   }
 
+  static void substitute(Editor e, FileBuffer f) {
+    f.action.input = '';
+    e.input('cl');
+  }
+
+  static void substituteLine(Editor e, FileBuffer f) {
+    f.action.input = '';
+    e.input('^C');
+  }
+
   static void insertLineStart(Editor e, FileBuffer f) {
     f.action.input = '';
     e.input('0i');
