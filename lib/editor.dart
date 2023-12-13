@@ -228,6 +228,11 @@ class Editor {
       case 'w':
         NormalActions.save(this, file);
         break;
+      case 'wq':
+      case 'x':
+        NormalActions.save(this, file);
+        quit();
+        break;
       case 'q':
         setMode(file, Mode.normal);
         NormalActions.quit(this, file);
