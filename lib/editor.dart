@@ -254,7 +254,7 @@ class Editor {
       default:
         // substitute command
         if (command.startsWith(RegExp(r's/.*/.*'))) {
-          substitute(command);
+          executeSubstitute(command);
           return;
         }
         showMessage('Unknown command: $command', timed: true);
@@ -262,7 +262,7 @@ class Editor {
     }
   }
 
-  void substitute(String command) {
+  void executeSubstitute(String command) {
     List<String> parts = command.split('/');
     String pattern = parts[1];
     String replacement = parts[2];
@@ -270,6 +270,8 @@ class Editor {
     int start = file.byteIndexFromPosition(file.cursor);
     final match = regex.allMatches(file.text, start + 1).firstOrNull;
     if (match == null) {
+      setMode(file, Mode.normal);
+      showMessage('No match for \'$pattern\'', timed: true);
       return;
     }
     file.replace(match.start, match.end, replacement, TextOp.replace);
