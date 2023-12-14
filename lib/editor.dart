@@ -252,7 +252,7 @@ class Editor {
       return;
     }
 
-    showMessage('Unknown command: $command', timed: true);
+    showMessage('Unknown command \'$command\'', timed: true);
     setMode(file, Mode.normal);
   }
 
