@@ -98,7 +98,7 @@ class Motions {
     if (matches.isEmpty) return p;
     final m = matches.firstWhere((ma) => ma.start > start,
         orElse: () => matches.first);
-    return f.positionFromByteIndex(m.start);
+    return f.positionFromByteIndex(m.start == start ? m.end : m.start);
   }
 
   // find the next word from the cursor position
