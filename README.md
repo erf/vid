@@ -31,3 +31,4 @@ I enjoy building **vid** on my own but I'm open to PR's that align with vid's mi
 I won't accept issues solely for suggestions.
 
 Thanks for considering! 🚀
+
