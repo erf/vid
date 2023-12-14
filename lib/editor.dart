@@ -253,7 +253,7 @@ class Editor {
         quit();
       default:
         // substitute command
-        if (command.startsWith(RegExp(r's/.*/.*'))) {
+        if (command.startsWith(Regex.substitute)) {
           executeSubstitute(command);
           return;
         }
@@ -268,14 +268,13 @@ class Editor {
     String replacement = parts[2];
     int start = file.byteIndexFromPosition(file.cursor);
     Match? match = RegExp(pattern).allMatches(file.text, start).firstOrNull;
+    setMode(file, Mode.normal);
     if (match == null) {
-      setMode(file, Mode.normal);
       showMessage('No match for \'$pattern\'', timed: true);
       return;
     }
     file.replace(match.start, match.end, replacement, TextOp.replace);
     file.cursor = file.positionFromByteIndex(match.start);
-    setMode(file, Mode.normal);
   }
 
   void executeSearch(String pattern) {

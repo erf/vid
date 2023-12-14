@@ -4,4 +4,5 @@ class Regex {
   static final number = RegExp(r'((?:-)?\d+)');
   static final scrollEvents = RegExp('\x1b([O[])[A-D]');
   static final nonSpace = RegExp(r'\S');
+  static final substitute = RegExp(r's/.*/.*');
 }
