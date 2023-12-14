@@ -259,18 +259,11 @@ class Editor {
   void executeSearch(String pattern) {
     Position p = file.cursor;
     int start = file.byteIndexFromPosition(p);
-    Iterable<Match> matches = pattern.allMatches(file.text, start + 1);
-    if (matches.isEmpty) {
-      setMode(file, Mode.normal);
-      return;
-    }
-    Match? match = matches.firstOrNull;
-    if (match == null) {
-      setMode(file, Mode.normal);
-      return;
-    }
-    file.cursor = file.positionFromByteIndex(match.start);
+    Match? match = pattern.allMatches(file.text, start + 1).firstOrNull;
     setMode(file, Mode.normal);
+    if (match != null) {
+      file.cursor = file.positionFromByteIndex(match.start);
+    }
   }
 
   // insert char at cursor
