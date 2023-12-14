@@ -112,7 +112,7 @@ class NormalActions {
 
   static void insertLineStart(Editor e, FileBuffer f) {
     f.action.input = '';
-    e.input('0i');
+    e.input('^i');
   }
 
   static void appendLineEnd(Editor e, FileBuffer f) {

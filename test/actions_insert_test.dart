@@ -48,6 +48,16 @@ void main() {
     expect(f.cursor, Position(c: 3, l: 0));
   });
 
+  test('insert I should start at first non-empty line', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = '  abc\n';
+    f.createLines();
+    f.cursor = Position(c: 5, l: 0);
+    e.input('I');
+    expect(f.cursor, Position(c: 2, l: 0));
+  });
+
   test('insert multiple chars as one insert action', () {
     final e = Editor(redraw: false);
     final f = e.file;
