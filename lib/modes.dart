@@ -14,12 +14,16 @@ enum Mode {
 void setMode(FileBuffer file, Mode mode) {
   switch (mode) {
     case Mode.normal:
-      Terminal.instance.write(Esc.cursorStyleBlock);
+      if (file.mode == Mode.insert) {
+        Terminal.instance.write(Esc.cursorStyleBlock);
+      }
       break;
     case Mode.operator:
       break;
     case Mode.insert:
-      Terminal.instance.write(Esc.cursorStyleLine);
+      if (file.mode != Mode.insert) {
+        Terminal.instance.write(Esc.cursorStyleLine);
+      }
       break;
     case Mode.replace:
       break;
