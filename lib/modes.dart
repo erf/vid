@@ -14,7 +14,9 @@ enum Mode {
 void setMode(FileBuffer file, Mode mode) {
   switch (mode) {
     case Mode.normal:
-      if (file.mode == Mode.insert) {
+      if (file.mode == Mode.insert ||
+          file.mode == Mode.command ||
+          file.mode == Mode.search) {
         Terminal.instance.write(Esc.cursorStyleBlock);
       }
       break;

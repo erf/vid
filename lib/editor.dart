@@ -128,6 +128,7 @@ class Editor {
       rbuf.write(':${file.action.input} ');
     }
     int cursor = file.action.input.length + 2;
+    rbuf.write(Esc.cursorStyleLine);
     rbuf.write(Esc.cursorPosition(c: cursor, l: term.height));
   }
 
