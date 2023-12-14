@@ -1,4 +1,5 @@
 import 'action_typedefs.dart';
+import 'actions_command.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
@@ -71,6 +72,15 @@ const insertActions = <String, InsertFn>{
   '\x7f': InsertActions.backspace,
   '\n': InsertActions.enter,
   '\x1b': InsertActions.escape,
+};
+
+const commandActions = <String, CommandFn>{
+  '': CommandActions.noop,
+  'q': CommandActions.quit,
+  'q!': CommandActions.quitWoSaving,
+  'w': CommandActions.write,
+  'wq': CommandActions.writeAndQuit,
+  'x': CommandActions.writeAndQuit,
 };
 
 final normalBindings = {

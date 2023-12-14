@@ -12,3 +12,5 @@ typedef OperatorFn = void Function(FileBuffer, Range);
 typedef MotionFn = Position Function(FileBuffer, Position, bool incl);
 
 typedef FindFn = Position Function(FileBuffer, Position, String, bool incl);
+
+typedef CommandFn = void Function(Editor e, FileBuffer f, List<String> args);

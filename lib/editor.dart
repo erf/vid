@@ -240,36 +240,21 @@ class Editor {
   void executeCommand(String command) {
     List<String> splits = command.split(' ');
     String cmd = splits.first;
-    switch (cmd) {
-      case '':
-        setMode(file, Mode.normal);
-      case 'w':
-        setMode(file, Mode.normal);
-        if (splits.length > 1) {
-          file.path = splits[1];
-        }
-        NormalActions.save(this, file);
-      case 'wq':
-      case 'x':
-        if (splits.length > 1) {
-          file.path = splits[1];
-        }
-        NormalActions.save(this, file);
-        quit();
-      case 'q':
-        setMode(file, Mode.normal);
-        NormalActions.quit(this, file);
-      case 'q!':
-        quit();
-      default:
-        // substitute command
-        if (command.startsWith(Regex.substitute)) {
-          substitute(command);
-          return;
-        }
-        showMessage('Unknown command: $command', timed: true);
-        setMode(file, Mode.normal);
+
+    // command actions
+    if (commandActions.containsKey(cmd)) {
+      commandActions[cmd]!(this, file, splits);
+      return;
     }
+
+    // substitute command
+    if (command.startsWith(Regex.substitute)) {
+      substitute(command);
+      return;
+    }
+
+    showMessage('Unknown command: $command', timed: true);
+    setMode(file, Mode.normal);
   }
 
   void substitute(String command) {
