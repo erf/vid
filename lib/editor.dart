@@ -226,7 +226,7 @@ class Editor {
       // execute command
       case '\n':
         if (file.mode == Mode.search) {
-          executeSearch(action.input);
+          search(action.input);
         } else {
           executeCommand(action.input);
         }
@@ -255,7 +255,7 @@ class Editor {
       default:
         // substitute command
         if (command.startsWith(Regex.substitute)) {
-          executeSubstitute(command);
+          substitute(command);
           return;
         }
         showMessage('Unknown command: $command', timed: true);
@@ -263,7 +263,7 @@ class Editor {
     }
   }
 
-  void executeSubstitute(String command) {
+  void substitute(String command) {
     List<String> parts = command.split('/');
     String pattern = parts[1];
     String replacement = parts[2];
@@ -278,7 +278,7 @@ class Editor {
     file.cursor = file.positionFromByteIndex(match.start);
   }
 
-  void executeSearch(String pattern) {
+  void search(String pattern) {
     setMode(file, Mode.normal);
     file.action.motion = FindMotion(Find.searchNext);
     file.action.findStr = pattern;
