@@ -4,32 +4,36 @@ import 'file_buffer.dart';
 import 'modes.dart';
 
 class CommandActions {
-  static void noop(Editor e, FileBuffer f, List<String> splits) {
+  static void noop(Editor e, FileBuffer f, List<String> args) {
     setMode(f, Mode.normal);
   }
 
-  static void write(Editor e, FileBuffer f, List<String> splits) {
+  static void write(Editor e, FileBuffer f, List<String> args) {
     setMode(f, Mode.normal);
-    if (splits.length > 1) {
-      f.path = splits[1];
+    if (args.length > 1) {
+      f.path = args[1];
     }
     NormalActions.save(e, f);
   }
 
-  static void writeAndQuit(Editor e, FileBuffer f, List<String> splits) {
-    if (splits.length > 1) {
-      f.path = splits[1];
+  static void writeAndQuit(Editor e, FileBuffer f, List<String> args) {
+    setMode(f, Mode.normal);
+    if (args.length > 1) {
+      f.path = args[1];
     }
     NormalActions.save(e, f);
+    if (f.path == null || f.path!.isEmpty || f.modified) {
+      return;
+    }
     e.quit();
   }
 
-  static void quit(Editor e, FileBuffer f, List<String> splits) {
+  static void quit(Editor e, FileBuffer f, List<String> args) {
     setMode(f, Mode.normal);
     NormalActions.quit(e, f);
   }
 
-  static void quitWoSaving(Editor e, FileBuffer f, List<String> splits) {
+  static void quitWoSaving(Editor e, FileBuffer f, List<String> args) {
     e.quit();
   }
 }

@@ -49,7 +49,7 @@ class NormalActions {
 
   static void quit(Editor e, FileBuffer f) {
     if (f.modified) {
-      e.showMessage('Press \'Q\' to quit without saving', timed: true);
+      e.showMessage('Has changes - type \':q!\' to quit without saving', timed: true);
     } else {
       e.quit();
     }

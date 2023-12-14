@@ -8,7 +8,6 @@ import 'action.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
-import 'actions_normal.dart';
 import 'actions_replace.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
