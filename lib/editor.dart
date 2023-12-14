@@ -266,9 +266,8 @@ class Editor {
     List<String> parts = command.split('/');
     String pattern = parts[1];
     String replacement = parts[2];
-    final regex = RegExp(pattern);
     int start = file.byteIndexFromPosition(file.cursor);
-    final match = regex.allMatches(file.text, start + 1).firstOrNull;
+    Match? match = RegExp(pattern).allMatches(file.text, start).firstOrNull;
     if (match == null) {
       setMode(file, Mode.normal);
       showMessage('No match for \'$pattern\'', timed: true);
@@ -280,7 +279,7 @@ class Editor {
   }
 
   void executeSearch(String pattern) {
-    file.cursor = Motions.searchNext(file, file.cursor, RegExp(pattern));
+    file.cursor = Motions.searchNext(file, RegExp(pattern), file.cursor);
     setMode(file, Mode.normal);
   }
 

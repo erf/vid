@@ -91,7 +91,8 @@ class Motions {
     return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
   }
 
-  static Position searchNext(FileBuffer f, Position p, RegExp pattern) {
+  // find the next match after the cursor position
+  static Position searchNext(FileBuffer f, RegExp pattern, Position p) {
     int start = f.byteIndexFromPosition(p);
     Match? match = pattern.allMatches(f.text, start + 1).firstOrNull;
     if (match == null) {
