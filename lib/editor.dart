@@ -257,13 +257,8 @@ class Editor {
   }
 
   void executeSearch(String pattern) {
-    Position p = file.cursor;
-    int start = file.byteIndexFromPosition(p);
-    Match? match = pattern.allMatches(file.text, start + 1).firstOrNull;
+    file.cursor = Motions.searchNext(file, file.cursor, RegExp(pattern));
     setMode(file, Mode.normal);
-    if (match != null) {
-      file.cursor = file.positionFromByteIndex(match.start);
-    }
   }
 
   // insert char at cursor
