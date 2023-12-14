@@ -26,6 +26,7 @@ import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
+import 'undo.dart';
 
 class Editor {
   final term = Terminal.instance;
@@ -251,9 +252,29 @@ class Editor {
       case 'q!':
         quit();
       default:
+        // substitute command
+        if (command.startsWith(RegExp(r's/.*/.*'))) {
+          substitute(command);
+          return;
+        }
         showMessage('Unknown command: $command', timed: true);
         setMode(file, Mode.normal);
     }
+  }
+
+  void substitute(String command) {
+    List<String> parts = command.split('/');
+    String pattern = parts[1];
+    String replacement = parts[2];
+    final regex = RegExp(pattern);
+    int start = file.byteIndexFromPosition(file.cursor);
+    final match = regex.allMatches(file.text, start + 1).firstOrNull;
+    if (match == null) {
+      return;
+    }
+    file.replace(match.start, match.end, replacement, TextOp.replace);
+    file.cursor = file.positionFromByteIndex(match.start);
+    setMode(file, Mode.normal);
   }
 
   void executeSearch(String pattern) {
