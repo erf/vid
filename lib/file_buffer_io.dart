@@ -10,10 +10,11 @@ import 'file_buffer_view.dart';
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file, return file name
   String load(Editor editor, List<String> args) {
+    // check if file name is specified
     if (args.isEmpty) {
-      print('No file name specified');
-      exit(1);
+      return '';
     }
+
     // parse command line arguments
     final parser = ArgParser();
     parser.addOption('log', abbr: 'l', help: 'Log file');

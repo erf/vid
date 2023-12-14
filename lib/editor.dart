@@ -238,14 +238,22 @@ class Editor {
   }
 
   void executeCommand(String command) {
-    switch (command) {
+    List<String> splits = command.split(' ');
+    String cmd = splits.first;
+    switch (cmd) {
       case '':
         setMode(file, Mode.normal);
       case 'w':
         setMode(file, Mode.normal);
+        if (splits.length > 1) {
+          file.path = splits[1];
+        }
         NormalActions.save(this, file);
       case 'wq':
       case 'x':
+        if (splits.length > 1) {
+          file.path = splits[1];
+        }
         NormalActions.save(this, file);
         quit();
       case 'q':
