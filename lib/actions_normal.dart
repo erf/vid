@@ -71,7 +71,7 @@ class NormalActions {
     if (f.save()) {
       e.showMessage('File saved', timed: true);
     } else {
-      e.showMessage('Could not save file', timed: true);
+      e.showMessage('Error saving file', timed: true);
     }
   }
 
