@@ -82,9 +82,8 @@ class Editor {
         drawCommand();
       default:
         drawStatus();
+        drawCursor(curLen);
     }
-
-    drawCursor(curLen);
     term.write(rbuf);
   }
 
@@ -123,12 +122,13 @@ class Editor {
 
   // draw the command input line
   void drawCommand() {
-    rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
     if (file.mode == Mode.search) {
       rbuf.write('/${file.action.input} ');
     } else {
       rbuf.write(':${file.action.input} ');
     }
+    int cursor = file.action.input.length + 2;
+    rbuf.write(Esc.cursorPosition(c: cursor, l: term.height));
   }
 
   void drawStatus() {
