@@ -38,4 +38,15 @@ class Find {
     prev.c = min(prev.c + 1, p.c);
     return prev;
   }
+
+  // find the next match after the cursor position used by find command '/'
+  static Position searchNext(FileBuffer f, Position p, String pattern,
+      [bool incl = false]) {
+    int start = f.byteIndexFromPosition(p);
+    Match? match = RegExp(pattern).allMatches(f.text, start + 1).firstOrNull;
+    if (match == null) {
+      return p;
+    }
+    return f.positionFromByteIndex(match.start);
+  }
 }

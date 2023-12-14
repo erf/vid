@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:characters/characters.dart';
 
 import 'action.dart';
+import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
@@ -279,7 +280,7 @@ class Editor {
 
   void executeSearch(String pattern) {
     setMode(file, Mode.normal);
-    file.action.motion = FindMotion(Motions.searchNext);
+    file.action.motion = FindMotion(Find.searchNext);
     file.action.findChar = pattern;
     doAction(file.action);
   }
