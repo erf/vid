@@ -278,8 +278,10 @@ class Editor {
   }
 
   void executeSearch(String pattern) {
-    file.cursor = Motions.searchNext(file, RegExp(pattern), file.cursor);
     setMode(file, Mode.normal);
+    file.action.motion = FindMotion(Motions.searchNext);
+    file.action.findChar = pattern;
+    doAction(file.action);
   }
 
   // insert char at cursor
