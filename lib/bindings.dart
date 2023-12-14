@@ -11,7 +11,7 @@ const normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   'S': NormalActions.substituteLine,
-  's': NormalActions.substitute,
+  's': NormalActions.save,
   'x': NormalActions.deleteCharNext,
   'i': NormalActions.insert,
   'a': NormalActions.appendCharNext,
