@@ -19,7 +19,7 @@ class Action {
   int? count;
 
   // the find char
-  String? findChar;
+  String? findStr;
 
   // if the pending operator is linewise
   bool linewise = false;

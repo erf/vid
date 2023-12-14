@@ -142,7 +142,7 @@ void main() {
     f.text = 'abc abc abc abc\n';
     f.createLines();
     f.cursor = Position(c: 0, l: 0);
-    f.action.findChar = 'c';
+    f.action.findStr = 'c';
     e.input('f;;');
     expect(f.cursor, Position(c: 10, l: 0));
   });

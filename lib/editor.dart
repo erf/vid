@@ -281,7 +281,7 @@ class Editor {
   void executeSearch(String pattern) {
     setMode(file, Mode.normal);
     file.action.motion = FindMotion(Find.searchNext);
-    file.action.findChar = pattern;
+    file.action.findStr = pattern;
     doAction(file.action);
   }
 
@@ -381,8 +381,8 @@ class Editor {
       case NormalMotion():
         return motion.fn(file, pos, incl);
       case FindMotion():
-        final nextChar = action.findChar ?? readNextChar();
-        action.findChar = nextChar;
+        final nextChar = action.findStr ?? readNextChar();
+        action.findStr = nextChar;
         return motion.fn(file, pos, nextChar, incl);
     }
   }
@@ -441,8 +441,8 @@ class Editor {
     if (file.action.motion != null) {
       file.prevMotion = file.action.motion;
     }
-    if (file.action.findChar != null) {
-      file.prevFindChar = file.action.findChar;
+    if (file.action.findStr != null) {
+      file.prevFindStr = file.action.findStr;
     }
     file.action = Action();
   }

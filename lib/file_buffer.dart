@@ -35,7 +35,7 @@ class FileBuffer {
   Motion<Function>? prevMotion;
 
   // the previous find character
-  String? prevFindChar;
+  String? prevFindStr;
 
   // the yanked text
   String? yankBuffer;
