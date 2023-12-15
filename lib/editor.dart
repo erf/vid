@@ -261,8 +261,7 @@ class Editor {
     List<String> parts = command.split('/');
     String pattern = parts[1];
     String replacement = parts[2];
-    int start = file.byteIndexFromPosition(file.cursor);
-    Match? match = RegExp(pattern).allMatches(file.text, start).firstOrNull;
+    Match? match = RegExp(pattern).allMatches(file.text).firstOrNull;
     file.setMode(Mode.normal);
     if (match == null) {
       showMessage('No match for \'$pattern\'', timed: true);
