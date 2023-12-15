@@ -237,19 +237,19 @@ class Editor {
   }
 
   void doCommand(String command) {
-    String cmd = command.split(' ').first;
+    List<String> args = command.split(' ');
+    String cmd = args.first;
 
     // command actions
     if (commandActions.containsKey(cmd)) {
-      List<String> args = command.split(' ');
       commandActions[cmd]!(this, file, args);
       return;
     }
 
     // substitute command
     if (command.startsWith(Regex.substitute)) {
-      List<String> args = command.split('/');
-      CommandActions.substitute(this, file, args);
+      List<String> parts = command.split('/');
+      CommandActions.substitute(this, file, parts);
       return;
     }
 
