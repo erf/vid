@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/actions_command.dart';
 
 import 'action.dart';
 import 'actions_find.dart';
@@ -238,37 +239,24 @@ class Editor {
   }
 
   void executeCommand(String command) {
-    List<String> splits = command.split(' ');
-    String cmd = splits.first;
+    String cmd = command.split(' ').first;
 
     // command actions
     if (commandActions.containsKey(cmd)) {
-      commandActions[cmd]!(this, file, splits);
+      List<String> args = command.split(' ');
+      commandActions[cmd]!(this, file, args);
       return;
     }
 
     // substitute command
     if (command.startsWith(Regex.substitute)) {
-      substitute(command);
+      List<String> args = command.split('/');
+      CommandActions.substitute(this, file, args);
       return;
     }
 
     showMessage('Unknown command \'$command\'', timed: true);
     file.setMode(Mode.normal);
-  }
-
-  void substitute(String command) {
-    List<String> parts = command.split('/');
-    String pattern = parts[1];
-    String replacement = parts[2];
-    Match? match = RegExp(pattern).allMatches(file.text).firstOrNull;
-    file.setMode(Mode.normal);
-    if (match == null) {
-      showMessage('No match for \'$pattern\'', timed: true);
-      return;
-    }
-    file.replace(match.start, match.end, replacement, TextOp.replace);
-    file.cursor = file.positionFromByteIndex(match.start);
   }
 
   void search(String pattern) {
