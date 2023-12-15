@@ -15,6 +15,7 @@ import 'config.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
+import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'input_match.dart';
@@ -215,13 +216,13 @@ class Editor {
       // backspace
       case '\x7f':
         if (action.input.isEmpty) {
-          setMode(file, Mode.normal);
+          file.setMode(Mode.normal);
         } else {
           action.input = action.input.substring(0, action.input.length - 1);
         }
       // cancel command mode
       case '\x1b':
-        setMode(file, Mode.normal);
+        file.setMode(Mode.normal);
         action.input = '';
       // execute command
       case '\n':
@@ -253,7 +254,7 @@ class Editor {
     }
 
     showMessage('Unknown command \'$command\'', timed: true);
-    setMode(file, Mode.normal);
+    file.setMode(Mode.normal);
   }
 
   void substitute(String command) {
@@ -262,7 +263,7 @@ class Editor {
     String replacement = parts[2];
     int start = file.byteIndexFromPosition(file.cursor);
     Match? match = RegExp(pattern).allMatches(file.text, start).firstOrNull;
-    setMode(file, Mode.normal);
+    file.setMode(Mode.normal);
     if (match == null) {
       showMessage('No match for \'$pattern\'', timed: true);
       return;
@@ -272,7 +273,7 @@ class Editor {
   }
 
   void search(String pattern) {
-    setMode(file, Mode.normal);
+    file.setMode(Mode.normal);
     file.action.motion = FindMotion(Find.searchNext);
     file.action.findStr = pattern;
     doAction(file.action);
@@ -315,7 +316,7 @@ class Editor {
   bool handleMatchedKeys(InputMatch inputMatch) {
     switch (inputMatch) {
       case InputMatch.none:
-        setMode(file, Mode.normal);
+        file.setMode(Mode.normal);
         file.action = Action();
         return false;
       case InputMatch.partial:
@@ -352,7 +353,7 @@ class Editor {
     // if operator action, set it and change to operator mode
     action.operator = operatorActions[action.input];
     if (action.operator != null) {
-      setMode(file, Mode.operator);
+      file.setMode(Mode.operator);
     }
   }
 

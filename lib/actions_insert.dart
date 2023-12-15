@@ -4,6 +4,7 @@ import 'actions_motion.dart';
 import 'constants.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
+import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
@@ -16,7 +17,7 @@ class InsertActions {
   }
 
   static void escape(FileBuffer f) {
-    setMode(f, Mode.normal);
+    f.setMode(Mode.normal);
     f.cursor.c--;
     f.clampCursor();
   }

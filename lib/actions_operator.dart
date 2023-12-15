@@ -1,5 +1,6 @@
 import 'action.dart';
 import 'file_buffer.dart';
+import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
@@ -9,25 +10,25 @@ import 'terminal.dart';
 class Operators {
   static void change(FileBuffer f, Range range) {
     delete(f, range);
-    setMode(f, Mode.insert);
+    f.setMode(Mode.insert);
   }
 
   static void delete(FileBuffer f, Range range) {
     Range r = range.norm;
     f.deleteRange(r);
     f.cursor = r.start;
-    setMode(f, Mode.normal);
+    f.setMode(Mode.normal);
     f.clampCursor();
   }
 
   static void yank(FileBuffer f, Range range) {
     f.yankRange(range);
     Terminal.instance.copyToClipboard(f.yankBuffer!);
-    setMode(f, Mode.normal);
+    f.setMode(Mode.normal);
   }
 
   static void escape(FileBuffer f, Range range) {
-    setMode(f, Mode.normal);
+    f.setMode(Mode.normal);
     f.action = Action();
   }
 }

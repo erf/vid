@@ -6,6 +6,7 @@ import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
+import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'modes.dart';
@@ -84,20 +85,20 @@ class NormalActions {
   }
 
   static void openLineAbove(Editor e, FileBuffer f) {
-    setMode(f, Mode.insert);
+    f.setMode(Mode.insert);
     f.insertAt(Position(l: f.cursor.l, c: 0), createNewlines(f));
     f.cursor.c = 0;
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
-    setMode(f, Mode.insert);
+    f.setMode(Mode.insert);
     f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
         createNewlines(f));
     f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void insert(Editor e, FileBuffer f) {
-    setMode(f, Mode.insert);
+    f.setMode(Mode.insert);
   }
 
   static void substitute(Editor e, FileBuffer f) {
@@ -121,7 +122,7 @@ class NormalActions {
   }
 
   static void appendCharNext(Editor e, FileBuffer f) {
-    setMode(f, Mode.insert);
+    f.setMode(Mode.insert);
     f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
   }
 
@@ -131,7 +132,7 @@ class NormalActions {
   }
 
   static void replace(Editor e, FileBuffer f) {
-    setMode(f, Mode.replace);
+    f.setMode(Mode.replace);
   }
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
@@ -220,10 +221,10 @@ class NormalActions {
   }
 
   static void command(Editor e, FileBuffer f) {
-    setMode(f, Mode.command);
+    f.setMode(Mode.command);
   }
 
   static void search(Editor e, FileBuffer f) {
-    setMode(f, Mode.search);
+    f.setMode(Mode.search);
   }
 }
