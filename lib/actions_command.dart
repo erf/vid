@@ -45,13 +45,21 @@ class CommandActions {
     List<String> parts = args.first.split('/');
     String pattern = parts[1];
     String replacement = parts[2];
-    Match? match = RegExp(pattern).allMatches(f.text).firstOrNull;
-    f.setMode(Mode.normal);
-    if (match == null) {
-      e.showMessage('No match for \'$pattern\'', timed: true);
-      return;
+    bool global = false;
+    if (parts.length >= 4 && parts[3] == 'g') {
+      global = true;
     }
-    f.replace(match.start, match.end, replacement, TextOp.replace);
-    f.cursor = f.positionFromByteIndex(match.start);
+    f.setMode(Mode.normal);
+    while (true) {
+      Match? match = RegExp(pattern).firstMatch(f.text);
+      if (match == null) {
+        break;
+      }
+      f.replace(match.start, match.end, replacement, TextOp.replace);
+      f.cursor = f.positionFromByteIndex(match.start);
+      if (!global) {
+        break;
+      }
+    }
   }
 }
