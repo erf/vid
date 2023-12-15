@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/actions_command.dart';
 
 import 'action.dart';
+import 'actions_command.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
 import 'actions_motion.dart';
@@ -17,7 +17,6 @@ import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_mode.dart';
-import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'input_match.dart';
 import 'line.dart';
@@ -28,7 +27,6 @@ import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
-import 'undo.dart';
 
 class Editor {
   final term = Terminal.instance;
@@ -228,9 +226,9 @@ class Editor {
       // execute command
       case '\n':
         if (file.mode == Mode.search) {
-          search(action.input);
+          doSearch(action.input);
         } else {
-          executeCommand(action.input);
+          doCommand(action.input);
         }
         action.input = '';
       default:
@@ -238,7 +236,7 @@ class Editor {
     }
   }
 
-  void executeCommand(String command) {
+  void doCommand(String command) {
     String cmd = command.split(' ').first;
 
     // command actions
@@ -259,7 +257,7 @@ class Editor {
     file.setMode(Mode.normal);
   }
 
-  void search(String pattern) {
+  void doSearch(String pattern) {
     file.setMode(Mode.normal);
     file.action.motion = FindMotion(Find.searchNext);
     file.action.findStr = pattern;
