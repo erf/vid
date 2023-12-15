@@ -332,8 +332,10 @@ class Editor {
     if (count(char, action)) {
       return;
     }
-    // check if we match a key
+    // append char to input
     action.input += char;
+
+    // check if we match or partial match a key
     if (!handleMatchedKeys(matchKeys(action.input, normalBindings))) {
       return;
     }
