@@ -42,8 +42,9 @@ class CommandActions {
   }
 
   static void substitute(Editor e, FileBuffer f, List<String> args) {
-    String pattern = args[1];
-    String replacement = args[2];
+    List<String> parts = args.first.split('/');
+    String pattern = parts[1];
+    String replacement = parts[2];
     Match? match = RegExp(pattern).allMatches(f.text).firstOrNull;
     f.setMode(Mode.normal);
     if (match == null) {

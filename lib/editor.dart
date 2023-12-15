@@ -246,8 +246,7 @@ class Editor {
     }
     // substitute command
     if (command.startsWith(Regex.substitute)) {
-      List<String> parts = command.split('/');
-      CommandActions.substitute(this, file, parts);
+      CommandActions.substitute(this, file, args);
       return;
     }
     // unknown command
