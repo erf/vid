@@ -239,20 +239,18 @@ class Editor {
   void doCommand(String command) {
     List<String> args = command.split(' ');
     String cmd = args.first;
-
     // command actions
     if (commandActions.containsKey(cmd)) {
       commandActions[cmd]!(this, file, args);
       return;
     }
-
     // substitute command
     if (command.startsWith(Regex.substitute)) {
       List<String> parts = command.split('/');
       CommandActions.substitute(this, file, parts);
       return;
     }
-
+    // unknown command
     showMessage('Unknown command \'$command\'', timed: true);
     file.setMode(Mode.normal);
   }
