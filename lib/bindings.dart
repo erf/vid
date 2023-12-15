@@ -83,13 +83,13 @@ const commandActions = <String, CommandFn>{
   'x': CommandActions.writeAndQuit,
 };
 
-final normalBindings = {
+const normalBindings = {
   ...normalActions,
   ...motionActions,
   ...operatorActions,
 };
 
-final opBindings = {
+const opBindings = {
   ...operatorActions,
   ...motionActions,
 };
