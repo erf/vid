@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/file_buffer_lines.dart';
 
 import 'action.dart';
 import 'actions_command.dart';
@@ -41,6 +42,7 @@ class Editor {
 
   void init(List<String> args) {
     String path = file.load(this, args);
+    file.createLines();
     term.rawMode = true;
     term.write(Esc.pushWindowTitle);
     term.write(Esc.setWindowTitle(path));

@@ -4,15 +4,12 @@ import 'package:args/args.dart';
 
 import 'editor.dart';
 import 'file_buffer.dart';
-import 'file_buffer_lines.dart';
-import 'file_buffer_view.dart';
 
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file, return file name
   String load(Editor editor, List<String> args) {
     // check if file name is specified
     if (args.isEmpty) {
-      createLines();
       return '';
     }
 
@@ -50,9 +47,6 @@ extension FileBufferLines on FileBuffer {
     if (file.existsSync()) {
       text = file.readAsStringSync();
     }
-
-    // split text into lines
-    createLines();
 
     return path!;
   }
