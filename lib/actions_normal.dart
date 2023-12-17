@@ -122,8 +122,8 @@ class NormalActions {
   }
 
   static void appendCharNext(Editor e, FileBuffer f) {
-    f.action.input = '';
-    e.input('li');
+    f.setMode(Mode.insert);
+    f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
   }
 
   static void deleteCharNext(Editor e, FileBuffer f) {
