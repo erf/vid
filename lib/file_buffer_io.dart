@@ -54,9 +54,6 @@ extension FileBufferLines on FileBuffer {
     // split text into lines
     createLines();
 
-    // clamp cursor position to valid range
-    clampCursor();
-
     return path!;
   }
 
