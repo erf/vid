@@ -285,7 +285,7 @@ class Editor {
   // accumulate countInput: if char is a number, add it to countInput
   // if char is not a number, parse countInput and set fileBuffer.count
   bool count(String char, Action action) {
-    final count = int.tryParse(char);
+    int? count = int.tryParse(char);
     if (count != null && (count > 0 || action.countStr.isNotEmpty)) {
       action.countStr += char;
       return true;
