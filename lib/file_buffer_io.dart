@@ -56,6 +56,7 @@ extension FileBufferLines on FileBuffer {
     try {
       File(path!).writeAsStringSync(text);
       setSavepoint();
+      Terminal.instance.write(Esc.setWindowTitle(path!));
       return true;
     } catch (e) {
       print('Error: $e');
