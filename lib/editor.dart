@@ -33,7 +33,7 @@ class Editor {
   final term = Terminal.instance;
   final file = FileBuffer();
   final rbuf = StringBuffer();
-  String msg = '';
+  String message = '';
   String? logPath;
   File? logFile;
   bool redraw;
@@ -141,7 +141,7 @@ class Editor {
     bool modified = file.modified;
     String path = file.path ?? '[No Name]';
     String modeStr = statusModeLabel(file.mode);
-    String left = ' $modeStr  $path ${modified ? '* ' : ''}$msg ';
+    String left = ' $modeStr  $path ${modified ? '* ' : ''}$message ';
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     int padLeft = term.width - left.length - 1;
     String status = '$left ${right.padLeft(padLeft)}';
@@ -166,12 +166,12 @@ class Editor {
     };
   }
 
-  void showMessage(String text, {bool timed = Config.timed}) {
-    msg = text;
+  void showMessage(String message, {bool timed = Config.timed}) {
+    this.message = message;
     draw();
     if (timed) {
       Timer(Duration(milliseconds: Config.messageTime), () {
-        msg = '';
+        this.message = '';
         draw();
       });
     }
@@ -207,7 +207,7 @@ class Editor {
     if (redraw) {
       draw();
     }
-    msg = '';
+    message = '';
   }
 
   // command mode
