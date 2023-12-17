@@ -41,11 +41,11 @@ class Editor {
   Editor({this.redraw = true});
 
   void init(List<String> args) {
-    String path = file.load(this, args);
+    file.load(this, args);
     file.createLines();
     term.rawMode = true;
     term.write(Esc.pushWindowTitle);
-    term.write(Esc.setWindowTitle(path));
+    term.write(Esc.setWindowTitle(file.path ?? '[No Name]'));
     term.write(Esc.enableMode2027);
     term.write(Esc.enableAltBuffer);
     term.write(Esc.disableAlternateScrollMode);

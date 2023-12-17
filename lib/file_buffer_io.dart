@@ -3,14 +3,16 @@ import 'dart:io';
 import 'package:args/args.dart';
 
 import 'editor.dart';
+import 'esc.dart';
 import 'file_buffer.dart';
+import 'terminal.dart';
 
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file, return file name
-  String load(Editor editor, List<String> args) {
+  void load(Editor editor, List<String> args) {
     // check if file name is specified
     if (args.isEmpty) {
-      return '';
+      return;
     }
 
     // parse command line arguments
@@ -47,8 +49,6 @@ extension FileBufferLines on FileBuffer {
     if (file.existsSync()) {
       text = file.readAsStringSync();
     }
-
-    return path!;
   }
 
   // save file to disk
