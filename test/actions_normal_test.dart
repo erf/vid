@@ -73,7 +73,7 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines();
-    f.cursor = Position(c: 3, l: 0);
+    f.cursor = Position(c: 2, l: 0);
     e.input('ax');
     expect(f.text, 'abcx\ndef\n');
   });
