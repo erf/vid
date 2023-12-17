@@ -65,10 +65,6 @@ class NormalActions {
       e.showMessage('Missing filename', timed: true);
       return;
     }
-    if (f.modified == false) {
-      e.showMessage('No changes', timed: true);
-      return;
-    }
     if (f.save()) {
       e.showMessage('File saved', timed: true);
     } else {
