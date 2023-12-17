@@ -166,7 +166,7 @@ class Editor {
     };
   }
 
-  void showMessage(String message, {bool timed = Config.timed}) {
+  void showMessage(String message, {bool timed = Config.messageTime > 0}) {
     this.message = message;
     draw();
     if (timed) {
