@@ -50,7 +50,7 @@ class NormalActions {
 
   static void quit(Editor e, FileBuffer f) {
     if (f.modified) {
-      e.showMessage('Has changes', timed: true);
+      e.showMessage('Has changes');
     } else {
       e.quit();
     }
@@ -62,13 +62,13 @@ class NormalActions {
 
   static void save(Editor e, FileBuffer f) {
     if (f.path == null) {
-      e.showMessage('Missing filename', timed: true);
+      e.showMessage('Missing filename');
       return;
     }
     if (f.save()) {
-      e.showMessage('File saved', timed: true);
+      e.showMessage('File saved');
     } else {
-      e.showMessage('Error saving file', timed: true);
+      e.showMessage('Error saving file');
     }
   }
 

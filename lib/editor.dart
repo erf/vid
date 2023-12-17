@@ -166,7 +166,7 @@ class Editor {
     };
   }
 
-  void showMessage(String text, {bool timed = false}) {
+  void showMessage(String text, {bool timed = Config.timed}) {
     msg = text;
     draw();
     if (timed) {
@@ -252,8 +252,8 @@ class Editor {
       return;
     }
     // unknown command
-    showMessage('Unknown command \'$command\'', timed: true);
     file.setMode(Mode.normal);
+    showMessage('Unknown command \'$command\'');
   }
 
   void doSearch(String pattern) {
