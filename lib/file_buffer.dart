@@ -14,9 +14,7 @@ class FileBuffer {
   String text = '';
 
   // the lines of the file with metadata, built by createLines() on text changes
-  List<Line> lines = [
-    Line('', byteStart: 0, lineNo: 0),
-  ];
+  List<Line> lines = [];
 
   // the cursor position (0 based, in grapheme cluster space)
   Position cursor = Position();

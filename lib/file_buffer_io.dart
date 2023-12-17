@@ -12,6 +12,7 @@ extension FileBufferLines on FileBuffer {
   String load(Editor editor, List<String> args) {
     // check if file name is specified
     if (args.isEmpty) {
+      createLines();
       return '';
     }
 
