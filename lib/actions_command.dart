@@ -44,7 +44,7 @@ class CommandActions {
   static void substitute(Editor e, FileBuffer f, List<String> args) {
     List<String> parts = args.first.split('/');
     String pattern = parts[1];
-    String replacement = parts[2];
+    String replacement = parts.length >= 3 ? parts[2] : '';
     bool global = false;
     if (parts.length >= 4 && parts[3] == 'g') {
       global = true;

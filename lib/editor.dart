@@ -240,7 +240,7 @@ class Editor {
 
   void doCommand(String command) {
     List<String> args = command.split(' ');
-    String cmd = args.first;
+    String cmd = args.isNotEmpty ? args.first : command;
     // command actions
     if (commandActions.containsKey(cmd)) {
       commandActions[cmd]!(this, file, args);
@@ -248,7 +248,7 @@ class Editor {
     }
     // substitute command
     if (command.startsWith(Regex.substitute)) {
-      CommandActions.substitute(this, file, args);
+      CommandActions.substitute(this, file, [command]);
       return;
     }
     // unknown command
