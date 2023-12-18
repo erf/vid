@@ -3,11 +3,16 @@
 // https://en.wikipedia.org/wiki/ANSI_escape_code
 
 // Terminal escape codes
+import 'keys.dart';
+
 class Esc {
   Esc._();
 
   // escape character
-  static const String e = '\x1b';
+  static const String e = Keys.escape;
+
+  // bell character
+  static const String bell = Keys.bell;
 
   // home and erase down
   static const String homeAndEraseDown = '$e[H$e[J';
@@ -35,7 +40,7 @@ class Esc {
   static const String disableMode2027 = '$e[?2027l';
 
   // set window title
-  static String setWindowTitle(String path) => '$e]2;vid $path\x07';
+  static String setWindowTitle(String path) => '$e]2;vid $path$bell';
 
   // push window title
   static const String pushWindowTitle = '$e[22;2t';
@@ -54,4 +59,7 @@ class Esc {
 
   // set cursor style to line
   static const String cursorStyleLine = '$e[5 q';
+
+  // copy to clipboard
+  static String copyToClipboard(String text) => '$e]52;c;$text$bell';
 }

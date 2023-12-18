@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'esc.dart';
+
 // provides a simple interface to the terminal
 class Terminal {
   static Terminal instance = Terminal._();
@@ -37,7 +39,6 @@ class Terminal {
   void write(Object? object) => stdout.write(object);
 
   // write text to clipboard using OSC 52
-  void copyToClipboard(String str) {
-    stdout.write('\x1b]52;c;${base64Encode(utf8.encode(str))}\x07');
-  }
+  void copyToClipboard(String str) =>
+      write(Esc.copyToClipboard(base64Encode(utf8.encode(str))));
 }

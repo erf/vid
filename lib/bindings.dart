@@ -5,6 +5,7 @@ import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator.dart';
+import 'keys.dart';
 import 'motion.dart';
 
 const normalActions = {
@@ -23,8 +24,8 @@ const normalActions = {
   'D': NormalActions.deleteLineEnd,
   'p': NormalActions.pasteAfter,
   'P': NormalActions.pasteBefore,
-  '\u0004': NormalActions.moveDownHalfPage,
-  '\u0015': NormalActions.moveUpHalfPage,
+  Keys.ctrlD: NormalActions.moveDownHalfPage,
+  Keys.ctrlU: NormalActions.moveUpHalfPage,
   'J': NormalActions.joinLines,
   'C': NormalActions.changeLineEnd,
   'u': NormalActions.undo,
@@ -32,12 +33,11 @@ const normalActions = {
   '.': NormalActions.repeat,
   ';': NormalActions.repeatFindNext,
   'n': NormalActions.findNext,
-  '\u0001': NormalActions.increase,
-  '\u0018': NormalActions.decrease,
+  Keys.ctrlA: NormalActions.increase,
+  Keys.ctrlX: NormalActions.decrease,
   ':': NormalActions.command,
   '/': NormalActions.search,
 };
-
 
 const operatorActions = <String, OperatorFn>{
   'c': Operators.change,
@@ -71,9 +71,9 @@ const motionActions = <String, Motion>{
 };
 
 const insertActions = <String, InsertFn>{
-  '\x7f': InsertActions.backspace,
-  '\n': InsertActions.enter,
-  '\x1b': InsertActions.escape,
+  Keys.backspace: InsertActions.backspace,
+  Keys.newline: InsertActions.enter,
+  Keys.escape: InsertActions.escape,
 };
 
 const commandActions = <String, CommandFn>{

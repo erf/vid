@@ -20,6 +20,7 @@ import 'file_buffer_io.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_view.dart';
 import 'input_match.dart';
+import 'keys.dart';
 import 'line.dart';
 import 'modes.dart';
 import 'motion.dart';
@@ -216,18 +217,18 @@ class Editor {
     final action = file.action;
     switch (char) {
       // backspace
-      case '\x7f':
+      case Keys.backspace:
         if (action.input.isEmpty) {
           file.setMode(Mode.normal);
         } else {
           action.input = action.input.substring(0, action.input.length - 1);
         }
       // cancel command mode
-      case '\x1b':
+      case Keys.escape:
         file.setMode(Mode.normal);
         action.input = '';
       // execute command
-      case '\n':
+      case Keys.newline:
         if (file.mode == Mode.search) {
           doSearch(action.input);
         } else {

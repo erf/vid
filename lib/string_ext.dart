@@ -25,9 +25,12 @@ extension StringExt on String {
     // if the string is a single tab, return 4 ?
     if (this == '\t') return Config.tabWidth;
 
-    if (codeUnits.contains(0xFE0E)) return 1; // text presentation
+    const int textPresentation = 0xFE0E;
+    const int emojiPresentation = 0xFE0F;
 
-    if (codeUnits.contains(0xFE0F)) return 2; // emoji presentation
+    if (codeUnits.contains(textPresentation)) return 1;
+
+    if (codeUnits.contains(emojiPresentation)) return 2;
 
     if (emojiData.contains(runes.first)) return 2;
 

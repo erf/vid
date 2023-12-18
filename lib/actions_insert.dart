@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:characters/characters.dart';
 
 import 'actions_motion.dart';
-import 'constants.dart';
+import 'keys.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
@@ -24,7 +24,7 @@ class InsertActions {
   }
 
   static void enter(FileBuffer f) {
-    f.insertAt(f.cursor, Keys.nl);
+    f.insertAt(f.cursor, Keys.newline);
     f.cursor.c = 0;
     f.view.c = 0;
     f.cursor = Motions.lineDown(f, f.cursor);

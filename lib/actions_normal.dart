@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'actions_motion.dart';
-import 'constants.dart';
+import 'keys.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
@@ -74,7 +74,7 @@ class NormalActions {
   static String createNewlines(FileBuffer f) {
     String s = '';
     for (int i = 0; i < (f.action.count ?? 1); i++) {
-      s += Keys.nl;
+      s += Keys.newline;
     }
     return s;
   }
