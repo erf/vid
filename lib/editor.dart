@@ -346,7 +346,7 @@ class Editor {
     // check if we match a key
     final action = file.action;
     action.opInput += char;
-    if (!handleMatchedKeys(matchKeys(action.opInput, opBindings))) {
+    if (!handleMatchedKeys(matchKeys(action.opInput, operatorBindings))) {
       return;
     }
     // if motion, execute operator on motion

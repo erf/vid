@@ -91,7 +91,7 @@ const normalBindings = {
   ...operatorActions,
 };
 
-const opBindings = {
+const operatorBindings = {
   ...operatorActions,
   ...motionActions,
 };
