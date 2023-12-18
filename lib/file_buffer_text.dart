@@ -38,7 +38,6 @@ extension FileBufferText on FileBuffer {
         return;
       }
     }
-
     // undo
     final prevText = text.substring(start, end);
     undoList.add(Undo(op, replacement, prevText, start, Position.from(cursor)));
@@ -48,6 +47,7 @@ extension FileBufferText on FileBuffer {
     }
     // replace text and create lines
     text = text.replaceRange(start, end, replacement);
+    // we need to recreate the lines, because the text has changed
     createLines();
   }
 
