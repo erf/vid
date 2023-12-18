@@ -8,7 +8,6 @@ import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
-import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'regex.dart';
@@ -17,12 +16,12 @@ import 'undo.dart';
 class NormalActions {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
     f.cursor.l += e.term.height ~/ 2;
-    f.clampCursor();
+    f.cursor.l = min(f.cursor.l, f.lines.length - 1);
   }
 
   static void moveUpHalfPage(Editor e, FileBuffer f) {
     f.cursor.l -= e.term.height ~/ 2;
-    f.clampCursor();
+    f.cursor.l = max(f.cursor.l, 0);
   }
 
   static void pasteAfter(Editor e, FileBuffer f) {
