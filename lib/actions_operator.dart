@@ -15,9 +15,9 @@ class Operators {
 
   static void delete(FileBuffer f, Range range) {
     f.deleteRange(range);
-    f.setMode(Mode.normal);
     f.cursor = range.start;
     f.clampCursor();
+    f.setMode(Mode.normal);
   }
 
   static void yank(FileBuffer f, Range range) {
