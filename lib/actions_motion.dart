@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:characters/characters.dart';
-import 'package:vid/characters_render.dart';
-import 'package:vid/string_ext.dart';
 
+import 'characters_render.dart';
 import 'file_buffer.dart';
 import 'file_buffer_text.dart';
 import 'position.dart';
 import 'regex.dart';
+import 'string_ext.dart';
 import 'utils.dart';
 
 class Motions {
@@ -36,9 +36,9 @@ class Motions {
   }
 
   static Position moveLine(FileBuffer f, Position p, int nextLine) {
-    int curlen = f.lines[p.l].str.ch.renderLength(p.c);
+    int curlen = f.lines[p.l].str.characters.renderLength(p.c);
     int nextlen = 0;
-    Characters chars = f.lines[nextLine].str.ch.takeWhile((c) {
+    Characters chars = f.lines[nextLine].str.characters.takeWhile((c) {
       nextlen += c.renderWidth;
       return nextlen <= curlen;
     });

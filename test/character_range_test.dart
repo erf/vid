@@ -1,6 +1,5 @@
 import 'package:characters/characters.dart';
 import 'package:test/test.dart';
-import 'package:vid/string_ext.dart';
 
 void main() {
   test('CharacterRange methods', () {
@@ -9,7 +8,7 @@ void main() {
     expect(range.current, '');
     range.moveNext(7);
     expect(range.current, 'abc def');
-    range.collapseToLast('def'.ch);
+    range.collapseToLast('def'.characters);
     expect(range.current, 'def');
     range.expandBackAll();
     expect(range.current, 'abc def');
@@ -25,7 +24,7 @@ void main() {
     expect(range.current, 'abc def ghi');
     range.moveBackAll();
     expect(range.current, '');
-    range.moveTo('d'.ch);
+    range.moveTo('d'.characters);
     expect(range.current, 'd');
     expect(range.stringBeforeLength, 4);
   });

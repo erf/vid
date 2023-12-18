@@ -30,7 +30,7 @@ extension CharactersRender on Characters {
       }
       return total <= start;
     });
-    return space ? ' '.ch + line : line;
+    return space ? ' '.characters + line : line;
   }
 
   // take characters until the rendered length of the line is reached

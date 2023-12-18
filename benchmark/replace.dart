@@ -1,5 +1,5 @@
+import 'package:characters/characters.dart';
 import 'package:vid/characters_index.dart';
-import 'package:vid/string_ext.dart';
 
 void main() {
   const text = 'this is a longer text 🥹🥹abc';
@@ -22,7 +22,7 @@ void benchmarkReplaceString(String text, int iterations) {
 void benchmarkReplaceCharacters(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    text.ch.replaceRange(10, 16, '🥰'.ch);
+    text.characters.replaceRange(10, 16, '🥰'.characters);
   }
   stopwatch.stop();
   print('Characters.replaceRange: ${stopwatch.elapsedMilliseconds}ms');
