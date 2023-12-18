@@ -1,6 +1,6 @@
 import 'action_typedefs.dart';
 
-class Action<T extends Function> {
+sealed class Action<T extends Function> {
   final T fn;
   const Action(this.fn);
 }

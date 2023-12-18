@@ -326,7 +326,7 @@ class Editor {
     }
 
     // if we match a key, execute action
-    Action? action = normalBindings[editEvent.input];
+    Action action = normalBindings[editEvent.input]!;
     switch (action) {
       case NormalAction():
         action.fn(this, file);
@@ -337,6 +337,7 @@ class Editor {
       case OperatorAction():
         editEvent.operator = action;
         file.setMode(Mode.operator);
+      case _:
     }
   }
 
