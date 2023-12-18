@@ -387,6 +387,7 @@ class Editor {
     final motion = action.motion;
     if (motion != null) {
       action.linewise = motion.linewise;
+      Position start = file.cursor;
       Position end = file.cursor;
       for (int i = 0; i < (action.count ?? 1); i++) {
         if (motion.inclusive != null) {
@@ -401,7 +402,6 @@ class Editor {
           file.cursor = end;
         case _:
           // motion and operator
-          Position start = file.cursor;
           if (motion.linewise) {
             final range = Range(start, end).norm;
             start = Motions.lineStart(file, range.start);
