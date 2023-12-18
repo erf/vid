@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/file_buffer_lines.dart';
 
 import 'action.dart';
+import 'action_typedefs.dart';
 import 'actions_command.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
@@ -17,6 +17,7 @@ import 'config.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
+import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_view.dart';
 import 'input_match.dart';
@@ -325,23 +326,19 @@ class Editor {
     if (!handleMatchedKeys(matchKeys(action.input, normalBindings))) {
       return;
     }
-    // if has normal action, execute it
-    final normal = normalActions[action.input];
-    if (normal != null) {
-      normal(this, file);
-      if (resetAction) doResetAction();
-      return;
-    }
-    // if motion action, execute it and set cursor
-    action.motion = motionActions[action.input];
-    if (action.motion != null) {
-      doAction(action);
-      return;
-    }
-    // if operator action, set it and change to operator mode
-    action.operator = operatorActions[action.input];
-    if (action.operator != null) {
-      file.setMode(Mode.operator);
+
+    // if we match a key, execute action
+    Object? fun = normalBindings[action.input];
+    switch (fun) {
+      case NormalFn():
+        fun(this, file);
+        if (resetAction) doResetAction();
+      case Motion():
+        action.motion = fun;
+        doAction(action);
+      case OperatorFn():
+        action.operator = fun;
+        file.setMode(Mode.operator);
     }
   }
 

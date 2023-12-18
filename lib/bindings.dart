@@ -8,7 +8,7 @@ import 'actions_operator.dart';
 import 'keys.dart';
 import 'motion.dart';
 
-const normalActions = {
+const normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   'S': NormalActions.substituteLine,
