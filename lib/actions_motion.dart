@@ -165,7 +165,7 @@ class Motions {
     // find the next same word
     final index = forward
         ? f.text.indexOf(regExp, match.end)
-        : f.text.substring(0, match.start).lastIndexOf(regExp);
+        : f.text.lastIndexOf(regExp, max(0, match.start - 1));
     return index == -1
         ? f.positionFromByteIndex(match.start)
         : f.positionFromByteIndex(index);
