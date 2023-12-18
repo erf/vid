@@ -26,7 +26,7 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevAction?.linewise ?? false) {
+    if (f.prevEditEvent?.linewise ?? false) {
       f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
@@ -39,7 +39,7 @@ class NormalActions {
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevAction?.linewise ?? false) {
+    if (f.prevEditEvent?.linewise ?? false) {
       f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
@@ -73,7 +73,7 @@ class NormalActions {
 
   static String createNewlines(FileBuffer f) {
     String s = '';
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
+    for (int i = 0; i < (f.editEvent.count ?? 1); i++) {
       s += Keys.newline;
     }
     return s;
@@ -97,22 +97,22 @@ class NormalActions {
   }
 
   static void substitute(Editor e, FileBuffer f) {
-    f.action.input = '';
+    f.editEvent.input = '';
     e.input('cl');
   }
 
   static void substituteLine(Editor e, FileBuffer f) {
-    f.action.input = '';
+    f.editEvent.input = '';
     e.input('^C');
   }
 
   static void insertLineStart(Editor e, FileBuffer f) {
-    f.action.input = '';
+    f.editEvent.input = '';
     e.input('^i');
   }
 
   static void appendLineEnd(Editor e, FileBuffer f) {
-    f.action.input = '';
+    f.editEvent.input = '';
     e.input('\$i');
   }
 
@@ -122,7 +122,7 @@ class NormalActions {
   }
 
   static void deleteCharNext(Editor e, FileBuffer f) {
-    f.action.input = '';
+    f.editEvent.input = '';
     e.input('dl');
   }
 
@@ -131,17 +131,17 @@ class NormalActions {
   }
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
-    f.action.input = '';
+    f.editEvent.input = '';
     e.input('d\$');
   }
 
   static void changeLineEnd(Editor e, FileBuffer f) {
-    f.action.input = '';
+    f.editEvent.input = '';
     e.input('d\$i');
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.action.count ?? 1); i++) {
+    for (int i = 0; i < (f.editEvent.count ?? 1); i++) {
       if (f.cursor.l >= f.lines.length - 1) {
         return;
       }
@@ -177,29 +177,29 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevAction == null || f.prevAction?.operator == null) {
+    if (f.prevEditEvent == null || f.prevEditEvent?.operator == null) {
       return;
     }
-    f.action = f.prevAction!;
-    e.doAction(f.action, false);
+    f.editEvent = f.prevEditEvent!;
+    e.doAction(f.editEvent, false);
   }
 
   static void repeatFindNext(Editor e, FileBuffer f) {
     if (f.prevMotion == null || f.prevFindStr == null) {
       return;
     }
-    f.action.motion = f.prevMotion;
-    f.action.findStr = f.prevFindStr;
-    e.doAction(f.action, false);
+    f.editEvent.motion = f.prevMotion;
+    f.editEvent.findStr = f.prevFindStr;
+    e.doAction(f.editEvent, false);
   }
 
   static void findNext(Editor e, FileBuffer f) {
     if (f.prevMotion == null) {
       return;
     }
-    f.action.motion = f.prevMotion;
-    f.action.findStr = f.prevFindStr;
-    e.doAction(f.action, false);
+    f.editEvent.motion = f.prevMotion;
+    f.editEvent.findStr = f.prevFindStr;
+    e.doAction(f.editEvent, false);
   }
 
   static void increaseNextWord(FileBuffer f, int count) {

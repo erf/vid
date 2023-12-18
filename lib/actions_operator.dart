@@ -1,4 +1,4 @@
-import 'action.dart';
+import 'edit_event.dart';
 import 'file_buffer.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
@@ -29,7 +29,7 @@ class Operators {
 
   static void escape(FileBuffer f, Range range) {
     f.setMode(Mode.normal);
-    f.action = Action();
+    f.editEvent = EditEvent();
   }
 
   static void lowercase(FileBuffer f, Range r) {

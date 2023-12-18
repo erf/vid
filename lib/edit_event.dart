@@ -1,8 +1,7 @@
+import 'action_typedefs.dart';
 import 'motion.dart';
 
-import 'action_typedefs.dart';
-
-class Action {
+class EditEvent {
   // the pending action to be executed
   OperatorFn? operator;
 

@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 
-import 'action.dart';
+import 'edit_event.dart';
 import 'action_typedefs.dart';
 import 'actions_command.dart';
 import 'actions_find.dart';
@@ -127,11 +127,11 @@ class Editor {
   // draw the command input line
   void drawCommand() {
     if (file.mode == Mode.search) {
-      rbuf.write('/${file.action.input} ');
+      rbuf.write('/${file.editEvent.input} ');
     } else {
-      rbuf.write(':${file.action.input} ');
+      rbuf.write(':${file.editEvent.input} ');
     }
-    int cursor = file.action.input.length + 2;
+    int cursor = file.editEvent.input.length + 2;
     rbuf.write(Esc.cursorStyleLine);
     rbuf.write(Esc.cursorPosition(c: cursor, l: term.height));
   }
@@ -215,7 +215,7 @@ class Editor {
 
   // command mode
   void command(String char) {
-    final action = file.action;
+    final action = file.editEvent;
     switch (char) {
       // backspace
       case Keys.backspace:
@@ -261,9 +261,9 @@ class Editor {
 
   void doSearch(String pattern) {
     file.setMode(Mode.normal);
-    file.action.motion = FindMotion(Find.searchNext);
-    file.action.findStr = pattern;
-    doAction(file.action);
+    file.editEvent.motion = FindMotion(Find.searchNext);
+    file.editEvent.findStr = pattern;
+    doAction(file.editEvent);
   }
 
   // insert char at cursor
@@ -287,7 +287,7 @@ class Editor {
 
   // accumulate countInput: if char is a number, add it to countInput
   // if char is not a number, parse countInput and set fileBuffer.count
-  bool count(String char, Action action) {
+  bool count(String char, EditEvent action) {
     int? count = int.tryParse(char);
     if (count != null && (count > 0 || action.countStr.isNotEmpty)) {
       action.countStr += char;
@@ -304,7 +304,7 @@ class Editor {
     switch (inputMatch) {
       case InputMatch.none:
         file.setMode(Mode.normal);
-        file.action = Action();
+        file.editEvent = EditEvent();
         return false;
       case InputMatch.partial:
         return false;
@@ -314,37 +314,37 @@ class Editor {
   }
 
   void normal(String char, [bool resetAction = true]) {
-    Action action = file.action;
+    EditEvent editEvent = file.editEvent;
     // if char is a number, accumulate countInput
-    if (count(char, action)) {
+    if (count(char, editEvent)) {
       return;
     }
     // append char to input
-    action.input += char;
+    editEvent.input += char;
 
     // check if we match or partial match a key
-    if (!handleMatchedKeys(matchKeys(action.input, normalBindings))) {
+    if (!handleMatchedKeys(matchKeys(editEvent.input, normalBindings))) {
       return;
     }
 
     // if we match a key, execute action
-    Object? fun = normalBindings[action.input];
+    Object? fun = normalBindings[editEvent.input];
     switch (fun) {
       case NormalFn():
         fun(this, file);
         if (resetAction) doResetAction();
       case Motion():
-        action.motion = fun;
-        doAction(action);
+        editEvent.motion = fun;
+        doAction(editEvent);
       case OperatorFn():
-        action.operator = fun;
+        editEvent.operator = fun;
         file.setMode(Mode.operator);
     }
   }
 
   void operator(String char, [bool resetAction = true]) {
     // check if we match a key
-    final action = file.action;
+    final action = file.editEvent;
     action.opInput += char;
     if (!handleMatchedKeys(matchKeys(action.opInput, operatorBindings))) {
       return;
@@ -355,7 +355,7 @@ class Editor {
   }
 
   // execute motion and return end position
-  Position motionEnd(Action action, Motion motion, Position pos, bool incl) {
+  Position motionEnd(EditEvent action, Motion motion, Position pos, bool incl) {
     switch (motion) {
       case NormalMotion():
         return motion.fn(file, pos, incl);
@@ -367,7 +367,7 @@ class Editor {
   }
 
   // execute action on range
-  void doAction(Action action, [bool resetAction = true]) {
+  void doAction(EditEvent action, [bool resetAction = true]) {
     // if input is same as opInput, execute linewise
     final operator = action.operator;
     if (operator != null && action.input == action.opInput) {
@@ -411,15 +411,15 @@ class Editor {
 
   // set prevAction and reset action
   void doResetAction() {
-    if (file.action.operator != null) {
-      file.prevAction = file.action;
+    if (file.editEvent.operator != null) {
+      file.prevEditEvent = file.editEvent;
     }
-    if (file.action.motion != null) {
-      file.prevMotion = file.action.motion;
+    if (file.editEvent.motion != null) {
+      file.prevMotion = file.editEvent.motion;
     }
-    if (file.action.findStr != null) {
-      file.prevFindStr = file.action.findStr;
+    if (file.editEvent.findStr != null) {
+      file.prevFindStr = file.editEvent.findStr;
     }
-    file.action = Action();
+    file.editEvent = EditEvent();
   }
 }

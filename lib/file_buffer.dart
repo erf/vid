@@ -1,4 +1,4 @@
-import 'action.dart';
+import 'edit_event.dart';
 import 'line.dart';
 import 'modes.dart';
 import 'motion.dart';
@@ -26,10 +26,10 @@ class FileBuffer {
   Mode mode = Mode.normal;
 
   // the current action to be executed
-  Action action = Action();
+  EditEvent editEvent = EditEvent();
 
   // the previous operator action
-  Action? prevAction;
+  EditEvent? prevEditEvent;
 
   // the previous find action
   Motion<Function>? prevMotion;
