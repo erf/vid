@@ -404,7 +404,7 @@ class Editor {
           // motion and operator
           if (motion.linewise) {
             final range = Range(start, end).norm;
-            start = Motions.lineStart(file, range.start);
+            start = Motions.lineStart(file, range.start, true);
             end = Motions.lineEnd(file, range.end, true);
           }
           operator(file, Range(start, end).norm);

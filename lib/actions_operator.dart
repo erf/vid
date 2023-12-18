@@ -15,8 +15,8 @@ class Operators {
 
   static void delete(FileBuffer f, Range range) {
     f.deleteRange(range);
-    f.cursor = range.start;
     f.setMode(Mode.normal);
+    f.cursor = range.start;
     f.clampCursor();
   }
 
