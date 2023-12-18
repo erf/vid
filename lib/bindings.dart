@@ -1,4 +1,4 @@
-import 'action_typedefs.dart';
+import 'actions.dart';
 import 'actions_command.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
@@ -6,94 +6,93 @@ import 'actions_motion.dart';
 import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'keys.dart';
-import 'motion.dart';
 
-const normalActions = <String, NormalFn>{
-  'q': NormalActions.quit,
-  'Q': NormalActions.quitWithoutSaving,
-  'S': NormalActions.substituteLine,
-  's': NormalActions.save,
-  'x': NormalActions.deleteCharNext,
-  'i': NormalActions.insert,
-  'a': NormalActions.appendCharNext,
-  'A': NormalActions.appendLineEnd,
-  'I': NormalActions.insertLineStart,
-  'o': NormalActions.openLineBelow,
-  'O': NormalActions.openLineAbove,
-  'r': NormalActions.replace,
-  'D': NormalActions.deleteLineEnd,
-  'p': NormalActions.pasteAfter,
-  'P': NormalActions.pasteBefore,
-  Keys.ctrlD: NormalActions.moveDownHalfPage,
-  Keys.ctrlU: NormalActions.moveUpHalfPage,
-  'J': NormalActions.joinLines,
-  'C': NormalActions.changeLineEnd,
-  'u': NormalActions.undo,
-  'U': NormalActions.redo,
-  '.': NormalActions.repeat,
-  ';': NormalActions.repeatFindNext,
-  'n': NormalActions.findNext,
-  Keys.ctrlA: NormalActions.increase,
-  Keys.ctrlX: NormalActions.decrease,
-  ':': NormalActions.command,
-  '/': NormalActions.search,
+const normalActions = <String, NormalAction>{
+  'q': NormalAction(NormalActions.quit),
+  'Q': NormalAction(NormalActions.quitWithoutSaving),
+  'S': NormalAction(NormalActions.substituteLine),
+  's': NormalAction(NormalActions.save),
+  'x': NormalAction(NormalActions.deleteCharNext),
+  'i': NormalAction(NormalActions.insert),
+  'a': NormalAction(NormalActions.appendCharNext),
+  'A': NormalAction(NormalActions.appendLineEnd),
+  'I': NormalAction(NormalActions.insertLineStart),
+  'o': NormalAction(NormalActions.openLineBelow),
+  'O': NormalAction(NormalActions.openLineAbove),
+  'r': NormalAction(NormalActions.replace),
+  'D': NormalAction(NormalActions.deleteLineEnd),
+  'p': NormalAction(NormalActions.pasteAfter),
+  'P': NormalAction(NormalActions.pasteBefore),
+  Keys.ctrlD: NormalAction(NormalActions.moveDownHalfPage),
+  Keys.ctrlU: NormalAction(NormalActions.moveUpHalfPage),
+  'J': NormalAction(NormalActions.joinLines),
+  'C': NormalAction(NormalActions.changeLineEnd),
+  'u': NormalAction(NormalActions.undo),
+  'U': NormalAction(NormalActions.redo),
+  '.': NormalAction(NormalActions.repeat),
+  ';': NormalAction(NormalActions.repeatFindNext),
+  'n': NormalAction(NormalActions.findNext),
+  Keys.ctrlA: NormalAction(NormalActions.increase),
+  Keys.ctrlX: NormalAction(NormalActions.decrease),
+  ':': NormalAction(NormalActions.command),
+  '/': NormalAction(NormalActions.search),
 };
 
-const operatorActions = <String, OperatorFn>{
-  'c': Operators.change,
-  'd': Operators.delete,
-  'y': Operators.yank,
-  'gu': Operators.lowercase,
-  'gU': Operators.uppercase,
+const operatorActions = <String, OperatorAction>{
+  'c': OperatorAction(Operators.change),
+  'd': OperatorAction(Operators.delete),
+  'y': OperatorAction(Operators.yank),
+  'gu': OperatorAction(Operators.lowercase),
+  'gU': OperatorAction(Operators.uppercase),
 };
 
-const motionActions = <String, Motion>{
-  'h': NormalMotion(Motions.charPrev),
-  'l': NormalMotion(Motions.charNext),
-  ' ': NormalMotion(Motions.charNext),
-  'k': NormalMotion(Motions.lineUp, linewise: true),
-  'j': NormalMotion(Motions.lineDown, linewise: true),
-  'w': NormalMotion(Motions.wordNext),
-  'W': NormalMotion(Motions.wordCapNext),
-  'b': NormalMotion(Motions.wordPrev),
-  'B': NormalMotion(Motions.wordCapPrev),
-  'e': NormalMotion(Motions.wordEnd),
-  'ge': NormalMotion(Motions.wordEndPrev),
-  '#': NormalMotion(Motions.sameWordPrev),
-  '*': NormalMotion(Motions.sameWordNext),
-  '0': NormalMotion(Motions.lineStart),
-  '^': NormalMotion(Motions.firstNonBlank),
-  '\$': NormalMotion(Motions.lineEnd, inclusive: false),
-  'gg': NormalMotion(Motions.fileStart, linewise: true),
-  'G': NormalMotion(Motions.fileEnd, linewise: true),
-  'f': FindMotion(Find.findNextChar),
-  'F': FindMotion(Find.findPrevChar),
-  't': FindMotion(Find.tillNextChar),
-  'T': FindMotion(Find.tillPrevChar),
+const motionActions = <String, MotionAction>{
+  'h': NormalMotionAction(Motions.charPrev),
+  'l': NormalMotionAction(Motions.charNext),
+  ' ': NormalMotionAction(Motions.charNext),
+  'k': NormalMotionAction(Motions.lineUp, linewise: true),
+  'j': NormalMotionAction(Motions.lineDown, linewise: true),
+  'w': NormalMotionAction(Motions.wordNext),
+  'W': NormalMotionAction(Motions.wordCapNext),
+  'b': NormalMotionAction(Motions.wordPrev),
+  'B': NormalMotionAction(Motions.wordCapPrev),
+  'e': NormalMotionAction(Motions.wordEnd),
+  'ge': NormalMotionAction(Motions.wordEndPrev),
+  '#': NormalMotionAction(Motions.sameWordPrev),
+  '*': NormalMotionAction(Motions.sameWordNext),
+  '0': NormalMotionAction(Motions.lineStart),
+  '^': NormalMotionAction(Motions.firstNonBlank),
+  '\$': NormalMotionAction(Motions.lineEnd, inclusive: false),
+  'gg': NormalMotionAction(Motions.fileStart, linewise: true),
+  'G': NormalMotionAction(Motions.fileEnd, linewise: true),
+  'f': FindMotionAction(Find.findNextChar),
+  'F': FindMotionAction(Find.findPrevChar),
+  't': FindMotionAction(Find.tillNextChar),
+  'T': FindMotionAction(Find.tillPrevChar),
 };
 
-const insertActions = <String, InsertFn>{
-  Keys.backspace: InsertActions.backspace,
-  Keys.newline: InsertActions.enter,
-  Keys.escape: InsertActions.escape,
+const insertActions = <String, InsertAction>{
+  Keys.backspace: InsertAction(InsertActions.backspace),
+  Keys.newline: InsertAction(InsertActions.enter),
+  Keys.escape: InsertAction(InsertActions.escape),
 };
 
-const commandActions = <String, CommandFn>{
-  '': CommandActions.noop,
-  'q': CommandActions.quit,
-  'q!': CommandActions.quitWoSaving,
-  'w': CommandActions.write,
-  'wq': CommandActions.writeAndQuit,
-  'x': CommandActions.writeAndQuit,
+const commandActions = <String, CommandAction>{
+  '': CommandAction(CommandActions.noop),
+  'q': CommandAction(CommandActions.quit),
+  'q!': CommandAction(CommandActions.quitWoSaving),
+  'w': CommandAction(CommandActions.write),
+  'wq': CommandAction(CommandActions.writeAndQuit),
+  'x': CommandAction(CommandActions.writeAndQuit),
 };
 
-const normalBindings = {
+const normalBindings = <String, Action>{
   ...normalActions,
   ...motionActions,
   ...operatorActions,
 };
 
-const operatorBindings = {
+const operatorBindings = <String, Action>{
   ...operatorActions,
   ...motionActions,
 };

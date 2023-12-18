@@ -1,7 +1,7 @@
 import 'edit_event.dart';
 import 'line.dart';
 import 'modes.dart';
-import 'motion.dart';
+import 'actions.dart';
 import 'position.dart';
 import 'undo.dart';
 
@@ -32,7 +32,7 @@ class FileBuffer {
   EditEvent? prevEditEvent;
 
   // the previous find action
-  Motion<Function>? prevMotion;
+  MotionAction<Function>? prevMotion;
 
   // the previous find character
   String? prevFindStr;

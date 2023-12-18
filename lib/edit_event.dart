@@ -1,9 +1,11 @@
-import 'action_typedefs.dart';
-import 'motion.dart';
+import 'actions.dart';
 
 class EditEvent {
   // the pending action to be executed
-  OperatorFn? operator;
+  OperatorAction? operator;
+
+  // the pending motion
+  MotionAction? motion;
 
   // the accumulated text input
   String input = '';
@@ -22,7 +24,4 @@ class EditEvent {
 
   // if the pending operator is linewise
   bool linewise = false;
-
-  // the pending motion
-  Motion<Function>? motion;
 }
