@@ -396,18 +396,15 @@ class Editor {
           end = motionEnd(action, motion, end, operator != null);
         }
       }
-      switch (operator) {
-        case null:
-          // motion only
-          file.cursor = end;
-        case _:
-          // motion and operator
-          if (motion.linewise) {
-            final range = Range(start, end).norm;
-            start = Motions.lineStart(file, range.start, true);
-            end = Motions.lineEnd(file, range.end, true);
-          }
-          operator(file, Range(start, end).norm);
+      if (operator != null) {
+        if (motion.linewise) {
+          final range = Range(start, end).norm;
+          start = Motions.lineStart(file, range.start, true);
+          end = Motions.lineEnd(file, range.end, true);
+        }
+        operator(file, Range(start, end).norm);
+      } else {
+        file.cursor = end;
       }
       if (resetAction) doResetAction();
     }
