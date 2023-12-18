@@ -43,6 +43,9 @@ class FileBuffer {
   // list of undo operations
   List<Undo> undoList = [];
 
+  // list of redo operations
+  List<Undo> redoList = [];
+
   // the savepoint for undo operations
   int savepoint = 0;
 

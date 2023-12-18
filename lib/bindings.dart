@@ -7,7 +7,7 @@ import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'motion.dart';
 
-const normalActions = <String, NormalFn>{
+const normalActions = {
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   'S': NormalActions.substituteLine,
@@ -28,6 +28,7 @@ const normalActions = <String, NormalFn>{
   'J': NormalActions.joinLines,
   'C': NormalActions.changeLineEnd,
   'u': NormalActions.undo,
+  'U': NormalActions.redo,
   '.': NormalActions.repeat,
   ';': NormalActions.repeatFindNext,
   'n': NormalActions.findNext,
@@ -36,6 +37,7 @@ const normalActions = <String, NormalFn>{
   ':': NormalActions.command,
   '/': NormalActions.search,
 };
+
 
 const operatorActions = <String, OperatorFn>{
   'c': Operators.change,

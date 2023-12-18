@@ -81,8 +81,24 @@ void main() {
     expect(f.text, 'abc\ndef\n\n');
   });
 
+  test('deleteAt with emoji', () {
+    final f = FileBuffer();
+    f.text = 'ab🪼de\n';
+    f.createLines();
+    f.deleteAt(Position(c: 2, l: 0));
+    expect(f.text, 'abde\n');
+  });
+
+  test('replaceAt with emoji', () {
+    final f = FileBuffer();
+    f.text = 'ab🪼de\n';
+    f.createLines();
+    f.replaceAt(Position(c: 2, l: 0), 'X');
+    expect(f.text, 'abXde\n');
+  });
+
   test('multiple undo', () {
-    final e = Editor();
+    final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi\n';
     f.createLines();
@@ -104,19 +120,22 @@ void main() {
     expect(f.text, 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
   });
 
-  test('deleteAt with emoji', () {
-    final f = FileBuffer();
-    f.text = 'ab🪼de\n';
+  test('redo', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'hello world\n123\n';
     f.createLines();
-    f.deleteAt(Position(c: 2, l: 0));
-    expect(f.text, 'abde\n');
-  });
-
-  test('replaceAt with emoji', () {
-    final f = FileBuffer();
-    f.text = 'ab🪼de\n';
-    f.createLines();
-    f.replaceAt(Position(c: 2, l: 0), 'X');
-    expect(f.text, 'abXde\n');
+    e.input('dw');
+    expect(f.text, 'world\n123\n');
+    e.input('u');
+    expect(f.text, 'hello world\n123\n');
+    e.input('U');
+    expect(f.text, 'world\n123\n');
+    e.input('dd');
+    expect(f.text, '123\n');
+    e.input('u');
+    expect(f.text, 'world\n123\n');
+    e.input('U');
+    expect(f.text, '123\n');
   });
 }
