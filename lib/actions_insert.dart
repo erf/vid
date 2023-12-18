@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:characters/characters.dart';
 
 import 'actions_motion.dart';
@@ -6,7 +8,6 @@ import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
-import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
 
@@ -19,7 +20,7 @@ class InsertActions {
   static void escape(FileBuffer f) {
     f.setMode(Mode.normal);
     f.cursor.c--;
-    f.clampCursor();
+    f.cursor.c = max(f.cursor.c, 0);
   }
 
   static void enter(FileBuffer f) {
