@@ -24,7 +24,7 @@ class InsertActions {
   }
 
   static void enter(FileBuffer f) {
-    f.insertAt(f.cursor, nl);
+    f.insertAt(f.cursor, Keys.nl);
     f.cursor.c = 0;
     f.view.c = 0;
     f.cursor = Motions.lineDown(f, f.cursor);

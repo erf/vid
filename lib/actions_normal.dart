@@ -74,7 +74,7 @@ class NormalActions {
   static String createNewlines(FileBuffer f) {
     String s = '';
     for (int i = 0; i < (f.action.count ?? 1); i++) {
-      s += nl;
+      s += Keys.nl;
     }
     return s;
   }
