@@ -134,4 +134,22 @@ void main() {
     e.input('ddu');
     expect(f.text, 'abc\n');
   });
+
+  test('gu should lowercase', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'ABC\n';
+    f.createLines();
+    e.input('gue');
+    expect(f.text, 'abc\n');
+  });
+  
+  test('gU should uppercase', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abc\n';
+    f.createLines();
+    e.input('gUe');
+    expect(f.text, 'ABC\n');
+  }); 
 }

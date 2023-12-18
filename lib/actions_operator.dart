@@ -6,6 +6,7 @@ import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'range.dart';
 import 'terminal.dart';
+import 'undo.dart';
 
 class Operators {
   static void change(FileBuffer f, Range range) {
@@ -29,5 +30,21 @@ class Operators {
   static void escape(FileBuffer f, Range range) {
     f.setMode(Mode.normal);
     f.action = Action();
+  }
+
+  static void lowercase(FileBuffer f, Range r) {
+    final start = f.byteIndexFromPosition(r.start);
+    final end = f.byteIndexFromPosition(r.end);
+    final replacement = f.text.substring(start, end).toLowerCase();
+    f.replace(start, end, replacement, TextOp.replace);
+    f.setMode(Mode.normal);
+  }
+
+  static void uppercase(FileBuffer f, Range r) {
+    final start = f.byteIndexFromPosition(r.start);
+    final end = f.byteIndexFromPosition(r.end);
+    final replacement = f.text.substring(start, end).toUpperCase();
+    f.replace(start, end, replacement, TextOp.replace);
+    f.setMode(Mode.normal);
   }
 }
