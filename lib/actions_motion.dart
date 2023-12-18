@@ -173,7 +173,7 @@ class Motions {
     final matches = Regex.word.allMatches(f.text);
     if (matches.isEmpty) return p;
     final match =
-        matches.firstWhere((m) => start <= m.end, orElse: () => matches.first);
+        matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
     // we are not on the word
     if (start < match.start || start >= match.end) {
       return f.positionFromByteIndex(match.start);
