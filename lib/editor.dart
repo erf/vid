@@ -407,7 +407,7 @@ class Editor {
             start = Motions.lineStart(file, range.start);
             end = Motions.lineEnd(file, range.end, true);
           }
-          operator(file, Range(start, end));
+          operator(file, Range(start, end).norm);
       }
       if (resetAction) doResetAction();
     }
