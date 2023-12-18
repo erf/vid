@@ -148,43 +148,37 @@ class Motions {
     return f.positionFromByteIndex(match.end - 1);
   }
 
-  // find the next same word from the cursor position
-  static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {
-    final start = f.byteIndexFromPosition(p);
-    final matches = Regex.word.allMatches(f.text);
-    if (matches.isEmpty) return p;
-    final match =
-        matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
+  static Position matchCursorWord(
+      FileBuffer f, Position p, int start, bool forward) {
+    int start = f.byteIndexFromPosition(p);
+    final mlist = Regex.word.allMatches(f.text);
+    if (mlist.isEmpty) return p;
+    Match? match =
+        mlist.firstWhere((m) => start < m.end, orElse: () => mlist.first);
+
     // we are not on the word
     if (start < match.start || start >= match.end) {
       return f.positionFromByteIndex(match.start);
     }
     // we are on the word and we want to find the next same word
     final wordToMatch = f.text.substring(match.start, match.end);
-    final index = f.text.indexOf(RegExp(RegExp.escape(wordToMatch)), match.end);
+    final index = forward
+        ? f.text.indexOf(RegExp(RegExp.escape(wordToMatch)), match.end)
+        : f.text
+            .substring(0, match.start)
+            .lastIndexOf(RegExp(RegExp.escape(wordToMatch)));
     return index == -1
         ? f.positionFromByteIndex(match.start)
         : f.positionFromByteIndex(index);
   }
 
+  // find the next same word from the cursor position
+  static Position sameWordNext(FileBuffer f, Position p, [bool incl = false]) {
+    return matchCursorWord(f, p, f.byteIndexFromPosition(p), true);
+  }
+
   // find the prev same word from the cursor position
   static Position sameWordPrev(FileBuffer f, Position p, [bool incl = false]) {
-    final start = f.byteIndexFromPosition(p);
-    final matches = Regex.word.allMatches(f.text);
-    if (matches.isEmpty) return p;
-    final match =
-        matches.firstWhere((m) => start < m.end, orElse: () => matches.first);
-    // we are not on the word
-    if (start < match.start || start >= match.end) {
-      return f.positionFromByteIndex(match.start);
-    }
-    // we are on the word and we want to find the prev same word
-    final wordToMatch = f.text.substring(match.start, match.end);
-    final index = f.text
-        .substring(0, match.start)
-        .lastIndexOf(RegExp(RegExp.escape(wordToMatch)));
-    return index == -1
-        ? f.positionFromByteIndex(match.start)
-        : f.positionFromByteIndex(index);
+    return matchCursorWord(f, p, f.byteIndexFromPosition(p), false);
   }
 }
