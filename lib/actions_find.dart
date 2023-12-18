@@ -43,7 +43,9 @@ class Find {
   static Position searchNext(FileBuffer f, Position p, String pattern,
       [bool incl = false]) {
     int start = f.byteIndexFromPosition(p);
-    Match? match = RegExp(pattern).allMatches(f.text, start + 1).firstOrNull;
+    Match? match = RegExp(RegExp.escape(pattern))
+        .allMatches(f.text, start + 1)
+        .firstOrNull;
     if (match == null) {
       return p;
     }

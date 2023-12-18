@@ -50,7 +50,7 @@ class CommandActions {
       global = true;
     }
     f.setMode(Mode.normal);
-    final regex = RegExp(pattern);
+    final regex = RegExp(RegExp.escape(pattern));
     while (true) {
       Match? match = regex.firstMatch(f.text);
       if (match == null) {
