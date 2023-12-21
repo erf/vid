@@ -50,6 +50,7 @@ class Editor {
     term.write(Esc.enableMode2027);
     term.write(Esc.enableAltBuffer);
     term.write(Esc.disableAlternateScrollMode);
+    term.write(Esc.cursorStyleBlock);
     term.input.listen(onInput);
     term.resize.listen(onResize);
     term.sigint.listen(onSigint);
@@ -59,6 +60,8 @@ class Editor {
   void quit() {
     term.write(Esc.popWindowTitle);
     term.write(Esc.disableAltBuffer);
+    term.write(Esc.textStylesReset);
+    term.write(Esc.cursorStyleReset);
     term.rawMode = false;
     exit(0);
   }

@@ -27,6 +27,9 @@ class Esc {
   // reverse colors
   static const String reverseColors = '$e[27m';
 
+  // reset colors
+  static const String textStylesReset = '$e[0m';
+
   // enable alternative buffer
   static const String enableAltBuffer = '$e[?1049h';
 
@@ -59,6 +62,9 @@ class Esc {
 
   // set cursor style to line
   static const String cursorStyleLine = '$e[5 q';
+
+  // reset cursor style
+  static const String cursorStyleReset = '$e[ q';
 
   // copy to clipboard
   static String copyToClipboard(String text) => '$e]52;c;$text$bell';
