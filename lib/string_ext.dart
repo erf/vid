@@ -2,7 +2,6 @@ import 'package:characters/characters.dart';
 
 import 'config.dart';
 import 'east_asian_width.dart';
-import 'emoji_data.dart';
 
 extension StringExt on String {
   // Shorthand for characters (Characters(this))
@@ -26,15 +25,18 @@ extension StringExt on String {
     if (this == '\t') return Config.tabWidth;
 
     const int textPresentation = 0xFE0E;
+    if (codeUnits.contains(textPresentation)) {
+      return 1;
+    }
+
     const int emojiPresentation = 0xFE0F;
+    if (codeUnits.contains(emojiPresentation)) {
+      return 2;
+    }
 
-    if (codeUnits.contains(textPresentation)) return 1;
-
-    if (codeUnits.contains(emojiPresentation)) return 2;
-
-    if (emojiData.contains(runes.first)) return 2;
-
-    if (eastAsianWidth.contains(runes.first)) return 2;
+    if (eastAsianWidth.contains(runes.first)) {
+      return 2;
+    }
 
     return 1;
   }
