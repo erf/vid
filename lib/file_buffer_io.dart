@@ -56,7 +56,7 @@ extension FileBufferLines on FileBuffer {
   // we pass a path so we can try to save to a new file name before setting the path
   void save(String? path) {
     if (path == null) {
-      throw VidException('Path is null');
+      throw VidException('\'path\' is null');
     }
     File(path).writeAsStringSync(text);
     setSavepoint();
