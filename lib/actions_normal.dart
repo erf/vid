@@ -60,10 +60,6 @@ class NormalActions {
   }
 
   static void save(Editor e, FileBuffer f) {
-    if (f.modified == false) {
-      e.showMessage('No changes');
-      return;
-    }
     try {
       f.save(f.path);
       e.showMessage('File saved');
