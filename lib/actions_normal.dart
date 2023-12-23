@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'actions_motion.dart';
-import 'keys.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
+import 'keys.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'regex.dart';
@@ -60,14 +60,15 @@ class NormalActions {
   }
 
   static void save(Editor e, FileBuffer f) {
-    if (f.path == null) {
-      e.showMessage('Missing filename');
+    if (f.modified == false) {
+      e.showMessage('No changes');
       return;
     }
-    if (f.save()) {
+    try {
+      f.save(f.path);
       e.showMessage('File saved');
-    } else {
-      e.showMessage('Error saving file');
+    } catch (error) {
+      e.showSaveFileError(error);
     }
   }
 

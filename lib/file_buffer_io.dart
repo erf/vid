@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:vid/vid_exception.dart';
 
 import 'editor.dart';
 import 'esc.dart';
@@ -51,16 +52,14 @@ extension FileBufferLines on FileBuffer {
     }
   }
 
-  // save file to disk
-  bool save() {
-    try {
-      File(path!).writeAsStringSync(text);
-      setSavepoint();
-      Terminal.instance.write(Esc.setWindowTitle(path!));
-      return true;
-    } catch (e) {
-      print('Error: $e');
-      return false;
+  // save file to disk or create new file
+  // we pass a path so we can try to save to a new file name before setting the path
+  void save(String? path) {
+    if (path == null) {
+      throw VidException('Path is null');
     }
+    File(path).writeAsStringSync(text);
+    setSavepoint();
+    Terminal.instance.write(Esc.setWindowTitle(path));
   }
 }

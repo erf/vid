@@ -1,9 +1,9 @@
-import 'package:vid/file_buffer_mode.dart';
-import 'package:vid/file_buffer_text.dart';
-
 import 'actions_normal.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
+import 'file_buffer_io.dart';
+import 'file_buffer_mode.dart';
+import 'file_buffer_text.dart';
 import 'modes.dart';
 import 'undo.dart';
 
@@ -14,22 +14,33 @@ class CommandActions {
 
   static void write(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
+
+    String? path = f.path;
     if (args.length > 1) {
-      f.path = args[1];
+      path = args[1];
     }
-    NormalActions.save(e, f);
+    try {
+      f.save(path);
+      f.path = path; // set path after saving
+      e.showMessage('Saved $path');
+    } catch (error) {
+      e.showSaveFileError(error);
+    }
   }
 
   static void writeAndQuit(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
+
+    String? path = f.path;
     if (args.length > 1) {
-      f.path = args[1];
+      path = args[1];
     }
-    NormalActions.save(e, f);
-    if (f.path == null || f.path!.isEmpty || f.modified) {
-      return;
+    try {
+      f.save(path);
+      e.quit();
+    } catch (error) {
+      e.showSaveFileError(error);
     }
-    e.quit();
   }
 
   static void quit(Editor e, FileBuffer f, List<String> args) {

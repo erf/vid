@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/vid_exception.dart';
 
 import 'actions.dart';
 import 'actions_command.dart';
@@ -179,6 +180,19 @@ class Editor {
         this.message = '';
         draw();
       });
+    }
+  }
+
+  void showSaveFileError(Object error) {
+    switch (error) {
+      case FileSystemException():
+        showMessage('Error saving file (${error.osError?.message})');
+      case VidException():
+        showMessage('Error saving file (${error.message})');
+      case Exception():
+        showMessage('Error saving file (${error.toString()})');
+      default:
+        showMessage('Error saving file');
     }
   }
 
