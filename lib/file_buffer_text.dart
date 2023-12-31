@@ -9,7 +9,8 @@ import 'undo.dart';
 
 extension FileBufferText on FileBuffer {
   Position positionFromByteIndex(int index) {
-    final line = lines.firstWhere((line) => index < line.byteEnd);
+    final line = lines.firstWhere((line) => index < line.byteEnd,
+        orElse: () => lines.last);
     return Position(
       l: line.lineNo,
       c: line.chars.byteToCharLength(index - line.byteStart),
