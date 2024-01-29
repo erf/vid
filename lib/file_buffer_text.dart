@@ -42,6 +42,11 @@ extension FileBufferText on FileBuffer {
     // undo
     final prevText = text.substring(start, end);
     undoList.add(Undo(op, replacement, prevText, start, Position.from(cursor)));
+    // make sure we don't have too many undo operations
+    const maxNumUndo = 1000;
+    if (undoList.length > maxNumUndo) {
+      undoList.removeAt(0);
+    }
     // clear redo list
     redoList.clear();
     // yank
