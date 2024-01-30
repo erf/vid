@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:vid/vid_exception.dart';
 
 import 'editor.dart';
@@ -11,32 +10,22 @@ import 'terminal.dart';
 extension FileBufferLines on FileBuffer {
   // load file from disk or create new file, return file name
   void load(Editor editor, List<String> args) {
-    // check if file name is specified
+    //  if no arguments, return
     if (args.isEmpty) {
       return;
     }
 
-    // parse command line arguments
-    final parser = ArgParser();
-    parser.addOption('log', abbr: 'l', help: 'Log file');
-
     // parse file name
     path = args.first;
 
-    // parse log file
-    ArgResults argRes = parser.parse(args);
-    if (argRes.wasParsed('log')) {
-      editor.logPath = argRes['log'];
-    }
-
-    // parse line number
-    if (args.last.startsWith('+')) {
+    // parse line number argument
+    if (args.length > 1 && args.last.startsWith('+')) {
       final lineNo = args.last.substring(1);
-      if (lineNo.isEmpty) {
-        print('No line number specified');
-        exit(1);
+      if (lineNo.isNotEmpty) {
+        cursor.l = (int.tryParse(lineNo) ?? 1) - 1;
+      } else {
+        cursor.l = 0;
       }
-      cursor.l = int.parse(lineNo) - 1;
     }
 
     // check if path is a directory
