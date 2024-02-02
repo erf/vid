@@ -62,7 +62,7 @@ int main(List<String> args) {
   }
   // print eastAsianWidth as a comma separated list
   final rangeList = RangeList.merged(ranges);
-  print('final eastAsianWidth = RangeList.merged([');
+  print('const eastAsianWidth = RangeList([');
   for (final IntRange range in rangeList.ranges) {
     print('  ${range.toString()},');
   }
