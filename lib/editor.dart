@@ -209,7 +209,21 @@ class Editor {
       return;
     }
     if (file.mode == Mode.insert) {
-      insert(str);
+      if (str.length == 1) {
+        insert(str);
+        return;
+      }
+      while (str.isNotEmpty) {
+        int newlineIndex = str.indexOf(Keys.newline, 0);
+        if (newlineIndex == -1) {
+          InsertActions.defaultInsert(file, str);
+          break;
+        }
+        String line = str.substring(0, newlineIndex);
+        InsertActions.defaultInsert(file, line);
+        InsertActions.enter(file);
+        str = str.substring(newlineIndex + 1);
+      }
     } else {
       for (String char in str.characters) {
         switch (file.mode) {
