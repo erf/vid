@@ -43,7 +43,7 @@ extension FileBufferText on FileBuffer {
 
     // add undo operation
     if (undo) {
-      addUndoOp(start, end, newText);
+      addUndoOp(start, end, newText, cursor);
     }
 
     // replace text and create lines
@@ -53,7 +53,7 @@ extension FileBufferText on FileBuffer {
     createLines();
   }
 
-  void addUndoOp(int start, int end, String newText) {
+  void addUndoOp(int start, int end, String newText, Position cursor) {
     // text operation
     final textOp = TextOp(
       newText: newText,
@@ -87,9 +87,9 @@ extension FileBufferText on FileBuffer {
     replace(start, end, '');
   }
 
-  void insertAt(Position p, String s) {
+  void insertAt(Position p, String s, {bool undo = true}) {
     final index = byteIndexFromPosition(p);
-    replace(index, index, s);
+    replace(index, index, s, undo);
   }
 
   void replaceAt(Position p, String s) {
