@@ -87,9 +87,9 @@ extension FileBufferText on FileBuffer {
     replace(start, end, '');
   }
 
-  void insertAt(Position p, String s) {
+  void insertAt(Position p, String s, [bool undo = true]) {
     final index = byteIndexFromPosition(p);
-    replace(index, index, s);
+    replace(index, index, s, undo);
   }
 
   void replaceAt(Position p, String s) {
