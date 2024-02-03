@@ -12,22 +12,22 @@ import 'modes.dart';
 import 'position.dart';
 
 class InsertActions {
-  static void defaultInsert(FileBuffer f, String s) {
-    f.insertAt(f.cursor, s);
+  static void defaultInsert(FileBuffer f, String s, {bool undo = true}) {
+    f.insertAt(f.cursor, s, undo);
     f.cursor.c += s.characters.length;
+  }
+
+  static void enter(FileBuffer f, {bool undo = true}) {
+    f.insertAt(f.cursor, Keys.newline, undo);
+    f.cursor.c = 0;
+    f.view.c = 0;
+    f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void escape(FileBuffer f) {
     f.setMode(Mode.normal);
     f.cursor.c--;
     f.cursor.c = max(f.cursor.c, 0);
-  }
-
-  static void enter(FileBuffer f) {
-    f.insertAt(f.cursor, Keys.newline);
-    f.cursor.c = 0;
-    f.view.c = 0;
-    f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void _joinLines(FileBuffer f) {

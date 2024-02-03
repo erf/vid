@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/file_buffer_text.dart';
 import 'package:vid/vid_exception.dart';
 
 import 'actions.dart';
@@ -213,17 +214,21 @@ class Editor {
         insert(str);
         return;
       }
+      String buffer = str;
+      Position startPos = Position.from(file.cursor);
       while (str.isNotEmpty) {
         int newlineIndex = str.indexOf(Keys.newline, 0);
         if (newlineIndex == -1) {
-          InsertActions.defaultInsert(file, str);
+          InsertActions.defaultInsert(file, str, undo: false);
           break;
         }
         String line = str.substring(0, newlineIndex);
-        InsertActions.defaultInsert(file, line);
-        InsertActions.enter(file);
+        InsertActions.defaultInsert(file, line, undo: false);
+        InsertActions.enter(file, undo: false);
         str = str.substring(newlineIndex + 1);
       }
+      final index = file.byteIndexFromPosition(startPos);
+      file.addUndoOp(index, index, buffer, startPos);
     } else {
       for (String char in str.characters) {
         switch (file.mode) {
