@@ -5,7 +5,7 @@ import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'position.dart';
 import 'range.dart';
-import 'undo.dart';
+import 'text_op.dart';
 
 extension FileBufferText on FileBuffer {
   Position positionFromByteIndex(int index) {
@@ -42,7 +42,7 @@ extension FileBufferText on FileBuffer {
     }
 
     // text operation
-    final textOp = Undo(
+    final textOp = TextOp(
       newText: newText,
       prevText: text.substring(start, end),
       start: start,

@@ -1,13 +1,13 @@
 import 'position.dart';
 
-class Undo {
+class TextOp {
   final String newText;
   final String prevText;
   final int start;
   final int end;
   final Position cursor;
 
-  const Undo({
+  const TextOp({
     required this.newText,
     required this.prevText,
     required this.start,

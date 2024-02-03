@@ -11,7 +11,7 @@ import 'keys.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'regex.dart';
-import 'undo.dart';
+import 'text_op.dart';
 
 class NormalActions {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
@@ -149,7 +149,7 @@ class NormalActions {
 
   static void undo(Editor e, FileBuffer f) {
     if (f.undoList.isEmpty) return;
-    Undo u = f.undoList.removeLast();
+    TextOp u = f.undoList.removeLast();
     f.text =
         f.text.replaceRange(u.start, u.start + u.newText.length, u.prevText);
     f.redoList.add(u);
@@ -159,7 +159,7 @@ class NormalActions {
 
   static void redo(Editor e, FileBuffer f) {
     if (f.redoList.isEmpty) return;
-    Undo u = f.redoList.removeLast();
+    TextOp u = f.redoList.removeLast();
     f.text = f.text.replaceRange(u.start, u.end, u.newText);
     f.undoList.add(u);
     f.createLines();

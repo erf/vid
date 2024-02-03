@@ -3,7 +3,7 @@ import 'line.dart';
 import 'modes.dart';
 import 'actions.dart';
 import 'position.dart';
-import 'undo.dart';
+import 'text_op.dart';
 
 // all things related to the file buffer
 class FileBuffer {
@@ -41,10 +41,10 @@ class FileBuffer {
   String? yankBuffer;
 
   // list of undo operations
-  List<Undo> undoList = [];
+  List<TextOp> undoList = [];
 
   // list of redo operations
-  List<Undo> redoList = [];
+  List<TextOp> redoList = [];
 
   // the savepoint for undo operations
   int savepoint = 0;
