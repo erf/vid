@@ -26,7 +26,7 @@ See [bindings.dart](lib/bindings.dart)
 
 ## Contributing 🙋‍♂️
 
-I enjoy building **vid** myself but I'm open to PR's that align with vid's minimal philosophy.
+I enjoy building **vid** myself but I'm open to PR's that align with its minimal philosophy.
 
 I don't accept issues solely for suggestions.
 
