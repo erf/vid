@@ -214,6 +214,8 @@ class Editor {
         insert(str);
         return;
       }
+      // if str is not a single char, insert it line by line to update cursor
+      // correctly but buffer the undo operation to be added at the end
       String buffer = str;
       Position startPos = Position.from(file.cursor);
       while (str.isNotEmpty) {
