@@ -149,21 +149,21 @@ class NormalActions {
 
   static void undo(Editor e, FileBuffer f) {
     if (f.undoList.isEmpty) return;
-    TextOp u = f.undoList.removeLast();
-    f.text =
-        f.text.replaceRange(u.start, u.start + u.newText.length, u.prevText);
-    f.redoList.add(u);
+    TextOp op = f.undoList.removeLast();
+    f.text = f.text
+        .replaceRange(op.start, op.start + op.newText.length, op.prevText);
+    f.redoList.add(op);
     f.createLines();
-    f.cursor = u.cursor;
+    f.cursor = op.cursor;
   }
 
   static void redo(Editor e, FileBuffer f) {
     if (f.redoList.isEmpty) return;
-    TextOp u = f.redoList.removeLast();
-    f.text = f.text.replaceRange(u.start, u.end, u.newText);
-    f.undoList.add(u);
+    TextOp op = f.redoList.removeLast();
+    f.text = f.text.replaceRange(op.start, op.end, op.newText);
+    f.undoList.add(op);
     f.createLines();
-    f.cursor = u.cursor;
+    f.cursor = op.cursor;
   }
 
   static void repeat(Editor e, FileBuffer f) {
