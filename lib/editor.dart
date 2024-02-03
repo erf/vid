@@ -242,8 +242,8 @@ class Editor {
   // if str is not a single char, insert it line by line to update cursor
   // correctly but buffer the undo operation to be added at the end
   void insertChunk(String str) {
-    String buffer = str;
-    Position startPos = Position.from(file.cursor);
+    final String buffer = str;
+    final Position startPos = Position.from(file.cursor);
     while (str.isNotEmpty) {
       int newlineIndex = str.indexOf(Keys.newline, 0);
       if (newlineIndex == -1) {
@@ -261,7 +261,7 @@ class Editor {
 
   // command mode
   void command(String char) {
-    final action = file.editEvent;
+    final EditEvent action = file.editEvent;
     switch (char) {
       // backspace
       case Keys.backspace:
