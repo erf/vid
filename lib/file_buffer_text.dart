@@ -59,7 +59,6 @@ extension FileBufferText on FileBuffer {
       newText: newText,
       prevText: text.substring(start, end),
       start: start,
-      end: end,
       cursor: Position.from(cursor),
     );
 
