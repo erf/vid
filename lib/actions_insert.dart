@@ -12,21 +12,13 @@ import 'modes.dart';
 import 'position.dart';
 
 class InsertActions {
-  static final buffer = StringBuffer();
-  static var cursorStart = Position();
-
   static void defaultInsert(FileBuffer f, String s) {
-    buffer.write(s);
-    f.insertAt(f.cursor, s, undo: false);
+    f.insertAt(f.cursor, s);
     f.cursor.c += s.characters.length;
   }
 
   static void escape(FileBuffer f) {
     f.setMode(Mode.normal);
-    final index = f.byteIndexFromPosition(cursorStart);
-    final str = buffer.toString();
-    f.addUndoOp(index, index, str, cursorStart);
-    buffer.clear();
     f.cursor.c--;
     f.cursor.c = max(f.cursor.c, 0);
   }

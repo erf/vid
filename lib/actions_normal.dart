@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'actions_insert.dart';
 import 'actions_motion.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
@@ -92,7 +91,6 @@ class NormalActions {
 
   static void insert(Editor e, FileBuffer f) {
     f.setMode(Mode.insert);
-    InsertActions.cursorStart = Position.from(f.cursor);
   }
 
   static void substitute(Editor e, FileBuffer f) {
