@@ -43,7 +43,7 @@ extension FileBufferText on FileBuffer {
 
     // add undo operation
     if (undo) {
-      addUndoOp(start, end, newText, cursor);
+      addUndo(start: start, end: end, newText: newText, cursor: cursor);
     }
 
     // replace text and create lines
@@ -53,7 +53,12 @@ extension FileBufferText on FileBuffer {
     createLines();
   }
 
-  void addUndoOp(int start, int end, String newText, Position cursor) {
+  void addUndo({
+    required int start,
+    required int end,
+    required String newText,
+    required Position cursor,
+  }) {
     // text operation
     final textOp = TextOp(
       newText: newText,

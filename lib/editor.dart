@@ -243,7 +243,8 @@ class Editor {
   // correctly but buffer the undo operation to be added at the end
   void insertChunk(String str) {
     final String buffer = str;
-    final Position startPos = Position.from(file.cursor);
+    final Position cursor = Position.from(file.cursor);
+    final int start = file.byteIndexFromPosition(cursor);
     while (str.isNotEmpty) {
       int newlineIndex = str.indexOf(Keys.newline, 0);
       if (newlineIndex == -1) {
@@ -255,8 +256,7 @@ class Editor {
       InsertActions.enter(file, undo: false);
       str = str.substring(newlineIndex + 1);
     }
-    final index = file.byteIndexFromPosition(startPos);
-    file.addUndoOp(index, index, buffer, startPos);
+    file.addUndo(start: start, end: start, newText: buffer, cursor: cursor);
   }
 
   // command mode
