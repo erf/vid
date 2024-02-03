@@ -11,16 +11,10 @@
 
 ## Text operations
 
-We need to be able to delete, insert and replace text for a spesific range.
-Replace can be done using delete and insert, but the String API we use is 
-`replaceRange` so would should probably design our solution based on that API.
-
-We also need to store each change and be able to UNDO and REDO those changes.
-
-It should then be enough to give a `TextTransform` object with a 'Range' and 
-'Text' and then build a simpler API on top of that for delete and insert (if 
-needed).
-
+We want to delete, insert and replace text for a spesific range.
+We want to save changes to be able to undo and redo those changes.
+We use a `TextOp` class with a `start`, `prevText` and `newText` to solve this.
+We use convinience functions on top of that for delete and insert.
 We use the `String.replaceRange` to do all text operations.
 
 ```
