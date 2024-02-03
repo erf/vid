@@ -24,7 +24,7 @@ extension FileBufferText on FileBuffer {
 
   // the main method used to replace, delete and insert text in the buffer
   void replace(int start, int end, String newText, [bool undo = true]) {
-    bool isDeleteOrReplace = start < end;
+    bool isDeleteOrReplace = start != end;
     // don't delete or replace the last newline
     if (isDeleteOrReplace) {
       if (end > text.length) {
@@ -79,7 +79,7 @@ extension FileBufferText on FileBuffer {
     redoList.clear();
 
     // yank
-    bool isDeleteOrReplace = start < end;
+    bool isDeleteOrReplace = start != end;
     if (isDeleteOrReplace) {
       yankBuffer = textOp.prevText;
     }
