@@ -23,7 +23,7 @@ extension FileBufferText on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, String newText) {
+  void replace(int start, int end, String newText, [bool undo = true]) {
     bool isDeleteOrReplace = start < end;
     // don't delete or replace the last newline
     if (isDeleteOrReplace) {
@@ -41,6 +41,19 @@ extension FileBufferText on FileBuffer {
       }
     }
 
+    // add undo operation
+    if (undo) {
+      addUndoOp(start, end, newText);
+    }
+
+    // replace text and create lines
+    text = text.replaceRange(start, end, newText);
+
+    // we need to recreate the lines, because the text has changed
+    createLines();
+  }
+
+  void addUndoOp(int start, int end, String newText) {
     // text operation
     final textOp = TextOp(
       newText: newText,
@@ -62,15 +75,10 @@ extension FileBufferText on FileBuffer {
     redoList.clear();
 
     // yank
+    bool isDeleteOrReplace = start < end;
     if (isDeleteOrReplace) {
       yankBuffer = textOp.prevText;
     }
-
-    // replace text and create lines
-    text = text.replaceRange(start, end, newText);
-
-    // we need to recreate the lines, because the text has changed
-    createLines();
   }
 
   void deleteRange(Range r) {
