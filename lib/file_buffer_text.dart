@@ -23,9 +23,10 @@ extension FileBufferText on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
-  void replace(int start, int end, String replacement, TextOp op) {
+  void replace(int start, int end, String newText) {
+    bool isDeleteOrReplace = start < end;
     // don't delete or replace the last newline
-    if (op == TextOp.delete || op == TextOp.replace) {
+    if (isDeleteOrReplace) {
       if (end > text.length) {
         end = text.length;
       }
@@ -39,22 +40,35 @@ extension FileBufferText on FileBuffer {
         return;
       }
     }
-    // undo
-    final prevText = text.substring(start, end);
-    undoList.add(Undo(op, replacement, prevText, start, Position.from(cursor)));
-    // make sure we don't have too many undo operations
+
+    // text operation
+    final textOp = Undo(
+      newText: newText,
+      prevText: text.substring(start, end),
+      start: start,
+      end: end,
+      cursor: Position.from(cursor),
+    );
+
+    undoList.add(textOp);
+
+    // limit undo operations
     const maxNumUndo = 1000;
     if (undoList.length > maxNumUndo) {
       undoList.removeAt(0);
     }
+
     // clear redo list
     redoList.clear();
+
     // yank
-    if (op == TextOp.delete || op == TextOp.replace) {
-      yankBuffer = prevText;
+    if (isDeleteOrReplace) {
+      yankBuffer = textOp.prevText;
     }
+
     // replace text and create lines
-    text = text.replaceRange(start, end, replacement);
+    text = text.replaceRange(start, end, newText);
+
     // we need to recreate the lines, because the text has changed
     createLines();
   }
@@ -62,23 +76,23 @@ extension FileBufferText on FileBuffer {
   void deleteRange(Range r) {
     final start = byteIndexFromPosition(r.start);
     final end = byteIndexFromPosition(r.end);
-    replace(start, end, '', TextOp.delete);
+    replace(start, end, '');
   }
 
   void insertAt(Position p, String s) {
     final index = byteIndexFromPosition(p);
-    replace(index, index, s, TextOp.insert);
+    replace(index, index, s);
   }
 
-  void replaceAt(Position p, String s, [var op = TextOp.replace]) {
+  void replaceAt(Position p, String s) {
     final index = byteIndexFromPosition(p);
     final r = CharacterRange.at(text, index)..moveNext();
     final length = r.current.length;
-    replace(index, index + length, s, op);
+    replace(index, index + length, s);
   }
 
   void deleteAt(Position p) {
-    replaceAt(p, '', TextOp.delete);
+    replaceAt(p, '');
   }
 
   void yankRange(Range range) {

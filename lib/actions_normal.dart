@@ -150,11 +150,8 @@ class NormalActions {
   static void undo(Editor e, FileBuffer f) {
     if (f.undoList.isEmpty) return;
     Undo u = f.undoList.removeLast();
-    f.text = switch (u.op) {
-      TextOp.replace => f.text.replaceRange(u.i, u.i + u.text.length, u.prev),
-      TextOp.insert => f.text.replaceRange(u.i, u.i + u.text.length, ''),
-      TextOp.delete => f.text.replaceRange(u.i, u.i, u.prev),
-    };
+    f.text =
+        f.text.replaceRange(u.start, u.start + u.newText.length, u.prevText);
     f.redoList.add(u);
     f.createLines();
     f.cursor = u.cursor;
@@ -163,11 +160,7 @@ class NormalActions {
   static void redo(Editor e, FileBuffer f) {
     if (f.redoList.isEmpty) return;
     Undo u = f.redoList.removeLast();
-    f.text = switch (u.op) {
-      TextOp.replace => f.text.replaceRange(u.i, u.i + u.prev.length, u.text),
-      TextOp.insert => f.text.replaceRange(u.i, u.i, u.text),
-      TextOp.delete => f.text.replaceRange(u.i, u.i + u.prev.length, ''),
-    };
+    f.text = f.text.replaceRange(u.start, u.end, u.newText);
     f.undoList.add(u);
     f.createLines();
     f.cursor = u.cursor;
@@ -212,7 +205,7 @@ class NormalActions {
     final s = m.group(1)!;
     final num = int.parse(s);
     final numstr = (num + count).toString();
-    f.replace(start + m.start, start + m.end, numstr, TextOp.replace);
+    f.replace(start + m.start, start + m.end, numstr);
     f.cursor = f.positionFromByteIndex(start + m.start + numstr.length - 1);
   }
 

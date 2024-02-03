@@ -5,7 +5,6 @@ import 'file_buffer_io.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'modes.dart';
-import 'undo.dart';
 
 class CommandActions {
   static void noop(Editor e, FileBuffer f, List<String> args) {
@@ -67,7 +66,8 @@ class CommandActions {
       if (match == null) {
         break;
       }
-      f.replace(match.start, match.end, replacement, TextOp.replace);
+      // replace ..
+      f.replace(match.start, match.end, replacement);
       f.cursor = f.positionFromByteIndex(match.start);
       if (!global) {
         break;
