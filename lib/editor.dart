@@ -208,21 +208,26 @@ class Editor {
     if (Regex.scrollEvents.hasMatch(str)) {
       return;
     }
-    for (String char in str.characters) {
-      switch (file.mode) {
-        case Mode.normal:
-          normal(char);
-        case Mode.operator:
-          operator(char);
-        case Mode.insert:
-          insert(char);
-        case Mode.replace:
-          replace(char);
-        case Mode.command:
-        case Mode.search:
-          command(char);
+    if (file.mode == Mode.insert) {
+      insert(str);
+    } else {
+      for (String char in str.characters) {
+        switch (file.mode) {
+          case Mode.normal:
+            normal(char);
+          case Mode.operator:
+            operator(char);
+          case Mode.insert:
+            insert(char);
+          case Mode.replace:
+            replace(char);
+          case Mode.command:
+          case Mode.search:
+            command(char);
+        }
       }
     }
+
     if (redraw) {
       draw();
     }
