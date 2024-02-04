@@ -15,6 +15,7 @@ void main(List<String> args) async {
   }
   List<String> lines = response.body.split('\n');
 
+  // extract filename
   String filename = lines.first.substring(2);
 
   // parse
@@ -28,13 +29,12 @@ void main(List<String> args) async {
     String codePoints = fields.first.trim();
     if (codePoints.contains('..')) {
       List<String> range = codePoints.split('..');
-      int start = int.parse(range.first, radix: 16);
-      int end = int.parse(range.last, radix: 16);
-      return IntRange(start, end);
-    } else {
-      int value = int.parse(codePoints, radix: 16);
-      return IntRange(value, value);
+      return IntRange(
+        int.parse(range.first, radix: 16),
+        int.parse(range.last, radix: 16),
+      );
     }
+    return IntRange.single(int.parse(codePoints, radix: 16));
   });
 
   // merge ranges
