@@ -1,5 +1,3 @@
-import 'package:characters/characters.dart';
-
 import 'characters_index.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
@@ -23,6 +21,12 @@ extension FileBufferText on FileBuffer {
   }
 
   // the main method used to replace, delete and insert text in the buffer
+  void replaceRange(Range range, String newText, [bool undo = true]) {
+    int start = byteIndexFromPosition(range.start);
+    int end = byteIndexFromPosition(range.end);
+    replace(start, end, newText, undo);
+  }
+
   void replace(int start, int end, String newText, [bool undo = true]) {
     bool isDeleteOrReplace = start != end;
     // don't delete or replace the last newline
@@ -86,21 +90,16 @@ extension FileBufferText on FileBuffer {
   }
 
   void deleteRange(Range r) {
-    final start = byteIndexFromPosition(r.start);
-    final end = byteIndexFromPosition(r.end);
-    replace(start, end, '');
+    replaceRange(r, '');
   }
 
   void insertAt(Position p, String s, [bool undo = true]) {
-    final index = byteIndexFromPosition(p);
-    replace(index, index, s, undo);
+    final start = byteIndexFromPosition(p);
+    replace(start, start, s, undo);
   }
 
   void replaceAt(Position p, String s) {
-    final index = byteIndexFromPosition(p);
-    final r = CharacterRange.at(text, index)..moveNext();
-    final length = r.current.length;
-    replace(index, index + length, s);
+    replaceRange(Range(p, Position(l: p.l, c: p.c + 1)), s);
   }
 
   void deleteAt(Position p) {
@@ -108,9 +107,9 @@ extension FileBufferText on FileBuffer {
   }
 
   void yankRange(Range range) {
-    final r = range.norm;
-    final start = byteIndexFromPosition(r.start);
-    final end = byteIndexFromPosition(r.end);
+    Range r = range.norm;
+    int start = byteIndexFromPosition(r.start);
+    int end = byteIndexFromPosition(r.end);
     yankBuffer = text.substring(start, end);
   }
 }

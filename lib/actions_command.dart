@@ -66,7 +66,6 @@ class CommandActions {
       if (match == null) {
         break;
       }
-      // replace ..
       f.replace(match.start, match.end, replacement);
       f.cursor = f.positionFromByteIndex(match.start);
       if (!global) {
