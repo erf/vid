@@ -16,11 +16,11 @@ class RangeList {
   const RangeList(this.ranges);
 
   // Factory constructor merges the ranges
-  factory RangeList.merged(List<IntRange> inputRanges) {
+  factory RangeList.merged(Iterable<IntRange> inputRanges) {
     return RangeList(_mergeRanges(inputRanges));
   }
 
-  static List<IntRange> _mergeRanges(List<IntRange> inputRanges) {
+  static List<IntRange> _mergeRanges(Iterable<IntRange> inputRanges) {
     if (inputRanges.isEmpty) return [];
 
     final List<IntRange> sortedRanges = [...inputRanges]
