@@ -5,7 +5,9 @@ import 'position.dart';
 import 'range.dart';
 import 'text_op.dart';
 
+// text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {
+  // get the cursor Position from the byte index in the String text by looking through the lines
   Position positionFromByteIndex(int index) {
     final line = lines.firstWhere((line) => index < line.byteEnd,
         orElse: () => lines.last);
@@ -15,7 +17,7 @@ extension FileBufferText on FileBuffer {
     );
   }
 
-  // get the byte index of the cursor in the String text
+  // get the byte index text  from the cursor Position
   int byteIndexFromPosition(Position p) {
     return lines[p.l].byteIndexAt(p.c);
   }
@@ -27,6 +29,7 @@ extension FileBufferText on FileBuffer {
     replace(start, end, newText, undo);
   }
 
+  // replace text in the buffer, add undo operation and recreate lines
   void replace(int start, int end, String newText, [bool undo = true]) {
     bool isDeleteOrReplace = start != end;
     // don't delete or replace the last newline
@@ -57,6 +60,7 @@ extension FileBufferText on FileBuffer {
     createLines();
   }
 
+  // add an undo operation
   void addUndo({
     required int start,
     required int end,
