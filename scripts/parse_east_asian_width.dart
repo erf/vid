@@ -2,8 +2,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:vid/range_list.dart';
 
-// Parse latest EastAsianWidth code point ranges of type 'W' and 'F' from
-// https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+// Parse latest EastAsianWidth.txt code point ranges of type 'W' and 'F'
 void main(List<String> args) async {
   // fetch the latest EastAsianWidth code point ranges
   const url = 'https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt';
