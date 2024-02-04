@@ -1,6 +1,7 @@
 import 'range_list.dart';
 
-// https://www.unicode.org/Public/15.0.0/ucd/EastAsianWidth.txt
+// EastAsianWidth-15.1.0.txt
+// https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt
 const eastAsianWidth = RangeList([
   IntRange(4352, 4447),
   IntRange(8986, 8987),
@@ -41,7 +42,7 @@ const eastAsianWidth = RangeList([
   IntRange(11904, 11929),
   IntRange(11931, 12019),
   IntRange(12032, 12245),
-  IntRange(12272, 12283),
+  IntRange(12272, 12287),
   IntRange(12288, 12288),
   IntRange(12289, 12291),
   IntRange(12292, 12292),
@@ -99,6 +100,7 @@ const eastAsianWidth = RangeList([
   IntRange(12694, 12703),
   IntRange(12704, 12735),
   IntRange(12736, 12771),
+  IntRange(12783, 12783),
   IntRange(12784, 12799),
   IntRange(12800, 12830),
   IntRange(12832, 12841),
@@ -277,7 +279,9 @@ const eastAsianWidth = RangeList([
   IntRange(178208, 183969),
   IntRange(183970, 183983),
   IntRange(183984, 191456),
-  IntRange(191457, 194559),
+  IntRange(191457, 191471),
+  IntRange(191472, 192093),
+  IntRange(192094, 194559),
   IntRange(194560, 195101),
   IntRange(195102, 195103),
   IntRange(195104, 196605),
@@ -299,3 +303,6 @@ const eastAsianWidth = RangeList([
   IntRange(0x20000, 0x2FFFD),
   IntRange(0x30000, 0x3FFFD),
 ]);
+
+// length: 286
+
