@@ -1,33 +1,22 @@
-import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import 'package:vid/range_list.dart';
 
-// Parse EastAsianWidth code point ranges of type 'W' and 'F' from
-// https://www.unicode.org/Public/15.0.0/ucd/EastAsianWidth.txt
-int main(List<String> args) {
-  // validate
-  if (args.isEmpty) {
-    print(
-        'Usage: dart parse_east_asian_width.dart <path to EastAsianWidth.txt>');
-    return 1;
+// Parse latest EastAsianWidth code point ranges of type 'W' and 'F' from
+// https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+void main(List<String> args) async {
+  // fetch the latest EastAsianWidth code point ranges
+  const url = 'https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt';
+  http.Response response = await http.get(Uri.parse(url));
+
+  if (response.statusCode != 200) {
+    print('Failed to fetch EastAsianWidth.txt');
+    return;
   }
-  String path = args.first;
-  if (Uri.tryParse(path) == null) {
-    print('Invalid path: $path');
-    return 1;
-  }
-  File file = File(path);
-  if (!file.path.endsWith('EastAsianWidth.txt')) {
-    print('File must be named EastAsianWidth.txt');
-    return 1;
-  }
-  List<String> lines;
-  try {
-    lines = file.readAsLinesSync();
-  } catch (e) {
-    print('Error reading file: $e');
-    return 1;
-  }
+
+  List<String> lines = response.body.split('\n');
+
+  String filename = lines.first.substring(2);
 
   // parse
   List<IntRange> ranges = [];
@@ -42,14 +31,14 @@ int main(List<String> args) {
     if (parts.length < 2) {
       continue;
     }
-    String property = parts[1][0];
+    String property = parts[1].trim()[0];
 
     if (property != 'W' && property != 'F') {
       continue;
     }
     String codePointRange = parts[0].trim();
 
-    // Unicode 15.0 can have a range of code points
+    // Can contain a range of code points
     if (codePointRange.contains('..')) {
       List<String> rangeParts = codePointRange.split('..');
       int start = int.parse(rangeParts.first, radix: 16);
@@ -60,14 +49,22 @@ int main(List<String> args) {
       ranges.add(IntRange(value, value));
     }
   }
-  // print eastAsianWidth as a comma separated list
+
+  // merge ranges
   final rangeList = RangeList.merged(ranges);
-  print('const eastAsianWidth = RangeList([');
-  for (final IntRange range in rangeList.ranges) {
-    print('  ${range.toString()},');
-  }
-  print(']);');
-  // print length
-  print('final eastAsianWidthLength = ${rangeList.length};');
-  return 0;
+
+  // print eastAsianWidth as a comma separated list
+  final buffer = StringBuffer();
+
+  buffer.writeln('import \'range_list.dart\';');
+  buffer.writeln();
+  buffer.writeln('// $filename');
+  buffer.writeln('// $url');
+  buffer.writeln('const eastAsianWidth = RangeList([');
+  buffer.writeAll(rangeList.ranges, ',\n');
+  buffer.writeln(',\n]);');
+  buffer.writeln();
+  buffer.writeln('// length: ${rangeList.length}');
+
+  print(buffer.toString());
 }
