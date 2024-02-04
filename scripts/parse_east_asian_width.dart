@@ -22,10 +22,10 @@ void main(List<String> args) async {
       .where((line) => line.isNotEmpty && !line.startsWith('#'))
       .map((line) => line.split(';'))
       .where((fields) {
-    String property = fields.last.trim()[0];
+    String property = fields.last.trimLeft()[0];
     return property == 'W' || property == 'F';
   }).map((fields) {
-    String codePoints = fields.first.trim();
+    String codePoints = fields.first.trimRight();
     if (codePoints.contains('..')) {
       List<String> range = codePoints.split('..');
       return IntRange(
