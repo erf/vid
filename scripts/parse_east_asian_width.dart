@@ -13,36 +13,29 @@ void main(List<String> args) async {
     print('Failed to fetch EastAsianWidth.txt');
     return;
   }
-
   List<String> lines = response.body.split('\n');
 
   String filename = lines.first.substring(2);
 
   // parse
-  List<IntRange> ranges = [];
-  for (final String line in lines) {
-    if (line.isEmpty || line.startsWith('#')) {
-      continue;
-    }
-    List<String> fields = line.split(';');
-
+  Iterable<IntRange> ranges = lines
+      .where((line) => line.isNotEmpty && !line.startsWith('#'))
+      .map((line) => line.split(';'))
+      .where((fields) {
     String property = fields.last.trim()[0];
-    if (property != 'W' && property != 'F') {
-      continue;
-    }
+    return property == 'W' || property == 'F';
+  }).map((fields) {
     String codePoints = fields.first.trim();
-
-    // Can contain a range of code points
     if (codePoints.contains('..')) {
       List<String> range = codePoints.split('..');
       int start = int.parse(range.first, radix: 16);
       int end = int.parse(range.last, radix: 16);
-      ranges.add(IntRange(start, end));
+      return IntRange(start, end);
     } else {
-      final value = int.parse(codePoints, radix: 16);
-      ranges.add(IntRange(value, value));
+      int value = int.parse(codePoints, radix: 16);
+      return IntRange(value, value);
     }
-  }
+  });
 
   // merge ranges
   final rangeList = RangeList.merged(ranges);
