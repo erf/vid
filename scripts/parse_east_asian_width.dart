@@ -21,31 +21,25 @@ void main(List<String> args) async {
   // parse
   List<IntRange> ranges = [];
   for (final String line in lines) {
-    if (line.isEmpty) {
+    if (line.isEmpty || line.startsWith('#')) {
       continue;
     }
-    if (line.startsWith('#')) {
-      continue;
-    }
-    List<String> parts = line.split(';');
-    if (parts.length < 2) {
-      continue;
-    }
-    String property = parts[1].trim()[0];
+    List<String> fields = line.split(';');
 
+    String property = fields.last.trim()[0];
     if (property != 'W' && property != 'F') {
       continue;
     }
-    String codePointRange = parts[0].trim();
+    String codePoints = fields.first.trim();
 
     // Can contain a range of code points
-    if (codePointRange.contains('..')) {
-      List<String> rangeParts = codePointRange.split('..');
-      int start = int.parse(rangeParts.first, radix: 16);
-      int end = int.parse(rangeParts.last, radix: 16);
+    if (codePoints.contains('..')) {
+      List<String> range = codePoints.split('..');
+      int start = int.parse(range.first, radix: 16);
+      int end = int.parse(range.last, radix: 16);
       ranges.add(IntRange(start, end));
     } else {
-      final value = int.parse(codePointRange, radix: 16);
+      final value = int.parse(codePoints, radix: 16);
       ranges.add(IntRange(value, value));
     }
   }
