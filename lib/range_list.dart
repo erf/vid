@@ -5,6 +5,10 @@ class IntRange {
 
   const IntRange(this.low, this.high);
 
+  factory IntRange.single(int value) {
+    return IntRange(value, value);
+  }
+
   @override
   String toString() => ('IntRange($low, $high)');
 }
