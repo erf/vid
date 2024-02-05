@@ -88,4 +88,4 @@ text.replaceRange(undo.start, undo.end, undo.newtext) // same as the initial act
 
 ## TODO 
 
-- better text data-structure (e.g. Rope, later, if needed)
+- better text data-structure (e.g. Gap Buffer, Piece Table, Rope, later, if needed)
