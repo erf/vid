@@ -5,8 +5,8 @@ import 'package:vid/range_list.dart';
 // Parse latest EastAsianWidth.txt code point ranges of type 'W' and 'F'
 void main(List<String> args) async {
   // fetch the latest EastAsianWidth code point ranges
-  const url = 'https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt';
-  http.Response response = await http.get(Uri.parse(url));
+  const eawUrl = 'https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt';
+  http.Response response = await http.get(Uri.parse(eawUrl));
 
   if (response.statusCode != 200) {
     print('Failed to fetch EastAsianWidth.txt');
@@ -45,7 +45,7 @@ void main(List<String> args) async {
   buffer.writeln('import \'range_list.dart\';');
   buffer.writeln();
   buffer.writeln('// $filename');
-  buffer.writeln('// $url');
+  buffer.writeln('// $eawUrl');
   buffer.writeln('const eastAsianWidth = RangeList([');
   buffer.writeAll(rangeList.ranges, ',\n');
   buffer.writeln(',\n]);');
