@@ -210,10 +210,10 @@ class Editor {
       return;
     }
     if (file.mode == Mode.insert) {
-      if (str.length == 1) {
-        insert(str);
-      } else {
+      if (str.length > 1) {
         insertChunk(str);
+      } else {
+        insert(str);
       }
     } else {
       for (String char in str.characters) {
