@@ -246,15 +246,15 @@ class Editor {
     final Position cursor = Position.from(file.cursor);
     final int start = file.byteIndexFromPosition(cursor);
     while (str.isNotEmpty) {
-      int newlineIndex = str.indexOf(Keys.newline, 0);
-      if (newlineIndex == -1) {
+      int nlPos = str.indexOf(Keys.newline, 0);
+      if (nlPos == -1) {
         InsertActions.defaultInsert(file, str, undo: false);
         break;
       }
-      String line = str.substring(0, newlineIndex);
+      String line = str.substring(0, nlPos);
       InsertActions.defaultInsert(file, line, undo: false);
       InsertActions.enter(file, undo: false);
-      str = str.substring(newlineIndex + 1);
+      str = str.substring(nlPos + 1);
     }
     file.addUndo(start: start, end: start, newText: buffer, cursor: cursor);
   }

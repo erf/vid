@@ -31,4 +31,3 @@ I enjoy building **vid** myself but I'm open to PRs that align with its minimal 
 I don't accept issues solely for suggestions.
 
 Enjoy 🧑‍💻✨
-

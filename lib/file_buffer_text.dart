@@ -1,4 +1,5 @@
 import 'characters_index.dart';
+import 'config.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'position.dart';
@@ -78,8 +79,7 @@ extension FileBufferText on FileBuffer {
     undoList.add(textOp);
 
     // limit undo operations
-    const maxNumUndo = 1000;
-    if (undoList.length > maxNumUndo) {
+    if (undoList.length > Config.maxNumUndo) {
       undoList.removeAt(0);
     }
 
