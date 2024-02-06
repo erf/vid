@@ -80,7 +80,8 @@ extension FileBufferText on FileBuffer {
 
     // limit undo operations
     if (undoList.length > Config.maxNumUndo) {
-      undoList.removeAt(0);
+      int end = undoList.length - Config.maxNumUndo;
+      undoList.removeRange(0, end);
     }
 
     // clear redo list
