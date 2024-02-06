@@ -246,7 +246,7 @@ class Editor {
     final Position cursor = Position.from(file.cursor);
     final int start = file.byteIndexFromPosition(cursor);
     while (str.isNotEmpty) {
-      int nlPos = str.indexOf(Keys.newline, 0);
+      int nlPos = str.indexOf(Keys.newline);
       if (nlPos == -1) {
         InsertActions.defaultInsert(file, str, undo: false);
         break;

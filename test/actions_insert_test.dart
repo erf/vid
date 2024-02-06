@@ -67,4 +67,52 @@ void main() {
     expect(f.prevEditEvent!.input, 'abc');
     expect(f.cursor, Position(c: 3, l: 0));
   }, skip: true);
+
+  test('insert chunk of text', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = '';
+    f.createLines();
+    f.mode = Mode.insert;
+    // insert longer text with multiple lines
+    const longTextWithMultipleLines = """
+In the heart of the silent forest,
+Whispers of ancient trees stir the air.
+Leaves rustle with secrets untold,
+Dancing in the sun's gentle glare.
+
+A lone stream murmurs a soft melody,
+Winding through the emerald embrace.
+Nature's serenade, timeless and free.
+
+""";
+    e.input(longTextWithMultipleLines);
+    expect(f.lines[0].str, 'In the heart of the silent forest, ');
+    expect(f.lines[7].str, 'Nature\'s serenade, timeless and free. ');
+    expect(f.lines.length, 10);
+    expect(f.cursor, Position(c: 0, l: 9));
+  });
+
+  test('insert chunk of text in middle of a line', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.text = 'abcd\n';
+    f.createLines();
+    f.cursor = Position(c: 2, l: 0);
+    e.input('iHI');
+    expect(f.text, 'abHIcd\n');
+    expect(f.cursor, Position(c: 4, l: 0));
+  });
+
+  test('insert chunk of text in middle of a line already in insert mode', () {
+    final e = Editor(redraw: false);
+    final f = e.file;
+    f.mode = Mode.insert;
+    f.text = 'abcd\n';
+    f.createLines();
+    f.cursor = Position(c: 2, l: 0);
+    e.input('HI');
+    expect(f.text, 'abHIcd\n');
+    expect(f.cursor, Position(c: 4, l: 0));
+  });
 }
