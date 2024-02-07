@@ -1,7 +1,7 @@
 import 'package:characters/characters.dart';
 
 import 'config.dart';
-import 'east_asian_width.dart';
+import 'east_asian_width_range_list.dart';
 
 extension StringExt on String {
   // Shorthand for characters (Characters(this))
@@ -34,7 +34,7 @@ extension StringExt on String {
       return 2;
     }
 
-    if (eastAsianWidth.contains(runes.first)) {
+    if (eastAsianWidthRangeList.contains(runes.first)) {
       return 2;
     }
 

@@ -1,11 +1,13 @@
 import 'dart:math';
 
-import 'package:vid/east_asian_width.dart';
+import 'package:vid/east_asian_width_range_list.dart';
+import 'package:vid/east_asian_width_switch.dart';
 
 // test the performance of looking up emojis
 void main() {
   final List<String> unicodeChars = generateRandomUnicodeChars(1000000);
   benchmarkEastAsianWidthInRangeList(unicodeChars);
+  benchmarkEastAsianWidthSwitch(unicodeChars);
 }
 
 List<String> generateRandomUnicodeChars(int length) {
@@ -18,12 +20,24 @@ void benchmarkEastAsianWidthInRangeList(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num = 0;
   for (final unicodeChar in unicodeChars) {
-    if (eastAsianWidth.contains(unicodeChar.runes.first)) {
+    if (eastAsianWidthRangeList.contains(unicodeChar.runes.first)) {
       num++;
     }
   }
   stopwatch.stop();
-  print('EastAsianWidth benchmark: ${stopwatch.elapsedMilliseconds}ms');
+  print('EastAsianWidthInRangeList: ${stopwatch.elapsedMilliseconds}ms');
   print('contains: $num');
-  print('count ${eastAsianWidth.ranges.length}');
+}
+
+void benchmarkEastAsianWidthSwitch(List<String> unicodeChars) {
+  final stopwatch = Stopwatch()..start();
+  int num = 0;
+  for (final unicodeChar in unicodeChars) {
+    if (eastAsianWidthSwitch(unicodeChar.runes.first)) {
+      num++;
+    }
+  }
+  stopwatch.stop();
+  print('EastAsianWidthSwitch: ${stopwatch.elapsedMilliseconds}ms');
+  print('contains: $num');
 }

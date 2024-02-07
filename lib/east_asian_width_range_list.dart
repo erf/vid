@@ -2,7 +2,7 @@ import 'range_list.dart';
 
 // EastAsianWidth-15.1.0.txt
 // https://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt
-const eastAsianWidth = RangeList([
+const eastAsianWidthRangeList = RangeList([
   IntRange(4352, 4447),
   IntRange(8986, 8987),
   IntRange(9001, 9001),
