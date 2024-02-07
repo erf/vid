@@ -42,8 +42,8 @@ void main(List<String> args) async {
 }
 
 void writeRangeList(Iterable<IntRange> ranges, String filename) {
-  // merge ranges
-  final rangeList = RangeList.merged(ranges);
+  // range list
+  final rangeList = RangeList.from(ranges);
 
   // print eastAsianWidth as a comma separated list
   final buffer = StringBuffer();
