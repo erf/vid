@@ -15,6 +15,16 @@ class Unicode {
       return tabWidth;
     }
 
+    // ASCII control characters
+    if (str.codeUnitAt(0) < 32) {
+      return 0;
+    }
+
+    // ASCII fast path
+    if (str.codeUnitAt(0) < 256) {
+      return 1;
+    }
+
     // is text presentation
     const int textPresentation = 0xFE0E;
     if (str.codeUnits.contains(textPresentation)) {
