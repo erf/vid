@@ -73,11 +73,11 @@ void writeSwitchExpression(Iterable<IntRange> ranges, String filename) {
   buffer.writeln('bool eastAsianWidthSwitch(int codePoint) {');
   buffer.writeln('  switch (codePoint) {');
   for (IntRange range in rangeList.ranges) {
-    if (range.low == range.high) {
-      buffer.writeln('    case ${range.low}:\n      return true;');
+    if (range.start == range.end) {
+      buffer.writeln('    case ${range.start}:\n      return true;');
     } else {
       buffer.writeln(
-          '    case >= ${range.low} && <= ${range.high}:\n      return true;');
+          '    case >= ${range.start} && <= ${range.end}:\n      return true;');
     }
   }
   buffer.writeln('    default: return false;');

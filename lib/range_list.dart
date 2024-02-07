@@ -1,14 +1,13 @@
 class IntRange {
-  final int low, high;
+  final int start;
+  final int end;
 
-  const IntRange(this.low, this.high);
+  const IntRange(this.start, this.end);
 
-  factory IntRange.single(int value) {
-    return IntRange(value, value);
-  }
+  factory IntRange.single(int value) => IntRange(value, value);
 
   @override
-  String toString() => ('IntRange($low, $high)');
+  String toString() => ('IntRange($start, $end)');
 }
 
 class RangeList {
@@ -29,7 +28,7 @@ class RangeList {
     }
 
     // Check against the overall range first
-    if (value < ranges.first.low || value > ranges.last.high) {
+    if (value < ranges.first.start || value > ranges.last.end) {
       return false;
     }
 
@@ -38,10 +37,10 @@ class RangeList {
     while (start <= end) {
       final int mid = start + (end - start) ~/ 2;
       final IntRange range = ranges[mid];
-      if (range.low <= value && range.high >= value) {
+      if (range.start <= value && range.end >= value) {
         return true;
       }
-      if (range.low > value) {
+      if (range.start > value) {
         end = mid - 1;
       } else {
         start = mid + 1;
