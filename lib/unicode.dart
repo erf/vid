@@ -6,10 +6,14 @@ class Unicode {
 // That is how many columuns it will take up in a monospaced font
   static int renderWidth(String str, [int tabWidth = Config.tabWidth]) {
     // if the string is empty, return 0
-    if (str.isEmpty) return 0;
+    if (str.isEmpty) {
+      return 0;
+    }
 
-    // if the string is a single tab, return 4 ?
-    if (str == '\t') return tabWidth;
+    // if the string is a single tab return the tab width
+    if (str == '\t') {
+      return tabWidth;
+    }
 
     // is text presentation
     const int textPresentation = 0xFE0E;
