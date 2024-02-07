@@ -16,8 +16,13 @@ class IntRange {
 class RangeList {
   final List<IntRange> ranges;
 
-  // Constructor does not merge the ranges
+  // Constructor from a list of ranges
   const RangeList(this.ranges);
+
+  // Factory constructor from an iterable of ranges
+  factory RangeList.from(Iterable<IntRange> inputRanges) {
+    return RangeList(inputRanges.toList(growable: false));
+  }
 
   // Factory constructor merges the ranges
   factory RangeList.merged(Iterable<IntRange> inputRanges) {
