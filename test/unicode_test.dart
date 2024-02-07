@@ -52,4 +52,28 @@ void main() {
     expect('吉'.renderWidth, 2);
     expect('龍'.renderWidth, 2);
   });
+
+  test('codePoint value of a', () {
+    String char = 'a';
+    int len = char.codeUnits.length;
+    int val = char.codeUnitAt(0);
+    expect(len, 1);
+    expect(val, 97);
+  });
+
+  test('codePoint value of ❤️', () {
+    String char = '❤️';
+    int len = char.codeUnits.length;
+    int val = char.codeUnitAt(0);
+    expect(len, 2);
+    expect(val, 10084);
+  });
+
+  test('codePoint value of ❤️‍🔥', () {
+    String char = '❤️‍🔥';
+    int len = char.codeUnits.length;
+    int val = char.codeUnitAt(0);
+    expect(len, 5);
+    expect(val, 10084);
+  });
 }
