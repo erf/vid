@@ -8,27 +8,22 @@ class Unicode {
     // if the string is empty, return 0
     if (str.isEmpty) return 0;
 
-    // if the string is a single space, return 1
-    if (str == ' ') return 1;
-
-    // ASCII fast path
-    if (str.codeUnitAt(0) < 128) {
-      return 1;
-    }
-
     // if the string is a single tab, return 4 ?
     if (str == '\t') return tabWidth;
 
+    // is text presentation
     const int textPresentation = 0xFE0E;
     if (str.codeUnits.contains(textPresentation)) {
       return 1;
     }
 
+    // is emoji presentation
     const int emojiPresentation = 0xFE0F;
     if (str.codeUnits.contains(emojiPresentation)) {
       return 2;
     }
 
+    // is east asian width wide or fullwidth
     if (eastAsianWidthRangeList.contains(str.runes.first)) {
       return 2;
     }
