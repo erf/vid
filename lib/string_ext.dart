@@ -1,7 +1,7 @@
 import 'package:characters/characters.dart';
 
 import 'config.dart';
-import 'east_asian_width_range_list.dart';
+import 'unicode.dart';
 
 extension StringExt on String {
   // Shorthand for characters (Characters(this))
@@ -14,30 +14,5 @@ extension StringExt on String {
   String get tabsToSpaces => replaceAll('\t', tabSpaces);
 
   // Try to determine the rendered width of a single character
-  int get renderWidth {
-    // if the string is empty, return 0
-    if (isEmpty) return 0;
-
-    // if the string is a single space, return 1
-    if (this == ' ') return 1;
-
-    // if the string is a single tab, return 4 ?
-    if (this == '\t') return Config.tabWidth;
-
-    const int textPresentation = 0xFE0E;
-    if (codeUnits.contains(textPresentation)) {
-      return 1;
-    }
-
-    const int emojiPresentation = 0xFE0F;
-    if (codeUnits.contains(emojiPresentation)) {
-      return 2;
-    }
-
-    if (eastAsianWidthRangeList.contains(runes.first)) {
-      return 2;
-    }
-
-    return 1;
-  }
+  int get renderWidth => Unicode.renderWidth(this);
 }
