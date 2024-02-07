@@ -63,7 +63,7 @@ void writeRangeList(Iterable<IntRange> ranges, String filename) {
 
 void writeSwitchExpression(Iterable<IntRange> ranges, String filename) {
   // merge ranges
-  final rangeList = RangeList.merged(ranges);
+  final rangeList = RangeList.from(ranges);
 
   // print eastAsianWidth as a switch expression
   final buffer = StringBuffer();

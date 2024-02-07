@@ -1,5 +1,3 @@
-import 'dart:math';
-
 class IntRange {
   final int low, high;
 
@@ -20,38 +18,8 @@ class RangeList {
   const RangeList(this.ranges);
 
   // Factory constructor from an iterable of ranges
-  factory RangeList.from(Iterable<IntRange> inputRanges) {
-    return RangeList(inputRanges.toList(growable: false));
-  }
-
-  // Factory constructor merges the ranges
-  factory RangeList.merged(Iterable<IntRange> inputRanges) {
-    return RangeList(_mergeRanges(inputRanges));
-  }
-
-  static List<IntRange> _mergeRanges(Iterable<IntRange> inputRanges) {
-    if (inputRanges.isEmpty) return [];
-
-    final List<IntRange> sortedRanges = [...inputRanges]
-      ..sort((a, b) => a.low.compareTo(b.low));
-
-    final List<IntRange> merged = [sortedRanges.first];
-
-    for (int i = 1; i < sortedRanges.length; i++) {
-      final IntRange currentRange = sortedRanges[i];
-      final IntRange lastMergedRange = merged.last;
-
-      if (currentRange.low <= lastMergedRange.high) {
-        merged[merged.length - 1] = IntRange(
-          lastMergedRange.low,
-          max(lastMergedRange.high, currentRange.high),
-        );
-      } else {
-        merged.add(currentRange);
-      }
-    }
-
-    return merged;
+  factory RangeList.from(Iterable<IntRange> ranges) {
+    return RangeList(ranges.toList(growable: false));
   }
 
   // Returns true if the value is contained in any of the ranges
@@ -65,8 +33,8 @@ class RangeList {
       return false;
     }
 
+    // Binary search for the range containing the value
     int start = 0, end = ranges.length - 1;
-
     while (start <= end) {
       final int mid = start + (end - start) ~/ 2;
       final IntRange range = ranges[mid];
@@ -82,5 +50,6 @@ class RangeList {
     return false;
   }
 
+  // Returns the number of ranges
   get length => ranges.length;
 }

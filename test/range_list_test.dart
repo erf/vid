@@ -20,14 +20,6 @@ void main() {
       expect(l.contains(16), false);
     });
 
-    test('should merge overlapping or adjacent ranges', () {
-      final l =
-          RangeList.merged([IntRange(10, 15), IntRange(1, 4), IntRange(4, 8)]);
-      expect(l.contains(3), true);
-      expect(l.contains(7), true);
-      expect(l.length, 2);
-    });
-
     test('should handle an empty list', () {
       final l = RangeList([]);
       expect(l.contains(1), false);
