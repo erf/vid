@@ -1,6 +1,6 @@
-# Design
+# Architecture
 
-## Architecture
+## Overview
 
 - file as a single `text` String
 - create lines of text + metadata on init / changes
