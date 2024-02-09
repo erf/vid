@@ -76,11 +76,7 @@ extension FileBufferLines on FileBuffer {
       });
 
       if (lineRenderWidth < width) {
-        lines.add(Line(
-          line,
-          no: lineNo,
-          start: pos,
-        ));
+        lines.add(Line(line, no: lineNo, start: pos));
         break;
       }
 
@@ -89,11 +85,7 @@ extension FileBufferLines on FileBuffer {
       }
 
       String lineString = line.substring(0, lastSpaceIndex);
-      lines.add(Line(
-        lineString,
-        no: lineNo,
-        start: pos,
-      ));
+      lines.add(Line(lineString, no: lineNo, start: pos));
 
       line = line.substring(lastSpaceIndex);
       lineNo++;
