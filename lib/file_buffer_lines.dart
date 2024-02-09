@@ -31,14 +31,17 @@ extension FileBufferLines on FileBuffer {
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
     int pos = 0;
-    for (int lineNo = 0; lineNo < textLines.length; lineNo++) {
-      final String line = textLines[lineNo];
+    int lineNo = 0;
+    for (int i = 0; i < textLines.length; i++) {
+      final String line = textLines[i];
       switch (Config.wrapMode) {
         case WrapMode.none:
-          lines.add(Line('$line ', no: lineNo, start: pos));
+          lines.add(Line('$line ', no: i, start: pos));
           break;
         case WrapMode.word:
-          lines.addAll(_wordWrapLine(line, lineNo, pos, width));
+          final newLines = _wordWrapLine(line, lineNo, pos, width);
+          lines.addAll(newLines);
+          lineNo += newLines.length;
           break;
         case WrapMode.char:
           // TODO
