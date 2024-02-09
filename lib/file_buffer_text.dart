@@ -19,8 +19,8 @@ extension FileBufferText on FileBuffer {
   }
 
   // get the byte index text  from the cursor Position
-  int byteIndexFromPosition(Position p) {
-    return lines[p.l].byteIndexAt(p.c);
+  int byteIndexFromPosition(Position pos) {
+    return lines[pos.l].byteIndexAt(pos.c);
   }
 
   // the main method used to replace, delete and insert text in the buffer
@@ -94,21 +94,21 @@ extension FileBufferText on FileBuffer {
     }
   }
 
-  void deleteRange(Range r) {
-    replaceRange(r, '');
+  void deleteRange(Range range) {
+    replaceRange(range, '');
   }
 
-  void insertAt(Position p, String s, [bool undo = true]) {
-    final start = byteIndexFromPosition(p);
-    replace(start, start, s, undo);
+  void insertAt(Position pos, String str, [bool undo = true]) {
+    final int start = byteIndexFromPosition(pos);
+    replace(start, start, str, undo);
   }
 
-  void replaceAt(Position p, String s) {
-    replaceRange(Range(p, Position(l: p.l, c: p.c + 1)), s);
+  void replaceAt(Position pos, String str) {
+    replaceRange(Range(pos, Position(l: pos.l, c: pos.c + 1)), str);
   }
 
-  void deleteAt(Position p) {
-    replaceAt(p, '');
+  void deleteAt(Position pos) {
+    replaceAt(pos, '');
   }
 
   void yankRange(Range range) {
