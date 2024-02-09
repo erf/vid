@@ -2,6 +2,7 @@ import 'characters_index.dart';
 import 'config.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
+import 'line.dart';
 import 'position.dart';
 import 'range.dart';
 import 'text_op.dart';
@@ -9,12 +10,11 @@ import 'text_op.dart';
 // text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
-  Position positionFromByteIndex(int index) {
-    final line = lines.firstWhere((line) => index < line.byteEnd,
-        orElse: () => lines.last);
+  Position positionFromByteIndex(int i) {
+    Line ln = lines.firstWhere((l) => i < l.byteEnd, orElse: () => lines.last);
     return Position(
-      l: line.lineNo,
-      c: line.chars.byteToCharLength(index - line.byteStart),
+      l: ln.lineNo,
+      c: ln.chars.byteToCharLength(i - ln.byteStart),
     );
   }
 
