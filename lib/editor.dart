@@ -29,7 +29,6 @@ import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
-import 'string_ext.dart';
 import 'terminal.dart';
 
 class Editor {
@@ -69,6 +68,7 @@ class Editor {
   }
 
   void onResize(ProcessSignal signal) {
+    file.createLines();
     draw();
   }
 
@@ -112,9 +112,11 @@ class Editor {
         continue;
       }
       // get substring of line in view based on render width
-      Characters line =
-          lines[l].str.tabsToSpaces.characters.renderLine(view.c, term.width);
-      rbuf.writeln(line);
+      if (Config.wrapMode == WrapMode.none) {
+        rbuf.writeln(lines[l].str.characters.renderLine(view.c, term.width));
+      } else {
+        rbuf.writeln(lines[l].str);
+      }
     }
   }
 
