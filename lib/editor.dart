@@ -79,7 +79,7 @@ class Editor {
   void draw() {
     rbuf.clear();
     rbuf.write(Esc.homeAndEraseDown);
-    int curLen = file.lines[file.cursor.l].chars.renderLength(file.cursor.c);
+    int curLen = file.lines[file.cursor.l].ch.renderLength(file.cursor.c);
     file.clampView(term, curLen);
     drawLines();
 

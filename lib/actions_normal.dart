@@ -195,7 +195,7 @@ class NormalActions {
     final p = f.cursor;
     final i = f.byteIndexFromPosition(p);
     final line = f.lines[p.l];
-    final start = line.byteStart;
+    final start = line.start;
     final matches = Regex.number.allMatches(line.str);
     if (matches.isEmpty) return;
     final m = matches.firstWhere((m) => i < (m.end + start),

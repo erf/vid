@@ -2,22 +2,26 @@ import 'package:characters/characters.dart';
 
 class Line {
   final String str;
-  final int byteStart;
-  final int lineNo;
+  final int start;
+  final int no;
 
-  const Line(this.str, {required this.byteStart, required this.lineNo});
+  const Line(
+    this.str, {
+    required this.start,
+    required this.no,
+  });
 
-  Characters get chars => str.characters;
+  Characters get ch => str.characters;
 
-  int get byteLen => str.length;
+  int get len => str.length;
 
-  int get charLen => chars.length;
+  int get end => start + len;
 
-  int get byteEnd => byteStart + byteLen;
+  int get charLen => ch.length;
 
   bool get isEmpty => str.isEmpty;
 
   bool get isNotEmpty => str.isNotEmpty;
 
-  int byteIndexAt(int c) => byteStart + chars.take(c).string.length;
+  int byteIndexAt(int c) => start + ch.take(c).string.length;
 }

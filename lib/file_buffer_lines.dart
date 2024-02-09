@@ -35,7 +35,7 @@ extension FileBufferLines on FileBuffer {
       final String line = textLines[lineNo];
       switch (Config.wrapMode) {
         case WrapMode.none:
-          lines.add(Line('$line ', lineNo: lineNo, byteStart: pos));
+          lines.add(Line('$line ', no: lineNo, start: pos));
           break;
         case WrapMode.word:
           lines.addAll(_wordWrapLine(line, lineNo, pos, width));
@@ -48,23 +48,16 @@ extension FileBufferLines on FileBuffer {
     }
   }
 
+  // iterate characters until the line is longer than the terminal width or the
+  // end of the line is reached. if the line is shorter than the terminal width,
+  // return the line. if the line is longer than the terminal width, split the
+  // line at the last space or at the terminal width. continue splitting the
+  // line until the end of the whole line is reached
   Iterable<Line> _wordWrapLine(String line, int lineNo, int pos, int width) {
+    // if line is empty, return a line with a single space
     if (line.isEmpty) {
-      return [
-        Line(
-          ' ',
-          lineNo: lineNo,
-          byteStart: pos,
-        )
-      ];
+      return [Line(' ', no: lineNo, start: pos)];
     }
-
-    // iterate characters until the line is longer than the terminal width or
-    // the end of the line is reached
-    // if the line is shorter than the terminal width, return the line
-    // if the line is longer than the terminal width, split the line at the last space
-    // if there is no space, split the line at the terminal width
-    // continue splitting the line at the last space until the end of the line is reached
     int index = 0; // index of whole line
     int lineRenderWidth = 0;
     int lastSpaceIndex = -1;
@@ -82,8 +75,8 @@ extension FileBufferLines on FileBuffer {
       if (lineRenderWidth < width) {
         lines.add(Line(
           line,
-          lineNo: lineNo,
-          byteStart: pos,
+          no: lineNo,
+          start: pos,
         ));
         break;
       }
@@ -95,8 +88,8 @@ extension FileBufferLines on FileBuffer {
       String lineString = line.substring(0, lastSpaceIndex);
       lines.add(Line(
         lineString,
-        lineNo: lineNo,
-        byteStart: pos,
+        no: lineNo,
+        start: pos,
       ));
 
       line = line.substring(lastSpaceIndex);

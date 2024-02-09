@@ -11,10 +11,10 @@ import 'text_op.dart';
 extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
   Position positionFromByteIndex(int i) {
-    Line ln = lines.firstWhere((l) => i < l.byteEnd, orElse: () => lines.last);
+    Line ln = lines.firstWhere((l) => i < l.end, orElse: () => lines.last);
     return Position(
-      l: ln.lineNo,
-      c: ln.chars.byteToCharLength(i - ln.byteStart),
+      l: ln.no,
+      c: ln.ch.byteToCharLength(i - ln.start),
     );
   }
 
