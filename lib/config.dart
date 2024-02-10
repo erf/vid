@@ -5,4 +5,5 @@ class Config {
   static const int tabWidth = 4;
   static const int maxNumUndo = 100;
   static const WrapMode wrapMode = WrapMode.word;
+  static const String breakat = ' !@*-+;:,./?';
 }

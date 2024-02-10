@@ -74,7 +74,7 @@ extension FileBufferLines on FileBuffer {
 
     while (true) {
       Characters lineCh = line.characters.takeWhile((String char) {
-        if (index > 0 && char == ' ') {
+        if (index > 0 && Config.breakat.contains(char)) {
           lastSpaceIndex = index;
         }
         index += char.length;
