@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:characters/characters.dart';
-
 import 'actions_motion.dart';
 import 'keys.dart';
 import 'file_buffer.dart';
@@ -13,8 +11,9 @@ import 'position.dart';
 
 class InsertActions {
   static void defaultInsert(FileBuffer f, String s, {bool undo = true}) {
+    int byteIndex = f.byteIndexFromPosition(f.cursor);
     f.insertAt(f.cursor, s, undo);
-    f.cursor.c += s.characters.length;
+    f.cursor = f.positionFromByteIndex(byteIndex + s.length);
   }
 
   static void enter(FileBuffer f, {bool undo = true}) {

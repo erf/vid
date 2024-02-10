@@ -12,10 +12,8 @@ extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
   Position positionFromByteIndex(int i) {
     Line ln = lines.firstWhere((l) => i < l.end, orElse: () => lines.last);
-    return Position(
-      l: ln.no,
-      c: ln.ch.byteToCharLength(i - ln.start),
-    );
+    int charpos = ln.ch.byteToCharLength(i - ln.start);
+    return Position(l: ln.no, c: charpos);
   }
 
   // get the byte index text  from the cursor Position
