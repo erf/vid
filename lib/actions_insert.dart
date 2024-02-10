@@ -39,7 +39,9 @@ class InsertActions {
   static void _deleteCharPrev(FileBuffer f) {
     if (f.empty) return;
     f.cursor.c--;
+    int byteIndex = f.byteIndexFromPosition(f.cursor);
     f.deleteAt(f.cursor);
+    f.cursor = f.positionFromByteIndex(byteIndex);
   }
 
   static void backspace(FileBuffer f) {
