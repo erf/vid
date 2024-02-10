@@ -65,20 +65,20 @@ extension FileBufferLines on FileBuffer {
     // split long line into lines
     List<Line> lines = [];
 
-    while (true) {
+    while (line.isNotEmpty) {
       int index = 0;
       int breakIndex = -1;
-      int lineRenderWidth = 0;
+      int lineWidth = 0;
       Characters lineCh = line.characters.takeWhile((String char) {
         if (index > 0 && Config.breakat.contains(char)) {
           breakIndex = index;
         }
         index += char.length;
-        lineRenderWidth += char.renderWidth;
-        return lineRenderWidth <= width;
+        lineWidth += char.renderWidth;
+        return lineWidth <= width;
       });
       // if line is shorter than the terminal width, return the line
-      if (lineRenderWidth < width) {
+      if (lineWidth < width) {
         lines.add(Line('$line ', no: lineNo, start: start));
         break;
       }
@@ -87,7 +87,7 @@ extension FileBufferLines on FileBuffer {
         breakIndex = lineCh.string.length;
       }
 
-      String subLine = line.substring(0, breakIndex);
+      final String subLine = line.substring(0, breakIndex);
       lines.add(Line(subLine, no: lineNo, start: start));
 
       line = line.substring(breakIndex);
