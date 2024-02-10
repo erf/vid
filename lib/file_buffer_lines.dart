@@ -2,6 +2,8 @@ import 'package:characters/characters.dart';
 import 'package:vid/config.dart';
 import 'package:vid/string_ext.dart';
 
+import 'dart:math' as math;
+
 import 'keys.dart';
 import 'file_buffer.dart';
 import 'line.dart';
@@ -68,7 +70,7 @@ extension FileBufferLines on FileBuffer {
     List<Line> lines = [];
 
     while (true) {
-      line.characters.takeWhile((String char) {
+      Characters lineCh = line.characters.takeWhile((String char) {
         if (char == ' ') {
           lastSpaceIndex = index;
         }
@@ -83,7 +85,7 @@ extension FileBufferLines on FileBuffer {
       }
 
       if (lastSpaceIndex == -1) {
-        lastSpaceIndex = width;
+        lastSpaceIndex = lineCh.string.length;
       }
 
       String subLine = line.substring(0, lastSpaceIndex);
