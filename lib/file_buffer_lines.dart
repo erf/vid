@@ -45,9 +45,6 @@ extension FileBufferLines on FileBuffer {
           lines.addAll(newLines);
           lineNo += newLines.length;
           break;
-        case WrapMode.char:
-          // TODO
-          break;
       }
       start += line.length + 1;
     }

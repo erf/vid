@@ -1,4 +1,4 @@
-enum WrapMode { word, char, none }
+enum WrapMode { none, word }
 
 class Config {
   static const int messageTime = 3000;
