@@ -64,6 +64,9 @@ extension FileBufferLines on FileBuffer {
       return [Line(' ', no: lineNo, start: start)];
     }
 
+    // limit width to avoid rendering issues
+    width = math.max(width, 16);
+
     int index = 0; // index of whole line
     int lineRenderWidth = 0;
     int lastSpaceIndex = -1;
