@@ -68,7 +68,9 @@ class Editor {
   }
 
   void onResize(ProcessSignal signal) {
+    int byteIndex = file.byteIndexFromPosition(file.cursor);
     file.createLines();
+    file.cursor = file.positionFromByteIndex(byteIndex);
     draw();
   }
 
