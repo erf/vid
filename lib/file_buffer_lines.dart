@@ -68,14 +68,14 @@ extension FileBufferLines on FileBuffer {
     width = math.max(width, 16);
 
     int index = 0; // index of whole line
+    int breakIndex = -1;
     int lineRenderWidth = 0;
-    int lastSpaceIndex = -1;
     List<Line> lines = [];
 
     while (true) {
       Characters lineCh = line.characters.takeWhile((String char) {
         if (index > 0 && Config.breakat.contains(char)) {
-          lastSpaceIndex = index;
+          breakIndex = index;
         }
         index += char.length;
         lineRenderWidth += char.renderWidth;
@@ -87,19 +87,19 @@ extension FileBufferLines on FileBuffer {
         break;
       }
 
-      if (lastSpaceIndex == -1) {
-        lastSpaceIndex = lineCh.string.length;
+      if (breakIndex == -1) {
+        breakIndex = lineCh.string.length;
       }
 
-      String subLine = line.substring(0, lastSpaceIndex);
+      String subLine = line.substring(0, breakIndex);
       lines.add(Line(subLine, no: lineNo, start: start));
 
-      line = line.substring(lastSpaceIndex);
+      line = line.substring(breakIndex);
       lineNo++;
-      start += lastSpaceIndex;
+      start += breakIndex;
       index = 0;
       lineRenderWidth = 0;
-      lastSpaceIndex = -1;
+      breakIndex = -1;
     }
 
     return lines;
