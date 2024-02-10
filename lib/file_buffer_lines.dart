@@ -63,16 +63,15 @@ extension FileBufferLines on FileBuffer {
     if (line.isEmpty) {
       return [Line(' ', no: lineNo, start: start)];
     }
-
     // limit width to avoid rendering issues
     width = math.max(width, 16);
-
-    int index = 0; // index of whole line
-    int breakIndex = -1;
-    int lineRenderWidth = 0;
+    // split long line into lines
     List<Line> lines = [];
 
     while (true) {
+      int index = 0;
+      int breakIndex = -1;
+      int lineRenderWidth = 0;
       Characters lineCh = line.characters.takeWhile((String char) {
         if (index > 0 && Config.breakat.contains(char)) {
           breakIndex = index;
@@ -81,12 +80,12 @@ extension FileBufferLines on FileBuffer {
         lineRenderWidth += char.renderWidth;
         return lineRenderWidth <= width;
       });
-
+      // if line is shorter than the terminal width, return the line
       if (lineRenderWidth < width) {
         lines.add(Line('$line ', no: lineNo, start: start));
         break;
       }
-
+      // if we didn't find a breakat, break at the eol / terminal width
       if (breakIndex == -1) {
         breakIndex = lineCh.string.length;
       }
@@ -97,9 +96,6 @@ extension FileBufferLines on FileBuffer {
       line = line.substring(breakIndex);
       lineNo++;
       start += breakIndex;
-      index = 0;
-      lineRenderWidth = 0;
-      breakIndex = -1;
     }
 
     return lines;
