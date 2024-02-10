@@ -61,11 +61,13 @@ extension FileBufferLines on FileBuffer {
     if (line.isEmpty) {
       return [Line(' ', no: lineNo, start: start)];
     }
+
     int index = 0; // index of whole line
     int lineRenderWidth = 0;
     int lastSpaceIndex = -1;
     List<Line> lines = [];
-    while (line.isNotEmpty) {
+
+    while (true) {
       line.characters.takeWhile((String char) {
         if (char == ' ') {
           lastSpaceIndex = index;
