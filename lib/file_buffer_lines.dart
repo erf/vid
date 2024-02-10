@@ -30,16 +30,16 @@ extension FileBufferLines on FileBuffer {
 
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
-    int pos = 0;
     int lineNo = 0;
+    int start = 0;
     for (int i = 0; i < textLines.length; i++) {
       final String line = textLines[i];
       switch (Config.wrapMode) {
         case WrapMode.none:
-          lines.add(Line('$line ', no: i, start: pos));
+          lines.add(Line('$line ', no: i, start: start));
           break;
         case WrapMode.word:
-          final newLines = _wordWrapLine(line, lineNo, pos, width);
+          final newLines = _wordWrapLine(line, lineNo, start, width);
           lines.addAll(newLines);
           lineNo += newLines.length;
           break;
@@ -47,7 +47,7 @@ extension FileBufferLines on FileBuffer {
           // TODO
           break;
       }
-      pos += line.length + 1;
+      start += line.length + 1;
     }
   }
 
@@ -56,10 +56,10 @@ extension FileBufferLines on FileBuffer {
   // return the line. if the line is longer than the terminal width, split the
   // line at the last space or at the terminal width. continue splitting the
   // line until the end of the whole line is reached
-  Iterable<Line> _wordWrapLine(String line, int lineNo, int pos, int width) {
+  Iterable<Line> _wordWrapLine(String line, int lineNo, int start, int width) {
     // if line is empty, return a line with a single space
     if (line.isEmpty) {
-      return [Line(' ', no: lineNo, start: pos)];
+      return [Line(' ', no: lineNo, start: start)];
     }
     int index = 0; // index of whole line
     int lineRenderWidth = 0;
@@ -76,7 +76,7 @@ extension FileBufferLines on FileBuffer {
       });
 
       if (lineRenderWidth < width) {
-        lines.add(Line('$line ', no: lineNo, start: pos));
+        lines.add(Line('$line ', no: lineNo, start: start));
         break;
       }
 
@@ -85,11 +85,11 @@ extension FileBufferLines on FileBuffer {
       }
 
       String subLine = line.substring(0, lastSpaceIndex);
-      lines.add(Line(subLine, no: lineNo, start: pos));
+      lines.add(Line(subLine, no: lineNo, start: start));
 
       line = line.substring(lastSpaceIndex);
       lineNo++;
-      pos += lastSpaceIndex;
+      start += lastSpaceIndex;
       index = 0;
       lineRenderWidth = 0;
       lastSpaceIndex = -1;
