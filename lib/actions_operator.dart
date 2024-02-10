@@ -14,7 +14,7 @@ class Operators {
   }
 
   static void delete(FileBuffer f, Range range) {
-    int byteIndex = f.byteIndexFromPosition(f.cursor);
+    int byteIndex = f.byteIndexFromPosition(range.start);
     f.deleteRange(range);
     f.cursor = f.positionFromByteIndex(byteIndex);
     f.clampCursor();
