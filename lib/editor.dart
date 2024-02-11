@@ -36,6 +36,7 @@ class Editor {
   final file = FileBuffer();
   final rbuf = StringBuffer();
   String message = '';
+  Timer? messageTimer;
   String? logPath;
   File? logFile;
   bool redraw;
@@ -182,7 +183,8 @@ class Editor {
     this.message = message;
     draw();
     if (timed) {
-      Timer(Duration(milliseconds: Config.messageTime), () {
+      messageTimer?.cancel();
+      messageTimer = Timer(Duration(milliseconds: Config.messageTime), () {
         this.message = '';
         draw();
       });
