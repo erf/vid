@@ -156,7 +156,7 @@ class Editor {
     String modeStr = statusModeLabel(file.mode);
     String path = file.path ?? '[No Name]';
     String wrap = Config.wrapMode == WrapMode.none ? '' : 'wrap';
-    String left = ' $modeStr  $path ${modified ? '* ' : ''}$wrap $message ';
+    String left = ' $modeStr $path ${modified ? '* ' : ''}$wrap $message ';
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     int padLeft = term.width - left.length - 1;
     String status = '$left ${right.padLeft(padLeft)}';
