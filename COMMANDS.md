@@ -1,4 +1,4 @@
-# Commands
+# COMMANDS
 
 ## Test
 
@@ -17,3 +17,5 @@ dart run --pause-isolates-on-start --observe bin/vid.dart sample-data/eval.c
 ```
 dart compile exe bin/vid.dart -o build/vid
 ```
+
+See [build.sh](build.sh)
