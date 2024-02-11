@@ -72,6 +72,7 @@ class Editor {
     int byteIndex = file.byteIndexFromPosition(file.cursor);
     file.createLines();
     file.cursor = file.positionFromByteIndex(byteIndex);
+    showMessage('Resized to ${term.width}x${term.height}');
     draw();
   }
 
