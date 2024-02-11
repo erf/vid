@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'characters_index.dart';
 import 'config.dart';
 import 'file_buffer.dart';
@@ -12,8 +14,15 @@ extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
   Position positionFromByteIndex(int i) {
     Line ln = lines.firstWhere((l) => i < l.end, orElse: () => lines.last);
-    int charpos = ln.ch.byteToCharLength(i - ln.start);
-    return Position(l: ln.no, c: charpos);
+    // TODO experienced a crash where pos is negative for wrapped lines
+    int pos = i - ln.start;
+    if (pos > 0) {
+      pos = math.min(pos, ln.ch.length);
+      int charpos = ln.ch.byteToCharLength(pos);
+      return Position(l: ln.no, c: charpos);
+    } else {
+      return Position(l: ln.no, c: 0);
+    }
   }
 
   // get the byte index text  from the cursor Position
