@@ -1,16 +1,17 @@
 # vid
 
-A minimal vi-like text editor for the terminal written in Dart 😎
+A minimal vi-like text editor for the terminal written in Dart 🧑‍💻
  
-> Note: for fun and learning; not meant to replace your current editor ;)
+> Note: made for myself for fun and learning
 
 ## Features 📋
 
 - a minimal vi-like text editor for the terminal ⚡️
-- correct rendering and editing of emojis and EastAsianWide ❤️‍🔥
+- correct rendering and editing of emojis and EastAsianWide 🍜
 - made for modern terminals that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) (e.g. [Ghostty](https://github.com/mitchellh/ghostty/), [WezTerm](https://github.com/wez/wezterm)) 🧠
 - written in pragmatic Dart using the [characters](https://pub.dev/packages/characters) package ✨
-- unlimited (ish) undo / redo ↩️
+- undo and redo ↩️
+- word wrap and no wrap mode 🎁
 
 ## Non-goals ❌
 
@@ -24,10 +25,14 @@ A minimal vi-like text editor for the terminal written in Dart 😎
 
 See [bindings.dart](lib/bindings.dart)
 
+## Configuraion 📜
+
+See [config.dart](lib/config.dart)
+
 ## Contributing 🙋‍♂️
 
-I enjoy building **vid** myself but I'm open to PRs that align with its minimal philosophy.
+I enjoy building [vid](https://github.com/erf/vid] myself but I'm open to pull requests that align with its minimal philosophy.
 
 I don't accept issues solely for suggestions.
 
-Enjoy 🧑‍💻✨
+Enjoy ✨
