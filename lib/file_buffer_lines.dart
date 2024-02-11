@@ -50,11 +50,6 @@ extension FileBufferLines on FileBuffer {
     }
   }
 
-  // iterate characters until the line is longer than the terminal width or the
-  // end of the line is reached. if the line is shorter than the terminal width,
-  // return the line. if the line is longer than the terminal width, split the
-  // line at the last space or at the terminal width. continue splitting the
-  // line until the end of the whole line is reached
   Iterable<Line> _wordWrapLine(String line, int lineNo, int start, int width) {
     // if line is empty, return a line with a single space
     if (line.isEmpty) {
@@ -70,12 +65,12 @@ extension FileBufferLines on FileBuffer {
       int breakIndex = -1;
       int lineWidth = 0;
       Characters lineCh = line.characters.takeWhile((String char) {
-        if (index > 0 && Config.breakat.contains(char)) {
+        index += char.length;
+        if (Config.breakat.contains(char)) {
           breakIndex = index;
         }
-        index += char.length;
         lineWidth += char.renderWidth;
-        return lineWidth <= width;
+        return lineWidth < width;
       });
       // if line is shorter than the terminal width, return the line
       if (lineWidth < width) {
@@ -86,7 +81,6 @@ extension FileBufferLines on FileBuffer {
       if (breakIndex == -1) {
         breakIndex = lineCh.string.length;
       }
-
       final String subLine = line.substring(0, breakIndex);
       lines.add(Line(subLine, no: lineNo, start: start));
 
