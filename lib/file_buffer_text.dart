@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'characters_index.dart';
 import 'config.dart';
 import 'file_buffer.dart';
