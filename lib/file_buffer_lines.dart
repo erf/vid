@@ -46,35 +46,39 @@ extension FileBufferLines on FileBuffer {
     width = math.max(width, 8);
 
     // split long line into lines
+    int index = 0;
+    int lineStart = 0;
+    int breakIndex = -1;
+    int lineWidth = 0;
+    int lineWidthAtBreakIndex = 0;
     List<Line> lines = [];
-
-    while (line.isNotEmpty) {
-      int index = 0;
-      int breakIndex = -1;
-      int lineWidth = 0;
-      Characters lineCh = line.characters.takeWhile((String char) {
-        index += char.length;
-        if (Config.breakat.contains(char)) {
+    for (String char in line.characters) {
+      index += char.length;
+      lineWidth += char.charWidth;
+      if (Config.breakat.contains(char)) {
+        breakIndex = index;
+        lineWidthAtBreakIndex = lineWidth;
+      }
+      // add a line break at the last breakat or at the end of the line
+      if (lineWidth >= width) {
+        // if we didn't find a breakat, break at the eol / terminal width
+        if (breakIndex == -1) {
           breakIndex = index;
+          lineWidthAtBreakIndex = lineWidth;
         }
-        lineWidth += char.charWidth;
-        return lineWidth < width;
-      });
-      // if line is shorter than the terminal width, return the line
-      if (lineWidth < width) {
-        lines.add(Line('$line ', no: lineNo, start: start));
-        break;
-      }
-      // if we didn't find a breakat, break at the eol / terminal width
-      if (breakIndex == -1) {
-        breakIndex = lineCh.string.length;
-      }
-      final String subLine = line.substring(0, breakIndex);
-      lines.add(Line(subLine, no: lineNo, start: start));
+        String subLine = line.substring(lineStart, breakIndex);
+        lines.add(Line(subLine, no: lineNo, start: start + lineStart));
 
-      line = line.substring(breakIndex);
-      lineNo++;
-      start += breakIndex;
+        lineStart = breakIndex;
+        breakIndex = -1;
+        lineWidth -= lineWidthAtBreakIndex;
+        lineNo++;
+      }
+    }
+    // add the last part of the line
+    if (lineStart < index) {
+      String subLine = line.substring(lineStart, line.length);
+      lines.add(Line('$subLine ', no: lineNo, start: start));
     }
 
     return lines;
