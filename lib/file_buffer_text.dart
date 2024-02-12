@@ -15,9 +15,9 @@ extension FileBufferText on FileBuffer {
   Position positionFromByteIndex(int i) {
     Line ln = lines.firstWhere((l) => i < l.end, orElse: () => lines.last);
     // TODO experienced a crash where pos is negative for wrapped lines
-    int pos = i - ln.start;
+    final int pos = i - ln.start;
+    assert(pos >= 0, 'pos is negative: $pos');
     if (pos > 0) {
-      pos = math.min(pos, ln.ch.length);
       int charpos = ln.ch.byteToCharLength(pos);
       return Position(l: ln.no, c: charpos);
     } else {
