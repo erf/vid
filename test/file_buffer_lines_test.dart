@@ -33,10 +33,11 @@ void main() {
 
   test('createLines with emoji at end', () {
     final f = FileBuffer();
-    f.text = 'abc def😀\nghi jkl\n';
-    f.createLines(WrapMode.none, 8, 20);
-    expect(f.lines.length, 2);
-    expect(f.lines[0].ch.string, 'abc def😀 ');
-    expect(f.lines[1].ch.string, 'ghi jkl ');
+    f.text = 'abc def😀 ghi jkl\n';
+    f.createLines(WrapMode.word, 8, 20);
+    expect(f.lines.length, 3);
+    expect(f.lines[0].ch.string, 'abc ');
+    expect(f.lines[1].ch.string, 'def😀 ');
+    expect(f.lines[2].ch.string, 'ghi jkl ');
   });
 }
