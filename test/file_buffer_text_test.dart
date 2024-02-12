@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vid/actions_normal.dart';
+import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_lines.dart';
@@ -11,7 +12,7 @@ void main() {
   test('getPositionFromIndex', () {
     final f = FileBuffer();
     f.text = 'abc\ndef';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     expect(f.positionFromByteIndex(0), Position(c: 0, l: 0));
     expect(f.positionFromByteIndex(2), Position(c: 2, l: 0));
     expect(f.positionFromByteIndex(4), Position(c: 0, l: 1));
@@ -21,7 +22,7 @@ void main() {
   test('replaceAt', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.replaceAt(Position(c: 0, l: 0), 'X');
     expect(f.text, 'Xbc\ndef\n');
     final op = f.undoList.last;
@@ -33,7 +34,7 @@ void main() {
   test('deleteRange', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.deleteRange(Range(Position(c: 0, l: 0), Position(c: 1, l: 1)));
     expect(f.text, 'ef\n');
     final op = f.undoList.last;
@@ -45,7 +46,7 @@ void main() {
   test('insertAt', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.insertAt(Position(c: 0, l: 1), 'X');
     expect(f.text, 'abc\nXdef\n');
     final op = f.undoList.last;
@@ -57,7 +58,7 @@ void main() {
   test('deleteAt', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.deleteAt(Position(c: 0, l: 1));
     expect(f.text, 'abc\nef\n');
     final op = f.undoList.last;
@@ -69,7 +70,7 @@ void main() {
   test('deleteAt last on line', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\nghi\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.deleteAt(Position(c: 0, l: 2));
     f.deleteAt(Position(c: 0, l: 2));
     f.deleteAt(Position(c: 0, l: 2));
@@ -79,7 +80,7 @@ void main() {
   test('deleteAt with emoji', () {
     final f = FileBuffer();
     f.text = 'ab🪼de\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.deleteAt(Position(c: 2, l: 0));
     expect(f.text, 'abde\n');
   });
@@ -87,7 +88,7 @@ void main() {
   test('replaceAt with emoji', () {
     final f = FileBuffer();
     f.text = 'ab🪼de\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.replaceAt(Position(c: 2, l: 0), 'X');
     expect(f.text, 'abXde\n');
   });
@@ -96,7 +97,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\nd👩‍👩‍👦‍👦f\nghi\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.deleteRange(Range(
       Position(c: 0, l: 0),
       Position(c: 0, l: 1),
@@ -119,7 +120,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'hello world\n123\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     e.input('dw');
     expect(f.text, 'world\n123\n');
     e.input('u');

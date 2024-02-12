@@ -8,4 +8,3 @@ class Keys {
   static const String ctrlX = '\u0018';
   static const String ctrlA = '\u0001';
 }
-

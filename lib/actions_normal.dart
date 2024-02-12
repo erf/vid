@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/config.dart';
+
 import 'actions_motion.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
@@ -152,7 +154,7 @@ class NormalActions {
     TextOp op = f.undoList.removeLast();
     f.text = f.text.replaceRange(op.start, op.endNew, op.prevText);
     f.redoList.add(op);
-    f.createLines();
+    f.createLines(Config.wrapMode, e.term.width, e.term.height);
     f.cursor = op.cursor;
   }
 
@@ -161,7 +163,7 @@ class NormalActions {
     TextOp op = f.redoList.removeLast();
     f.text = f.text.replaceRange(op.start, op.endPrev, op.newText);
     f.undoList.add(op);
-    f.createLines();
+    f.createLines(Config.wrapMode, e.term.width, e.term.height);
     f.cursor = op.cursor;
   }
 

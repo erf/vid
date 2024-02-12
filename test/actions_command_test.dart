@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vid/actions_command.dart';
+import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/position.dart';
@@ -36,7 +37,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'hello world';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(l: 0, c: 0);
     e.input('/world\n');
     expect(f.cursor, equals(Position(l: 0, c: 6)));

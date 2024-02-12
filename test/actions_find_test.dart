@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vid/actions_find.dart';
+import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_lines.dart';
@@ -9,7 +10,7 @@ void main() {
   test('motionFindNextChar', () {
     final f = FileBuffer();
     f.text = 'abca\ndef\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     final cursor = Position(c: 0, l: 0);
     expect(Find.findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
     expect(Find.findNextChar(f, cursor, 'b', false), Position(c: 1, l: 0));
@@ -23,7 +24,7 @@ void main() {
   test('motionFindPrevChar', () {
     final f = FileBuffer();
     f.text = 'abc\ndef\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     final cursor = Position(c: 2, l: 0);
     expect(Find.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));
     expect(Find.findPrevChar(f, cursor, 'b', false), Position(c: 1, l: 0));
@@ -34,7 +35,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
     f.editEvent.findStr = 't';
     e.input('dt');
@@ -45,7 +46,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
     f.editEvent.findStr = 't';
     e.input('df');

@@ -45,7 +45,7 @@ class Editor {
 
   void init(List<String> args) {
     file.load(this, args);
-    file.createLines();
+    file.createLines(Config.wrapMode, term.width, term.height);
     term.rawMode = true;
     term.write(Esc.pushWindowTitle);
     term.write(Esc.setWindowTitle(file.path ?? '[No Name]'));
@@ -70,7 +70,7 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     int byteIndex = file.byteIndexFromPosition(file.cursor);
-    file.createLines();
+    file.createLines(Config.wrapMode, term.width, term.height);
     file.cursor = file.positionFromByteIndex(byteIndex);
     showMessage('${term.width}x${term.height}');
     draw();

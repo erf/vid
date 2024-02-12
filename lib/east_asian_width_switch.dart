@@ -574,9 +574,9 @@ bool eastAsianWidthSwitch(int codePoint) {
       return true;
     case >= 205744 && <= 262141:
       return true;
-    default: return false;
+    default:
+      return false;
   }
 }
 
 // length: 286
-

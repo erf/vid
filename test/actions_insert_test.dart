@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/modes.dart';
@@ -9,7 +10,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 1, l: 0);
     e.input('id\x1b');
     expect(f.text, 'adbc\n');
@@ -20,7 +21,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
     e.input('i\x1b');
     expect(f.mode, Mode.normal);
@@ -30,7 +31,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abcdef\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 3, l: 0);
     e.input('i\n');
     expect(f.text, 'abc\ndef\n');
@@ -41,7 +42,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 1);
     e.insert('\x7f');
     expect(f.text, 'abcdef\nghi\n');
@@ -52,7 +53,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = '  abc\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 5, l: 0);
     e.input('I');
     expect(f.cursor, Position(c: 2, l: 0));
@@ -61,7 +62,7 @@ void main() {
   test('insert multiple chars as one insert action', () {
     final e = Editor(redraw: false);
     final f = e.file;
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     e.input('iabc\x1b');
     expect(f.text, 'abc\n');
     expect(f.prevEditEvent!.input, 'abc');
@@ -72,7 +73,7 @@ void main() {
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = '';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.mode = Mode.insert;
     // insert longer text with multiple lines
     const longTextWithMultipleLines = """
@@ -97,7 +98,7 @@ Nature's serenade, timeless and free.
     final e = Editor(redraw: false);
     final f = e.file;
     f.text = 'abcd\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 2, l: 0);
     e.input('iHI');
     expect(f.text, 'abHIcd\n');
@@ -109,7 +110,7 @@ Nature's serenade, timeless and free.
     final f = e.file;
     f.mode = Mode.insert;
     f.text = 'abcd\n';
-    f.createLines();
+    f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 2, l: 0);
     e.input('HI');
     expect(f.text, 'abHIcd\n');

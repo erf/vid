@@ -305,4 +305,3 @@ const eastAsianWidthRangeList = RangeList([
 ]);
 
 // length: 286
-

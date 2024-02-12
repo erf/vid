@@ -1,13 +1,12 @@
-import 'package:characters/characters.dart';
-import 'package:vid/config.dart';
-import 'package:vid/string_ext.dart';
-
 import 'dart:math' as math;
 
-import 'keys.dart';
+import 'package:characters/characters.dart';
+
+import 'config.dart';
 import 'file_buffer.dart';
+import 'keys.dart';
 import 'line.dart';
-import 'terminal.dart';
+import 'string_ext.dart';
 
 extension FileBufferLines on FileBuffer {
   // check if file is empty, only one line with empty string
@@ -21,14 +20,12 @@ extension FileBufferLines on FileBuffer {
   }
 
   // split text into lines
-  void createLines() {
+  void createLines(WrapMode wrapMode, int width, int height) {
     // ensure that the text ends with a newline
     ensureNewlineAtEnd();
 
     // split text into lines (remove last empty line)
     final textLines = text.split(Keys.newline)..removeLast();
-
-    int width = Terminal.instance.width;
 
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
@@ -36,7 +33,7 @@ extension FileBufferLines on FileBuffer {
     int start = 0;
     for (int i = 0; i < textLines.length; i++) {
       final String line = textLines[i];
-      switch (Config.wrapMode) {
+      switch (wrapMode) {
         case WrapMode.none:
           lines.add(Line('$line ', no: i, start: start));
           break;
@@ -55,8 +52,10 @@ extension FileBufferLines on FileBuffer {
     if (line.isEmpty) {
       return [Line(' ', no: lineNo, start: start)];
     }
-    // limit width to avoid rendering issues
-    width = math.max(width, 16);
+
+    // limit very small width to avoid rendering issues
+    width = math.max(width, 8);
+
     // split long line into lines
     List<Line> lines = [];
 

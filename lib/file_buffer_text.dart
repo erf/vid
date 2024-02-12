@@ -1,3 +1,5 @@
+import 'package:vid/terminal.dart';
+
 import 'characters_index.dart';
 import 'config.dart';
 import 'file_buffer.dart';
@@ -63,7 +65,8 @@ extension FileBufferText on FileBuffer {
     text = text.replaceRange(start, end, newText);
 
     // we need to recreate the lines, because the text has changed
-    createLines();
+    Terminal term = Terminal.instance;
+    createLines(Config.wrapMode, term.width, term.height);
   }
 
   // add an undo operation
