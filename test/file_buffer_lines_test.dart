@@ -40,4 +40,31 @@ void main() {
     expect(f.lines[1].ch.string, 'def😀 ');
     expect(f.lines[2].ch.string, 'ghi jkl ');
   });
+
+  test('createLines word wrapped use last breakat point', () {
+    final f = FileBuffer();
+    f.text = 'The old bookstore exuded';
+    f.createLines(WrapMode.word, 20, 20);
+    expect(f.lines.length, 2);
+    expect(f.lines[0].str, 'The old bookstore ');
+    expect(f.lines[0].start, 0);
+    expect(f.lines[0].end, 18);
+    expect(f.lines[1].str, 'exuded ');
+    expect(f.lines[1].start, 18);
+    expect(f.lines[1].end, 25);
+  });
+
+  test('createLines word wrapped over multiple lines', () {
+    final f = FileBuffer();
+    f.text = """
+The old bookstore exuded
+
+a smell of paper and ink
+
+and dust.
+""";
+    f.createLines(WrapMode.word, 20, 20);
+
+    expect(f.lines.length, 7);
+  });
 }
