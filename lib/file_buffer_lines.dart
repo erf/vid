@@ -12,17 +12,12 @@ extension FileBufferLines on FileBuffer {
   // check if file is empty, only one line with empty string
   bool get empty => lines.length == 1 && lines.first.isEmpty;
 
-  // ensure that the text ends with a newline
-  void ensureNewlineAtEnd() {
-    if (!text.endsWith(Keys.newline)) {
-      text += Keys.newline;
-    }
-  }
-
   // split text into lines
   void createLines(WrapMode wrapMode, int width, int height) {
     // ensure that the text ends with a newline
-    ensureNewlineAtEnd();
+    if (!text.endsWith(Keys.newline)) {
+      text += Keys.newline;
+    }
 
     // split text into lines (remove last empty line)
     final textLines = text.split(Keys.newline)..removeLast();
