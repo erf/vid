@@ -31,7 +31,7 @@ See [config.dart](lib/config.dart)
 
 ## Contributing 🙋‍♂️
 
-I enjoy building [vid](https://github.com/erf/vid] myself but I'm open to pull requests that align with its minimal philosophy.
+I enjoy building [vid](https://github.com/erf/vid) myself but I'm open to pull requests that align with its minimal philosophy.
 
 I don't accept issues solely for suggestions.
 
