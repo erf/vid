@@ -4,7 +4,7 @@ import 'east_asian_width_range_list.dart';
 class Unicode {
 // Try to determine the rendered width of a single character
 // That is how many columuns it will take up in a monospaced font
-  static int renderWidth(String str, [int tabWidth = Config.tabWidth]) {
+  static int renderWidth(String str) {
     // if the string is empty, return 0
     if (str.isEmpty) {
       return 0;
@@ -12,7 +12,7 @@ class Unicode {
 
     // if the string is a single tab return the tab width
     if (str == '\t') {
-      return tabWidth;
+      return Config.tabWidth;
     }
 
     // ASCII control characters
