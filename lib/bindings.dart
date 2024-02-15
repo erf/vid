@@ -84,6 +84,8 @@ const commandActions = <String, CommandAction>{
   'w': CommandAction(CommandActions.write),
   'wq': CommandAction(CommandActions.writeAndQuit),
   'x': CommandAction(CommandActions.writeAndQuit),
+  'wrap': CommandAction(CommandActions.enableWordWrap),
+  'nowrap': CommandAction(CommandActions.disableWordWrap),
 };
 
 const normalBindings = <String, Action>{
