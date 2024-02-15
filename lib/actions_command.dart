@@ -1,4 +1,5 @@
 import 'package:vid/config.dart';
+import 'package:vid/file_buffer_lines.dart';
 
 import 'actions_normal.dart';
 import 'editor.dart';
@@ -77,10 +78,12 @@ class CommandActions {
   static void enableWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     Config.wrapMode = WrapMode.word;
+    f.createLines(Config.wrapMode, e.term.width, e.term.height);
   }
 
   static void disableWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     Config.wrapMode = WrapMode.none;
+    f.createLines(Config.wrapMode, e.term.width, e.term.height);
   }
 }
