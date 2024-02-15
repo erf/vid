@@ -57,10 +57,8 @@ class CommandActions {
     List<String> parts = args.first.split('/');
     String pattern = parts[1];
     String replacement = parts.length >= 3 ? parts[2] : '';
-    bool global = false;
-    if (parts.length >= 4 && parts[3] == 'g') {
-      global = true;
-    }
+    bool global = parts.length >= 4 && parts[3] == 'g';
+
     f.setMode(Mode.normal);
     final regex = RegExp(RegExp.escape(pattern));
     while (true) {
