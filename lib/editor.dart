@@ -32,9 +32,9 @@ import 'regex.dart';
 import 'terminal.dart';
 
 class Editor {
-  final term = Terminal.instance;
-  final file = FileBuffer();
-  final rbuf = StringBuffer();
+  Terminal term = Terminal.instance;
+  FileBuffer file = FileBuffer();
+  StringBuffer rbuf = StringBuffer();
   String message = '';
   Timer? messageTimer;
   String? logPath;
