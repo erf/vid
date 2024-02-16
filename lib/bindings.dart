@@ -69,6 +69,8 @@ const motionActions = <String, MotionAction>{
   'F': FindMotionAction(Find.findPrevChar),
   't': FindMotionAction(Find.tillNextChar),
   'T': FindMotionAction(Find.tillPrevChar),
+  '{': NormalMotionAction(Motions.paragraphPrev, linewise: true),
+  '}': NormalMotionAction(Motions.paragraphNext, linewise: true),
 };
 
 const insertActions = <String, InsertAction>{

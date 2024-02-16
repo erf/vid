@@ -181,4 +181,28 @@ class Motions {
         ? f.positionFromByteIndex(match.start)
         : f.positionFromByteIndex(index);
   }
+
+  static Position paragraphPrev(FileBuffer f, Position p, [bool incl = false]) {
+    int line = p.l;
+    while (line > 0) {
+      line--;
+      if (f.lines[line].str == ' ') {
+        return Position(l: line, c: 0);
+      }
+    }
+    return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
+  }
+
+  // "A paragraph begins after each empty line"
+  // "A paragraph also ends at the end of the file."
+  static Position paragraphNext(FileBuffer f, Position p, [bool incl = false]) {
+    int line = p.l;
+    while (line < f.lines.length - 1) {
+      line++;
+      if (f.lines[line].str == ' ') {
+        return Position(l: line, c: 0);
+      }
+    }
+    return Motions.lineEnd(f, Position(l: line, c: 0), incl);
+  }
 }
