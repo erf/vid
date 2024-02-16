@@ -5,8 +5,9 @@ class Regex {
   static final scrollEvents = RegExp('\x1b([O[])[A-D]');
   static final nonSpace = RegExp(r'\S');
   static final substitute = RegExp(r's/.+[/]?.*');
+  static final paragraph = RegExp(r'(?<=\n)\w|^\w');
   static final sentence = RegExp(r'(?<=[.!?][ \t\n])\w|\n|^\w|(?<=\n\n).');
-  static final isEmoji = RegExp(
+  static final emoji = RegExp(
       r'[\p{Extended_Pictographic}\p{Emoji_Presentation}]',
       unicode: true);
 }

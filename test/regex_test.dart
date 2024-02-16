@@ -5,10 +5,10 @@ import 'package:vid/regex.dart';
 void main() {
   group('Regex', () {
     test('isEmoji', () {
-      expect(Regex.isEmoji.hasMatch('😀'), true);
-      expect(Regex.isEmoji.hasMatch('a'), false);
-      expect(Regex.isEmoji.hasMatch('Æ'), false);
-      expect(Regex.isEmoji.hasMatch('👨‍👨‍👧‍👧'), true);
+      expect(Regex.emoji.hasMatch('😀'), true);
+      expect(Regex.emoji.hasMatch('a'), false);
+      expect(Regex.emoji.hasMatch('Æ'), false);
+      expect(Regex.emoji.hasMatch('👨‍👨‍👧‍👧'), true);
     });
   });
 }

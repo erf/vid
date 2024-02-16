@@ -182,38 +182,23 @@ class Motions {
         : f.positionFromByteIndex(index);
   }
 
-  static Position paragraphPrev(FileBuffer f, Position p, [bool incl = false]) {
-    int line = p.l;
-    while (line > 0) {
-      line--;
-      if (f.lines[line].str == ' ') {
-        return Position(l: line, c: 0);
-      }
-    }
-    return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
-  }
-
   // "A paragraph begins after each empty line" - vim
   // "A paragraph also ends at the end of the file." - copilot
   static Position paragraphNext(FileBuffer f, Position p, [bool incl = false]) {
-    int line = p.l;
-    while (line < f.lines.length - 1) {
-      line++;
-      if (f.lines[line].str == ' ') {
-        return Position(l: line, c: 0);
-      }
-    }
-    return Motions.lineEnd(f, Position(l: line, c: 0), incl);
+    return regexNext(f, p, Regex.paragraph);
   }
 
-  static Position sentencePrev(FileBuffer f, Position p, [bool incl = false]) {
-    return regexPrev(f, p, Regex.sentence);
+  static Position paragraphPrev(FileBuffer f, Position p, [bool incl = false]) {
+    return regexPrev(f, p, Regex.paragraph);
   }
 
   // "defined as ending at a '.', '!' or '?' followed by either the
   // end of a line, or by a space or tab" - vim
   static Position sentenceNext(FileBuffer f, Position p, [bool incl = false]) {
-    Position start = Position(l: p.l, c: p.c);
-    return regexNext(f, start, Regex.sentence);
+    return regexNext(f, p, Regex.sentence);
+  }
+
+  static Position sentencePrev(FileBuffer f, Position p, [bool incl = false]) {
+    return regexPrev(f, p, Regex.sentence);
   }
 }

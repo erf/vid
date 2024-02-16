@@ -48,7 +48,7 @@ void benchmarkIsEmojiRegex(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num = 0;
   for (final unicodeChar in unicodeChars) {
-    if (Regex.isEmoji.hasMatch(unicodeChar)) {
+    if (Regex.emoji.hasMatch(unicodeChar)) {
       num++;
     }
   }
