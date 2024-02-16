@@ -189,7 +189,7 @@ class Motions {
   }
 
   static Position paragraphPrev(FileBuffer f, Position p, [bool incl = false]) {
-    return regexPrev(f, p, Regex.paragraph);
+    return regexPrev(f, p, Regex.paragraphPrev);
   }
 
   // "defined as ending at a '.', '!' or '?' followed by either the
