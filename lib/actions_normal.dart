@@ -227,4 +227,10 @@ class NormalActions {
   static void search(Editor e, FileBuffer f) {
     f.setMode(Mode.search);
   }
+
+  static void toggleWrap(Editor e, FileBuffer f) {
+    Config.wrapMode =
+        Config.wrapMode == WrapMode.none ? WrapMode.word : WrapMode.none;
+    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+  }
 }

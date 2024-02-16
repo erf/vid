@@ -7,4 +7,5 @@ class Keys {
   static const String ctrlU = '\u0015';
   static const String ctrlX = '\u0018';
   static const String ctrlA = '\u0001';
+  static const String ctrlW = '\u0017';
 }

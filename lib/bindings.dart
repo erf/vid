@@ -36,6 +36,7 @@ const normalActions = <String, NormalAction>{
   Keys.ctrlX: NormalAction(NormalActions.decrease),
   ':': NormalAction(NormalActions.command),
   '/': NormalAction(NormalActions.search),
+  Keys.ctrlW: NormalAction(NormalActions.toggleWrap),
 };
 
 const operatorActions = <String, OperatorAction>{
