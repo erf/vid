@@ -31,13 +31,13 @@ extension FileBufferLines on FileBuffer {
         case WrapMode.none:
           lines.add(Line('$line ', no: i, start: start));
         case WrapMode.word:
-          lines.addAll(_wordWrapLine(line, lines.length, start, width));
+          lines.addAll(wordWrapLine(line, lines.length, start, width));
       }
       start += line.length + 1;
     }
   }
 
-  Iterable<Line> _wordWrapLine(String line, int lineNo, int start, int width) {
+  Iterable<Line> wordWrapLine(String line, int lineNo, int start, int width) {
     // if line is empty, return a line with a single space
     if (line.isEmpty) {
       return [Line(' ', no: lineNo, start: start)];

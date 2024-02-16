@@ -152,11 +152,11 @@ class Editor {
     rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
 
     Position cursor = file.cursor;
-    bool modified = file.modified;
-    String modeStr = statusModeLabel(file.mode);
+    String modestr = statusModeLabel(file.mode);
     String path = file.path ?? '[No Name]';
+    String modified = file.modified ? '*' : '';
     String wrap = Config.wrapMode == WrapMode.word ? '↵' : '';
-    String left = ' $modeStr $path ${modified ? '* ' : ''}$wrap $message ';
+    String left = ' $modestr $path $modified $wrap $message ';
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     int padLeft = term.width - left.length - 1;
     String status = '$left ${right.padLeft(padLeft)}';
