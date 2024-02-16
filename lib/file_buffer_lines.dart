@@ -30,7 +30,6 @@ extension FileBufferLines on FileBuffer {
       switch (wrapMode) {
         case WrapMode.none:
           lines.add(Line('$line ', no: i, start: start));
-          break;
         case WrapMode.word:
           // if line is empty, return a line with a single space
           if (line.isEmpty) {
@@ -38,7 +37,6 @@ extension FileBufferLines on FileBuffer {
           } else {
             lines.addAll(_wordWrapLine(line, lines.length, start, width));
           }
-          break;
       }
       start += line.length + 1;
     }
