@@ -24,7 +24,6 @@ extension FileBufferLines on FileBuffer {
 
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
-    int lineNo = 0;
     int start = 0;
     for (int i = 0; i < textLines.length; i++) {
       final String line = textLines[i];
@@ -33,9 +32,7 @@ extension FileBufferLines on FileBuffer {
           lines.add(Line('$line ', no: i, start: start));
           break;
         case WrapMode.word:
-          final newLines = _wordWrapLine(line, lineNo, start, width);
-          lines.addAll(newLines);
-          lineNo += newLines.length;
+          lines.addAll(_wordWrapLine(line, lines.length, start, width));
           break;
       }
       start += line.length + 1;
