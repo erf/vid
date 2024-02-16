@@ -6,4 +6,7 @@ class Regex {
   static final nonSpace = RegExp(r'\S');
   static final substitute = RegExp(r's/.+[/]?.*');
   static final sentence = RegExp(r'(?<=[.!?][ \t\n])\w|\n|^\w|(?<=\n\n).');
+  static final isEmoji = RegExp(
+      r'[\p{Extended_Pictographic}\p{Emoji_Presentation}]',
+      unicode: true);
 }
