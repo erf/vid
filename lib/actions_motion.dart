@@ -193,8 +193,8 @@ class Motions {
     return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
   }
 
-  // "A paragraph begins after each empty line"
-  // "A paragraph also ends at the end of the file."
+  // "A paragraph begins after each empty line" - vim
+  // "A paragraph also ends at the end of the file." - copilot
   static Position paragraphNext(FileBuffer f, Position p, [bool incl = false]) {
     int line = p.l;
     while (line < f.lines.length - 1) {
@@ -204,5 +204,16 @@ class Motions {
       }
     }
     return Motions.lineEnd(f, Position(l: line, c: 0), incl);
+  }
+
+  static Position sentencePrev(FileBuffer f, Position p, [bool incl = false]) {
+    return regexPrev(f, p, Regex.sentence);
+  }
+
+  // "defined as ending at a '.', '!' or '?' followed by either the
+  // end of a line, or by a space or tab" - vim
+  static Position sentenceNext(FileBuffer f, Position p, [bool incl = false]) {
+    Position start = Position(l: p.l, c: p.c);
+    return regexNext(f, start, Regex.sentence);
   }
 }

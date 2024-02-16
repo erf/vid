@@ -5,4 +5,5 @@ class Regex {
   static final scrollEvents = RegExp('\x1b([O[])[A-D]');
   static final nonSpace = RegExp(r'\S');
   static final substitute = RegExp(r's/.+[/]?.*');
+  static final sentence = RegExp(r'(?<=[.!?][ \t\n])\w|\n|^');
 }
