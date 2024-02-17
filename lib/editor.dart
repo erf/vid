@@ -373,16 +373,16 @@ class Editor {
   }
 
   void normal(String char, [bool resetAction = true]) {
-    EditEvent editEvent = file.editEvent;
+    EditEvent edit = file.editEvent;
     // if char is a number, accumulate countInput
-    if (count(char, editEvent)) {
+    if (count(char, edit)) {
       return;
     }
     // append char to input
-    editEvent.input += char;
+    edit.input += char;
 
     // check if we match or partial match a key
-    switch (matchKeys(editEvent.input, normalBindings)) {
+    switch (matchKeys(edit.input, normalBindings)) {
       case InputMatch.none:
         file.editEvent = EditEvent();
         return;
@@ -392,39 +392,35 @@ class Editor {
     }
 
     // if we match a key, execute action
-    Action action = normalBindings[editEvent.input]!;
+    Action action = normalBindings[edit.input]!;
     switch (action) {
       case NormalAction(fn: var fun):
         fun(this, file);
         if (resetAction) doResetAction();
       case MotionAction():
-        editEvent.motion = action;
-        doAction(editEvent);
+        edit.motion = action;
+        doAction(edit);
       case OperatorAction():
-        editEvent.operator = action;
+        edit.operator = action;
         file.setMode(Mode.operator);
       case _:
     }
   }
 
   void operator(String char, [bool resetAction = true]) {
-    // check if we match a key
-    final action = file.editEvent;
-    action.opInput += char;
+    EditEvent edit = file.editEvent;
+    edit.opInput += char;
 
-    switch (matchKeys(action.opInput, operatorBindings)) {
+    switch (matchKeys(edit.opInput, operatorBindings)) {
       case InputMatch.none:
         file.setMode(Mode.normal);
         file.editEvent = EditEvent();
-        return;
       case InputMatch.partial:
-        return;
+        break;
       case InputMatch.match:
+        edit.motion = motionActions[edit.opInput];
+        doAction(edit, resetAction);
     }
-
-    // if motion, execute operator on motion
-    action.motion = motionActions[action.opInput];
-    doAction(action, resetAction);
   }
 
   // execute motion and return end position
