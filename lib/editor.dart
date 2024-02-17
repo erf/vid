@@ -359,19 +359,7 @@ class Editor {
     return false;
   }
 
-  bool handleMatchedKeys(InputMatch inputMatch) {
-    switch (inputMatch) {
-      case InputMatch.none:
-        file.setMode(Mode.normal);
-        file.editEvent = EditEvent();
-        return false;
-      case InputMatch.partial:
-        return false;
-      case InputMatch.match:
-        return true;
-    }
-  }
-
+  // check if input is a key or part of a key
   InputMatch matchKeys(String input, Map<String, Object> bindings) {
     // we have a match if input is a key
     if (bindings.containsKey(input)) {
@@ -394,15 +382,20 @@ class Editor {
     editEvent.input += char;
 
     // check if we match or partial match a key
-    if (!handleMatchedKeys(matchKeys(editEvent.input, normalBindings))) {
-      return;
+    switch (matchKeys(editEvent.input, normalBindings)) {
+      case InputMatch.none:
+        file.editEvent = EditEvent();
+        return;
+      case InputMatch.partial:
+        return;
+      case InputMatch.match:
     }
 
     // if we match a key, execute action
     Action action = normalBindings[editEvent.input]!;
     switch (action) {
-      case NormalAction():
-        action.fn(this, file);
+      case NormalAction(fn: var fun):
+        fun(this, file);
         if (resetAction) doResetAction();
       case MotionAction():
         editEvent.motion = action;
@@ -418,24 +411,31 @@ class Editor {
     // check if we match a key
     final action = file.editEvent;
     action.opInput += char;
-    if (!handleMatchedKeys(matchKeys(action.opInput, operatorBindings))) {
-      return;
+
+    switch (matchKeys(action.opInput, operatorBindings)) {
+      case InputMatch.none:
+        file.setMode(Mode.normal);
+        file.editEvent = EditEvent();
+        return;
+      case InputMatch.partial:
+        return;
+      case InputMatch.match:
     }
+
     // if motion, execute operator on motion
     action.motion = motionActions[action.opInput];
     doAction(action, resetAction);
   }
 
   // execute motion and return end position
-  Position motionEnd(
-      EditEvent action, MotionAction motion, Position pos, bool incl) {
+  Position motionEnd(EditEvent ev, MotionAction motion, Position p, bool incl) {
     switch (motion) {
       case NormalMotionAction():
-        return motion.fn(file, pos, incl);
+        return motion.fn(file, p, incl);
       case FindMotionAction():
-        final nextChar = action.findStr ?? readNextChar();
-        action.findStr = nextChar;
-        return motion.fn(file, pos, nextChar, incl);
+        final nextChar = ev.findStr ?? readNextChar();
+        ev.findStr = nextChar;
+        return motion.fn(file, p, nextChar, incl);
     }
   }
 
