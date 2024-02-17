@@ -1,7 +1,7 @@
+import 'action_typedefs.dart';
 import 'edit_event.dart';
 import 'line.dart';
 import 'modes.dart';
-import 'actions.dart';
 import 'position.dart';
 import 'text_op.dart';
 
@@ -32,7 +32,7 @@ class FileBuffer {
   EditEvent? prevEditEvent;
 
   // the previous find action
-  MotionAction<Function>? prevMotion;
+  MotionAction? prevMotion;
 
   // the previous find character
   String? prevFindStr;

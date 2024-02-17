@@ -6,7 +6,7 @@ import 'package:characters/characters.dart';
 import 'package:vid/file_buffer_text.dart';
 import 'package:vid/vid_exception.dart';
 
-import 'actions.dart';
+import 'action_typedefs.dart';
 import 'actions_command.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
@@ -306,7 +306,7 @@ class Editor {
     String cmd = args.isNotEmpty ? args.first : command;
     // command actions
     if (commandActions.containsKey(cmd)) {
-      commandActions[cmd]!.fn(this, file, args);
+      commandActions[cmd]!(this, file, args);
       return;
     }
     // substitute command
@@ -321,7 +321,7 @@ class Editor {
 
   void doSearch(String pattern) {
     file.setMode(Mode.normal);
-    file.editEvent.motion = FindMotionAction(Find.searchNext);
+    file.editEvent.motion = MotionAction(Find.searchNext);
     file.editEvent.findStr = pattern;
     doAction(file.editEvent);
   }
@@ -329,7 +329,7 @@ class Editor {
   // insert char at cursor
   void insert(String char) {
     if (insertActions.containsKey(char)) {
-      insertActions[char]!.fn(file);
+      insertActions[char]!(file);
       return;
     }
     InsertActions.defaultInsert(file, char);
@@ -392,15 +392,15 @@ class Editor {
     }
 
     // if we match a key, execute action
-    Action action = normalBindings[edit.input]!;
+    Object action = normalBindings[edit.input]!;
     switch (action) {
-      case NormalAction(fn: var fun):
-        fun(this, file);
+      case NormalFn():
+        action(this, file);
         if (resetAction) doResetAction();
       case MotionAction():
         edit.motion = action;
         doAction(edit);
-      case OperatorAction():
+      case OperatorFn():
         edit.operator = action;
         file.setMode(Mode.operator);
       case _:
@@ -426,19 +426,21 @@ class Editor {
   // execute motion and return end position
   Position motionEnd(EditEvent ev, MotionAction motion, Position p, bool incl) {
     switch (motion) {
-      case NormalMotionAction():
-        return motion.fn(file, p, incl);
-      case FindMotionAction():
+      case MotionAction(fn: MotionFn move):
+        return move(file, p, incl);
+      case MotionAction(fn: FindFn find):
         final nextChar = ev.findStr ?? readNextChar();
         ev.findStr = nextChar;
-        return motion.fn(file, p, nextChar, incl);
+        return find(file, p, nextChar, incl);
+      default:
+        return p;
     }
   }
 
   // execute action on range
   void doAction(EditEvent action, [bool resetAction = true]) {
     // if input is same as opInput, execute linewise
-    final operator = action.operator;
+    OperatorFn? operator = action.operator;
     if (operator != null && action.input == action.opInput) {
       action.linewise = true;
       Position end = file.cursor;
@@ -446,13 +448,13 @@ class Editor {
         end = Motions.lineEnd(file, end, true);
       }
       Position start = Motions.lineStart(file, file.cursor);
-      operator.fn(file, Range(start, end));
+      operator(file, Range(start, end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
       if (resetAction) doResetAction();
       return;
     }
     // if motion action, execute it and set cursor
-    final motion = action.motion;
+    MotionAction? motion = action.motion;
     if (motion != null) {
       action.linewise = motion.linewise;
       Position start = file.cursor;
@@ -470,7 +472,7 @@ class Editor {
           start = Motions.lineStart(file, range.start, true);
           end = Motions.lineEnd(file, range.end, true);
         }
-        operator.fn(file, Range(start, end).norm);
+        operator(file, Range(start, end).norm);
       } else {
         file.cursor = end;
       }

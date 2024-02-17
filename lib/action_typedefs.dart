@@ -14,3 +14,10 @@ typedef MotionFn = Position Function(FileBuffer, Position, bool incl);
 typedef FindFn = Position Function(FileBuffer, Position, String, bool incl);
 
 typedef CommandFn = void Function(Editor, FileBuffer, List<String> args);
+
+class MotionAction {
+  final Function fn;
+  final bool linewise;
+  final bool? inclusive;
+  const MotionAction(this.fn, {this.linewise = false, this.inclusive});
+}

@@ -1,8 +1,9 @@
-import 'actions.dart';
+
+import 'action_typedefs.dart';
 
 class EditEvent {
   // the pending action to be executed
-  OperatorAction? operator;
+  OperatorFn? operator;
 
   // the pending motion
   MotionAction? motion;
