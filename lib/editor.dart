@@ -22,7 +22,6 @@ import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_view.dart';
-import 'input_match.dart';
 import 'keys.dart';
 import 'line.dart';
 import 'modes.dart';
@@ -30,6 +29,12 @@ import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'terminal.dart';
+
+enum InputMatch {
+  none,
+  partial,
+  match,
+}
 
 class Editor {
   Terminal term = Terminal.instance;
@@ -365,6 +370,18 @@ class Editor {
       case InputMatch.match:
         return true;
     }
+  }
+
+  InputMatch matchKeys(String input, Map<String, Object> bindings) {
+    // we have a match if input is a key
+    if (bindings.containsKey(input)) {
+      return InputMatch.match;
+    }
+    // check if input is part of a key
+    String partialKey = bindings.keys
+        .firstWhere((key) => key.startsWith(input), orElse: () => '');
+    // if partialKey is not empty, we have a partial match
+    return partialKey.isEmpty ? InputMatch.none : InputMatch.partial;
   }
 
   void normal(String char, [bool resetAction = true]) {
