@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:vid/config.dart';
+import 'config.dart';
 
 import 'actions_motion.dart';
 import 'editor.dart';

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:vid/vid_exception.dart';
+import 'vid_exception.dart';
 
 import 'editor.dart';
 import 'esc.dart';

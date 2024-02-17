@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'actions_motion.dart';
-import 'keys.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
+import 'keys.dart';
 import 'modes.dart';
 import 'position.dart';
 

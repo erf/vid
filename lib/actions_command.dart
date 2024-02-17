@@ -1,5 +1,5 @@
-import 'package:vid/config.dart';
-import 'package:vid/file_buffer_lines.dart';
+import 'config.dart';
+import 'file_buffer_lines.dart';
 
 import 'actions_normal.dart';
 import 'editor.dart';

@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/file_buffer_text.dart';
-import 'package:vid/vid_exception.dart';
 
 import 'action_typedefs.dart';
 import 'actions_command.dart';
@@ -21,6 +19,7 @@ import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
+import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'keys.dart';
 import 'line.dart';
@@ -29,6 +28,7 @@ import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'terminal.dart';
+import 'vid_exception.dart';
 
 enum InputMatch {
   none,

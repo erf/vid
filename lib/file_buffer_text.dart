@@ -1,4 +1,4 @@
-import 'package:vid/terminal.dart';
+import 'terminal.dart';
 
 import 'characters_index.dart';
 import 'config.dart';
