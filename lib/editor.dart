@@ -439,38 +439,36 @@ class Editor {
         String nextChar = edit.findStr ?? readNextChar();
         edit.findStr = nextChar;
         return find(file, pos, nextChar, incl);
-      default:
+      case _:
         return pos;
     }
   }
 
-  // execute action on range
+  // execute operator on motion range count times
   void doAction(Edit edit, [bool resetEdit = true]) {
+    MotionAction motion = edit.motion!; // motion should not be null
     OperatorFn? operator = edit.operator;
-    MotionAction? motion = edit.motion;
-    if (motion != null) {
-      edit.linewise = motion.linewise;
-      Position start = file.cursor;
-      Position end = file.cursor;
-      for (int i = 0; i < (edit.count ?? 1); i++) {
-        if (motion.inclusive != null) {
-          end = motionEnd(edit, motion, end, motion.inclusive!);
-        } else {
-          end = motionEnd(edit, motion, end, operator != null);
-        }
-      }
-      if (operator == null) {
-        file.cursor = end;
+    edit.linewise = motion.linewise;
+    Position start = file.cursor;
+    Position end = file.cursor;
+    for (int i = 0; i < (edit.count ?? 1); i++) {
+      if (motion.inclusive != null) {
+        end = motionEnd(edit, motion, end, motion.inclusive!);
       } else {
-        if (motion.linewise) {
-          final range = Range(start, end).norm;
-          start = Motions.lineStart(file, range.start, true);
-          end = Motions.lineEnd(file, range.end, true);
-        }
-        operator(file, Range(start, end).norm);
+        end = motionEnd(edit, motion, end, operator != null);
       }
-      if (resetEdit) doResetEdit();
     }
+    if (operator == null) {
+      file.cursor = end;
+    } else {
+      if (motion.linewise) {
+        final range = Range(start, end).norm;
+        start = Motions.lineStart(file, range.start, true);
+        end = Motions.lineEnd(file, range.end, true);
+      }
+      operator(file, Range(start, end).norm);
+    }
+    if (resetEdit) doResetEdit();
   }
 
   // set prevAction and reset action
