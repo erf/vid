@@ -12,8 +12,8 @@ void main() {
     f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
     e.input('Æ');
-    expect(f.editEvent.input, '');
-    expect(f.editEvent.opInput, '');
+    expect(f.edit.input, '');
+    expect(f.edit.opInput, '');
     expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'abc\n');
   });
@@ -25,8 +25,8 @@ void main() {
     f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
     e.input('dÆ');
-    expect(f.editEvent.input, '');
-    expect(f.editEvent.opInput, '');
+    expect(f.edit.input, '');
+    expect(f.edit.opInput, '');
     expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'abc\n');
   });
@@ -39,10 +39,10 @@ void main() {
     f.cursor = Position(c: 0, l: 0);
     e.input('dw');
     expect(f.text, '\n');
-    expect(f.editEvent.input, '');
-    expect(f.editEvent.opInput, '');
-    expect(f.prevEditEvent!.input, 'd');
-    expect(f.prevEditEvent!.opInput, 'w');
+    expect(f.edit.input, '');
+    expect(f.edit.opInput, '');
+    expect(f.prevEdit!.input, 'd');
+    expect(f.prevEdit!.opInput, 'w');
   });
 
   test('make sure prev motion is correct in normal mode', () {
@@ -52,8 +52,8 @@ void main() {
     f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
     e.input('w');
-    expect(f.editEvent.input, '');
-    expect(f.editEvent.opInput, '');
-    expect(f.prevEditEvent, null);
+    expect(f.edit.input, '');
+    expect(f.edit.opInput, '');
+    expect(f.prevEdit, null);
   });
 }

@@ -37,7 +37,7 @@ void main() {
     f.text = 'this is a test\n';
     f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
-    f.editEvent.findStr = 't';
+    f.edit.findStr = 't';
     e.input('dt');
     expect(f.text, 'test\n');
   });
@@ -48,7 +48,7 @@ void main() {
     f.text = 'this is a test\n';
     f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
-    f.editEvent.findStr = 't';
+    f.edit.findStr = 't';
     e.input('df');
     expect(f.text, 'est\n');
   });

@@ -13,7 +13,7 @@ import 'actions_replace.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
 import 'config.dart';
-import 'edit_event.dart';
+import 'edit.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
@@ -143,11 +143,11 @@ class Editor {
   // draw the command input line
   void drawCommand() {
     if (file.mode == Mode.search) {
-      rbuf.write('/${file.editEvent.input} ');
+      rbuf.write('/${file.edit.input} ');
     } else {
-      rbuf.write(':${file.editEvent.input} ');
+      rbuf.write(':${file.edit.input} ');
     }
-    int cursor = file.editEvent.input.length + 2;
+    int cursor = file.edit.input.length + 2;
     rbuf.write(Esc.cursorStyleLine);
     rbuf.write(Esc.cursorPosition(c: cursor, l: term.height));
   }
@@ -275,29 +275,26 @@ class Editor {
 
   // command mode
   void command(String char) {
-    final EditEvent action = file.editEvent;
+    Edit edit = file.edit;
     switch (char) {
-      // backspace
       case Keys.backspace:
-        if (action.input.isEmpty) {
+        if (edit.input.isEmpty) {
           file.setMode(Mode.normal);
         } else {
-          action.input = action.input.substring(0, action.input.length - 1);
+          edit.input = edit.input.substring(0, edit.input.length - 1);
         }
-      // cancel command mode
       case Keys.escape:
         file.setMode(Mode.normal);
-        action.input = '';
-      // execute command
+        edit.input = '';
       case Keys.newline:
         if (file.mode == Mode.search) {
-          doSearch(action.input);
+          doSearch(edit.input);
         } else {
-          doCommand(action.input);
+          doCommand(edit.input);
         }
-        action.input = '';
+        edit.input = '';
       default:
-        action.input += char;
+        edit.input += char;
     }
   }
 
@@ -321,9 +318,9 @@ class Editor {
 
   void doSearch(String pattern) {
     file.setMode(Mode.normal);
-    file.editEvent.motion = MotionAction(Find.searchNext);
-    file.editEvent.findStr = pattern;
-    doAction(file.editEvent);
+    file.edit.motion = MotionAction(Find.searchNext);
+    file.edit.findStr = pattern;
+    doAction(file.edit);
   }
 
   // insert char at cursor
@@ -346,7 +343,7 @@ class Editor {
 
   // accumulate countInput: if char is a number, add it to countInput
   // if char is not a number, parse countInput and set fileBuffer.count
-  bool count(String char, EditEvent action) {
+  bool count(String char, Edit action) {
     int? count = int.tryParse(char);
     if (count != null && (count > 0 || action.countStr.isNotEmpty)) {
       action.countStr += char;
@@ -372,8 +369,8 @@ class Editor {
     return partialKey.isEmpty ? InputMatch.none : InputMatch.partial;
   }
 
-  void normal(String char, [bool resetAction = true]) {
-    EditEvent edit = file.editEvent;
+  void normal(String char, [bool resetEdit = true]) {
+    Edit edit = file.edit;
     // if char is a number, accumulate countInput
     if (count(char, edit)) {
       return;
@@ -384,7 +381,7 @@ class Editor {
     // check if we match or partial match a key
     switch (matchKeys(edit.input, normalBindings)) {
       case InputMatch.none:
-        file.editEvent = EditEvent();
+        file.edit = Edit();
         return;
       case InputMatch.partial:
         return;
@@ -396,7 +393,7 @@ class Editor {
     switch (action) {
       case NormalFn():
         action(this, file);
-        if (resetAction) doResetAction();
+        if (resetEdit) doResetEdit();
       case MotionAction():
         edit.motion = action;
         doAction(edit);
@@ -407,24 +404,24 @@ class Editor {
     }
   }
 
-  void operator(String char, [bool resetAction = true]) {
-    EditEvent edit = file.editEvent;
+  void operator(String char, [bool resetEdit = true]) {
+    Edit edit = file.edit;
     edit.opInput += char;
 
     switch (matchKeys(edit.opInput, operatorBindings)) {
       case InputMatch.none:
         file.setMode(Mode.normal);
-        file.editEvent = EditEvent();
+        file.edit = Edit();
       case InputMatch.partial:
         break;
       case InputMatch.match:
         edit.motion = motionActions[edit.opInput];
-        doAction(edit, resetAction);
+        doAction(edit, resetEdit);
     }
   }
 
   // execute motion and return end position
-  Position motionEnd(EditEvent ev, MotionAction motion, Position p, bool incl) {
+  Position motionEnd(Edit ev, MotionAction motion, Position p, bool incl) {
     switch (motion) {
       case MotionAction(fn: MotionFn move):
         return move(file, p, incl);
@@ -438,32 +435,32 @@ class Editor {
   }
 
   // execute action on range
-  void doAction(EditEvent action, [bool resetAction = true]) {
+  void doAction(Edit edit, [bool resetEdit = true]) {
     // if input is same as opInput, execute linewise
-    OperatorFn? operator = action.operator;
-    if (operator != null && action.input == action.opInput) {
-      action.linewise = true;
+    OperatorFn? operator = edit.operator;
+    if (operator != null && edit.input == edit.opInput) {
+      edit.linewise = true;
       Position end = file.cursor;
-      for (int i = 0; i < (action.count ?? 1); i++) {
+      for (int i = 0; i < (edit.count ?? 1); i++) {
         end = Motions.lineEnd(file, end, true);
       }
       Position start = Motions.lineStart(file, file.cursor);
       operator(file, Range(start, end));
       file.cursor = Motions.firstNonBlank(file, file.cursor);
-      if (resetAction) doResetAction();
+      if (resetEdit) doResetEdit();
       return;
     }
     // if motion action, execute it and set cursor
-    MotionAction? motion = action.motion;
+    MotionAction? motion = edit.motion;
     if (motion != null) {
-      action.linewise = motion.linewise;
+      edit.linewise = motion.linewise;
       Position start = file.cursor;
       Position end = file.cursor;
-      for (int i = 0; i < (action.count ?? 1); i++) {
+      for (int i = 0; i < (edit.count ?? 1); i++) {
         if (motion.inclusive != null) {
-          end = motionEnd(action, motion, end, motion.inclusive!);
+          end = motionEnd(edit, motion, end, motion.inclusive!);
         } else {
-          end = motionEnd(action, motion, end, operator != null);
+          end = motionEnd(edit, motion, end, operator != null);
         }
       }
       if (operator != null) {
@@ -476,21 +473,21 @@ class Editor {
       } else {
         file.cursor = end;
       }
-      if (resetAction) doResetAction();
+      if (resetEdit) doResetEdit();
     }
   }
 
   // set prevAction and reset action
-  void doResetAction() {
-    if (file.editEvent.operator != null) {
-      file.prevEditEvent = file.editEvent;
+  void doResetEdit() {
+    if (file.edit.operator != null) {
+      file.prevEdit = file.edit;
     }
-    if (file.editEvent.motion != null) {
-      file.prevMotion = file.editEvent.motion;
+    if (file.edit.motion != null) {
+      file.prevMotion = file.edit.motion;
     }
-    if (file.editEvent.findStr != null) {
-      file.prevFindStr = file.editEvent.findStr;
+    if (file.edit.findStr != null) {
+      file.prevFindStr = file.edit.findStr;
     }
-    file.editEvent = EditEvent();
+    file.edit = Edit();
   }
 }

@@ -43,8 +43,8 @@ const operatorActions = <String, OperatorFn>{
   'c': Operators.change,
   'd': Operators.delete,
   'y': Operators.yank,
-  'gu': Operators.lowercase,
-  'gU': Operators.uppercase,
+  'gu': Operators.lowerCase,
+  'gU': Operators.upperCase,
 };
 
 const motionActions = <String, MotionAction>{

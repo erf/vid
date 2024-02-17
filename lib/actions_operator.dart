@@ -1,4 +1,4 @@
-import 'edit_event.dart';
+import 'edit.dart';
 import 'file_buffer.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
@@ -29,21 +29,21 @@ class Operators {
 
   static void escape(FileBuffer f, Range range) {
     f.setMode(Mode.normal);
-    f.editEvent = EditEvent();
+    f.edit = Edit();
   }
 
-  static void lowercase(FileBuffer f, Range r) {
-    final start = f.byteIndexFromPosition(r.start);
-    final end = f.byteIndexFromPosition(r.end);
-    final replacement = f.text.substring(start, end).toLowerCase();
+  static void lowerCase(FileBuffer f, Range r) {
+    int start = f.byteIndexFromPosition(r.start);
+    int end = f.byteIndexFromPosition(r.end);
+    String replacement = f.text.substring(start, end).toLowerCase();
     f.replace(start, end, replacement);
     f.setMode(Mode.normal);
   }
 
-  static void uppercase(FileBuffer f, Range r) {
-    final start = f.byteIndexFromPosition(r.start);
-    final end = f.byteIndexFromPosition(r.end);
-    final replacement = f.text.substring(start, end).toUpperCase();
+  static void upperCase(FileBuffer f, Range r) {
+    int start = f.byteIndexFromPosition(r.start);
+    int end = f.byteIndexFromPosition(r.end);
+    String replacement = f.text.substring(start, end).toUpperCase();
     f.replace(start, end, replacement);
     f.setMode(Mode.normal);
   }

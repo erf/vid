@@ -1,7 +1,6 @@
-
 import 'action_typedefs.dart';
 
-class EditEvent {
+class Edit {
   // the pending action to be executed
   OperatorFn? operator;
 
