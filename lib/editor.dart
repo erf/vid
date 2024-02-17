@@ -409,48 +409,44 @@ class Editor {
     edit.opInput += char;
 
     switch (matchKeys(edit.opInput, operatorBindings)) {
+      case InputMatch.match:
+        if (motionActions.containsKey(edit.opInput)) {
+          edit.motion = motionActions[edit.opInput];
+          doAction(edit, resetEdit);
+        }
+        // dd, yy, cc, etc. execute linewise
+        if (operatorActions.containsKey(edit.opInput)) {
+          OperatorFn? operator = operatorActions[edit.opInput];
+          if (edit.operator == operator) {
+            edit.motion = MotionAction(Motions.lineStart, linewise: true);
+            doAction(edit, resetEdit);
+            file.cursor = Motions.lineStart(file, file.cursor, true);
+          }
+        }
       case InputMatch.none:
         file.setMode(Mode.normal);
         file.edit = Edit();
       case InputMatch.partial:
-        break;
-      case InputMatch.match:
-        edit.motion = motionActions[edit.opInput];
-        doAction(edit, resetEdit);
     }
   }
 
   // execute motion and return end position
-  Position motionEnd(Edit ev, MotionAction motion, Position p, bool incl) {
+  Position motionEnd(Edit edit, MotionAction motion, Position pos, bool incl) {
     switch (motion) {
       case MotionAction(fn: MotionFn move):
-        return move(file, p, incl);
+        return move(file, pos, incl);
       case MotionAction(fn: FindFn find):
-        final nextChar = ev.findStr ?? readNextChar();
-        ev.findStr = nextChar;
-        return find(file, p, nextChar, incl);
+        String nextChar = edit.findStr ?? readNextChar();
+        edit.findStr = nextChar;
+        return find(file, pos, nextChar, incl);
       default:
-        return p;
+        return pos;
     }
   }
 
   // execute action on range
   void doAction(Edit edit, [bool resetEdit = true]) {
-    // if input is same as opInput, execute linewise
     OperatorFn? operator = edit.operator;
-    if (operator != null && edit.input == edit.opInput) {
-      edit.linewise = true;
-      Position end = file.cursor;
-      for (int i = 0; i < (edit.count ?? 1); i++) {
-        end = Motions.lineEnd(file, end, true);
-      }
-      Position start = Motions.lineStart(file, file.cursor);
-      operator(file, Range(start, end));
-      file.cursor = Motions.firstNonBlank(file, file.cursor);
-      if (resetEdit) doResetEdit();
-      return;
-    }
-    // if motion action, execute it and set cursor
     MotionAction? motion = edit.motion;
     if (motion != null) {
       edit.linewise = motion.linewise;
@@ -463,15 +459,15 @@ class Editor {
           end = motionEnd(edit, motion, end, operator != null);
         }
       }
-      if (operator != null) {
+      if (operator == null) {
+        file.cursor = end;
+      } else {
         if (motion.linewise) {
           final range = Range(start, end).norm;
           start = Motions.lineStart(file, range.start, true);
           end = Motions.lineEnd(file, range.end, true);
         }
         operator(file, Range(start, end).norm);
-      } else {
-        file.cursor = end;
       }
       if (resetEdit) doResetEdit();
     }
