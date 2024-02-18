@@ -5,15 +5,15 @@ import 'range.dart';
 
 typedef NormalFn = void Function(Editor, FileBuffer);
 
-typedef InsertFn = void Function(FileBuffer);
+typedef InsertFn = void Function(Editor, FileBuffer);
+
+typedef CommandFn = void Function(Editor, FileBuffer, List<String>);
 
 typedef OperatorFn = void Function(FileBuffer, Range);
 
-typedef MotionFn = Position Function(FileBuffer, Position, bool incl);
+typedef MotionFn = Position Function(FileBuffer, Position, bool);
 
-typedef FindFn = Position Function(FileBuffer, Position, String, bool incl);
-
-typedef CommandFn = void Function(Editor, FileBuffer, List<String> args);
+typedef FindFn = Position Function(FileBuffer, Position, String, bool);
 
 class MotionAction {
   final Function fn;

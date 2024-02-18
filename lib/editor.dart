@@ -259,12 +259,12 @@ class Editor {
     while (str.isNotEmpty) {
       int nlPos = str.indexOf(Keys.newline);
       if (nlPos == -1) {
-        InsertActions.defaultInsert(file, str, undo: false);
+        InsertActions.defaultInsert(this, file, str, undo: false);
         break;
       }
       String line = str.substring(0, nlPos);
-      InsertActions.defaultInsert(file, line, undo: false);
-      InsertActions.enter(file, undo: false);
+      InsertActions.defaultInsert(this, file, line, undo: false);
+      InsertActions.enter(this, file, undo: false);
       str = str.substring(nlPos + 1);
     }
     file.addUndo(start: start, end: start, newText: buffer, cursor: cursor);
@@ -323,10 +323,10 @@ class Editor {
   // insert char at cursor
   void insert(String char) {
     if (insertActions.containsKey(char)) {
-      insertActions[char]!(file);
+      insertActions[char]!(this, file);
       return;
     }
-    InsertActions.defaultInsert(file, char);
+    InsertActions.defaultInsert(this, file, char);
   }
 
   // replace char at cursor with char

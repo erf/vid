@@ -44,6 +44,12 @@ final normalActions = <String, Object>{
   'gU': Operators.upperCase,
 };
 
+const insertActions = <String, InsertFn>{
+  Keys.backspace: InsertActions.backspace,
+  Keys.newline: InsertActions.enter,
+  Keys.escape: InsertActions.escape,
+};
+
 const operatorActions = <String, OperatorFn>{
   'c': Operators.change,
   'd': Operators.delete,
@@ -77,12 +83,6 @@ const motionActions = <String, MotionAction>{
   '}': MotionAction(Motions.paragraphNext),
   '(': MotionAction(Motions.sentencePrev),
   ')': MotionAction(Motions.sentenceNext),
-};
-
-const insertActions = <String, InsertFn>{
-  Keys.backspace: InsertActions.backspace,
-  Keys.newline: InsertActions.enter,
-  Keys.escape: InsertActions.escape,
 };
 
 const commandActions = <String, CommandFn>{
