@@ -318,7 +318,7 @@ class Editor {
     file.setMode(Mode.normal);
     file.edit.motion = MotionAction(Find.searchNext);
     file.edit.findStr = pattern;
-    doAction(file.edit);
+    commitEdit(file.edit);
   }
 
   // insert char at cursor
@@ -367,7 +367,7 @@ class Editor {
     return partialKey.isEmpty ? InputMatch.none : InputMatch.partial;
   }
 
-  void normal(String char, [bool resetEdit = true]) {
+  void normal(String char, [bool reset = true]) {
     Edit edit = file.edit;
     // if char is a number, accumulate countInput
     if (count(char, edit)) {
@@ -391,10 +391,10 @@ class Editor {
     switch (action) {
       case NormalFn():
         action(this, file);
-        if (resetEdit) doResetEdit();
+        if (reset) resetEdit(file);
       case MotionAction():
         edit.motion = action;
-        doAction(edit);
+        commitEdit(edit);
       case OperatorFn():
         edit.operator = action;
         file.setMode(Mode.operator);
@@ -411,7 +411,7 @@ class Editor {
       OperatorFn? operator = operatorActions[edit.opInput];
       if (edit.operator == operator) {
         edit.motion = MotionAction(Motions.lineStart, linewise: true);
-        doAction(edit, resetEdit);
+        commitEdit(edit, resetEdit);
         file.cursor = Motions.lineStart(file, file.cursor, true);
         return;
       }
@@ -426,7 +426,7 @@ class Editor {
         break;
       case InputMatch.match:
         edit.motion = motionActions[edit.opInput];
-        doAction(edit, resetEdit);
+        commitEdit(edit, resetEdit);
     }
   }
 
@@ -445,7 +445,7 @@ class Editor {
   }
 
   // execute operator on motion range count times
-  void doAction(Edit edit, [bool resetEdit = true]) {
+  void commitEdit(Edit edit, [bool reset = true]) {
     MotionAction motion = edit.motion!; // motion should not be null
     OperatorFn? operator = edit.operator;
     edit.linewise = motion.linewise;
@@ -468,11 +468,11 @@ class Editor {
       }
       operator(file, Range(start, end).norm);
     }
-    if (resetEdit) doResetEdit();
+    if (reset) resetEdit(file);
   }
 
   // set prevAction and reset action
-  void doResetEdit() {
+  void resetEdit(FileBuffer file) {
     if (file.edit.operator != null) {
       file.prevEdit = file.edit;
     }

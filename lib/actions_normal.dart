@@ -141,7 +141,7 @@ class NormalActions {
       return;
     }
     f.edit = f.prevEdit!;
-    e.doAction(f.edit, false);
+    e.commitEdit(f.edit, false);
   }
 
   static void repeatFindNext(Editor e, FileBuffer f) {
@@ -150,7 +150,7 @@ class NormalActions {
     }
     f.edit.motion = f.prevMotion;
     f.edit.findStr = f.prevFindStr;
-    e.doAction(f.edit, false);
+    e.commitEdit(f.edit, false);
   }
 
   static void findNext(Editor e, FileBuffer f) {
@@ -159,7 +159,7 @@ class NormalActions {
     }
     f.edit.motion = f.prevMotion;
     f.edit.findStr = f.prevFindStr;
-    e.doAction(f.edit, false);
+    e.commitEdit(f.edit, false);
   }
 
   static void increaseNextWord(FileBuffer f, int count) {
