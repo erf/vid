@@ -1,7 +1,8 @@
 enum InputMatch { none, partial, match }
 
 /// Check if [input] is a key in [map] or if it is part of a key
-InputMatch matchKeys(Map<String, Object> map, String input) {
+InputMatch matchKeys(Map map, String input) {
+  // check if input is a key
   if (map.containsKey(input)) {
     return InputMatch.match;
   }
@@ -12,7 +13,7 @@ InputMatch matchKeys(Map<String, Object> map, String input) {
   return partialKey.isEmpty ? InputMatch.none : InputMatch.partial;
 }
 
-extension MapExt on Map<String, Object> {
+extension MapExt on Map {
   /// Check if [input] is a key in this map or if it is part of a key
   InputMatch partialMatch(String input) => matchKeys(this, input);
 }
