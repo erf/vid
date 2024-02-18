@@ -1,4 +1,3 @@
-import 'action_typedefs.dart';
 import 'edit.dart';
 import 'line.dart';
 import 'modes.dart';
@@ -25,17 +24,11 @@ class FileBuffer {
   // the current mode
   Mode mode = Mode.normal;
 
-  // the current action to be executed
+  // the current edit
   Edit edit = Edit();
 
-  // the previous operator action
+  // the previous edit
   Edit? prevEdit;
-
-  // the previous find action
-  MotionAction? prevMotion;
-
-  // the previous find character
-  String? prevFindStr;
 
   // the yanked text
   String? yankBuffer;

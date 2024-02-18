@@ -459,15 +459,7 @@ class Editor {
 
   // set prevAction and reset action
   void resetEdit(FileBuffer file) {
-    if (file.edit.operator != null) {
-      file.prevEdit = file.edit;
-    }
-    if (file.edit.motion != null) {
-      file.prevMotion = file.edit.motion;
-    }
-    if (file.edit.findStr != null) {
-      file.prevFindStr = file.edit.findStr;
-    }
+    file.prevEdit = file.edit;
     file.edit = Edit();
   }
 }

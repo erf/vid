@@ -122,20 +122,14 @@ class NormalActions {
   }
 
   static void repeatFindNext(Editor e, FileBuffer f) {
-    if (f.prevMotion == null || f.prevFindStr == null) {
+    if (f.prevEdit == null) {
       return;
     }
-    f.edit.motion = f.prevMotion;
-    f.edit.findStr = f.prevFindStr;
-    e.commitEdit(f.edit, false);
-  }
-
-  static void findNext(Editor e, FileBuffer f) {
-    if (f.prevMotion == null) {
+    if (f.prevEdit?.motion == null && f.prevEdit?.findStr == null) {
       return;
     }
-    f.edit.motion = f.prevMotion;
-    f.edit.findStr = f.prevFindStr;
+    f.edit.motion = f.prevEdit?.motion;
+    f.edit.findStr = f.prevEdit?.findStr;
     e.commitEdit(f.edit, false);
   }
 

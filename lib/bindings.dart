@@ -31,7 +31,7 @@ final normalActions = <String, Object>{
   'U': NormalActions.redo,
   '.': NormalActions.repeat,
   ';': NormalActions.repeatFindNext,
-  'n': NormalActions.findNext,
+  'n': NormalActions.repeatFindNext,
   Keys.ctrlA: NormalActions.increase,
   Keys.ctrlX: NormalActions.decrease,
   ':': NormalActions.command,

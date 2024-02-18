@@ -54,6 +54,5 @@ void main() {
     e.input('w');
     expect(f.edit.input, '');
     expect(f.edit.opInput, '');
-    expect(f.prevEdit, null);
   });
 }
