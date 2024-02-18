@@ -363,7 +363,7 @@ class Editor {
     edit.input += char;
 
     // check if we match or partial match a key
-    switch (matchKeys(normalBindings, edit.input)) {
+    switch (normalBindings.partialMatch(edit.input)) {
       case InputMatch.none:
         file.edit = Edit();
         return;
@@ -404,7 +404,7 @@ class Editor {
     }
 
     // check if we match or partial match a motion key
-    switch (matchKeys(motionActions, edit.opInput)) {
+    switch (motionActions.partialMatch(edit.opInput)) {
       case InputMatch.none:
         file.setMode(Mode.normal);
         file.edit = Edit();
