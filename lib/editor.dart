@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/string_ext.dart';
 
 import 'action_typedefs.dart';
 import 'actions_command.dart';
@@ -119,9 +120,13 @@ class Editor {
       }
       // get substring of line in view based on render width
       if (Config.wrapMode == WrapMode.none) {
-        rbuf.writeln(lines[l].str.characters.renderLine(view.c, term.width));
+        rbuf.writeln(lines[l]
+            .str
+            .tabsToSpaces
+            .characters
+            .renderLine(view.c, term.width));
       } else {
-        rbuf.writeln(lines[l].str);
+        rbuf.writeln(lines[l].str.tabsToSpaces);
       }
     }
   }
