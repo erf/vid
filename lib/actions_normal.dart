@@ -95,23 +95,19 @@ class NormalActions {
   }
 
   static void substitute(Editor e, FileBuffer f) {
-    f.edit.input = '';
-    e.input('cl');
+    e.alias('cl');
   }
 
   static void substituteLine(Editor e, FileBuffer f) {
-    f.edit.input = '';
-    e.input('^C');
+    e.alias('^C');
   }
 
   static void insertLineStart(Editor e, FileBuffer f) {
-    f.edit.input = '';
-    e.input('^i');
+    e.alias('^i');
   }
 
   static void appendLineEnd(Editor e, FileBuffer f) {
-    f.edit.input = '';
-    e.input('\$i');
+    e.alias('\$i');
   }
 
   static void appendCharNext(Editor e, FileBuffer f) {
@@ -120,8 +116,7 @@ class NormalActions {
   }
 
   static void deleteCharNext(Editor e, FileBuffer f) {
-    f.edit.input = '';
-    e.input('dl');
+    e.alias('dl');
   }
 
   static void replace(Editor e, FileBuffer f) {
@@ -129,13 +124,11 @@ class NormalActions {
   }
 
   static void deleteLineEnd(Editor e, FileBuffer f) {
-    f.edit.input = '';
-    e.input('d\$');
+    e.alias('d\$');
   }
 
   static void changeLineEnd(Editor e, FileBuffer f) {
-    f.edit.input = '';
-    e.input('d\$i');
+    e.alias('d\$i');
   }
 
   static void joinLines(Editor e, FileBuffer f) {
