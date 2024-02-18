@@ -31,26 +31,10 @@ class InsertActions {
     f.cursor.c = max(f.cursor.c, 0);
   }
 
-  static void _joinLines(FileBuffer f) {
-    if (f.lines.length <= 1 || f.cursor.l <= 0) return;
-    final line = f.cursor.l - 1;
-    f.cursor = Position(l: line, c: f.lines[line].charLen - 1);
-    f.deleteAt(f.cursor);
-  }
-
-  static void _deleteCharPrev(FileBuffer f) {
-    if (f.empty) return;
-    f.cursor.c--;
-    int byteIndex = f.byteIndexFromPosition(f.cursor);
-    f.deleteAt(f.cursor);
-    f.cursor = f.positionFromByteIndex(byteIndex);
-  }
-
   static void backspace(Editor e, FileBuffer f) {
-    if (f.cursor.c == 0) {
-      _joinLines(f);
-    } else {
-      _deleteCharPrev(f);
-    }
+    if (f.cursor.c == 0 && f.cursor.l == 0) return;
+    f.setMode(Mode.normal);
+    e.alias('hx');
+    f.setMode(Mode.insert);
   }
 }
