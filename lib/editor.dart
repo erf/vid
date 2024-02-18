@@ -24,14 +24,13 @@ import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'keys.dart';
 import 'line.dart';
+import 'match_keys.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'terminal.dart';
 import 'vid_exception.dart';
-
-enum InputMatch { none, partial, match }
 
 class Editor {
   Terminal term = Terminal.instance;
@@ -354,19 +353,6 @@ class Editor {
     return false;
   }
 
-  // check if input is a key or part of a key
-  InputMatch matchKeys(String input, Map<String, Object> bindings) {
-    // we have a match if input is a key
-    if (bindings.containsKey(input)) {
-      return InputMatch.match;
-    }
-    // check if input is part of a key
-    String partialKey = bindings.keys
-        .firstWhere((key) => key.startsWith(input), orElse: () => '');
-    // if partialKey is not empty, we have a partial match
-    return partialKey.isEmpty ? InputMatch.none : InputMatch.partial;
-  }
-
   void normal(String char, [bool reset = true]) {
     Edit edit = file.edit;
     // if char is a number, accumulate countInput
@@ -377,7 +363,7 @@ class Editor {
     edit.input += char;
 
     // check if we match or partial match a key
-    switch (matchKeys(edit.input, normalBindings)) {
+    switch (matchKeys(normalBindings, edit.input)) {
       case InputMatch.none:
         file.edit = Edit();
         return;
@@ -418,7 +404,7 @@ class Editor {
     }
 
     // check if we match or partial match a motion key
-    switch (matchKeys(edit.opInput, motionActions)) {
+    switch (matchKeys(motionActions, edit.opInput)) {
       case InputMatch.none:
         file.setMode(Mode.normal);
         file.edit = Edit();
