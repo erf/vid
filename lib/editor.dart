@@ -118,7 +118,7 @@ class Editor {
         rbuf.writeln();
         continue;
       }
-      // get substring of line in view based on render width
+      // draw line
       rbuf.writeln(Config.wrapMode == WrapMode.none
           ? lines[l].str.tabsToSpaces.characters.renderLine(view.c, term.width)
           : lines[l].str.tabsToSpaces);
