@@ -119,15 +119,9 @@ class Editor {
         continue;
       }
       // get substring of line in view based on render width
-      if (Config.wrapMode == WrapMode.none) {
-        rbuf.writeln(lines[l]
-            .str
-            .tabsToSpaces
-            .characters
-            .renderLine(view.c, term.width));
-      } else {
-        rbuf.writeln(lines[l].str.tabsToSpaces);
-      }
+      rbuf.writeln(Config.wrapMode == WrapMode.none
+          ? lines[l].str.tabsToSpaces.characters.renderLine(view.c, term.width)
+          : lines[l].str.tabsToSpaces);
     }
   }
 
