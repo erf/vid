@@ -215,6 +215,11 @@ class Editor {
     input(utf8.decode(codes));
   }
 
+  void alias(String str) {
+    file.edit = Edit();
+    input(str);
+  }
+
   void input(String str) {
     if (logPath != null) {
       logFile ??= File(logPath!);
