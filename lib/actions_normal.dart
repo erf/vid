@@ -99,41 +99,13 @@ class NormalActions {
     f.setMode(Mode.insert);
   }
 
-  static void substitute(Editor e, FileBuffer f) {
-    e.alias('cl');
-  }
-
-  static void substituteLine(Editor e, FileBuffer f) {
-    e.alias('^C');
-  }
-
-  static void insertLineStart(Editor e, FileBuffer f) {
-    e.alias('^i');
-  }
-
-  static void appendLineEnd(Editor e, FileBuffer f) {
-    e.alias('\$i');
-  }
-
   static void appendCharNext(Editor e, FileBuffer f) {
     f.setMode(Mode.insert);
     f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
   }
 
-  static void deleteCharNext(Editor e, FileBuffer f) {
-    e.alias('dl');
-  }
-
   static void replace(Editor e, FileBuffer f) {
     f.setMode(Mode.replace);
-  }
-
-  static void deleteLineEnd(Editor e, FileBuffer f) {
-    e.alias('d\$');
-  }
-
-  static void changeLineEnd(Editor e, FileBuffer f) {
-    e.alias('d\$i');
   }
 
   static void joinLines(Editor e, FileBuffer f) {

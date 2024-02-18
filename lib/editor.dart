@@ -30,11 +30,7 @@ import 'regex.dart';
 import 'terminal.dart';
 import 'vid_exception.dart';
 
-enum InputMatch {
-  none,
-  partial,
-  match,
-}
+enum InputMatch { none, partial, match }
 
 class Editor {
   Terminal term = Terminal.instance;

@@ -7,26 +7,26 @@ import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'keys.dart';
 
-const normalActions = <String, Object>{
+final normalActions = <String, Object>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
-  'S': NormalActions.substituteLine,
+  'S': NormalActions.alias('^C'),
   's': NormalActions.save,
-  'x': NormalActions.deleteCharNext,
+  'x': NormalActions.alias('dl'),
   'i': NormalActions.insert,
   'a': NormalActions.appendCharNext,
-  'A': NormalActions.appendLineEnd,
-  'I': NormalActions.insertLineStart,
+  'A': NormalActions.alias('\$i'),
+  'I': NormalActions.alias('^i'),
   'o': NormalActions.openLineBelow,
   'O': NormalActions.openLineAbove,
   'r': NormalActions.replace,
-  'D': NormalActions.deleteLineEnd,
+  'D': NormalActions.alias('d\$'),
   'p': NormalActions.pasteAfter,
   'P': NormalActions.pasteBefore,
   Keys.ctrlD: NormalActions.moveDownHalfPage,
   Keys.ctrlU: NormalActions.moveUpHalfPage,
   'J': NormalActions.joinLines,
-  'C': NormalActions.changeLineEnd,
+  'C': NormalActions.alias('c\$'),
   'u': NormalActions.undo,
   'U': NormalActions.redo,
   '.': NormalActions.repeat,
@@ -96,7 +96,7 @@ const commandActions = <String, CommandFn>{
   'nowrap': CommandActions.setNoWrap,
 };
 
-const normalBindings = <String, Object>{
+final normalBindings = <String, Object>{
   ...normalActions,
   ...motionActions,
 };
