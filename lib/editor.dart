@@ -24,7 +24,7 @@ import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'keys.dart';
 import 'line.dart';
-import 'match_keys.dart';
+import 'map_partial_match.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';

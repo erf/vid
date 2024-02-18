@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 
-import 'package:vid/match_keys.dart';
+import 'package:vid/map_partial_match.dart';
 
 void main() {
   test('MatchKeys none, partial, and match for key bindings', () {
