@@ -10,8 +10,8 @@ extension FileBufferView on FileBuffer {
   }
 
   // clamp view on cursor position
-  void clampView(Terminal term, int cursorLen) {
+  void clampView(Terminal term, int cursorpos) {
     view.l = clamp(view.l, cursor.l, cursor.l - term.height + 2);
-    view.c = clamp(view.c, cursorLen, cursorLen - term.width + 1);
+    view.c = clamp(view.c, cursorpos, cursorpos - term.width + 1);
   }
 }
