@@ -113,7 +113,7 @@ class NormalActions {
     f.cursor = op.cursor;
   }
 
-  static void repeatOperator(Editor e, FileBuffer f) {
+  static void repeat(Editor e, FileBuffer f) {
     if (f.prevEdit == null || f.prevEdit?.operator == null) {
       return;
     }
@@ -121,10 +121,8 @@ class NormalActions {
     e.commitEdit(f.edit, false);
   }
 
-  static void repeatMotion(Editor e, FileBuffer f) {
-    if (f.prevEdit == null ||
-        f.prevEdit?.motion == null ||
-        f.prevEdit?.operator != null) {
+  static void repeatFindStr(Editor e, FileBuffer f) {
+    if (f.prevEdit == null || f.prevEdit?.findStr == null) {
       return;
     }
     f.edit = f.prevEdit!;
