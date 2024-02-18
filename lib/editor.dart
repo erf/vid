@@ -415,18 +415,20 @@ class Editor {
         edit.motion = MotionAction(Motions.lineStart, linewise: true);
         doAction(edit, resetEdit);
         file.cursor = Motions.lineStart(file, file.cursor, true);
+        return;
       }
     }
 
     // check if we match or partial match a motion key
     switch (matchKeys(edit.opInput, motionActions)) {
-      case InputMatch.match:
-        edit.motion = motionActions[edit.opInput];
-        doAction(edit, resetEdit);
       case InputMatch.none:
         file.setMode(Mode.normal);
         file.edit = Edit();
       case InputMatch.partial:
+        break;
+      case InputMatch.match:
+        edit.motion = motionActions[edit.opInput];
+        doAction(edit, resetEdit);
     }
   }
 
