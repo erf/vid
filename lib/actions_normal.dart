@@ -1,8 +1,7 @@
 import 'dart:math';
 
-import 'config.dart';
-
 import 'actions_motion.dart';
+import 'config.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';

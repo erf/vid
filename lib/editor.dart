@@ -408,21 +408,21 @@ class Editor {
     Edit edit = file.edit;
     edit.opInput += char;
 
-    switch (matchKeys(edit.opInput, operatorBindings)) {
+    // dd, yy, cc, etc. execute linewise
+    if (operatorActions.containsKey(edit.opInput)) {
+      OperatorFn? operator = operatorActions[edit.opInput];
+      if (edit.operator == operator) {
+        edit.motion = MotionAction(Motions.lineStart, linewise: true);
+        doAction(edit, resetEdit);
+        file.cursor = Motions.lineStart(file, file.cursor, true);
+      }
+    }
+
+    // check if we match or partial match a motion key
+    switch (matchKeys(edit.opInput, motionActions)) {
       case InputMatch.match:
-        if (motionActions.containsKey(edit.opInput)) {
-          edit.motion = motionActions[edit.opInput];
-          doAction(edit, resetEdit);
-        }
-        // dd, yy, cc, etc. execute linewise
-        if (operatorActions.containsKey(edit.opInput)) {
-          OperatorFn? operator = operatorActions[edit.opInput];
-          if (edit.operator == operator) {
-            edit.motion = MotionAction(Motions.lineStart, linewise: true);
-            doAction(edit, resetEdit);
-            file.cursor = Motions.lineStart(file, file.cursor, true);
-          }
-        }
+        edit.motion = motionActions[edit.opInput];
+        doAction(edit, resetEdit);
       case InputMatch.none:
         file.setMode(Mode.normal);
         file.edit = Edit();
