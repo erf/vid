@@ -364,12 +364,12 @@ class Editor {
 
     // check if we match or partial match a key
     switch (normalBindings.partialMatch(edit.input)) {
-      case InputMatch.none:
+      case KeyMatch.none:
         file.edit = Edit();
         return;
-      case InputMatch.partial:
+      case KeyMatch.partial:
         return;
-      case InputMatch.match:
+      case KeyMatch.match:
     }
 
     // if we match a key, execute action
@@ -405,12 +405,12 @@ class Editor {
 
     // check if we match or partial match a motion key
     switch (motionActions.partialMatch(edit.opInput)) {
-      case InputMatch.none:
+      case KeyMatch.none:
         file.setMode(Mode.normal);
         file.edit = Edit();
-      case InputMatch.partial:
+      case KeyMatch.partial:
         break;
-      case InputMatch.match:
+      case KeyMatch.match:
         edit.motion = motionActions[edit.opInput];
         commitEdit(edit, resetEdit);
     }
