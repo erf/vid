@@ -209,12 +209,10 @@ class NormalActions {
     f.cursor = f.positionFromByteIndex(start + m.start + numstr.length - 1);
   }
 
-  // increase the next number by 1
   static void increase(Editor e, FileBuffer f) {
     increaseNextWord(f, 1);
   }
 
-  // decrease the next number by 1
   static void decrease(Editor e, FileBuffer f) {
     increaseNextWord(f, -1);
   }
