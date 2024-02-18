@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'action_typedefs.dart';
-import 'actions_motion.dart';
 import 'config.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
@@ -9,7 +8,6 @@ import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
-import 'keys.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'regex.dart';
@@ -72,27 +70,6 @@ class NormalActions {
     } catch (error) {
       e.showSaveFileError(error);
     }
-  }
-
-  static String createNewlines(FileBuffer f) {
-    String s = '';
-    for (int i = 0; i < (f.edit.count ?? 1); i++) {
-      s += Keys.newline;
-    }
-    return s;
-  }
-
-  static void openLineAbove(Editor e, FileBuffer f) {
-    f.setMode(Mode.insert);
-    f.insertAt(Position(l: f.cursor.l, c: 0), createNewlines(f));
-    f.cursor.c = 0;
-  }
-
-  static void openLineBelow(Editor e, FileBuffer f) {
-    f.setMode(Mode.insert);
-    f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
-        createNewlines(f));
-    f.cursor = Motions.lineDown(f, f.cursor);
   }
 
   static void insert(Editor e, FileBuffer f) {
