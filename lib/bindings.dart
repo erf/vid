@@ -37,6 +37,7 @@ final normalActions = <String, Object>{
   ':': NormalActions.command,
   '/': NormalActions.search,
   Keys.ctrlW: NormalActions.toggleWrap,
+  'zz': NormalActions.centerView,
   'c': Operators.change,
   'd': Operators.delete,
   'y': Operators.yank,

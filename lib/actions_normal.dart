@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/file_buffer_view.dart';
+
 import 'action_typedefs.dart';
 import 'config.dart';
 import 'editor.dart';
@@ -166,5 +168,9 @@ class NormalActions {
     Config.wrapMode =
         Config.wrapMode == WrapMode.none ? WrapMode.word : WrapMode.none;
     f.createLines(Config.wrapMode, e.term.width, e.term.height);
+  }
+
+  static void centerView(Editor e, FileBuffer f) {
+    f.centerView(e.term);
   }
 }
