@@ -25,7 +25,7 @@ extension FileBufferText on FileBuffer {
     }
   }
 
-  // get the byte index text  from the cursor Position
+  // get the byte index text from the cursor Position
   int byteIndexFromPosition(Position pos) {
     Line line = lines[pos.l];
     if (pos.c == 0) {
