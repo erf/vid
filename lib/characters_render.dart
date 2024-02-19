@@ -3,14 +3,15 @@ import 'package:characters/characters.dart';
 import 'string_ext.dart';
 
 extension CharactersRender on Characters {
+
   // get the rendered length of the string up to the given index
   int renderLength(int count) {
     return take(count).fold(0, (prev, curr) => prev + curr.renderWidth);
   }
 
   // get the visible string for the given view
-  Characters renderLine(int start, int end) {
-    return renderLineStart(start).renderLineEnd(end);
+  Characters renderLine(int start, int width) {
+    return renderLineStart(start).renderLineEnd(width);
   }
 
   // skip characters until the rendered length of the line is reached
