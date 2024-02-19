@@ -11,13 +11,11 @@ class Line {
     required this.no,
   });
 
-  Characters get ch => str.characters;
-
   int get len => str.length;
 
   int get end => start + len;
 
-  int get charLen => ch.length;
+  int get charLen => str.characters.length;
 
   bool get isEmpty => str.isEmpty;
 

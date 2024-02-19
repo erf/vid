@@ -9,8 +9,8 @@ void main() {
     f.text = 'abc\ndef';
     f.createLines(WrapMode.none, 80, 24);
     expect(f.lines.length, 2);
-    expect(f.lines[0].ch.string, 'abc ');
-    expect(f.lines[1].ch.string, 'def ');
+    expect(f.lines[0].str, 'abc ');
+    expect(f.lines[1].str, 'def ');
   });
 
   test('createLines w newline at end', () {
@@ -18,8 +18,8 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines(WrapMode.none, 80, 24);
     expect(f.lines.length, 2);
-    expect(f.lines[0].ch.string, 'abc ');
-    expect(f.lines[1].ch.string, 'def ');
+    expect(f.lines[0].str, 'abc ');
+    expect(f.lines[1].str, 'def ');
   });
 
   test('createLines with wordwrap', () {
@@ -27,8 +27,8 @@ void main() {
     f.text = 'abc def ghi jkl';
     f.createLines(WrapMode.word, 8, 10);
     expect(f.lines.length, 2);
-    expect(f.lines[0].ch.string, 'abc def ');
-    expect(f.lines[1].ch.string, 'ghi jkl ');
+    expect(f.lines[0].str, 'abc def ');
+    expect(f.lines[1].str, 'ghi jkl ');
   });
 
   test('createLines with emoji at end', () {
@@ -36,9 +36,9 @@ void main() {
     f.text = 'abc def😀 ghi jkl\n';
     f.createLines(WrapMode.word, 8, 20);
     expect(f.lines.length, 3);
-    expect(f.lines[0].ch.string, 'abc ');
-    expect(f.lines[1].ch.string, 'def😀 ');
-    expect(f.lines[2].ch.string, 'ghi jkl ');
+    expect(f.lines[0].str, 'abc ');
+    expect(f.lines[1].str, 'def😀 ');
+    expect(f.lines[2].str, 'ghi jkl ');
   });
 
   test('createLines word wrapped use last breakat point', () {

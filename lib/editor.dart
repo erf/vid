@@ -85,7 +85,8 @@ class Editor {
     rbuf.clear();
     rbuf.write(Esc.homeAndEraseDown);
     file.clampCursor();
-    int cursorpos = file.lines[file.cursor.l].ch.renderLength(file.cursor.c);
+    Position cursor = file.cursor;
+    int cursorpos = file.lines[cursor.l].str.ch.renderLength(cursor.c);
     file.clampView(term, cursorpos);
     drawLines();
 
