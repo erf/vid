@@ -1,6 +1,8 @@
+import 'package:characters/characters.dart';
+import 'package:vid/characters_render.dart';
+
 import 'terminal.dart';
 
-import 'characters_index.dart';
 import 'config.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
@@ -12,16 +14,16 @@ import 'text_op.dart';
 // text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
-  Position positionFromByteIndex(int i) {
-    Line ln = lines.firstWhere((l) => i < l.end, orElse: () => lines.last);
-    // TODO experienced a crash where pos is negative for wrapped lines
-    final int pos = i - ln.start;
-    assert(pos >= 0, 'pos is negative: $pos');
-    if (pos > 0) {
-      int charpos = ln.ch.byteToCharLength(pos);
-      return Position(l: ln.no, c: charpos);
+  Position positionFromByteIndex(int start) {
+    Line line =
+        lines.firstWhere((l) => start < l.end, orElse: () => lines.last);
+    int end = start - line.start;
+    assert(end >= 0, 'positionFromByteIndex: end is negative: $end');
+    if (end > 0) {
+      int charpos = line.str.substring(0, end).characters.length;
+      return Position(l: line.no, c: charpos);
     } else {
-      return Position(l: ln.no, c: 0);
+      return Position(l: line.no, c: 0);
     }
   }
 

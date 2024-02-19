@@ -39,12 +39,14 @@ extension CharactersIndex on Characters {
   }
 
   // get the character length given the byte length
-  int byteToCharLength(int byteLength) {
-    return string.substring(0, byteLength).characters.length;
+  // take the substring of the String and get the character length
+  int byteToCharLength(int start, int end) {
+    return string.substring(start, end).characters.length;
   }
 
   // get the byte length given the character length
-  int charToByteLength(int charLength) {
-    return charLength <= 0 ? 0 : take(charLength).string.length;
+  // take the subrange of the Characters and get the String length
+  int charToByteLength(int start, int end) {
+    return end <= 0 ? 0 : skip(start).take(end).string.length;
   }
 }

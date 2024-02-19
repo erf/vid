@@ -3,6 +3,7 @@ import 'package:characters/characters.dart';
 import 'string_ext.dart';
 
 extension CharactersRender on Characters {
+
   // get the rendered length of the string up to the given index
   int renderLength(int count) {
     return take(count).fold(0, (prev, curr) => prev + curr.renderWidth);
