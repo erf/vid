@@ -22,6 +22,4 @@ class Line {
   bool get isEmpty => str.isEmpty;
 
   bool get isNotEmpty => str.isNotEmpty;
-
-  int byteIndexAt(int c) => start + ch.take(c).string.length;
 }

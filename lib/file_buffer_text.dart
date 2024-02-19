@@ -27,7 +27,12 @@ extension FileBufferText on FileBuffer {
 
   // get the byte index text  from the cursor Position
   int byteIndexFromPosition(Position pos) {
-    return lines[pos.l].byteIndexAt(pos.c);
+    Line line = lines[pos.l];
+    if (pos.c == 0) {
+      return line.start;
+    } else {
+      return line.start + line.str.characters.take(pos.c).string.length;
+    }
   }
 
   // the main method used to replace, delete and insert text in the buffer
