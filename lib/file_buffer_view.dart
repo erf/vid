@@ -18,7 +18,7 @@ extension FileBufferView on FileBuffer {
   }
 
   void centerView(Terminal term) {
-    view.l = cursor.l - term.height ~/ 2;
+    view.l = cursor.l - (term.height - 2) ~/ 2;
     view.l = math.max(view.l, 0);
   }
 }
