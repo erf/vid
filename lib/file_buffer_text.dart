@@ -1,5 +1,4 @@
 import 'package:characters/characters.dart';
-import 'package:vid/characters_render.dart';
 
 import 'terminal.dart';
 
@@ -15,15 +14,14 @@ import 'text_op.dart';
 extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
   Position positionFromByteIndex(int start) {
-    Line line =
-        lines.firstWhere((l) => start < l.end, orElse: () => lines.last);
-    int end = start - line.start;
+    Line ln = lines.firstWhere((l) => start < l.end, orElse: () => lines.last);
+    int end = start - ln.start;
     assert(end >= 0, 'positionFromByteIndex: end is negative: $end');
     if (end > 0) {
-      int charpos = line.str.substring(0, end).characters.length;
-      return Position(l: line.no, c: charpos);
+      int charpos = ln.str.substring(0, end).characters.length;
+      return Position(l: ln.no, c: charpos);
     } else {
-      return Position(l: line.no, c: 0);
+      return Position(l: ln.no, c: 0);
     }
   }
 
@@ -35,13 +33,6 @@ extension FileBufferText on FileBuffer {
     } else {
       return line.start + line.str.characters.take(pos.c).string.length;
     }
-  }
-
-  // the main method used to replace, delete and insert text in the buffer
-  void replaceRange(Range range, String newText, [bool undo = true]) {
-    int start = byteIndexFromPosition(range.start);
-    int end = byteIndexFromPosition(range.end);
-    replace(start, end, newText, undo);
   }
 
   // replace text in the buffer, add undo operation and recreate lines
@@ -109,12 +100,18 @@ extension FileBufferText on FileBuffer {
     }
   }
 
+  void replaceRange(Range range, String newText, [bool undo = true]) {
+    int start = byteIndexFromPosition(range.start);
+    int end = byteIndexFromPosition(range.end);
+    replace(start, end, newText, undo);
+  }
+
   void deleteRange(Range range) {
     replaceRange(range, '');
   }
 
   void insertAt(Position pos, String str, [bool undo = true]) {
-    final int start = byteIndexFromPosition(pos);
+    int start = byteIndexFromPosition(pos);
     replace(start, start, str, undo);
   }
 
