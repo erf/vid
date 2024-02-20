@@ -3,10 +3,9 @@ import 'package:characters/characters.dart';
 import 'string_ext.dart';
 
 extension CharactersRender on Characters {
-
   // get the rendered length of the string up to the given index
   int renderLength(int count) {
-    return take(count).fold(0, (prev, curr) => prev + curr.renderWidth);
+    return take(count).fold(0, (prev, curr) => prev + curr.charWidth);
   }
 
   // get the visible string for the given view
@@ -19,11 +18,11 @@ extension CharactersRender on Characters {
     int total = 0;
     bool space = false;
     final line = skipWhile((char) {
-      int renderWidth = char.renderWidth;
-      total += renderWidth;
+      int charWidth = char.charWidth;
+      total += charWidth;
       // add a space to the beginning of the line if the first character is a
       // double width character and start is 1 then
-      if (renderWidth == 2) {
+      if (charWidth == 2) {
         if (total - 1 == start) {
           space = true;
         }
@@ -38,7 +37,7 @@ extension CharactersRender on Characters {
   Characters renderLineEnd(int width) {
     int total = 0;
     return takeWhile((char) {
-      total += char.renderWidth;
+      total += char.charWidth;
       return total <= width;
     });
   }

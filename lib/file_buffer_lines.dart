@@ -57,7 +57,7 @@ extension FileBufferLines on FileBuffer {
         if (Config.breakat.contains(char)) {
           breakIndex = index;
         }
-        lineWidth += char.renderWidth;
+        lineWidth += char.charWidth;
         return lineWidth < width;
       });
       // if line is shorter than the terminal width, return the line

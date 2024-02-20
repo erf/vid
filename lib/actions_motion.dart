@@ -39,7 +39,7 @@ class Motions {
     int curlen = f.lines[p.l].str.characters.renderLength(p.c);
     int nextlen = 0;
     Characters chars = f.lines[nextLine].str.characters.takeWhile((c) {
-      nextlen += c.renderWidth;
+      nextlen += c.charWidth;
       return nextlen <= curlen;
     });
     int char = clamp(chars.length, 0, f.lines[nextLine].charLen - 1);

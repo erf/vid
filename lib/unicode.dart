@@ -5,11 +5,9 @@ import 'east_asian_width_range_list.dart';
 // based on: https://wcwidth.readthedocs.io/en/latest/specs.html
 class Unicode {
   // Get the rendered width of a single character
-  static int renderWidth(String str) {
+  static int charWidth(String str) {
     // if the string is empty, return 0
-    if (str.isEmpty) {
-      return 0;
-    }
+    if (str.isEmpty) return 0;
 
     // Get the Unicode value of the character
     int codePoint = str.codeUnitAt(0);

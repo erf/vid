@@ -14,5 +14,5 @@ extension StringExt on String {
   String get tabsToSpaces => replaceAll('\t', tabSpaces);
 
   // Try to determine the rendered width of a single character
-  int get renderWidth => Unicode.renderWidth(this);
+  int get charWidth => Unicode.charWidth(this);
 }
