@@ -1,36 +1,41 @@
 import 'config.dart';
 import 'east_asian_width_range_list.dart';
 
+// Unicode class to determine the rendered width of a single character
+// based on: https://wcwidth.readthedocs.io/en/latest/specs.html
 class Unicode {
-// Try to determine the rendered width of a single character
-// That is how many columuns it will take up in a monospaced font
+  // Get the rendered width of a single character
   static int renderWidth(String str) {
     // if the string is empty, return 0
     if (str.isEmpty) {
       return 0;
     }
 
+    // Get the Unicode value of the character
+    int codePoint = str.codeUnitAt(0);
+
     // if the string is a single tab return the tab width
-    if (str == '\t') {
+    if (codePoint == 0x0009) {
       return Config.tabWidth;
     }
 
-    // https://wcwidth.readthedocs.io/en/latest/specs.html
-
     // control characters
-    if (str.codeUnitAt(0) <= 0x001F) {
+    if (codePoint <= 0x001F) {
       return 0;
     }
 
     // more control characters
-    if (str.codeUnitAt(0) >= 0x007F && str.codeUnitAt(0) <= 0x00A0) {
+    if (codePoint >= 0x007F && codePoint <= 0x00A0) {
       return 0;
     }
 
     // ASCII fast path
-    if (str.codeUnitAt(0) <= 0x00FF) {
+    if (codePoint <= 0x00FF) {
       return 1;
     }
+
+    // TODO handle zero width
+    // https://wcwidth.readthedocs.io/en/latest/specs.html#width-of-0
 
     // is text presentation
     const int textPresentation = 0xFE0E;
