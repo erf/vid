@@ -15,13 +15,20 @@ class Unicode {
       return Config.tabWidth;
     }
 
-    // ASCII control characters
-    if (str.codeUnitAt(0) < 32) {
+    // https://wcwidth.readthedocs.io/en/latest/specs.html
+
+    // control characters
+    if (str.codeUnitAt(0) <= 0x001F) {
+      return 0;
+    }
+
+    // more control characters
+    if (str.codeUnitAt(0) >= 0x007F && str.codeUnitAt(0) <= 0x00A0) {
       return 0;
     }
 
     // ASCII fast path
-    if (str.codeUnitAt(0) < 256) {
+    if (str.codeUnitAt(0) <= 0x00FF) {
       return 1;
     }
 
@@ -37,7 +44,7 @@ class Unicode {
       return 2;
     }
 
-    // is east asian width wide or fullwidth
+    // east asian width wide or fullwidth
     if (eastAsianWidthRangeList.contains(str.runes.first)) {
       return 2;
     }
