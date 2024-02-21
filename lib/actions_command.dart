@@ -68,7 +68,7 @@ class CommandActions {
     NormalActions.quit(e, f);
   }
 
-  static void quitWoSaving(Editor e, FileBuffer f, List<String> args) {
+  static void forceQuit(Editor e, FileBuffer f, List<String> args) {
     e.quit();
   }
 

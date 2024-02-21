@@ -89,11 +89,16 @@ const motionActions = <String, MotionAction>{
 const commandActions = <String, CommandFn>{
   '': CommandActions.noop,
   'q': CommandActions.quit,
-  'q!': CommandActions.quitWoSaving,
+  'quit': CommandActions.quit,
+  'q!': CommandActions.forceQuit,
+  'quit!': CommandActions.forceQuit,
   'o': CommandActions.open,
+  'open': CommandActions.open,
   'w': CommandActions.write,
+  'write': CommandActions.write,
   'wq': CommandActions.writeAndQuit,
   'x': CommandActions.writeAndQuit,
+  'exit': CommandActions.writeAndQuit,
   'wrap': CommandActions.setWrap,
   'nowrap': CommandActions.setNoWrap,
 };
