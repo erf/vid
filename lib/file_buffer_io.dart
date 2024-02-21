@@ -55,8 +55,8 @@ extension FileBufferIo on FileBuffer {
   // save file to disk or create new file
   // we pass a path so we can try to save to a new file name before setting the path
   void save(String? path) {
-    if (path == null) {
-      throw VidException('\'path\' is null');
+    if (path == null || path.isEmpty) {
+      throw VidException('\'path\' is empty');
     }
     File(path).writeAsStringSync(text);
     setSavepoint();
