@@ -94,6 +94,8 @@ const commandActions = <String, CommandFn>{
   'quit!': CommandActions.forceQuit,
   'o': CommandActions.open,
   'open': CommandActions.open,
+  'r': CommandActions.read,
+  'read': CommandActions.read,
   'w': CommandActions.write,
   'write': CommandActions.write,
   'wq': CommandActions.writeAndQuit,

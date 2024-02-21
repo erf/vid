@@ -305,6 +305,16 @@ class Editor {
     file.addUndo(start: start, end: start, newText: buffer, cursor: cursor);
   }
 
+  void insertFile(String path) {
+    try {
+      File file = File(path);
+      String text = file.readAsStringSync();
+      insertChunk(text);
+    } catch (error) {
+      showMessage('Error opening file: $error');
+    }
+  }
+
   // command mode
   void command(String char) {
     Edit edit = file.edit;

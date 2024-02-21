@@ -32,6 +32,21 @@ class CommandActions {
     }
   }
 
+  static void read(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(Mode.normal);
+    if (args.length < 2 || args[1].isEmpty) {
+      e.showMessage('No file name');
+      return;
+    }
+    String path = args[1];
+    try {
+      e.insertFile(path);
+      e.showMessage('Read $path');
+    } catch (error) {
+      e.showOpenFileError(error);
+    }
+  }
+
   static void write(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
 
