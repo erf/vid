@@ -51,7 +51,6 @@ class Editor {
     } catch (e) {
       if (e is VidException) {
         print(e.message);
-        print('Usage: vid <file> [+<line>]');
       }
       exit(0);
     }
