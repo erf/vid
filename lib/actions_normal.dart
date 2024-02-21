@@ -14,6 +14,7 @@ import 'modes.dart';
 import 'position.dart';
 import 'regex.dart';
 import 'text_op.dart';
+import 'vid_exception.dart';
 
 class NormalActions {
   static NormalFn alias(String alias) {
@@ -70,7 +71,11 @@ class NormalActions {
       f.save(f.path);
       e.showMessage('File saved');
     } catch (error) {
-      e.showSaveFileError(error);
+      if (error is VidException) {
+        e.showMessage('Error saving file: ${error.message}');
+      } else {
+        e.showMessage('Error saving file: $error');
+      }
     }
   }
 

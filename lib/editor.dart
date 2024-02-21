@@ -212,32 +212,6 @@ class Editor {
     }
   }
 
-  void showSaveFileError(Object error) {
-    switch (error) {
-      case FileSystemException():
-        showMessage('Error saving file (${error.osError?.message})');
-      case VidException():
-        showMessage('Error saving file (${error.message})');
-      case Exception():
-        showMessage('Error saving file (${error.toString()})');
-      default:
-        showMessage('Error saving file');
-    }
-  }
-
-  void showOpenFileError(Object error) {
-    switch (error) {
-      case FileSystemException():
-        showMessage('Error opening file (${error.osError?.message})');
-      case VidException():
-        showMessage('Error opening file (${error.message})');
-      case Exception():
-        showMessage('Error opening file (${error.toString()})');
-      default:
-        showMessage('Error opening file');
-    }
-  }
-
   void onInput(List<int> codes) {
     input(utf8.decode(codes));
   }

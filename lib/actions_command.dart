@@ -29,7 +29,11 @@ class CommandActions {
       e.loadFile(path);
       e.showMessage('Opened $path');
     } catch (error) {
-      e.showOpenFileError(error);
+      if (error is VidException) {
+        e.showMessage(error.message);
+      } else {
+        e.showMessage('Error opening file: $error');
+      }
     }
   }
 
@@ -64,7 +68,11 @@ class CommandActions {
       f.path = path; // set path after saving
       e.showMessage('Saved $path');
     } catch (error) {
-      e.showSaveFileError(error);
+      if (error is VidException) {
+        e.showMessage('Error saving file: ${error.message}');
+      } else {
+        e.showMessage('Error saving file: $error');
+      }
     }
   }
 
@@ -79,7 +87,11 @@ class CommandActions {
       f.save(path);
       e.quit();
     } catch (error) {
-      e.showSaveFileError(error);
+      if (error is VidException) {
+        e.showMessage('Error saving file: ${error.message}');
+      } else {
+        e.showMessage('Error saving file: $error');
+      }
     }
   }
 
