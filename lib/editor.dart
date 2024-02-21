@@ -47,7 +47,7 @@ class Editor {
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
     try {
-      file = FileBufferIo.load(this, path ?? '');
+      file = FileBufferIo.load(this, path ?? '', allowNew: true);
     } catch (e) {
       if (e is VidException) {
         print(e.message);
@@ -62,7 +62,7 @@ class Editor {
   }
 
   void loadFile(String path) {
-    file = FileBufferIo.load(this, path);
+    file = FileBufferIo.load(this, path, allowNew: false);
     term.write(Esc.setWindowTitle(path));
     file.createLines(Config.wrapMode, term.width, term.height);
     draw();
@@ -306,13 +306,12 @@ class Editor {
   }
 
   void insertFile(String path) {
-    try {
-      File file = File(path);
-      String text = file.readAsStringSync();
-      insertChunk(text);
-    } catch (error) {
-      showMessage('Error opening file: $error');
+    File file = File(path);
+    if (!file.existsSync()) {
+      throw VidException('File not found: $path');
     }
+    String text = file.readAsStringSync();
+    insertChunk(text);
   }
 
   // command mode

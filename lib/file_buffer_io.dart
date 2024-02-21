@@ -9,7 +9,7 @@ import 'terminal.dart';
 
 extension FileBufferIo on FileBuffer {
   // load file from disk or create new file, return file name
-  static FileBuffer load(Editor editor, String path) {
+  static FileBuffer load(Editor editor, String path, {required bool allowNew}) {
     //  if no path is given, return an empty file buffer
     if (path.isEmpty) {
       return FileBuffer(path: '', text: '');
@@ -22,17 +22,22 @@ extension FileBufferIo on FileBuffer {
 
     // load file if it exists
     final file = File(path);
-    if (!file.existsSync()) {
-      throw VidException('No such file or directory');
+    if (file.existsSync()) {
+      String text;
+      try {
+        text = file.readAsStringSync();
+      } catch (error) {
+        throw VidException('Error reading file: $error');
+      }
+      return FileBuffer(path: path, text: text);
     }
 
-    String text;
-    try {
-      text = file.readAsStringSync();
-    } catch (error) {
-      throw VidException('Error reading file: $error');
+    // create new file if allowed
+    if (allowNew) {
+      return FileBuffer(path: path, text: '');
     }
-    return FileBuffer(path: path, text: text);
+
+    throw VidException('File not found: $path');
   }
 
   // parse line number argument if it exists

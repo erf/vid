@@ -7,6 +7,7 @@ import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'modes.dart';
+import 'vid_exception.dart';
 
 class CommandActions {
   static void noop(Editor e, FileBuffer f, List<String> args) {
@@ -43,7 +44,11 @@ class CommandActions {
       e.insertFile(path);
       e.showMessage('Read $path');
     } catch (error) {
-      e.showOpenFileError(error);
+      if (error is VidException) {
+        e.showMessage(error.message);
+      } else {
+        e.showMessage('Error reading file: $error');
+      }
     }
   }
 
