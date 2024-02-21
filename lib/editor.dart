@@ -71,12 +71,12 @@ class Editor {
   void initTerminal(String? path) {
     term.rawMode = true;
     term.write(
-      Esc.pushWindowTitle +
-          Esc.setWindowTitle(path ?? '[No Name]') +
-          Esc.enableMode2027 +
+      Esc.enableMode2027 +
           Esc.enableAltBuffer +
           Esc.disableAlternateScrollMode +
-          Esc.cursorStyleBlock,
+          Esc.cursorStyleBlock +
+          Esc.pushWindowTitle +
+          Esc.setWindowTitle(path ?? '[No Name]'),
     );
     term.input.listen(onInput);
     term.resize.listen(onResize);
@@ -86,9 +86,9 @@ class Editor {
   void quit() {
     term.write(
       Esc.popWindowTitle +
-          Esc.disableAltBuffer +
           Esc.textStylesReset +
-          Esc.cursorStyleReset,
+          Esc.cursorStyleReset +
+          Esc.disableAltBuffer,
     );
     term.rawMode = false;
     exit(0);
