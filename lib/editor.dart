@@ -45,8 +45,9 @@ class Editor {
   Editor({this.redraw = true});
 
   void init(List<String> args) {
+    String? path = args.isNotEmpty ? args[0] : null;
     try {
-      file = FileBufferIo.load(this, args.isNotEmpty ? args[0] : '');
+      file = FileBufferIo.load(this, path ?? '');
     } catch (e) {
       if (e is VidException) {
         print(e.message);
@@ -55,9 +56,14 @@ class Editor {
       exit(0);
     }
     file.parseCliArgs(args);
+    initTerminal(path);
+    file.createLines(Config.wrapMode, term.width, term.height);
+    draw();
+  }
 
-    initTerminal(file.path);
-
+  void loadFile(String path) {
+    file = FileBufferIo.load(this, path);
+    term.write(Esc.setWindowTitle(path));
     file.createLines(Config.wrapMode, term.width, term.height);
     draw();
   }

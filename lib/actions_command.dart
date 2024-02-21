@@ -7,7 +7,6 @@ import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'modes.dart';
-import 'terminal.dart';
 
 class CommandActions {
   static void noop(Editor e, FileBuffer f, List<String> args) {
@@ -26,10 +25,7 @@ class CommandActions {
     }
     String path = args[1];
     try {
-      e.file = FileBufferIo.load(e, path);
-      Terminal term = Terminal.instance;
-      e.file.createLines(Config.wrapMode, term.width, term.height);
-      e.draw();
+      e.loadFile(path);
       e.showMessage('Opened $path');
     } catch (error) {
       e.showOpenFileError(error);
