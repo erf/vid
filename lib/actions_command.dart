@@ -16,7 +16,7 @@ class CommandActions {
   static void open(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     if (f.modified) {
-      e.showMessage('Current file has unsaved changes');
+      e.showMessage('File has unsaved changes');
       return;
     }
     if (args.length < 2 || args[1].isEmpty) {
