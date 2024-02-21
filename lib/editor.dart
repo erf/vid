@@ -212,6 +212,19 @@ class Editor {
     }
   }
 
+  void showErrorMessage(String message, Object error) {
+    switch (error) {
+      case FileSystemException():
+        showMessage('$message ${error.osError?.message})');
+      case VidException():
+        showMessage('$message (${error.message})');
+      case Exception():
+        showMessage('$message (${error.toString()})');
+      default:
+        showMessage(message);
+    }
+  }
+
   void onInput(List<int> codes) {
     input(utf8.decode(codes));
   }

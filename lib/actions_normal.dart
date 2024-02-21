@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:vid/file_buffer_view.dart';
-
 import 'action_typedefs.dart';
 import 'config.dart';
 import 'editor.dart';
@@ -10,11 +8,11 @@ import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
+import 'file_buffer_view.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'regex.dart';
 import 'text_op.dart';
-import 'vid_exception.dart';
 
 class NormalActions {
   static NormalFn alias(String alias) {
@@ -71,11 +69,7 @@ class NormalActions {
       f.save(f.path);
       e.showMessage('File saved');
     } catch (error) {
-      if (error is VidException) {
-        e.showMessage('Error saving file: ${error.message}');
-      } else {
-        e.showMessage('Error saving file: $error');
-      }
+      e.showErrorMessage('Error saving file', error);
     }
   }
 

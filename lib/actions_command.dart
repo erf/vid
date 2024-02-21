@@ -7,7 +7,6 @@ import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'modes.dart';
-import 'vid_exception.dart';
 
 class CommandActions {
   static void noop(Editor e, FileBuffer f, List<String> args) {
@@ -29,11 +28,7 @@ class CommandActions {
       e.loadFile(path);
       e.showMessage('Opened $path');
     } catch (error) {
-      if (error is VidException) {
-        e.showMessage(error.message);
-      } else {
-        e.showMessage('Error opening file: $error');
-      }
+      e.showErrorMessage('Error opening file', error);
     }
   }
 
@@ -48,11 +43,7 @@ class CommandActions {
       e.insertFile(path);
       e.showMessage('Read $path');
     } catch (error) {
-      if (error is VidException) {
-        e.showMessage(error.message);
-      } else {
-        e.showMessage('Error reading file: $error');
-      }
+      e.showErrorMessage('Error reading file', error);
     }
   }
 
@@ -68,11 +59,7 @@ class CommandActions {
       f.path = path; // set path after saving
       e.showMessage('Saved $path');
     } catch (error) {
-      if (error is VidException) {
-        e.showMessage('Error saving file: ${error.message}');
-      } else {
-        e.showMessage('Error saving file: $error');
-      }
+      e.showErrorMessage('Error saving file', error);
     }
   }
 
@@ -87,11 +74,7 @@ class CommandActions {
       f.save(path);
       e.quit();
     } catch (error) {
-      if (error is VidException) {
-        e.showMessage('Error saving file: ${error.message}');
-      } else {
-        e.showMessage('Error saving file: $error');
-      }
+      e.showErrorMessage('Error saving file', error);
     }
   }
 
