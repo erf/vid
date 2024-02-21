@@ -45,8 +45,6 @@ class Editor {
   Editor({this.redraw = true});
 
   void init(List<String> args) {
-    file.load(this, args);
-    file.createLines(Config.wrapMode, term.width, term.height);
     term.rawMode = true;
     term.write(Esc.pushWindowTitle);
     term.write(Esc.setWindowTitle(file.path ?? '[No Name]'));
@@ -57,6 +55,13 @@ class Editor {
     term.input.listen(onInput);
     term.resize.listen(onResize);
     term.sigint.listen(onSigint);
+
+    loadFile(args);
+  }
+
+  void loadFile(List<String> args) {
+    file.load(this, args);
+    file.createLines(Config.wrapMode, term.width, term.height);
     draw();
   }
 
