@@ -90,6 +90,7 @@ const commandActions = <String, CommandFn>{
   '': CommandActions.noop,
   'q': CommandActions.quit,
   'q!': CommandActions.quitWoSaving,
+  'o': CommandActions.open,
   'w': CommandActions.write,
   'wq': CommandActions.writeAndQuit,
   'x': CommandActions.writeAndQuit,

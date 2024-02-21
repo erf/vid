@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/string_ext.dart';
 
 import 'action_typedefs.dart';
 import 'actions_command.dart';
@@ -29,6 +28,7 @@ import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
+import 'string_ext.dart';
 import 'terminal.dart';
 import 'vid_exception.dart';
 
@@ -45,9 +45,27 @@ class Editor {
   Editor({this.redraw = true});
 
   void init(List<String> args) {
+    try {
+      file = FileBufferIo.load(this, args.isNotEmpty ? args[0] : '');
+    } catch (e) {
+      if (e is VidException) {
+        print(e.message);
+        print('Usage: vid <file> [+<line>]');
+      }
+      exit(0);
+    }
+    file.parseCliArgs(args);
+
+    initTerminal(file.path);
+
+    file.createLines(Config.wrapMode, term.width, term.height);
+    draw();
+  }
+
+  void initTerminal(String? path) {
     term.rawMode = true;
     term.write(Esc.pushWindowTitle);
-    term.write(Esc.setWindowTitle(file.path ?? '[No Name]'));
+    term.write(Esc.setWindowTitle(path ?? '[No Name]'));
     term.write(Esc.enableMode2027);
     term.write(Esc.enableAltBuffer);
     term.write(Esc.disableAlternateScrollMode);
@@ -55,14 +73,6 @@ class Editor {
     term.input.listen(onInput);
     term.resize.listen(onResize);
     term.sigint.listen(onSigint);
-
-    loadFile(args);
-  }
-
-  void loadFile(List<String> args) {
-    file.load(this, args);
-    file.createLines(Config.wrapMode, term.width, term.height);
-    draw();
   }
 
   void quit() {
@@ -206,6 +216,19 @@ class Editor {
         showMessage('Error saving file (${error.toString()})');
       default:
         showMessage('Error saving file');
+    }
+  }
+
+  void showOpenFileError(Object error) {
+    switch (error) {
+      case FileSystemException():
+        showMessage('Error opening file (${error.osError?.message})');
+      case VidException():
+        showMessage('Error opening file (${error.message})');
+      case Exception():
+        showMessage('Error opening file (${error.toString()})');
+      default:
+        showMessage('Error opening file');
     }
   }
 

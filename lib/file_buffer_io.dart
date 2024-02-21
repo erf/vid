@@ -7,18 +7,36 @@ import 'esc.dart';
 import 'file_buffer.dart';
 import 'terminal.dart';
 
-extension FileBufferLines on FileBuffer {
+extension FileBufferIo on FileBuffer {
   // load file from disk or create new file, return file name
-  void load(Editor editor, List<String> args) {
-    //  if no arguments, return
-    if (args.isEmpty) {
-      return;
+  static FileBuffer load(Editor editor, String path) {
+    //  if no path is given, return an empty file buffer
+    if (path.isEmpty) {
+      return FileBuffer(path: '', text: '');
     }
 
-    // parse file name
-    path = args.first;
+    // check if path is a directory
+    if (Directory(path).existsSync()) {
+      throw VidException('Cannot open directory \'$path\'');
+    }
 
-    // parse line number argument
+    // load file if it exists
+    final file = File(path);
+    if (!file.existsSync()) {
+      throw VidException('No such file or directory');
+    }
+
+    String text;
+    try {
+      text = file.readAsStringSync();
+    } catch (error) {
+      throw VidException('Error reading file: $error');
+    }
+    return FileBuffer(path: path, text: text);
+  }
+
+  // parse line number argument if it exists
+  void parseCliArgs(List<String> args) {
     if (args.length > 1 && args.last.startsWith('+')) {
       final lineNo = args.last.substring(1);
       if (lineNo.isNotEmpty) {
@@ -26,18 +44,6 @@ extension FileBufferLines on FileBuffer {
       } else {
         cursor.l = 0;
       }
-    }
-
-    // check if path is a directory
-    if (Directory(path!).existsSync()) {
-      print('Cannot open directory \'$path\'');
-      exit(1);
-    }
-
-    // load file if it exists
-    final file = File(path!);
-    if (file.existsSync()) {
-      text = file.readAsStringSync();
     }
   }
 

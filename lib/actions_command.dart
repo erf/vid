@@ -1,17 +1,39 @@
-import 'config.dart';
-import 'file_buffer_lines.dart';
-
 import 'actions_normal.dart';
+import 'config.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
+import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'modes.dart';
+import 'terminal.dart';
 
 class CommandActions {
   static void noop(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
+  }
+
+  static void open(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(Mode.normal);
+    if (f.modified) {
+      e.showMessage('Current file has unsaved changes');
+      return;
+    }
+    if (args.length < 2 || args[1].isEmpty) {
+      e.showMessage('No file name');
+      return;
+    }
+    String path = args[1];
+    try {
+      e.file = FileBufferIo.load(e, path);
+      Terminal term = Terminal.instance;
+      e.file.createLines(Config.wrapMode, term.width, term.height);
+      e.draw();
+      e.showMessage('Opened $path');
+    } catch (error) {
+      e.showOpenFileError(error);
+    }
   }
 
   static void write(Editor e, FileBuffer f, List<String> args) {

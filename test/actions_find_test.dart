@@ -8,8 +8,7 @@ import 'package:vid/position.dart';
 
 void main() {
   test('motionFindNextChar', () {
-    final f = FileBuffer();
-    f.text = 'abca\ndef\n';
+    final f = FileBuffer(text: 'abca\ndef\n');
     f.createLines(WrapMode.none, 80, 24);
     final cursor = Position(c: 0, l: 0);
     expect(Find.findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
@@ -22,8 +21,7 @@ void main() {
   });
 
   test('motionFindPrevChar', () {
-    final f = FileBuffer();
-    f.text = 'abc\ndef\n';
+    final f = FileBuffer(text: 'abc\ndef\n');
     f.createLines(WrapMode.none, 80, 24);
     final cursor = Position(c: 2, l: 0);
     expect(Find.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));

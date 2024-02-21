@@ -5,8 +5,7 @@ import 'package:vid/file_buffer_lines.dart';
 
 void main() {
   test('createLines', () {
-    final f = FileBuffer();
-    f.text = 'abc\ndef';
+    final f = FileBuffer(text: 'abc\ndef');
     f.createLines(WrapMode.none, 80, 24);
     expect(f.lines.length, 2);
     expect(f.lines[0].str, 'abc ');
@@ -14,8 +13,7 @@ void main() {
   });
 
   test('createLines w newline at end', () {
-    final f = FileBuffer();
-    f.text = 'abc\ndef\n';
+    final f = FileBuffer(text: 'abc\ndef\n');
     f.createLines(WrapMode.none, 80, 24);
     expect(f.lines.length, 2);
     expect(f.lines[0].str, 'abc ');
@@ -23,8 +21,7 @@ void main() {
   });
 
   test('createLines with wordwrap', () {
-    final f = FileBuffer();
-    f.text = 'abc def ghi jkl';
+    final f = FileBuffer(text: 'abc def ghi jkl');
     f.createLines(WrapMode.word, 8, 10);
     expect(f.lines.length, 2);
     expect(f.lines[0].str, 'abc def ');
@@ -32,8 +29,7 @@ void main() {
   });
 
   test('createLines with emoji at end', () {
-    final f = FileBuffer();
-    f.text = 'abc def😀 ghi jkl\n';
+    final f = FileBuffer(text: 'abc def😀 ghi jkl\n');
     f.createLines(WrapMode.word, 8, 20);
     expect(f.lines.length, 3);
     expect(f.lines[0].str, 'abc ');
@@ -42,8 +38,7 @@ void main() {
   });
 
   test('createLines word wrapped use last breakat point', () {
-    final f = FileBuffer();
-    f.text = 'The old bookstore exuded';
+    final f = FileBuffer(text: 'The old bookstore exuded');
     f.createLines(WrapMode.word, 20, 20);
     expect(f.lines.length, 2);
     expect(f.lines[0].str, 'The old bookstore ');
@@ -55,14 +50,13 @@ void main() {
   });
 
   test('createLines word wrapped over multiple lines', () {
-    final f = FileBuffer();
-    f.text = """
+    final f = FileBuffer(text: """
 The old bookstore exuded
 
 a smell of paper and ink
 
 and dust.
-""";
+""");
     f.createLines(WrapMode.word, 20, 20);
 
     expect(f.lines.length, 7);
