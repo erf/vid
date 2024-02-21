@@ -178,7 +178,9 @@ class Editor {
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String wrap = Config.wrapMode == WrapMode.word ? '↵' : '';
-    String left = ' $modestr $path $modified $wrap $message ';
+    String left = [' ', modestr, path, modified, wrap, message, ' ']
+        .where((s) => s.isNotEmpty)
+        .join(' ');
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     int padLeft = term.width - left.length - 1;
     String status = '$left ${right.padLeft(padLeft)}';
