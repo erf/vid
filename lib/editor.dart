@@ -24,6 +24,7 @@ import 'file_buffer_view.dart';
 import 'keys.dart';
 import 'line.dart';
 import 'map_partial_match.dart';
+import 'message.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'range.dart';
@@ -31,19 +32,6 @@ import 'regex.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
 import 'vid_exception.dart';
-
-enum MessageType { info, error }
-
-class Message {
-  String text;
-  MessageType type;
-
-  Message(this.text, this.type);
-
-  factory Message.info(String message) => Message(message, MessageType.info);
-
-  factory Message.error(String message) => Message(message, MessageType.error);
-}
 
 class Editor {
   Terminal term = Terminal.instance;

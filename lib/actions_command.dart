@@ -1,3 +1,5 @@
+import 'package:vid/message.dart';
+
 import 'actions_normal.dart';
 import 'config.dart';
 import 'editor.dart';

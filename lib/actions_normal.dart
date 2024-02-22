@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/message.dart';
+
 import 'action_typedefs.dart';
 import 'config.dart';
 import 'editor.dart';
