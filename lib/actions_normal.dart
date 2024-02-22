@@ -56,7 +56,7 @@ class NormalActions {
 
   static void quit(Editor e, FileBuffer f) {
     if (f.modified) {
-      e.showMessage(Message.error('Has changes'));
+      e.showMessage(Message.error('File has unsaved changes'));
     } else {
       e.quit();
     }
