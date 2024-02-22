@@ -230,16 +230,15 @@ class Editor {
     }
   }
 
-  void showErrorMessage(String message, Object error) {
+  void showError(Object error) {
     switch (error) {
       case FileSystemException():
-        showMessage(Message.error('$message (${error.osError?.message})'));
+        showMessage(Message.error(
+            'Error: ${error.osError?.message ?? error.toString()}'));
       case VidException():
-        showMessage(Message.error('$message (${error.message})'));
-      case Exception():
-        showMessage(Message.error('$message (${error.toString()})'));
+        showMessage(Message.error('Error: ${error.message}'));
       default:
-        showMessage(Message.error(message));
+        showMessage(Message.error('Error: ${error.toString()}'));
     }
   }
 
@@ -313,7 +312,7 @@ class Editor {
   void insertFile(String path) {
     File file = File(path);
     if (!file.existsSync()) {
-      throw VidException('File not found: $path');
+      throw VidException('File not found \'$path\'');
     }
     String text = file.readAsStringSync();
     insertChunk(text);

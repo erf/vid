@@ -28,9 +28,9 @@ class CommandActions {
     String path = args[1];
     try {
       e.loadFile(path);
-      e.showMessage(Message.info('Opened $path'));
+      e.showMessage(Message.info('Opened \'$path\''));
     } catch (error) {
-      e.showErrorMessage('Error opening file', error);
+      e.showError(error);
     }
   }
 
@@ -43,9 +43,9 @@ class CommandActions {
     String path = args[1];
     try {
       e.insertFile(path);
-      e.showMessage(Message.info('Read $path'));
+      e.showMessage(Message.info('Read \'$path\''));
     } catch (error) {
-      e.showErrorMessage('Error reading file', error);
+      e.showError(error);
     }
   }
 
@@ -59,9 +59,9 @@ class CommandActions {
     try {
       f.save(path);
       f.path = path; // set path after saving
-      e.showMessage(Message.info('Saved $path'));
+      e.showMessage(Message.info('Saved \'$path\''));
     } catch (error) {
-      e.showErrorMessage('Error saving file', error);
+      e.showError(error);
     }
   }
 
@@ -76,7 +76,7 @@ class CommandActions {
       f.save(path);
       e.quit();
     } catch (error) {
-      e.showErrorMessage('Error saving file', error);
+      e.showError(error);
     }
   }
 

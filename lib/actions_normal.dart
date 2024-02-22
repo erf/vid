@@ -71,7 +71,7 @@ class NormalActions {
       f.save(f.path);
       e.showMessage(Message.info('File saved'));
     } catch (error) {
-      e.showErrorMessage('Error saving file', error);
+      e.showError(error);
     }
   }
 

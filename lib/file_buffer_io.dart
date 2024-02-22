@@ -37,7 +37,7 @@ extension FileBufferIo on FileBuffer {
       return FileBuffer(path: path, text: '');
     }
 
-    throw VidException('File not found: $path');
+    throw VidException('File not found \'$path\'');
   }
 
   // parse line number argument if it exists
