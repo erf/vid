@@ -16,17 +16,17 @@ class CommandActions {
   static void open(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     if (f.modified) {
-      e.showMessage('File has unsaved changes');
+      e.showMessage(Message.error('File has unsaved changes'));
       return;
     }
     if (args.length < 2 || args[1].isEmpty) {
-      e.showMessage('No file name');
+      e.showMessage(Message.error('No file name'));
       return;
     }
     String path = args[1];
     try {
       e.loadFile(path);
-      e.showMessage('Opened $path');
+      e.showMessage(Message.info('Opened $path'));
     } catch (error) {
       e.showErrorMessage('Error opening file', error);
     }
@@ -35,13 +35,13 @@ class CommandActions {
   static void read(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     if (args.length < 2 || args[1].isEmpty) {
-      e.showMessage('No file name');
+      e.showMessage(Message.error('No file name'));
       return;
     }
     String path = args[1];
     try {
       e.insertFile(path);
-      e.showMessage('Read $path');
+      e.showMessage(Message.info('Read $path'));
     } catch (error) {
       e.showErrorMessage('Error reading file', error);
     }
@@ -57,7 +57,7 @@ class CommandActions {
     try {
       f.save(path);
       f.path = path; // set path after saving
-      e.showMessage('Saved $path');
+      e.showMessage(Message.info('Saved $path'));
     } catch (error) {
       e.showErrorMessage('Error saving file', error);
     }

@@ -54,7 +54,7 @@ class NormalActions {
 
   static void quit(Editor e, FileBuffer f) {
     if (f.modified) {
-      e.showMessage('Has changes');
+      e.showMessage(Message.error('Has changes'));
     } else {
       e.quit();
     }
@@ -67,7 +67,7 @@ class NormalActions {
   static void save(Editor e, FileBuffer f) {
     try {
       f.save(f.path);
-      e.showMessage('File saved');
+      e.showMessage(Message.info('File saved'));
     } catch (error) {
       e.showErrorMessage('Error saving file', error);
     }

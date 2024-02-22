@@ -32,11 +32,24 @@ import 'string_ext.dart';
 import 'terminal.dart';
 import 'vid_exception.dart';
 
+enum MessageType { info, error }
+
+class Message {
+  String text;
+  MessageType type;
+
+  Message(this.text, this.type);
+
+  factory Message.info(String message) => Message(message, MessageType.info);
+
+  factory Message.error(String message) => Message(message, MessageType.error);
+}
+
 class Editor {
   Terminal term = Terminal.instance;
   FileBuffer file = FileBuffer();
   StringBuffer rbuf = StringBuffer();
-  String message = '';
+  Message? message;
   Timer? messageTimer;
   String? logPath;
   File? logFile;
@@ -97,7 +110,7 @@ class Editor {
     int byteIndex = file.byteIndexFromPosition(file.cursor);
     file.createLines(Config.wrapMode, term.width, term.height);
     file.cursor = file.positionFromByteIndex(byteIndex);
-    showMessage('${term.width}x${term.height}');
+    showMessage(Message.info('${term.width}x${term.height}'));
     draw();
   }
 
@@ -178,7 +191,7 @@ class Editor {
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String wrap = Config.wrapMode == WrapMode.word ? '↵' : '';
-    String left = [' ', modestr, path, modified, wrap, message, ' ']
+    String left = [' ', modestr, path, modified, wrap, ' ']
         .where((s) => s.isNotEmpty)
         .join(' ');
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
@@ -192,6 +205,18 @@ class Editor {
     }
 
     rbuf.write(Esc.reverseColors);
+
+    // draw message
+    if (message != null) {
+      if (message!.type == MessageType.error) {
+        rbuf.write(Esc.redColor);
+      } else {
+        rbuf.write(Esc.greenColor);
+      }
+      rbuf.write(Esc.cursorPosition(c: 1, l: term.height - 1));
+      rbuf.write(message!.text);
+      rbuf.write(Esc.textStylesReset);
+    }
   }
 
   String statusModeLabel(Mode mode) {
@@ -205,13 +230,13 @@ class Editor {
     };
   }
 
-  void showMessage(String message, {bool timed = true}) {
+  void showMessage(Message message, {bool timed = true}) {
     this.message = message;
     draw();
     if (timed) {
       messageTimer?.cancel();
       messageTimer = Timer(Duration(milliseconds: Config.messageTime), () {
-        this.message = '';
+        this.message = null;
         draw();
       });
     }
@@ -220,13 +245,13 @@ class Editor {
   void showErrorMessage(String message, Object error) {
     switch (error) {
       case FileSystemException():
-        showMessage('$message (${error.osError?.message})');
+        showMessage(Message.error('$message (${error.osError?.message})'));
       case VidException():
-        showMessage('$message (${error.message})');
+        showMessage(Message.error('$message (${error.message})'));
       case Exception():
-        showMessage('$message (${error.toString()})');
+        showMessage(Message.error('$message (${error.toString()})'));
       default:
-        showMessage(message);
+        showMessage(Message.error(message));
     }
   }
 
@@ -274,7 +299,7 @@ class Editor {
     if (redraw) {
       draw();
     }
-    message = '';
+    message = null;
   }
 
   // if str is not a single char, insert it line by line to update cursor
@@ -346,7 +371,7 @@ class Editor {
     }
     // unknown command
     file.setMode(Mode.normal);
-    showMessage('Unknown command \'$command\'');
+    showMessage(Message.error('Unknown command \'$command\''));
   }
 
   void doSearch(String pattern) {

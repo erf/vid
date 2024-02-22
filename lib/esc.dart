@@ -27,6 +27,12 @@ class Esc {
   // reverse colors
   static const String reverseColors = '$e[27m';
 
+  // red color
+  static const String redColor = '$e[31m';
+
+  // green color
+  static const String greenColor = '$e[32m';
+
   // reset colors
   static const String textStylesReset = '$e[0m';
 
