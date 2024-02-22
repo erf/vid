@@ -179,20 +179,17 @@ class Editor {
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String wrap = Config.wrapMode == WrapMode.word ? '↵' : '';
-    String left = [' ', modestr, path, modified, wrap, ' ']
-        .where((s) => s.isNotEmpty)
-        .join(' ');
+    String left =
+        [modestr, path, modified, wrap].where((s) => s.isNotEmpty).join(' ');
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
-    int padLeft = term.width - left.length - 1;
-    String status = '$left ${right.padLeft(padLeft)}';
+    int padLeft = term.width - left.length - 2;
+    String status = ' $left ${right.padLeft(padLeft)}';
 
     if (status.length <= term.width - 1) {
       rbuf.write(status);
     } else {
       rbuf.write(status.substring(0, term.width));
     }
-
-    rbuf.write(Esc.reverseColors);
 
     // draw message
     if (message != null) {
@@ -202,9 +199,11 @@ class Editor {
         rbuf.write(Esc.greenColor);
       }
       rbuf.write(Esc.cursorPosition(c: 1, l: term.height - 1));
-      rbuf.write(message!.text);
+      rbuf.write(' ${message!.text} ');
       rbuf.write(Esc.textStylesReset);
     }
+
+    rbuf.write(Esc.reverseColors);
   }
 
   String statusModeLabel(Mode mode) {
