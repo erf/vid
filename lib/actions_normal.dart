@@ -5,6 +5,7 @@ import 'package:vid/message.dart';
 import 'action_typedefs.dart';
 import 'config.dart';
 import 'editor.dart';
+import 'error_or.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
@@ -67,11 +68,11 @@ class NormalActions {
   }
 
   static void save(Editor e, FileBuffer f) {
-    try {
-      f.save(f.path);
+    ErrorOr result = f.save(f.path);
+    if (result.hasError) {
+      e.showMessage(Message.error(result.error!));
+    } else {
       e.showMessage(Message.info('File saved'));
-    } catch (error) {
-      e.showError(error);
     }
   }
 

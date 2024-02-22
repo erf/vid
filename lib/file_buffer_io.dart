@@ -1,23 +1,23 @@
 import 'dart:io';
 
-import 'vid_exception.dart';
-
 import 'editor.dart';
+import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
 import 'terminal.dart';
 
 extension FileBufferIo on FileBuffer {
   // load file from disk or create new file, return file name
-  static FileBuffer load(Editor editor, String path, {required bool allowNew}) {
+  static ErrorOr<FileBuffer> load(Editor editor, String path,
+      {required bool allowNew}) {
     //  if no path is given, return an empty file buffer
     if (path.isEmpty) {
-      return FileBuffer(path: '', text: '');
+      return ErrorOr.value(FileBuffer(path: '', text: ''));
     }
 
     // check if path is a directory
     if (Directory(path).existsSync()) {
-      throw VidException('Cannot open directory \'$path\'');
+      return ErrorOr.error('Cannot open directory \'$path\'');
     }
 
     // load file if it exists
@@ -27,17 +27,17 @@ extension FileBufferIo on FileBuffer {
       try {
         text = file.readAsStringSync();
       } catch (error) {
-        throw VidException('Error reading file: $error');
+        return ErrorOr.error('Error reading file: $error');
       }
-      return FileBuffer(path: path, text: text);
+      return ErrorOr.value(FileBuffer(path: path, text: text));
     }
 
     // create new file if allowed
     if (allowNew) {
-      return FileBuffer(path: path, text: '');
+      return ErrorOr.value(FileBuffer(path: path, text: ''));
     }
 
-    throw VidException('File not found \'$path\'');
+    return ErrorOr.error('File not found \'$path\'');
   }
 
   // parse line number argument if it exists
@@ -54,12 +54,17 @@ extension FileBufferIo on FileBuffer {
 
   // save file to disk or create new file
   // we pass a path so we can try to save to a new file name before setting the path
-  void save(String? path) {
+  ErrorOr<bool> save(String? path) {
     if (path == null || path.isEmpty) {
-      throw VidException('path is empty');
+      return ErrorOr.error('path is empty');
     }
-    File(path).writeAsStringSync(text);
+    try {
+      File(path).writeAsStringSync(text);
+    } catch (error) {
+      return ErrorOr.error('Error saving file: $path');
+    }
     setSavepoint();
     Terminal.instance.write(Esc.setWindowTitle(path));
+    return ErrorOr.value(true);
   }
 }

@@ -3,6 +3,7 @@ import 'package:vid/message.dart';
 import 'actions_normal.dart';
 import 'config.dart';
 import 'editor.dart';
+import 'error_or.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
@@ -26,11 +27,11 @@ class CommandActions {
       return;
     }
     String path = args[1];
-    try {
-      e.loadFile(path);
+    ErrorOr result = e.loadFile(path);
+    if (result.hasError) {
+      e.showMessage(Message.error(result.error!));
+    } else {
       e.showMessage(Message.info('Opened \'$path\''));
-    } catch (error) {
-      e.showError(error);
     }
   }
 
@@ -41,11 +42,11 @@ class CommandActions {
       return;
     }
     String path = args[1];
-    try {
-      e.insertFile(path);
+    ErrorOr result = e.insertFile(path);
+    if (result.hasError) {
+      e.showMessage(Message.error(result.error!));
+    } else {
       e.showMessage(Message.info('Read \'$path\''));
-    } catch (error) {
-      e.showError(error);
     }
   }
 
@@ -56,12 +57,13 @@ class CommandActions {
     if (args.length > 1) {
       path = args[1];
     }
-    try {
-      f.save(path);
-      f.path = path; // set path after saving
+
+    var result = f.save(path);
+    if (result.hasError) {
+      e.showMessage(Message.error(result.error!));
+    } else {
+      f.path = path; // set path after successful save
       e.showMessage(Message.info('Saved \'$path\''));
-    } catch (error) {
-      e.showError(error);
     }
   }
 
@@ -72,11 +74,12 @@ class CommandActions {
     if (args.length > 1) {
       path = args[1];
     }
-    try {
-      f.save(path);
+
+    ErrorOr result = f.save(path);
+    if (result.hasError) {
+      e.showMessage(Message.error(result.error!));
+    } else {
       e.quit();
-    } catch (error) {
-      e.showError(error);
     }
   }
 

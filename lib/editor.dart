@@ -14,6 +14,7 @@ import 'bindings.dart';
 import 'characters_render.dart';
 import 'config.dart';
 import 'edit.dart';
+import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
@@ -31,7 +32,6 @@ import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
 import 'terminal.dart';
-import 'vid_exception.dart';
 
 class Editor {
   Terminal term = Terminal.instance;
@@ -47,25 +47,29 @@ class Editor {
 
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
-    try {
-      file = FileBufferIo.load(this, path ?? '', allowNew: true);
-    } catch (e) {
-      if (e is VidException) {
-        print(e.message);
-      }
+    ErrorOr<FileBuffer> result =
+        FileBufferIo.load(this, path ?? '', allowNew: true);
+    if (result.hasError) {
+      print(result.error);
       exit(0);
     }
+    file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
     file.createLines(Config.wrapMode, term.width, term.height);
     draw();
   }
 
-  void loadFile(String path) {
-    file = FileBufferIo.load(this, path, allowNew: false);
+  ErrorOr<FileBuffer> loadFile(String path) {
+    ErrorOr<FileBuffer> result = FileBufferIo.load(this, path, allowNew: false);
+    if (result.hasError) {
+      return result;
+    }
+    file = result.value!;
     term.write(Esc.setWindowTitle(path));
     file.createLines(Config.wrapMode, term.width, term.height);
     draw();
+    return result;
   }
 
   void initTerminal(String? path) {
@@ -229,18 +233,6 @@ class Editor {
     }
   }
 
-  void showError(Object error) {
-    switch (error) {
-      case FileSystemException():
-        showMessage(Message.error(
-            'Error: ${error.osError?.message ?? error.toString()}'));
-      case VidException():
-        showMessage(Message.error('Error: ${error.message}'));
-      default:
-        showMessage(Message.error('Error: ${error.toString()}'));
-    }
-  }
-
   void onInput(List<int> codes) {
     input(utf8.decode(codes));
   }
@@ -308,13 +300,14 @@ class Editor {
     file.addUndo(start: start, end: start, newText: buffer, cursor: cursor);
   }
 
-  void insertFile(String path) {
+  ErrorOr<bool> insertFile(String path) {
     File file = File(path);
     if (!file.existsSync()) {
-      throw VidException('File not found \'$path\'');
+      return ErrorOr.error('File not found \'$path\'');
     }
     String text = file.readAsStringSync();
     insertChunk(text);
+    return ErrorOr.value(true);
   }
 
   // command mode
