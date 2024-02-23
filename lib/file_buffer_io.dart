@@ -61,7 +61,7 @@ extension FileBufferIo on FileBuffer {
     try {
       File(path).writeAsStringSync(text);
     } catch (error) {
-      return ErrorOr.error('Error saving file: $path');
+      return ErrorOr.error('Error saving file \'$path\'');
     }
     setSavepoint();
     Terminal.instance.write(Esc.setWindowTitle(path));
