@@ -179,12 +179,12 @@ class Editor {
     rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
 
     Position cursor = file.cursor;
-    String modestr = statusModeLabel(file.mode);
+    String mode = statusModeLabel(file.mode);
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String wrap = Config.wrapMode == WrapMode.word ? '↵' : '';
     String left =
-        [modestr, path, modified, wrap].where((s) => s.isNotEmpty).join(' ');
+        [mode, path, modified, wrap].where((s) => s.isNotEmpty).join(' ');
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     int padLeft = term.width - left.length - 2;
     String status = ' $left ${right.padLeft(padLeft)}';
