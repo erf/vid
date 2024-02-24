@@ -2,11 +2,11 @@ class ErrorOr<T> {
   final T? value;
   final String? error;
 
-  ErrorOr(this.value, this.error);
+  const ErrorOr(this.value, this.error);
 
-  ErrorOr.value(T value) : this(value, null);
+  const ErrorOr.value(T value) : this(value, null);
 
-  ErrorOr.error(String error) : this(null, error);
+  const ErrorOr.error(String error) : this(null, error);
 
   bool get hasValue => value != null;
 
