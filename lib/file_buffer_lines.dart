@@ -78,13 +78,12 @@ extension FileBufferLines on FileBuffer {
         lineWidth = lineWidthAtBreakIndex;
         lineNo++;
       }
+    }
 
-      // add last part of the line
-      if (index == line.length) {
-        String subline = line.substring(lineStart);
-        lines.add(Line('$subline ', start: start + lineStart, no: lineNo));
-        break;
-      }
+    // add last part of the line
+    if (lineStart < line.length) {
+      String subline = line.substring(lineStart);
+      lines.add(Line('$subline ', start: start + lineStart, no: lineNo));
     }
 
     return lines;
