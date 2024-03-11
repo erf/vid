@@ -30,10 +30,11 @@ extension FileBufferLines on FileBuffer {
       switch (wrapMode) {
         case WrapMode.none:
           lines.add(Line('$line ', no: i, start: start));
+          start += line.length + 1;
         case WrapMode.word:
           lines.addAll(wordWrapLine(line, lines.length, start, width));
+          start = lines.last.end;
       }
-      start += line.length + 1;
     }
   }
 
@@ -52,33 +53,38 @@ extension FileBufferLines on FileBuffer {
     int lineWidth = 0;
     int lineWidthAtBreakIndex = 0;
     List<Line> lines = [];
+
     for (String char in line.characters) {
       index += char.length;
-      lineWidth += char.charWidth;
+      int charWidth = char.charWidth;
+      lineWidth += charWidth;
+      lineWidthAtBreakIndex += charWidth;
       if (Config.breakat.contains(char)) {
         breakIndex = index;
-        lineWidthAtBreakIndex = lineWidth;
+        lineWidthAtBreakIndex = 0;
       }
       // add a line break at the last breakat or at the end of the line
       if (lineWidth >= width) {
         // if we didn't find a breakat, break at the eol / terminal width
         if (breakIndex == -1) {
           breakIndex = index;
-          lineWidthAtBreakIndex = lineWidth;
+          lineWidthAtBreakIndex = 0;
         }
-        String subLine = line.substring(lineStart, breakIndex);
-        lines.add(Line(subLine, no: lineNo, start: start + lineStart));
+        String subline = line.substring(lineStart, breakIndex);
+        lines.add(Line(subline, no: lineNo, start: start + lineStart));
 
         lineStart = breakIndex;
         breakIndex = -1;
-        lineWidth -= lineWidthAtBreakIndex;
+        lineWidth = lineWidthAtBreakIndex;
         lineNo++;
       }
-    }
-    // add the last part of the line
-    if (lineStart < index) {
-      String subLine = line.substring(lineStart, line.length);
-      lines.add(Line('$subLine ', no: lineNo, start: start));
+
+      // add last part of the line
+      if (index == line.length) {
+        String subline = line.substring(lineStart);
+        lines.add(Line('$subline ', start: start + lineStart, no: lineNo));
+        break;
+      }
     }
 
     return lines;
