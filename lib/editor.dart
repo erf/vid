@@ -181,7 +181,8 @@ class Editor {
     String mode = statusModeLabel(file.mode);
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
-    String wrap = Config.wrapMode == WrapMode.word ? '↵' : '';
+    const List<String> wrapSymbols = ['', '#', '↵'];
+    String wrap = wrapSymbols[Config.wrapMode.index];
     String left =
         [mode, path, modified, wrap].where((s) => s.isNotEmpty).join(' ');
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
