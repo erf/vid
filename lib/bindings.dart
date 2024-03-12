@@ -101,8 +101,9 @@ const commandActions = <String, CommandFn>{
   'wq': CommandActions.writeAndQuit,
   'x': CommandActions.writeAndQuit,
   'exit': CommandActions.writeAndQuit,
-  'wrap': CommandActions.setWrap,
   'nowrap': CommandActions.setNoWrap,
+  'wrapchar': CommandActions.setWrapChar,
+  'wrapword': CommandActions.setWrapWord,
 };
 
 final normalBindings = <String, Object>{

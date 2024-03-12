@@ -113,15 +113,21 @@ class CommandActions {
     }
   }
 
-  static void setWrap(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
-    Config.wrapMode = WrapMode.word;
-    f.createLines(Config.wrapMode, e.term.width, e.term.height);
-  }
-
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     Config.wrapMode = WrapMode.none;
+    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+  }
+
+  static void setWrapChar(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(Mode.normal);
+    Config.wrapMode = WrapMode.char;
+    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+  }
+
+  static void setWrapWord(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(Mode.normal);
+    Config.wrapMode = WrapMode.word;
     f.createLines(Config.wrapMode, e.term.width, e.term.height);
   }
 }

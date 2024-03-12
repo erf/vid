@@ -31,6 +31,9 @@ extension FileBufferLines on FileBuffer {
         case WrapMode.none:
           lines.add(Line('$line ', start: start, no: i));
           start += line.length + 1;
+        case WrapMode.char:
+          charWrapLine(lines, line, start, width);
+          start = lines.last.end;
         case WrapMode.word:
           wordWrapLine(lines, line, start, width);
           start = lines.last.end;
@@ -78,6 +81,41 @@ extension FileBufferLines on FileBuffer {
         lineStart = breakIndex;
         breakIndex = -1;
         lineWidth = lineWidthAtBreakIndex;
+      }
+    }
+    // add the last part of the line
+    if (lineStart < line.length) {
+      String subline = line.substring(lineStart);
+      lines.add(Line('$subline ', start: start + lineStart, no: lines.length));
+    }
+  }
+
+  void charWrapLine(List<Line> lines, String line, int start, int width) {
+    // if line is empty add an empty line
+    if (line.isEmpty) {
+      lines.add(Line(' ', start: start, no: lines.length));
+      return;
+    }
+    // limit small width to avoid rendering issues
+    width = math.max(width, 8);
+
+    int index = 0;
+    int lineStart = 0;
+    int lineWidth = 0;
+
+    for (String char in line.characters) {
+      index += char.length;
+
+      int charWidth = char.charWidth;
+      lineWidth += charWidth;
+
+      // if we exceeded the width, add a line break
+      if (lineWidth >= width) {
+        String subline = line.substring(lineStart, index - char.length);
+        lines.add(Line(subline, start: start + lineStart, no: lines.length));
+
+        lineStart = index - char.length;
+        lineWidth = charWidth;
       }
     }
     // add the last part of the line

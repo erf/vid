@@ -167,8 +167,9 @@ class NormalActions {
   }
 
   static void toggleWrap(Editor e, FileBuffer f) {
-    Config.wrapMode =
-        Config.wrapMode == WrapMode.none ? WrapMode.word : WrapMode.none;
+    int wrapModeValue = Config.wrapMode.index;
+    wrapModeValue = (wrapModeValue + 1) % 3;
+    Config.wrapMode = WrapMode.values[wrapModeValue];
     f.createLines(Config.wrapMode, e.term.width, e.term.height);
   }
 
