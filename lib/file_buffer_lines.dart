@@ -104,17 +104,17 @@ extension FileBufferLines on FileBuffer {
     int lineWidth = 0;
 
     for (String char in line.characters) {
-      index += char.length;
-
+      int charLength = char.length;
       int charWidth = char.charWidth;
+      index += charLength;
       lineWidth += charWidth;
 
       // if we exceeded the width, add a line break
       if (lineWidth >= width) {
-        String subline = line.substring(lineStart, index - char.length);
+        String subline = line.substring(lineStart, index - charLength);
         lines.add(Line(subline, start: start + lineStart, no: lines.length));
 
-        lineStart = index - char.length;
+        lineStart = index - charLength;
         lineWidth = charWidth;
       }
     }
