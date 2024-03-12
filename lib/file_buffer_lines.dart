@@ -32,17 +32,17 @@ extension FileBufferLines on FileBuffer {
           lines.add(Line('$line ', start: start, no: i));
           start += line.length + 1;
         case WrapMode.word:
-          wordWrapLine(lines, line, start, lines.length, width);
+          wordWrapLine(lines, line, start, width);
           start = lines.last.end;
       }
     }
   }
 
   // split long line into smaller lines by word
-  void wordWrapLine(List lines, String line, int start, int lineNo, int width) {
+  void wordWrapLine(List<Line> lines, String line, int start, int width) {
     // if line is empty add an empty line
     if (line.isEmpty) {
-      lines.add(Line(' ', start: start, no: lineNo));
+      lines.add(Line(' ', start: start, no: lines.length));
       return;
     }
     // limit small width to avoid rendering issues
@@ -56,9 +56,11 @@ extension FileBufferLines on FileBuffer {
 
     for (String char in line.characters) {
       index += char.length;
+
       int charWidth = char.charWidth;
       lineWidth += charWidth;
       lineWidthAtBreakIndex += charWidth;
+
       if (Config.breakat.contains(char)) {
         breakIndex = index;
         lineWidthAtBreakIndex = 0;
@@ -71,18 +73,17 @@ extension FileBufferLines on FileBuffer {
           lineWidthAtBreakIndex = 0;
         }
         String subline = line.substring(lineStart, breakIndex);
-        lines.add(Line(subline, start: start + lineStart, no: lineNo));
+        lines.add(Line(subline, start: start + lineStart, no: lines.length));
 
         lineStart = breakIndex;
         breakIndex = -1;
         lineWidth = lineWidthAtBreakIndex;
-        lineNo++;
       }
     }
     // add the last part of the line
     if (lineStart < line.length) {
       String subline = line.substring(lineStart);
-      lines.add(Line('$subline ', start: start + lineStart, no: lineNo));
+      lines.add(Line('$subline ', start: start + lineStart, no: lines.length));
     }
   }
 }
