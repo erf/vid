@@ -31,11 +31,11 @@ extension FileBufferLines on FileBuffer {
         case WrapMode.none:
           lines.add(Line('$line ', start: start, no: i));
           start += line.length + 1;
-        case WrapMode.char:
-          charWrapLine(lines, line, start, width);
-          start = lines.last.end;
         case WrapMode.word:
           wordWrapLine(lines, line, start, width);
+          start = lines.last.end;
+        case WrapMode.char:
+          charWrapLine(lines, line, start, width);
           start = lines.last.end;
       }
     }

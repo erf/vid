@@ -1,4 +1,4 @@
-enum WrapMode { none, char, word }
+enum WrapMode { none, word, char }
 
 class Config {
   static int messageTime = 3000;
