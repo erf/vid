@@ -29,7 +29,7 @@ extension FileBufferLines on FileBuffer {
       final String line = textLines[i];
       switch (wrapMode) {
         case WrapMode.none:
-          lines.add(Line('$line ', no: i, start: start));
+          lines.add(Line('$line ', start: start, no: i));
           start += line.length + 1;
         case WrapMode.word:
           wordWrapLine(lines, line, start, lines.length, width);
@@ -39,8 +39,7 @@ extension FileBufferLines on FileBuffer {
   }
 
   // split long line into smaller lines by word
-  void wordWrapLine(
-      List<Line> lines, String line, int start, int lineNo, int width) {
+  void wordWrapLine(List lines, String line, int start, int lineNo, int width) {
     // if line is empty add an empty line
     if (line.isEmpty) {
       lines.add(Line(' ', start: start, no: lineNo));
