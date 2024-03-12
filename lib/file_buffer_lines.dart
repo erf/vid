@@ -30,10 +30,10 @@ extension FileBufferLines on FileBuffer {
       switch (wrapMode) {
         case WrapMode.none:
           lines.add(Line('$line ', start: start, no: i));
-        case WrapMode.word:
-          wordWrapLine(lines, line, start, width);
         case WrapMode.char:
           charWrapLine(lines, line, start, width);
+        case WrapMode.word:
+          wordWrapLine(lines, line, start, width);
       }
       start = lines.last.end;
     }

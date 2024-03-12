@@ -1,4 +1,6 @@
-enum WrapMode { none, word, char }
+enum WrapMode { none, char, word }
+
+const List<String> wrapSymbols = ['', '|↵', '↵'];
 
 class Config {
   static int messageTime = 3000;
