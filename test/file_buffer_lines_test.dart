@@ -49,16 +49,29 @@ void main() {
     expect(f.lines[1].end, 25);
   });
 
-  test('createLines word wrapped over multiple lines', () {
-    final f = FileBuffer(text: """
-The old bookstore exuded
+  test('no wrap', () {
+    final f = FileBuffer(text: 'hei jeg heter Erlend 😀😀😀');
+    f.createLines(WrapMode.none, 12, 12);
+    expect(f.lines.length, 1);
+    expect(f.lines[0].str, 'hei jeg heter Erlend 😀😀😀 ');
+  });
 
-a smell of paper and ink
+  test('word wrap', () {
+    final f = FileBuffer(text: 'hei jeg heter Erlend 😀😀😀');
+    f.createLines(WrapMode.word, 12, 12);
+    expect(f.lines.length, 4);
+    expect(f.lines[0].str, 'hei jeg ');
+    expect(f.lines[1].str, 'heter ');
+    expect(f.lines[2].str, 'Erlend ');
+    expect(f.lines[3].str, '😀😀😀 ');
+  });
 
-and dust.
-""");
-    f.createLines(WrapMode.word, 20, 20);
-
-    expect(f.lines.length, 7);
+  test('char wrap', () {
+    final f = FileBuffer(text: 'hei jeg heter Erlend 😀😀😀');
+    f.createLines(WrapMode.char, 12, 12);
+    expect(f.lines.length, 3);
+    expect(f.lines[0].str, 'hei jeg het');
+    expect(f.lines[1].str, 'er Erlend ');
+    expect(f.lines[2].str, '😀😀😀 ');
   });
 }
