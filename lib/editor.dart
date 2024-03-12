@@ -55,8 +55,12 @@ class Editor {
     file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
-    file.createLines(Config.wrapMode, term.width, term.height);
+    createLines();
     draw();
+  }
+
+  void createLines() {
+    file.createLines(Config.wrapMode, term.width, term.height);
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
@@ -66,7 +70,7 @@ class Editor {
     }
     file = result.value!;
     term.write(Esc.setWindowTitle(path));
-    file.createLines(Config.wrapMode, term.width, term.height);
+    createLines();
     draw();
     return result;
   }
@@ -99,7 +103,7 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     int byteIndex = file.byteIndexFromPosition(file.cursor);
-    file.createLines(Config.wrapMode, term.width, term.height);
+    createLines();
     file.cursor = file.positionFromByteIndex(byteIndex);
     showMessage(Message.info('${term.width}x${term.height}'));
     draw();

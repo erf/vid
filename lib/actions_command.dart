@@ -1,14 +1,12 @@
-import 'package:vid/message.dart';
-
 import 'actions_normal.dart';
 import 'config.dart';
 import 'editor.dart';
 import 'error_or.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
-import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
+import 'message.dart';
 import 'modes.dart';
 
 class CommandActions {
@@ -116,18 +114,18 @@ class CommandActions {
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     Config.wrapMode = WrapMode.none;
-    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+    e.createLines();
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     Config.wrapMode = WrapMode.char;
-    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+    e.createLines();
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(Mode.normal);
     Config.wrapMode = WrapMode.word;
-    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+    e.createLines();
   }
 }

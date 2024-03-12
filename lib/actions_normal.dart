@@ -1,17 +1,15 @@
 import 'dart:math';
 
-import 'package:vid/message.dart';
-
 import 'action_typedefs.dart';
 import 'config.dart';
 import 'editor.dart';
 import 'error_or.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
-import 'file_buffer_lines.dart';
 import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
+import 'message.dart';
 import 'modes.dart';
 import 'position.dart';
 import 'regex.dart';
@@ -104,7 +102,7 @@ class NormalActions {
     TextOp op = f.undoList.removeLast();
     f.text = f.text.replaceRange(op.start, op.endNew, op.prevText);
     f.redoList.add(op);
-    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+    e.createLines();
     f.cursor = op.cursor;
   }
 
@@ -113,7 +111,7 @@ class NormalActions {
     TextOp op = f.redoList.removeLast();
     f.text = f.text.replaceRange(op.start, op.endPrev, op.newText);
     f.undoList.add(op);
-    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+    e.createLines();
     f.cursor = op.cursor;
   }
 
@@ -170,7 +168,7 @@ class NormalActions {
     int wrapModeValue = Config.wrapMode.index;
     wrapModeValue = (wrapModeValue + 1) % 3;
     Config.wrapMode = WrapMode.values[wrapModeValue];
-    f.createLines(Config.wrapMode, e.term.width, e.term.height);
+    e.createLines();
   }
 
   static void centerView(Editor e, FileBuffer f) {
