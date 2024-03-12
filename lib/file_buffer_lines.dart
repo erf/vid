@@ -26,18 +26,16 @@ extension FileBufferLines on FileBuffer {
     lines.clear();
     int start = 0;
     for (int i = 0; i < textLines.length; i++) {
-      final String line = textLines[i];
+      String line = textLines[i];
       switch (wrapMode) {
         case WrapMode.none:
           lines.add(Line('$line ', start: start, no: i));
-          start += line.length + 1;
         case WrapMode.word:
           wordWrapLine(lines, line, start, width);
-          start = lines.last.end;
         case WrapMode.char:
           charWrapLine(lines, line, start, width);
-          start = lines.last.end;
       }
+      start = lines.last.end;
     }
   }
 
