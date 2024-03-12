@@ -32,23 +32,23 @@ extension FileBufferLines on FileBuffer {
           lines.add(Line('$line ', no: i, start: start));
           start += line.length + 1;
         case WrapMode.word:
-          wordWrapLine(lines, line, lines.length, start, width);
+          wordWrapLine(lines, line, start, lines.length, width);
           start = lines.last.end;
       }
     }
   }
 
+  // split long line into smaller lines by word
   void wordWrapLine(
-      List<Line> lines, String line, int lineNo, int start, int width) {
-    // if line is empty, return a line with a single space
+      List<Line> lines, String line, int start, int lineNo, int width) {
+    // if line is empty add an empty line
     if (line.isEmpty) {
-      lines.add(Line(' ', no: lineNo, start: start));
+      lines.add(Line(' ', start: start, no: lineNo));
       return;
     }
-    // limit very small width to avoid rendering issues
+    // limit small width to avoid rendering issues
     width = math.max(width, 8);
 
-    // split long line into lines
     int index = 0;
     int lineStart = 0;
     int breakIndex = -1;
@@ -64,15 +64,15 @@ extension FileBufferLines on FileBuffer {
         breakIndex = index;
         lineWidthAtBreakIndex = 0;
       }
-      // add a line break at the last breakat or at the end of the line
+      // if we exceeded the width, add a line break
       if (lineWidth >= width) {
-        // if we didn't find a breakat, break at the eol / terminal width
+        // if we didn't find a breakat, break at terminal width
         if (breakIndex == -1) {
           breakIndex = index;
           lineWidthAtBreakIndex = 0;
         }
         String subline = line.substring(lineStart, breakIndex);
-        lines.add(Line(subline, no: lineNo, start: start + lineStart));
+        lines.add(Line(subline, start: start + lineStart, no: lineNo));
 
         lineStart = breakIndex;
         breakIndex = -1;
@@ -80,8 +80,7 @@ extension FileBufferLines on FileBuffer {
         lineNo++;
       }
     }
-
-    // add last part of the line
+    // add the last part of the line
     if (lineStart < line.length) {
       String subline = line.substring(lineStart);
       lines.add(Line('$subline ', start: start + lineStart, no: lineNo));
