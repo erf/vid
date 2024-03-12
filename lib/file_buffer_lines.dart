@@ -32,16 +32,18 @@ extension FileBufferLines on FileBuffer {
           lines.add(Line('$line ', no: i, start: start));
           start += line.length + 1;
         case WrapMode.word:
-          lines.addAll(wordWrapLine(line, lines.length, start, width));
+          wordWrapLine(lines, line, lines.length, start, width);
           start = lines.last.end;
       }
     }
   }
 
-  Iterable<Line> wordWrapLine(String line, int lineNo, int start, int width) {
+  void wordWrapLine(
+      List<Line> lines, String line, int lineNo, int start, int width) {
     // if line is empty, return a line with a single space
     if (line.isEmpty) {
-      return [Line(' ', no: lineNo, start: start)];
+      lines.add(Line(' ', no: lineNo, start: start));
+      return;
     }
     // limit very small width to avoid rendering issues
     width = math.max(width, 8);
@@ -52,7 +54,6 @@ extension FileBufferLines on FileBuffer {
     int breakIndex = -1;
     int lineWidth = 0;
     int lineWidthAtBreakIndex = 0;
-    List<Line> lines = [];
 
     for (String char in line.characters) {
       index += char.length;
@@ -85,7 +86,5 @@ extension FileBufferLines on FileBuffer {
       String subline = line.substring(lineStart);
       lines.add(Line('$subline ', start: start + lineStart, no: lineNo));
     }
-
-    return lines;
   }
 }
