@@ -11,7 +11,7 @@ A minimal vi-like text editor for modern terminals written in Dart 🧑‍💻
 - made for modern terminals that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) (e.g. [Ghostty](https://github.com/mitchellh/ghostty/), [WezTerm](https://github.com/wez/wezterm)) 🧠
 - written in pragmatic Dart using the [characters](https://pub.dev/packages/characters) package ✨
 - undo and redo ↩️
-- word wrap or no-wrap 🎁
+- no-wrap, char-wrap or word-wrap 🎁
 
 ## Non-goals ❌
 
