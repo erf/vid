@@ -1,6 +1,6 @@
 # vid
 
-A minimal vi-like text editor for the terminal written in Dart 🧑‍💻
+A minimal vi-like text editor for modern terminals written in Dart 🧑‍💻
  
 > Note: made for myself for fun and learning 🧐
 
