@@ -25,7 +25,7 @@ class CommandActions {
       return;
     }
     String path = args[1];
-    ErrorOr result = e.loadFile(path);
+    ErrorOr<FileBuffer> result = e.loadFile(path);
     if (result.hasError) {
       e.showMessage(Message.error(result.error!));
     } else {

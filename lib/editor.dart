@@ -64,7 +64,7 @@ class Editor {
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
-    final result = FileBufferIo.load(this, path, allowNew: false);
+    ErrorOr<FileBuffer> result = FileBufferIo.load(this, path, allowNew: false);
     if (result.hasError) {
       return result;
     }
