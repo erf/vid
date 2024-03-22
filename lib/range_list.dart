@@ -50,5 +50,5 @@ class RangeList {
   }
 
   // Returns the number of ranges
-  get length => ranges.length;
+  int get length => ranges.length;
 }
