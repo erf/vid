@@ -1,7 +1,7 @@
 # vid
 
 A minimal vi-like text editor for modern terminals written in Dart 🧑‍💻
- 
+
 > Note: made for myself for fun and learning 🧐
 
 ## Features 📋
@@ -25,7 +25,7 @@ A minimal vi-like text editor for modern terminals written in Dart 🧑‍💻
 
 See [bindings.dart](lib/bindings.dart)
 
-## Configuraion 📜
+## Configuration 📜
 
 See [config.dart](lib/config.dart)
 
