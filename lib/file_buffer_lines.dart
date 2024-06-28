@@ -42,7 +42,7 @@ extension FileBufferLines on FileBuffer {
 
   // split long line into smaller lines by character
   void noWrapLine(List<Line> lines, String line, int start, int width) {
-    final chLine = '$line '.tabsToSpaces.characters.renderLine(view.c, width);
+    final chLine = '$line '.characters.renderLine(view.c, width);
     lines.add(Line(chLine.string, start: start, no: lines.length));
   }
 
