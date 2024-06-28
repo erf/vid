@@ -8,7 +8,7 @@ void main() {
     final f = FileBuffer(text: 'hei jeg heter Erlend 😀😀😀');
     f.createLines(WrapMode.none, 12, 12);
     expect(f.lines.length, 1);
-    expect(f.lines[0].str, 'hei jeg hete');
+    expect(f.lines[0].str, 'hei jeg heter Erlend 😀😀😀 ');
   });
 
   test('no wrap two lines', () {
