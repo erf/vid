@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
+import 'package:vid/characters_render.dart';
 
 import 'config.dart';
 import 'file_buffer.dart';
@@ -20,7 +21,7 @@ extension FileBufferLines on FileBuffer {
     }
 
     // split text into lines (remove last empty line)
-    final textLines = text.split(Keys.newline)..removeLast();
+    final List<String> textLines = text.split(Keys.newline)..removeLast();
 
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
@@ -29,7 +30,7 @@ extension FileBufferLines on FileBuffer {
       String line = textLines[i];
       switch (wrapMode) {
         case WrapMode.none:
-          lines.add(Line('$line ', start: start, no: i));
+          noWrapLine(lines, line, start, i, width);
         case WrapMode.char:
           charWrapLine(lines, line, start, width);
         case WrapMode.word:
@@ -37,6 +38,12 @@ extension FileBufferLines on FileBuffer {
       }
       start = lines.last.end;
     }
+  }
+
+  // split long line into smaller lines by character
+  void noWrapLine(List<Line> lines, String line, int start, int i, int width) {
+    final chLine = '$line '.tabsToSpaces.characters.renderLine(view.c, width);
+    lines.add(Line(chLine.string, start: start, no: i));
   }
 
   // split long line into smaller lines by word

@@ -149,9 +149,7 @@ class Editor {
         continue;
       }
       // draw line
-      rbuf.writeln(Config.wrapMode == WrapMode.none
-          ? lines[l].str.tabsToSpaces.characters.renderLine(view.c, term.width)
-          : lines[l].str.tabsToSpaces);
+      rbuf.writeln(lines[l].str.tabsToSpaces);
     }
   }
 
