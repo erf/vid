@@ -30,7 +30,7 @@ extension FileBufferLines on FileBuffer {
       String line = textLines[i];
       switch (wrapMode) {
         case WrapMode.none:
-          noWrapLine(lines, line, start, i, width);
+          noWrapLine(lines, line, start, width);
         case WrapMode.char:
           charWrapLine(lines, line, start, width);
         case WrapMode.word:
@@ -41,9 +41,9 @@ extension FileBufferLines on FileBuffer {
   }
 
   // split long line into smaller lines by character
-  void noWrapLine(List<Line> lines, String line, int start, int i, int width) {
+  void noWrapLine(List<Line> lines, String line, int start, int width) {
     final chLine = '$line '.tabsToSpaces.characters.renderLine(view.c, width);
-    lines.add(Line(chLine.string, start: start, no: i));
+    lines.add(Line(chLine.string, start: start, no: lines.length));
   }
 
   // split long line into smaller lines by word
