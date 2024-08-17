@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
-import 'package:vid/characters_render.dart';
 
 import 'config.dart';
 import 'file_buffer.dart';
