@@ -7,7 +7,7 @@ import 'actions_normal.dart';
 import 'actions_operator.dart';
 import 'keys.dart';
 
-final normalActions = <String, Object>{
+final normalActions = <String, NormalFn>{
   'q': NormalActions.quit,
   'Q': NormalActions.quitWithoutSaving,
   'S': NormalActions.alias('^C'),
@@ -38,11 +38,6 @@ final normalActions = <String, Object>{
   '/': NormalActions.search,
   Keys.ctrlW: NormalActions.toggleWrap,
   'zz': NormalActions.centerView,
-  'c': Operators.change,
-  'd': Operators.delete,
-  'y': Operators.yank,
-  'gu': Operators.lowerCase,
-  'gU': Operators.upperCase,
 };
 
 const insertActions = <String, InsertFn>{
@@ -109,4 +104,9 @@ const commandActions = <String, CommandFn>{
 final normalBindings = <String, Object>{
   ...normalActions,
   ...motionActions,
+  'c': Operators.change,
+  'd': Operators.delete,
+  'y': Operators.yank,
+  'gu': Operators.lowerCase,
+  'gU': Operators.upperCase,
 };
