@@ -32,7 +32,8 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevEdit?.linewise ?? false) {
+    f.edit.linewise = f.prevEdit?.linewise ?? false;
+    if (f.edit.linewise) {
       f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);

@@ -429,6 +429,7 @@ class Editor {
     if (operatorActions.containsKey(edit.opInput)) {
       OperatorFn? operator = operatorActions[edit.opInput];
       if (edit.operator == operator) {
+        edit.linewise = true;
         edit.motion = MotionAction(Motions.lineStart, linewise: true);
         commitEdit(edit, resetEdit);
         file.cursor = Motions.lineStart(file, file.cursor, true);
