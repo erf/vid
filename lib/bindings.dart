@@ -40,6 +40,14 @@ final normalActions = <String, NormalFn>{
   'zz': NormalActions.centerView,
 };
 
+const normalOperatorActions = <String, OperatorFn>{
+  'c': Operators.change,
+  'd': Operators.delete,
+  'y': Operators.yank,
+  'gu': Operators.lowerCase,
+  'gU': Operators.upperCase,
+};
+
 const insertActions = <String, InsertFn>{
   Keys.backspace: InsertActions.backspace,
   Keys.newline: InsertActions.enter,
@@ -104,9 +112,5 @@ const commandActions = <String, CommandFn>{
 final normalBindings = <String, Object>{
   ...normalActions,
   ...motionActions,
-  'c': Operators.change,
-  'd': Operators.delete,
-  'y': Operators.yank,
-  'gu': Operators.lowerCase,
-  'gU': Operators.upperCase,
+  ...normalOperatorActions,
 };
