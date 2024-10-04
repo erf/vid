@@ -251,27 +251,19 @@ class Editor {
     if (Regex.scrollEvents.hasMatch(str)) {
       return;
     }
-    if (file.mode == Mode.insert) {
-      if (str.length > 1) {
-        insertChunk(str);
-      } else {
-        insert(str);
-      }
-    } else {
-      for (String char in str.characters) {
-        switch (file.mode) {
-          case Mode.normal:
-            normal(char);
-          case Mode.operator:
-            operator(char);
-          case Mode.insert:
-            insert(char);
-          case Mode.replace:
-            replace(char);
-          case Mode.command:
-          case Mode.search:
-            command(char);
-        }
+    for (String char in str.characters) {
+      switch (file.mode) {
+        case Mode.normal:
+          normal(char);
+        case Mode.operator:
+          operator(char);
+        case Mode.insert:
+          insert(char);
+        case Mode.replace:
+          replace(char);
+        case Mode.command:
+        case Mode.search:
+          command(char);
       }
     }
 
