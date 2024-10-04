@@ -32,8 +32,8 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    f.edit.linewise = f.prevEdit?.linewise ?? false;
-    if (f.edit.linewise) {
+    f.editOp.linewise = f.prevEditOp?.linewise ?? false;
+    if (f.editOp.linewise) {
       f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
@@ -46,7 +46,7 @@ class NormalActions {
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevEdit?.linewise ?? false) {
+    if (f.prevEditOp?.linewise ?? false) {
       f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
@@ -89,7 +89,7 @@ class NormalActions {
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.edit.count ?? 1); i++) {
+    for (int i = 0; i < (f.editOp.count ?? 1); i++) {
       if (f.cursor.l >= f.lines.length - 1) {
         return;
       }
@@ -117,19 +117,19 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevEdit == null || f.prevEdit?.operator == null) {
+    if (f.prevEditOp == null || f.prevEditOp?.operator == null) {
       return;
     }
-    f.edit = f.prevEdit!;
-    e.commitEdit(f.edit, false);
+    f.editOp = f.prevEditOp!;
+    e.commitEdit(f.editOp, false);
   }
 
   static void repeatFindStr(Editor e, FileBuffer f) {
-    if (f.prevEdit == null || f.prevEdit?.findStr == null) {
+    if (f.prevEditOp == null || f.prevEditOp?.findStr == null) {
       return;
     }
-    f.edit = f.prevEdit!;
-    e.commitEdit(f.edit, false);
+    f.editOp = f.prevEditOp!;
+    e.commitEdit(f.editOp, false);
   }
 
   static void increaseNextWord(FileBuffer f, int count) {

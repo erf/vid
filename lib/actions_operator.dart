@@ -29,7 +29,7 @@ class Operators {
 
   static void escape(FileBuffer f, Range range) {
     f.setMode(Mode.normal);
-    f.edit = Edit();
+    f.editOp = EditOp();
   }
 
   static void lowerCase(FileBuffer f, Range r) {

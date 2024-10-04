@@ -65,7 +65,7 @@ void main() {
     f.createLines(WrapMode.none, 80, 24);
     e.input('iabc\x1b');
     expect(f.text, 'abc\n');
-    expect(f.prevEdit!.input, 'abc');
+    expect(f.prevEditOp!.input, 'abc');
     expect(f.cursor, Position(c: 3, l: 0));
   }, skip: true);
 

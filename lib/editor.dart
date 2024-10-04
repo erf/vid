@@ -166,11 +166,11 @@ class Editor {
   // draw the command input line
   void drawCommand() {
     if (file.mode == Mode.search) {
-      rbuf.write('/${file.edit.input} ');
+      rbuf.write('/${file.editOp.input} ');
     } else {
-      rbuf.write(':${file.edit.input} ');
+      rbuf.write(':${file.editOp.input} ');
     }
-    int cursor = file.edit.input.length + 2;
+    int cursor = file.editOp.input.length + 2;
     rbuf.write(Esc.cursorStyleLine);
     rbuf.write(Esc.cursorPosition(c: cursor, l: term.height));
   }
@@ -239,7 +239,7 @@ class Editor {
   }
 
   void alias(String str) {
-    file.edit = Edit();
+    file.editOp = EditOp();
     input(str);
   }
 
@@ -305,7 +305,7 @@ class Editor {
 
   // command mode
   void command(String char) {
-    Edit edit = file.edit;
+    EditOp edit = file.editOp;
     switch (char) {
       case Keys.backspace:
         if (edit.input.isEmpty) {
@@ -348,9 +348,9 @@ class Editor {
 
   void doSearch(String pattern) {
     file.setMode(Mode.normal);
-    file.edit.motion = MotionAction(Find.searchNext);
-    file.edit.findStr = pattern;
-    commitEdit(file.edit);
+    file.editOp.motion = MotionAction(Find.searchNext);
+    file.editOp.findStr = pattern;
+    commitEdit(file.editOp);
   }
 
   // insert char at cursor
@@ -373,7 +373,7 @@ class Editor {
 
   // accumulate countInput: if char is a number, add it to countInput
   // if char is not a number, parse countInput and set fileBuffer.count
-  bool count(String char, Edit action) {
+  bool count(String char, EditOp action) {
     int? count = int.tryParse(char);
     if (count != null && (count > 0 || action.countStr.isNotEmpty)) {
       action.countStr += char;
@@ -387,7 +387,7 @@ class Editor {
   }
 
   void normal(String char, [bool reset = true]) {
-    Edit edit = file.edit;
+    EditOp edit = file.editOp;
     // if char is a number, accumulate countInput
     if (count(char, edit)) {
       return;
@@ -398,7 +398,7 @@ class Editor {
     // check if we match or partial match a key
     switch (normalBindings.partialMatch(edit.input)) {
       case KeyMatch.none:
-        file.edit = Edit();
+        file.editOp = EditOp();
         return;
       case KeyMatch.partial:
         return;
@@ -422,7 +422,7 @@ class Editor {
   }
 
   void operator(String char, [bool resetEdit = true]) {
-    Edit edit = file.edit;
+    EditOp edit = file.editOp;
     edit.opInput += char;
 
     // dd, yy, cc, etc. execute linewise
@@ -441,7 +441,7 @@ class Editor {
     switch (motionActions.partialMatch(edit.opInput)) {
       case KeyMatch.none:
         file.setMode(Mode.normal);
-        file.edit = Edit();
+        file.editOp = EditOp();
       case KeyMatch.partial:
         break;
       case KeyMatch.match:
@@ -451,7 +451,8 @@ class Editor {
   }
 
   // execute motion and return end position
-  Position motionEnd(Edit edit, MotionAction motion, Position pos, bool incl) {
+  Position motionEnd(
+      EditOp edit, MotionAction motion, Position pos, bool incl) {
     switch (motion) {
       case MotionAction(fn: MotionFn move):
         return move(file, pos, incl);
@@ -465,7 +466,7 @@ class Editor {
   }
 
   // execute operator on motion range count times
-  void commitEdit(Edit edit, [bool reset = true]) {
+  void commitEdit(EditOp edit, [bool reset = true]) {
     MotionAction motion = edit.motion!; // motion should not be null
     OperatorFn? operator = edit.operator;
     edit.linewise = motion.linewise;
@@ -493,7 +494,7 @@ class Editor {
 
   // set prevAction and reset action
   void resetEdit(FileBuffer file) {
-    file.prevEdit = file.edit;
-    file.edit = Edit();
+    file.prevEditOp = file.editOp;
+    file.editOp = EditOp();
   }
 }

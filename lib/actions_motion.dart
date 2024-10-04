@@ -57,16 +57,16 @@ class Motions {
   }
 
   static Position fileStart(FileBuffer f, Position p, [bool incl = false]) {
-    int line = f.edit.count == null
+    int line = f.editOp.count == null
         ? 0
-        : clamp(f.edit.count! - 1, 0, f.lines.length - 1);
+        : clamp(f.editOp.count! - 1, 0, f.lines.length - 1);
     return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
   }
 
   static Position fileEnd(FileBuffer f, Position p, [bool incl = false]) {
-    int line = f.edit.count == null
+    int line = f.editOp.count == null
         ? max(0, f.lines.length - 1)
-        : clamp(f.edit.count! - 1, 0, f.lines.length - 1);
+        : clamp(f.editOp.count! - 1, 0, f.lines.length - 1);
     return Motions.firstNonBlank(f, Position(l: line, c: 0), incl);
   }
 

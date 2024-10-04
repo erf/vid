@@ -143,7 +143,7 @@ void main() {
     f.text = 'abc abc abc abc\n';
     f.createLines(WrapMode.none, 80, 24);
     f.cursor = Position(c: 0, l: 0);
-    f.edit.findStr = 'c';
+    f.editOp.findStr = 'c';
     e.input('f;;');
     expect(f.cursor, Position(c: 10, l: 0));
   });

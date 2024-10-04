@@ -28,10 +28,10 @@ class FileBuffer {
   Mode mode = Mode.normal;
 
   // the current edit
-  Edit edit = Edit();
+  EditOp editOp = EditOp();
 
   // the previous edit
-  Edit? prevEdit;
+  EditOp? prevEditOp;
 
   // the yanked text
   String? yankBuffer;
