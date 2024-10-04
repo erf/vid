@@ -451,14 +451,13 @@ class Editor {
   }
 
   // execute motion and return end position
-  Position motionEnd(
-      EditOp edit, MotionAction motion, Position pos, bool incl) {
+  Position motionEnd(EditOp ed, MotionAction motion, Position pos, bool incl) {
     switch (motion) {
       case MotionAction(fn: MotionFn move):
         return move(file, pos, incl);
       case MotionAction(fn: FindFn find):
-        String nextChar = edit.findStr ?? readNextChar();
-        edit.findStr = nextChar;
+        String nextChar = ed.findStr ?? readNextChar();
+        ed.findStr = nextChar;
         return find(file, pos, nextChar, incl);
       case _:
         return pos;
