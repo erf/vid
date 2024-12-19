@@ -8,8 +8,9 @@ KeyMatch mapPartialMatch(Map map, String input) {
   }
 
   // check if input is the start of a key in map
-  final String partialKey =
-      map.keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
+  final String partialKey = map.keys.firstWhere((key) {
+    return key.startsWith(input);
+  }, orElse: () => '');
 
   // if partialKey is not empty, we have a partial match
   return partialKey.isEmpty ? KeyMatch.none : KeyMatch.partial;
