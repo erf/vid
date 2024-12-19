@@ -415,7 +415,7 @@ class Editor {
         edit.motion = action;
         commitEdit(edit);
       case OperatorFn():
-        edit.operator = action;
+        edit.op = action;
         file.setMode(Mode.operator);
       case _:
     }
@@ -427,8 +427,8 @@ class Editor {
 
     // dd, yy, cc, etc. execute linewise
     if (operatorActions.containsKey(edit.opInput)) {
-      OperatorFn? operator = operatorActions[edit.opInput];
-      if (edit.operator == operator) {
+      OperatorFn? op = operatorActions[edit.opInput];
+      if (edit.op == op) {
         edit.linewise = true;
         edit.motion = MotionAction(Motions.lineStart, linewise: true);
         commitEdit(edit, resetEdit);
@@ -467,7 +467,7 @@ class Editor {
   // execute operator on motion range count times
   void commitEdit(EditOp edit, [bool reset = true]) {
     MotionAction motion = edit.motion!; // motion should not be null
-    OperatorFn? operator = edit.operator;
+    OperatorFn? op = edit.op;
     edit.linewise = motion.linewise;
     Position start = file.cursor;
     Position end = file.cursor;
@@ -475,10 +475,10 @@ class Editor {
       if (motion.inclusive != null) {
         end = motionEnd(edit, motion, end, motion.inclusive!);
       } else {
-        end = motionEnd(edit, motion, end, operator != null);
+        end = motionEnd(edit, motion, end, op != null);
       }
     }
-    if (operator == null) {
+    if (op == null) {
       file.cursor = end;
     } else {
       if (motion.linewise) {
@@ -486,7 +486,7 @@ class Editor {
         start = Motions.lineStart(file, range.start, true);
         end = Motions.lineEnd(file, range.end, true);
       }
-      operator(file, Range(start, end).norm);
+      op(file, Range(start, end).norm);
     }
     if (reset) resetEdit(file);
   }

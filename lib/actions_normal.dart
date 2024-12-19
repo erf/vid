@@ -117,7 +117,7 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevEditOp == null || f.prevEditOp?.operator == null) {
+    if (f.prevEditOp == null || f.prevEditOp?.op == null) {
       return;
     }
     f.editOp = f.prevEditOp!;
