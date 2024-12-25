@@ -35,7 +35,8 @@ extension FileBufferText on FileBuffer {
   }
 
   // replace text in the buffer, add undo operation and recreate lines
-  void replace(Editor e, int start, int end, String newText, [bool undo = true]) {
+  void replace(Editor e, int start, int end, String newText,
+      [bool undo = true]) {
     bool isDeleteOrReplace = start != end;
     // don't delete or replace the last newline
     if (isDeleteOrReplace) {

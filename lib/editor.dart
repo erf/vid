@@ -34,7 +34,7 @@ import 'string_ext.dart';
 import 'terminal.dart';
 
 class Editor {
-  Terminal term;
+  Terminal terminal;
   FileBuffer file = FileBuffer();
   StringBuffer rbuf = StringBuffer();
   Message? message;
@@ -44,7 +44,7 @@ class Editor {
   bool redraw;
 
   Editor({
-    required this.term,
+    required this.terminal,
     this.redraw = true,
   });
 
@@ -68,33 +68,33 @@ class Editor {
       return result;
     }
     file = result.value!;
-    term.write(Esc.setWindowTitle(path));
+    terminal.write(Esc.setWindowTitle(path));
     file.createLines(this, Config.wrapMode);
     draw();
     return result;
   }
 
   void initTerminal(String? path) {
-    term.rawMode = true;
-    term.write(Esc.enableMode2027);
-    term.write(Esc.enableAltBuffer);
-    term.write(Esc.disableAlternateScrollMode);
-    term.write(Esc.cursorStyleBlock);
-    term.write(Esc.pushWindowTitle);
-    term.write(Esc.setWindowTitle(path ?? '[No Name]'));
+    terminal.rawMode = true;
+    terminal.write(Esc.enableMode2027);
+    terminal.write(Esc.enableAltBuffer);
+    terminal.write(Esc.disableAlternateScrollMode);
+    terminal.write(Esc.cursorStyleBlock);
+    terminal.write(Esc.pushWindowTitle);
+    terminal.write(Esc.setWindowTitle(path ?? '[No Name]'));
 
-    term.input.listen(onInput);
-    term.resize.listen(onResize);
-    term.sigint.listen(onSigint);
+    terminal.input.listen(onInput);
+    terminal.resize.listen(onResize);
+    terminal.sigint.listen(onSigint);
   }
 
   void quit() {
-    term.write(Esc.popWindowTitle);
-    term.write(Esc.textStylesReset);
-    term.write(Esc.cursorStyleReset);
-    term.write(Esc.disableAltBuffer);
+    terminal.write(Esc.popWindowTitle);
+    terminal.write(Esc.textStylesReset);
+    terminal.write(Esc.cursorStyleReset);
+    terminal.write(Esc.disableAltBuffer);
 
-    term.rawMode = false;
+    terminal.rawMode = false;
     exit(0);
   }
 
@@ -102,7 +102,7 @@ class Editor {
     int byteIndex = file.byteIndexFromPosition(file.cursor);
     file.createLines(this, Config.wrapMode);
     file.cursor = file.positionFromByteIndex(byteIndex);
-    showMessage(Message.info('${term.width}x${term.height}'));
+    showMessage(Message.info('${terminal.width}x${terminal.height}'));
     draw();
   }
 
@@ -116,7 +116,7 @@ class Editor {
     file.clampCursor();
     Position cursor = file.cursor;
     int cursorpos = file.lines[cursor.l].str.ch.renderLength(cursor.c);
-    file.clampView(term, cursorpos);
+    file.clampView(terminal, cursorpos);
     drawLines();
 
     switch (file.mode) {
@@ -127,14 +127,14 @@ class Editor {
         drawStatus();
         drawCursor(cursorpos);
     }
-    term.write(rbuf);
+    terminal.write(rbuf);
   }
 
   void drawLines() {
     List<Line> lines = file.lines;
     Position view = file.view;
     int lineStart = view.l;
-    int lineEnd = view.l + term.height - 1;
+    int lineEnd = view.l + terminal.height - 1;
 
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
@@ -149,7 +149,11 @@ class Editor {
       }
       // draw line
       rbuf.writeln(Config.wrapMode == WrapMode.none
-          ? lines[l].str.tabsToSpaces.characters.renderLine(view.c, term.width)
+          ? lines[l]
+              .str
+              .tabsToSpaces
+              .characters
+              .renderLine(view.c, terminal.width)
           : lines[l].str.tabsToSpaces);
     }
   }
@@ -171,12 +175,12 @@ class Editor {
     }
     int cursor = file.editOp.input.length + 2;
     rbuf.write(Esc.cursorStyleLine);
-    rbuf.write(Esc.cursorPosition(c: cursor, l: term.height));
+    rbuf.write(Esc.cursorPosition(c: cursor, l: terminal.height));
   }
 
   void drawStatus() {
     rbuf.write(Esc.invertColors);
-    rbuf.write(Esc.cursorPosition(c: 1, l: term.height));
+    rbuf.write(Esc.cursorPosition(c: 1, l: terminal.height));
 
     Position cursor = file.cursor;
     String mode = statusModeLabel(file.mode);
@@ -186,13 +190,13 @@ class Editor {
     String left =
         [mode, path, modified, wrap].where((s) => s.isNotEmpty).join(' ');
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
-    int padLeft = term.width - left.length - 2;
+    int padLeft = terminal.width - left.length - 2;
     String status = ' $left ${right.padLeft(padLeft)}';
 
-    if (status.length <= term.width - 1) {
+    if (status.length <= terminal.width - 1) {
       rbuf.write(status);
     } else {
-      rbuf.write(status.substring(0, term.width));
+      rbuf.write(status.substring(0, terminal.width));
     }
 
     // draw message
@@ -202,7 +206,7 @@ class Editor {
       } else {
         rbuf.write(Esc.greenColor);
       }
-      rbuf.write(Esc.cursorPosition(c: 1, l: term.height - 1));
+      rbuf.write(Esc.cursorPosition(c: 1, l: terminal.height - 1));
       rbuf.write(' ${message!.text} ');
       rbuf.write(Esc.textStylesReset);
     }

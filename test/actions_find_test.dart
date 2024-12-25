@@ -8,7 +8,7 @@ import 'package:vid/terminal.dart';
 
 void main() {
   test('motionFindNextChar', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abca\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -23,7 +23,7 @@ void main() {
   });
 
   test('motionFindPrevChar', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -34,7 +34,7 @@ void main() {
   });
 
   test('till with delete operator', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines(e, WrapMode.none);
@@ -45,7 +45,7 @@ void main() {
   });
 
   test('find with delete operator', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines(e, WrapMode.none);

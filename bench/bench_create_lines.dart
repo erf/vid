@@ -8,7 +8,7 @@ import 'package:vid/terminal.dart';
 
 void main() {
   String text = File('sample-data/Sema.zig').readAsStringSync();
-  final editor = Editor(term: TestTerminal(80, 24), redraw: false);
+  final editor = Editor(terminal: TestTerminal(80, 24), redraw: false);
   benchmarkCreateLinesWrapModeNone(editor, text);
   benchmarkCreateLinesWrapModeChar(editor, text);
   benchmarkCreateLinesWrapModeWord(editor, text);

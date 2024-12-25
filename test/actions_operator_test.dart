@@ -8,7 +8,7 @@ import 'package:vid/terminal.dart';
 
 void main() {
   test('dd', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -19,7 +19,7 @@ void main() {
   });
 
   test('dk', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -32,7 +32,7 @@ void main() {
   });
 
   test('dj', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -42,7 +42,7 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 0));
   });
   test('dd p kP', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -59,7 +59,7 @@ void main() {
   });
 
   test('cc', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -72,7 +72,7 @@ void main() {
   });
 
   test('yyP', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -86,7 +86,7 @@ void main() {
   });
 
   test('ywP', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\n';
     f.createLines(e, WrapMode.none);
@@ -98,7 +98,7 @@ void main() {
   });
 
   test('ddjp', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -107,7 +107,7 @@ void main() {
   });
 
   test('ddjpxp', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -118,7 +118,7 @@ void main() {
   });
 
   test('delete newline at end of file', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n\n';
     f.createLines(e, WrapMode.none);
@@ -129,7 +129,7 @@ void main() {
   });
 
   test('ddu should not produce extra newline', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -138,7 +138,7 @@ void main() {
   });
 
   test('gu should lowercase', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ABC\n';
     f.createLines(e, WrapMode.none);
@@ -147,7 +147,7 @@ void main() {
   });
 
   test('gU should uppercase', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);

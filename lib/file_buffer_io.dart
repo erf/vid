@@ -63,7 +63,7 @@ extension FileBufferIo on FileBuffer {
       return ErrorOr.error('Error saving file \'$path\'');
     }
     setSavepoint();
-    e.term.write(Esc.setWindowTitle(path));
+    e.terminal.write(Esc.setWindowTitle(path));
     return ErrorOr.value(true);
   }
 }

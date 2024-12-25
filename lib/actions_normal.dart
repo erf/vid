@@ -23,12 +23,12 @@ class NormalActions {
   }
 
   static void moveDownHalfPage(Editor e, FileBuffer f) {
-    f.cursor.l += e.term.height ~/ 2;
+    f.cursor.l += e.terminal.height ~/ 2;
     f.cursor.l = min(f.cursor.l, f.lines.length - 1);
   }
 
   static void moveUpHalfPage(Editor e, FileBuffer f) {
-    f.cursor.l -= e.term.height ~/ 2;
+    f.cursor.l -= e.terminal.height ~/ 2;
     f.cursor.l = max(f.cursor.l, 0);
   }
 
@@ -175,6 +175,6 @@ class NormalActions {
   }
 
   static void centerView(Editor e, FileBuffer f) {
-    f.centerView(e.term);
+    f.centerView(e.terminal);
   }
 }

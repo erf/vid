@@ -8,7 +8,7 @@ import 'package:vid/terminal.dart';
 
 void main() {
   test('defaultInsert', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -19,7 +19,7 @@ void main() {
   });
 
   test('insertActionEscape', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc';
     f.createLines(e, WrapMode.none);
@@ -29,7 +29,7 @@ void main() {
   });
 
   test('insertActionEnter', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcdef\n';
     f.createLines(e, WrapMode.none);
@@ -40,7 +40,7 @@ void main() {
   });
 
   test('insertActionBackspace', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -51,7 +51,7 @@ void main() {
   });
 
   test('insert I should start at first non-empty line', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '  abc\n';
     f.createLines(e, WrapMode.none);
@@ -61,7 +61,7 @@ void main() {
   });
 
   test('insert multiple chars as one insert action', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.createLines(e, WrapMode.none);
     e.input('iabc\x1b');
@@ -71,7 +71,7 @@ void main() {
   }, skip: true);
 
   test('insert chunk of text', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '';
     f.createLines(e, WrapMode.none);
@@ -96,7 +96,7 @@ Nature's serenade, timeless and free.
   });
 
   test('insert chunk of text in middle of a line', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcd\n';
     f.createLines(e, WrapMode.none);
@@ -107,7 +107,7 @@ Nature's serenade, timeless and free.
   });
 
   test('insert chunk of text in middle of a line already in insert mode', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.mode = Mode.insert;
     f.text = 'abcd\n';

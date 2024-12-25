@@ -7,7 +7,7 @@ import 'package:vid/terminal.dart';
 
 void main() {
   test('make sure action is reset on wrong key in normal mode', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -20,7 +20,7 @@ void main() {
   });
 
   test('make sure action is reset on wrong key in operator mode', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -33,7 +33,7 @@ void main() {
   });
 
   test('make sure prev action is correct in normal mode', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -47,7 +47,7 @@ void main() {
   });
 
   test('make sure prev motion is correct in normal mode', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);

@@ -7,7 +7,7 @@ import 'package:vid/terminal.dart';
 
 void main() {
   test('move cursor by word 3 times', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     f.createLines(e, WrapMode.none);
@@ -17,7 +17,7 @@ void main() {
   });
 
   test('delete word 3 times', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     f.createLines(e, WrapMode.none);
@@ -28,7 +28,7 @@ void main() {
   });
 
   test('2dj', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\njkl\n';
     f.createLines(e, WrapMode.none);
@@ -39,7 +39,7 @@ void main() {
   });
 
   test('10w', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
     f.createLines(e, WrapMode.none);
@@ -49,7 +49,7 @@ void main() {
   });
 
   test('0 (beginning of line)', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
     f.createLines(e, WrapMode.none);

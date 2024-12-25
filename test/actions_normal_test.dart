@@ -7,7 +7,7 @@ import 'package:vid/terminal.dart';
 
 void main() {
   test('actionDeleteLineEnd', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -18,7 +18,7 @@ void main() {
   });
 
   test('actionChangeLineEnd', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
     f.createLines(e, WrapMode.none);
@@ -28,7 +28,7 @@ void main() {
   });
 
   test('actionDeleteCharNext', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -39,7 +39,7 @@ void main() {
   });
 
   test('actionDeleteCharNext delete newline', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -50,7 +50,7 @@ void main() {
   });
 
   test('actionInsertLineStart', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -61,7 +61,7 @@ void main() {
   });
 
   test('actionAppendLineEnd', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -71,7 +71,7 @@ void main() {
   });
 
   test('actionAppendCharNext', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -81,7 +81,7 @@ void main() {
   });
 
   test('cursorLineBottomOrCount G', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -91,7 +91,7 @@ void main() {
   });
 
   test('cursorLineBottomOrCount 2G', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -101,7 +101,7 @@ void main() {
   });
 
   test('cursorLineTopOrCount gg', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -111,7 +111,7 @@ void main() {
   });
 
   test('cursorLineTopOrCount 2gg', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -121,7 +121,7 @@ void main() {
   });
 
   test('repeat dw.', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -130,7 +130,7 @@ void main() {
   });
 
   test('repeat twice dw..', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\njkl\n';
     f.createLines(e, WrapMode.none);
@@ -139,7 +139,7 @@ void main() {
   });
 
   test('repeat find fc;;', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc abc abc abc\n';
     f.createLines(e, WrapMode.none);
@@ -150,7 +150,7 @@ void main() {
   });
 
   test('delete line, move down and paste', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -161,7 +161,7 @@ void main() {
   });
 
   test('joining lines', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -172,7 +172,7 @@ void main() {
   });
 
   test('joining lines with empty line', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -183,7 +183,7 @@ void main() {
   });
 
   test('increase next number', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc 123 def\n';
     f.createLines(e, WrapMode.none);
@@ -193,7 +193,7 @@ void main() {
   });
 
   test('increase negative number', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc -123 def\n';
     f.createLines(e, WrapMode.none);
@@ -203,7 +203,7 @@ void main() {
   });
 
   test('decrease next number', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc 123 def\n';
     f.createLines(e, WrapMode.none);
@@ -213,7 +213,7 @@ void main() {
   });
 
   test('decrease negative number', () {
-    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc -123 def\n';
     f.createLines(e, WrapMode.none);

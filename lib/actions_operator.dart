@@ -23,7 +23,7 @@ class Operators {
 
   static void yank(Editor e, FileBuffer f, Range range) {
     f.yankRange(range);
-    e.term.copyToClipboard(f.yankBuffer!);
+    e.terminal.copyToClipboard(f.yankBuffer!);
     f.setMode(e, Mode.normal);
   }
 

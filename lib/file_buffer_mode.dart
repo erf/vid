@@ -10,14 +10,14 @@ extension FileBufferMode on FileBuffer {
         if (this.mode == Mode.insert ||
             this.mode == Mode.command ||
             this.mode == Mode.search) {
-          e.term.write(Esc.cursorStyleBlock);
+          e.terminal.write(Esc.cursorStyleBlock);
         }
         break;
       case Mode.operator:
         break;
       case Mode.insert:
         if (this.mode != Mode.insert) {
-          e.term.write(Esc.cursorStyleLine);
+          e.terminal.write(Esc.cursorStyleLine);
         }
         break;
       case Mode.replace:

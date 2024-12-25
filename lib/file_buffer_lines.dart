@@ -26,7 +26,7 @@ extension FileBufferLines on FileBuffer {
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
     int start = 0;
-    int width = e.term.width;
+    int width = e.terminal.width;
     for (int i = 0; i < textLines.length; i++) {
       String line = textLines[i];
       switch (wrapMode) {
