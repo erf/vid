@@ -221,4 +221,15 @@ void main() {
     expect(f.text, 'abc -124 def\n');
     expect(f.cursor.c, 7);
   });
+
+  test('move cursor back if deleteCharNext at end of line', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 2, l: 0);
+    e.input('x');
+    expect(f.text, 'ab\n');
+    expect(f.cursor, Position(c: 1, l: 0));
+  });
 }
