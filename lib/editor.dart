@@ -341,12 +341,12 @@ class Editor {
       return;
     }
     // unknown command
-    file.setMode(Mode.normal);
+    file.setMode(this, Mode.normal);
     showMessage(Message.error('Unknown command \'$command\''));
   }
 
   void doSearch(String pattern) {
-    file.setMode(Mode.normal);
+    file.setMode(this, Mode.normal);
     file.editOp.motion = MotionAction(Find.searchNext);
     file.editOp.findStr = pattern;
     commitEdit(file.editOp);
@@ -363,7 +363,7 @@ class Editor {
 
   // replace char at cursor with char
   void replace(String char) {
-    defaultReplace(file, char);
+    defaultReplace(this, file, char);
   }
 
   String readNextChar() {
