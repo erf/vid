@@ -272,8 +272,8 @@ class Editor {
     message = null;
   }
 
-  // if str is not a single char, insert it line by line to update cursor
-  // correctly but buffer the undo operation to be added at the end
+  // Insert a chunk of non-special chars - line by line in order to correctly
+  // update cursor position. Add the whole string to the undo list at the end.
   void insertChunk(String str) {
     final String buffer = str;
     final Position cursor = Position.from(file.cursor);
@@ -293,12 +293,11 @@ class Editor {
   }
 
   ErrorOr<bool> insertFile(String path) {
-    File file = File(path);
+    final file = File(path);
     if (!file.existsSync()) {
       return ErrorOr.error('File not found \'$path\'');
     }
-    String text = file.readAsStringSync();
-    insertChunk(text);
+    insertChunk(file.readAsStringSync());
     return ErrorOr.value(true);
   }
 
