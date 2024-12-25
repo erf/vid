@@ -4,7 +4,6 @@ import 'editor.dart';
 import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
-import 'terminal.dart';
 
 extension FileBufferIo on FileBuffer {
   // load file from disk or create new file, return file name
@@ -54,7 +53,7 @@ extension FileBufferIo on FileBuffer {
 
   // save file to disk or create new file
   // we pass a path so we can try to save to a new file name before setting the path
-  ErrorOr<bool> save(String? path) {
+  ErrorOr<bool> save(Editor e, String? path) {
     if (path == null || path.isEmpty) {
       return ErrorOr.error('path is empty');
     }
@@ -64,7 +63,7 @@ extension FileBufferIo on FileBuffer {
       return ErrorOr.error('Error saving file \'$path\'');
     }
     setSavepoint();
-    Terminal.instance.write(Esc.setWindowTitle(path));
+    e.term.write(Esc.setWindowTitle(path));
     return ErrorOr.value(true);
   }
 }

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:vid/file_buffer_lines.dart';
+
 import 'action_typedefs.dart';
 import 'config.dart';
 import 'editor.dart';
@@ -34,23 +36,23 @@ class NormalActions {
     if (f.yankBuffer == null) return;
     f.editOp.linewise = f.prevEditOp?.linewise ?? false;
     if (f.editOp.linewise) {
-      f.insertAt(Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
+      f.insertAt(e, Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
     } else if (f.lines[f.cursor.l].str == ' ') {
-      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: 0), f.yankBuffer!);
     } else {
-      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
     }
   }
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
     if (f.prevEditOp?.linewise ?? false) {
-      f.insertAt(Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: 0), f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
-      f.insertAt(Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
     }
   }
 
@@ -67,7 +69,7 @@ class NormalActions {
   }
 
   static void save(Editor e, FileBuffer f) {
-    ErrorOr result = f.save(f.path);
+    ErrorOr result = f.save(e, f.path);
     if (result.hasError) {
       e.showMessage(Message.error(result.error!));
     } else {
@@ -76,16 +78,16 @@ class NormalActions {
   }
 
   static void insert(Editor e, FileBuffer f) {
-    f.setMode(Mode.insert);
+    f.setMode(e, Mode.insert);
   }
 
   static void appendCharNext(Editor e, FileBuffer f) {
-    f.setMode(Mode.insert);
+    f.setMode(e, Mode.insert);
     f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
   }
 
   static void replace(Editor e, FileBuffer f) {
-    f.setMode(Mode.replace);
+    f.setMode(e, Mode.replace);
   }
 
   static void joinLines(Editor e, FileBuffer f) {
@@ -94,7 +96,7 @@ class NormalActions {
         return;
       }
       int eol = f.lines[f.cursor.l].charLen - 1;
-      f.deleteAt(Position(l: f.cursor.l, c: eol));
+      f.deleteAt(e, Position(l: f.cursor.l, c: eol));
     }
   }
 
@@ -103,7 +105,7 @@ class NormalActions {
     TextOp op = f.undoList.removeLast();
     f.text = f.text.replaceRange(op.start, op.endNew, op.prevText);
     f.redoList.add(op);
-    e.createLines();
+    f.createLines(e, Config.wrapMode);
     f.cursor = op.cursor;
   }
 
@@ -112,7 +114,7 @@ class NormalActions {
     TextOp op = f.redoList.removeLast();
     f.text = f.text.replaceRange(op.start, op.endPrev, op.newText);
     f.undoList.add(op);
-    e.createLines();
+    f.createLines(e, Config.wrapMode);
     f.cursor = op.cursor;
   }
 
@@ -132,7 +134,7 @@ class NormalActions {
     e.commitEdit(f.editOp, false);
   }
 
-  static void increaseNextWord(FileBuffer f, int count) {
+  static void increaseNextWord(Editor e, FileBuffer f, int count) {
     final p = f.cursor;
     final i = f.byteIndexFromPosition(p);
     final line = f.lines[p.l];
@@ -145,31 +147,31 @@ class NormalActions {
     final s = m.group(1)!;
     final num = int.parse(s);
     final numstr = (num + count).toString();
-    f.replace(start + m.start, start + m.end, numstr);
+    f.replace(e, start + m.start, start + m.end, numstr);
     f.cursor = f.positionFromByteIndex(start + m.start + numstr.length - 1);
   }
 
   static void increase(Editor e, FileBuffer f) {
-    increaseNextWord(f, 1);
+    increaseNextWord(e, f, 1);
   }
 
   static void decrease(Editor e, FileBuffer f) {
-    increaseNextWord(f, -1);
+    increaseNextWord(e, f, -1);
   }
 
   static void command(Editor e, FileBuffer f) {
-    f.setMode(Mode.command);
+    f.setMode(e, Mode.command);
   }
 
   static void search(Editor e, FileBuffer f) {
-    f.setMode(Mode.search);
+    f.setMode(e, Mode.search);
   }
 
   static void toggleWrap(Editor e, FileBuffer f) {
     int wrapModeCurr = Config.wrapMode.index;
     int wrapModeNext = (wrapModeCurr + 1) % 3;
     Config.wrapMode = WrapMode.values[wrapModeNext];
-    e.createLines();
+    f.createLines(e, Config.wrapMode);
   }
 
   static void centerView(Editor e, FileBuffer f) {

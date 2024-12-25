@@ -1,8 +1,7 @@
 import 'package:characters/characters.dart';
 
-import 'terminal.dart';
-
 import 'config.dart';
+import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
 import 'line.dart';
@@ -36,7 +35,7 @@ extension FileBufferText on FileBuffer {
   }
 
   // replace text in the buffer, add undo operation and recreate lines
-  void replace(int start, int end, String newText, [bool undo = true]) {
+  void replace(Editor e, int start, int end, String newText, [bool undo = true]) {
     bool isDeleteOrReplace = start != end;
     // don't delete or replace the last newline
     if (isDeleteOrReplace) {
@@ -63,8 +62,7 @@ extension FileBufferText on FileBuffer {
     text = text.replaceRange(start, end, newText);
 
     // we need to recreate the lines, because the text has changed
-    Terminal term = Terminal.instance;
-    createLines(Config.wrapMode, term.width, term.height);
+    createLines(e, Config.wrapMode);
   }
 
   // add an undo operation
@@ -100,27 +98,27 @@ extension FileBufferText on FileBuffer {
     }
   }
 
-  void replaceRange(Range range, String newText, [bool undo = true]) {
+  void replaceRange(Editor e, Range range, String newText, [bool undo = true]) {
     int start = byteIndexFromPosition(range.start);
     int end = byteIndexFromPosition(range.end);
-    replace(start, end, newText, undo);
+    replace(e, start, end, newText, undo);
   }
 
-  void deleteRange(Range range) {
-    replaceRange(range, '');
+  void deleteRange(Editor e, Range range) {
+    replaceRange(e, range, '');
   }
 
-  void insertAt(Position pos, String str, [bool undo = true]) {
+  void insertAt(Editor e, Position pos, String str, [bool undo = true]) {
     int start = byteIndexFromPosition(pos);
-    replace(start, start, str, undo);
+    replace(e, start, start, str, undo);
   }
 
-  void replaceAt(Position pos, String str) {
-    replaceRange(Range(pos, Position(l: pos.l, c: pos.c + 1)), str);
+  void replaceAt(Editor e, Position pos, String str) {
+    replaceRange(e, Range(pos, Position(l: pos.l, c: pos.c + 1)), str);
   }
 
-  void deleteAt(Position pos) {
-    replaceAt(pos, '');
+  void deleteAt(Editor e, Position pos) {
+    replaceAt(e, pos, '');
   }
 
   void yankRange(Range range) {

@@ -6,14 +6,17 @@ import 'text_op.dart';
 
 // all things related to the file buffer
 class FileBuffer {
+  // create a new file buffer
+  FileBuffer({
+    this.text = '',
+    this.path,
+  });
+
   // the text of the file
   String text;
 
   // the path to the file
   String? path;
-
-  // create a new file buffer
-  FileBuffer({this.text = '', this.path});
 
   // the lines of the file with metadata, built by createLines() on text changes
   List<Line> lines = [];

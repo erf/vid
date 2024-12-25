@@ -1,3 +1,5 @@
+import 'package:vid/file_buffer_lines.dart';
+
 import 'actions_normal.dart';
 import 'config.dart';
 import 'editor.dart';
@@ -11,11 +13,11 @@ import 'modes.dart';
 
 class CommandActions {
   static void noop(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
   }
 
   static void open(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
     if (f.modified) {
       e.showMessage(Message.error('File has unsaved changes'));
       return;
@@ -34,7 +36,7 @@ class CommandActions {
   }
 
   static void read(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
     if (args.length < 2 || args[1].isEmpty) {
       e.showMessage(Message.error('No file name'));
       return;
@@ -49,14 +51,14 @@ class CommandActions {
   }
 
   static void write(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
 
     String? path = f.path;
     if (args.length > 1) {
       path = args[1];
     }
 
-    var result = f.save(path);
+    final ErrorOr<bool> result = f.save(e, path);
     if (result.hasError) {
       e.showMessage(Message.error(result.error!));
     } else {
@@ -66,14 +68,14 @@ class CommandActions {
   }
 
   static void writeAndQuit(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
 
     String? path = f.path;
     if (args.length > 1) {
       path = args[1];
     }
 
-    ErrorOr result = f.save(path);
+    ErrorOr result = f.save(e, path);
     if (result.hasError) {
       e.showMessage(Message.error(result.error!));
     } else {
@@ -82,7 +84,7 @@ class CommandActions {
   }
 
   static void quit(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
     NormalActions.quit(e, f);
   }
 
@@ -96,14 +98,14 @@ class CommandActions {
     String replacement = parts.length >= 3 ? parts[2] : '';
     bool global = parts.length >= 4 && parts[3] == 'g';
 
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
     final regex = RegExp(RegExp.escape(pattern));
     while (true) {
       Match? match = regex.firstMatch(f.text);
       if (match == null) {
         break;
       }
-      f.replace(match.start, match.end, replacement);
+      f.replace(e, match.start, match.end, replacement);
       f.cursor = f.positionFromByteIndex(match.start);
       if (!global) {
         break;
@@ -112,20 +114,20 @@ class CommandActions {
   }
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
     Config.wrapMode = WrapMode.none;
-    e.createLines();
+    f.createLines(e, Config.wrapMode);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
     Config.wrapMode = WrapMode.char;
-    e.createLines();
+    f.createLines(e, Config.wrapMode);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(Mode.normal);
+    f.setMode(e, Mode.normal);
     Config.wrapMode = WrapMode.word;
-    e.createLines();
+    f.createLines(e, Config.wrapMode);
   }
 }

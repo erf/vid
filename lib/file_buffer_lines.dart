@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:characters/characters.dart';
 
 import 'config.dart';
+import 'editor.dart';
 import 'file_buffer.dart';
 import 'keys.dart';
 import 'line.dart';
@@ -13,7 +14,7 @@ extension FileBufferLines on FileBuffer {
   bool get empty => lines.length == 1 && lines.first.isEmpty;
 
   // split text into lines
-  void createLines(WrapMode wrapMode, int width, int height) {
+  void createLines(Editor e, WrapMode wrapMode) {
     // ensure that the text ends with a newline
     if (!text.endsWith(Keys.newline)) {
       text += Keys.newline;
@@ -25,6 +26,7 @@ extension FileBufferLines on FileBuffer {
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();
     int start = 0;
+    int width = e.term.width;
     for (int i = 0; i < textLines.length; i++) {
       String line = textLines[i];
       switch (wrapMode) {

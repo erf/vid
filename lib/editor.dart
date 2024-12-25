@@ -34,7 +34,7 @@ import 'string_ext.dart';
 import 'terminal.dart';
 
 class Editor {
-  Terminal term = Terminal.instance;
+  Terminal term;
   FileBuffer file = FileBuffer();
   StringBuffer rbuf = StringBuffer();
   Message? message;
@@ -43,7 +43,10 @@ class Editor {
   File? logFile;
   bool redraw;
 
-  Editor({this.redraw = true});
+  Editor({
+    required this.term,
+    this.redraw = true,
+  });
 
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
@@ -55,12 +58,8 @@ class Editor {
     file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
-    createLines();
+    file.createLines(this, Config.wrapMode);
     draw();
-  }
-
-  void createLines() {
-    file.createLines(Config.wrapMode, term.width, term.height);
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
@@ -70,7 +69,7 @@ class Editor {
     }
     file = result.value!;
     term.write(Esc.setWindowTitle(path));
-    createLines();
+    file.createLines(this, Config.wrapMode);
     draw();
     return result;
   }
@@ -101,7 +100,7 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     int byteIndex = file.byteIndexFromPosition(file.cursor);
-    createLines();
+    file.createLines(this, Config.wrapMode);
     file.cursor = file.positionFromByteIndex(byteIndex);
     showMessage(Message.info('${term.width}x${term.height}'));
     draw();
@@ -309,12 +308,12 @@ class Editor {
     switch (char) {
       case Keys.backspace:
         if (edit.input.isEmpty) {
-          file.setMode(Mode.normal);
+          file.setMode(this, Mode.normal);
         } else {
           edit.input = edit.input.substring(0, edit.input.length - 1);
         }
       case Keys.escape:
-        file.setMode(Mode.normal);
+        file.setMode(this, Mode.normal);
         edit.input = '';
       case Keys.newline:
         if (file.mode == Mode.search) {
@@ -416,7 +415,7 @@ class Editor {
         commitEdit(edit);
       case OperatorFn():
         edit.op = action;
-        file.setMode(Mode.operator);
+        file.setMode(this, Mode.operator);
       case _:
     }
   }
@@ -440,7 +439,7 @@ class Editor {
     // check if we match or partial match a motion key
     switch (motionActions.partialMatch(edit.opInput)) {
       case KeyMatch.none:
-        file.setMode(Mode.normal);
+        file.setMode(this, Mode.normal);
         file.editOp = EditOp();
       case KeyMatch.partial:
         break;
@@ -486,7 +485,7 @@ class Editor {
         start = Motions.lineStart(file, range.start, true);
         end = Motions.lineEnd(file, range.end, true);
       }
-      op(file, Range(start, end).norm);
+      op(this, file, Range(start, end).norm);
     }
     if (reset) resetEdit(file);
   }

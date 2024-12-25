@@ -9,7 +9,7 @@ typedef InsertFn = void Function(Editor, FileBuffer);
 
 typedef CommandFn = void Function(Editor, FileBuffer, List<String>);
 
-typedef OperatorFn = void Function(FileBuffer, Range);
+typedef OperatorFn = void Function(Editor, FileBuffer, Range);
 
 typedef MotionFn = Position Function(FileBuffer, Position, bool);
 

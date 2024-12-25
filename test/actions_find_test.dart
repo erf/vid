@@ -2,14 +2,16 @@ import 'package:test/test.dart';
 import 'package:vid/actions_find.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/position.dart';
+import 'package:vid/terminal.dart';
 
 void main() {
   test('motionFindNextChar', () {
-    final f = FileBuffer(text: 'abca\ndef\n');
-    f.createLines(WrapMode.none, 80, 24);
+    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abca\ndef\n';
+    f.createLines(e, WrapMode.none);
     final cursor = Position(c: 0, l: 0);
     expect(Find.findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
     expect(Find.findNextChar(f, cursor, 'b', false), Position(c: 1, l: 0));
@@ -21,8 +23,10 @@ void main() {
   });
 
   test('motionFindPrevChar', () {
-    final f = FileBuffer(text: 'abc\ndef\n');
-    f.createLines(WrapMode.none, 80, 24);
+    final e = Editor(term: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.createLines(e, WrapMode.none);
     final cursor = Position(c: 2, l: 0);
     expect(Find.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));
     expect(Find.findPrevChar(f, cursor, 'b', false), Position(c: 1, l: 0));
@@ -30,10 +34,10 @@ void main() {
   });
 
   test('till with delete operator', () {
-    final e = Editor(redraw: false);
+    final e = Editor(term: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
-    f.createLines(WrapMode.none, 80, 24);
+    f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 0);
     f.editOp.findStr = 't';
     e.input('dt');
@@ -41,10 +45,10 @@ void main() {
   });
 
   test('find with delete operator', () {
-    final e = Editor(redraw: false);
+    final e = Editor(term: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
-    f.createLines(WrapMode.none, 80, 24);
+    f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 0);
     f.editOp.findStr = 't';
     e.input('df');
