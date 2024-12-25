@@ -90,6 +90,14 @@ class NormalActions {
     f.setMode(e, Mode.replace);
   }
 
+  static void deleteCharNext(Editor e, FileBuffer f) {
+    f.deleteAt(e, f.cursor);
+    // move to the left if at the end of the line
+    if (f.cursor.c >= f.lines[f.cursor.l].charLen - 1) {
+      f.cursor.c--;
+    }
+  }
+
   static void joinLines(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.editOp.count ?? 1); i++) {
       if (f.cursor.l >= f.lines.length - 1) {
