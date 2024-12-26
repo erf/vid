@@ -22,13 +22,12 @@ extension FileBufferIo on FileBuffer {
     // load file if it exists
     final file = File(path);
     if (file.existsSync()) {
-      String text;
       try {
-        text = file.readAsStringSync();
+        final String text = file.readAsStringSync();
+        return ErrorOr.value(FileBuffer(path: path, text: text));
       } catch (error) {
         return ErrorOr.error('Error reading file: $error');
       }
-      return ErrorOr.value(FileBuffer(path: path, text: text));
     }
 
     // create new file if allowed
