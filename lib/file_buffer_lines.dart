@@ -15,13 +15,12 @@ extension FileBufferLines on FileBuffer {
 
   // split text into lines
   void createLines(Editor e, WrapMode wrapMode) {
-    // ensure that the text ends with a newline
-    if (!text.endsWith(Keys.newline)) {
-      text += Keys.newline;
-    }
-
     // split text into lines (remove last empty line)
-    final List<String> textLines = text.split(Keys.newline)..removeLast();
+    final List<String> textLines = text.split(Keys.newline);
+
+    if (textLines.last.isEmpty) {
+      textLines.removeLast();
+    }
 
     // split text into lines with metadata used for cursor positioning etc.
     lines.clear();

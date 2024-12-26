@@ -11,7 +11,7 @@ extension FileBufferIo on FileBuffer {
       {required bool allowNew}) {
     //  if no path is given, return an empty file buffer
     if (path.isEmpty) {
-      return ErrorOr.value(FileBuffer(path: '', text: ''));
+      return ErrorOr.value(FileBuffer());
     }
 
     // check if path is a directory
@@ -32,9 +32,8 @@ extension FileBufferIo on FileBuffer {
 
     // create new file if allowed
     if (allowNew) {
-      return ErrorOr.value(FileBuffer(path: path, text: ''));
+      return ErrorOr.value(FileBuffer(path: path));
     }
-
     return ErrorOr.error('File not found \'$path\'');
   }
 

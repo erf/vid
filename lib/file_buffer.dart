@@ -8,7 +8,7 @@ import 'text_op.dart';
 class FileBuffer {
   // create a new file buffer
   FileBuffer({
-    this.text = '',
+    this.text = '\n',
     this.path,
   });
 
