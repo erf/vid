@@ -146,17 +146,6 @@ void main() {
     expect(f.text, '123\n');
   });
 
-  test('delete newline at end of file', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
-    final f = e.file;
-    f.text = 'abc\ndef\n\n';
-    f.createLines(e, WrapMode.none);
-    f.cursor = Position(c: 0, l: 2);
-    e.input('dd');
-    expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 1));
-  }, skip: true);
-
   test(
     'delete last newline then undo should not create extra newline',
     () {
@@ -170,4 +159,15 @@ void main() {
       expect(f.cursor, Position(c: 1, l: 0));
     },
   );
+
+  test('delete newline at end of file', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\n\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 2);
+    e.input('dd');
+    expect(f.text, 'abc\ndef\n');
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
 }
