@@ -99,10 +99,10 @@ extension FileBufferText on FileBuffer {
     }
   }
 
-  void replaceRange(Editor e, Range range, String newText, [bool undo = true]) {
+  void replaceRange(Editor e, Range range, String newText) {
     int start = byteIndexFromPosition(range.start);
     int end = byteIndexFromPosition(range.end);
-    replace(e, start, end, newText, undo);
+    replace(e, start, end, newText);
   }
 
   void deleteRange(Editor e, Range range) {
