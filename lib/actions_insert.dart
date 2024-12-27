@@ -32,7 +32,7 @@ class InsertActions {
   static void backspace(Editor e, FileBuffer f) {
     if (f.cursor.c == 0 && f.cursor.l == 0) return;
     f.setMode(e, Mode.normal);
-    e.alias('hx');
+    e.alias('hdl');
     f.setMode(e, Mode.insert);
   }
 }

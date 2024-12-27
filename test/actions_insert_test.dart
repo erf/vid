@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
+import 'package:vid/keys.dart';
 import 'package:vid/modes.dart';
 import 'package:vid/position.dart';
 import 'package:vid/terminal.dart';
@@ -116,5 +117,16 @@ Nature's serenade, timeless and free.
     e.input('HI');
     expect(f.text, 'abHIcd\n');
     expect(f.cursor, Position(c: 4, l: 0));
+  });
+
+  test('insert backspace at eol should not move back extra char', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 3, l: 0);
+    e.input('i${Keys.backspace}');
+    expect(f.text, 'ab\n');
+    expect(f.cursor, Position(c: 2, l: 0));
   });
 }
