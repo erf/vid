@@ -60,9 +60,9 @@ class Unicode {
     }
 
     // emoji-data
-    if (isEmoji(codePoints.first)) {
-      return 2;
-    }
+    // if (isEmoji(codePoints.first)) {
+    //   return 2;
+    // }
 
     // emoji-sequences
     if (isEmojiSequence(codePoints)) {
