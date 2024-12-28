@@ -1,16 +1,9 @@
-import 'dart:math';
-
 import 'package:vid/unicode.dart';
 
-void main() {
-  final chars = generateRandomUnicodeChars(1000000);
-  benchmarkCodepointWidth(chars);
-}
+import 'bench_utils.dart';
 
-List<String> generateRandomUnicodeChars(int length) {
-  final rand = Random();
-  return List.generate(
-      length, (i) => String.fromCharCode(rand.nextInt(0x10FFFF + 1)));
+void main() {
+  benchmarkCodepointWidth(genRandomUnicodeChars(1000000));
 }
 
 void benchmarkCodepointWidth(List<String> unicodeChars) {
