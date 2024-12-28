@@ -88,7 +88,6 @@ class Unicode {
   }
 
   static bool isEmojiSequenceTrie(List<int> codePoints) {
-    final List<int>? match = emojiSequenceTrie.findLongestMatch(codePoints);
-    return match != null;
+    return emojiSequenceTrie.matches(codePoints);
   }
 }

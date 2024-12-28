@@ -9,10 +9,10 @@ class EmojiSequenceTrie {
   final TrieNode root = TrieNode();
 
   EmojiSequenceTrie(List<List<int>> emojiSequences) {
-    populateTrieFromList(emojiSequences);
+    populate(emojiSequences);
   }
 
-  void populateTrieFromList(List<List<int>> emojiSequences) {
+  void populate(List<List<int>> emojiSequences) {
     for (final sequence in emojiSequences) {
       insert(sequence);
     }
@@ -43,7 +43,7 @@ class EmojiSequenceTrie {
     List<int>? longestMatch;
     final List<int> buffer = <int>[];
 
-    for (final codePoint in input) {
+    for (final int codePoint in input) {
       current = current?.children[codePoint];
       if (current == null) break;
 
