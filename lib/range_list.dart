@@ -6,6 +6,8 @@ class IntRange {
 
   factory IntRange.single(int value) => IntRange(value, value);
 
+  bool contains(int value) => value >= start && value <= end;
+
   @override
   String toString() => ('IntRange($start, $end)');
 }
@@ -13,42 +15,41 @@ class IntRange {
 class RangeList {
   final List<IntRange> ranges;
 
-  // Constructor from a list of ranges
   const RangeList(this.ranges);
 
-  // Factory constructor from an iterable of ranges
-  factory RangeList.from(Iterable<IntRange> ranges) {
-    return RangeList(ranges.toList(growable: false));
+  void addRange(IntRange range) {
+    ranges.add(range);
   }
 
-  // Returns true if the value is contained in any of the ranges
+  void sortRanges() {
+    ranges.sort((a, b) => a.start.compareTo(b.start));
+  }
+
   bool contains(int value) {
+    // Check if ranges is empty
     if (ranges.isEmpty) {
       return false;
     }
 
-    // Check against the overall range first
+    // Check if the value is outside the overall range
     if (value < ranges.first.start || value > ranges.last.end) {
       return false;
     }
 
-    // Binary search for the range containing the value
-    int start = 0, end = ranges.length - 1;
-    while (start <= end) {
-      final int mid = start + (end - start) ~/ 2;
-      final IntRange range = ranges[mid];
-      if (range.start <= value && range.end >= value) {
+    // Bisection search for efficient lookups
+    int low = 0, high = ranges.length - 1;
+    while (low <= high) {
+      int mid = (low + high) ~/ 2;
+      if (ranges[mid].contains(value)) {
         return true;
-      }
-      if (range.start > value) {
-        end = mid - 1;
+      } else if (value < ranges[mid].start) {
+        high = mid - 1;
       } else {
-        start = mid + 1;
+        low = mid + 1;
       }
     }
     return false;
   }
 
-  // Returns the number of ranges
   int get length => ranges.length;
 }

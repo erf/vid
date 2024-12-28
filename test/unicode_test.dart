@@ -76,4 +76,8 @@ void main() {
     expect(len, 5);
     expect(val, 10084);
   });
+
+  test('char width of 🇳🇴', () {
+    expect('🇳🇴'.charWidth, 2);
+  });
 }

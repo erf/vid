@@ -1,5 +1,8 @@
+import 'package:vid/emoji_data.dart';
+
 import 'config.dart';
-import 'east_asian_width_range_list.dart';
+import 'east_asian_width.dart';
+import 'emoji_sequences.dart';
 
 // Unicode class to determine the rendered width of a single character
 // based on: https://wcwidth.readthedocs.io/en/latest/specs.html
@@ -47,11 +50,39 @@ class Unicode {
       return 2;
     }
 
+    final List<int> codePoints = str.runes.toList();
+
+    final int firstCodePoint = codePoints.first;
+
     // east asian width wide or fullwidth
-    if (eastAsianWidthRangeList.contains(str.runes.first)) {
+    if (isWide(firstCodePoint)) {
+      return 2;
+    }
+
+    // emoji-data
+    if (isEmoji(codePoints.first)) {
+      return 2;
+    }
+
+    // emoji-sequences
+    if (isEmojiSequence(codePoints)) {
       return 2;
     }
 
     return 1;
+  }
+
+  static bool isWide(int codePoint) {
+    return eastAsianWidth.contains(codePoint);
+  }
+
+  static bool isEmoji(int codePoint) {
+    return emojiData.contains(codePoint);
+  }
+
+  static bool isEmojiSequence(List<int> codePoints) {
+    return emojiSequences.any((seq) =>
+        seq.length == codePoints.length &&
+        seq.every((cp) => codePoints.contains(cp)));
   }
 }
