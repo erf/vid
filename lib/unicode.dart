@@ -2,6 +2,7 @@ import 'package:vid/emoji_data.dart';
 
 import 'config.dart';
 import 'east_asian_width.dart';
+import 'emoji_sequence_trie.dart';
 import 'emoji_sequences.dart';
 
 // Unicode class to determine the rendered width of a single character
@@ -65,7 +66,7 @@ class Unicode {
     // }
 
     // emoji-sequences
-    if (isEmojiSequence(codePoints)) {
+    if (isEmojiSequenceTrie(codePoints)) {
       return 2;
     }
 
@@ -84,5 +85,10 @@ class Unicode {
     return emojiSequences.any((seq) =>
         seq.length == codePoints.length &&
         seq.every((cp) => codePoints.contains(cp)));
+  }
+
+  static bool isEmojiSequenceTrie(List<int> codePoints) {
+    final List<int>? match = emojiSequenceTrie.findLongestMatch(codePoints);
+    return match != null;
   }
 }
