@@ -92,10 +92,6 @@ class NormalActions {
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     f.deleteAt(e, f.cursor);
-    // move to the left if at the end of the line
-    if (f.cursor.c >= f.lines[f.cursor.l].charLen - 1) {
-      f.cursor.c--;
-    }
   }
 
   static void joinLines(Editor e, FileBuffer f) {

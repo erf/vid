@@ -231,5 +231,16 @@ void main() {
     e.input('x');
     expect(f.text, 'ab\n');
     expect(f.cursor, Position(c: 1, l: 0));
-  });
+  }, skip: true);
+
+  test('deleteCharNext if cursor is at start of line on second line', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 1);
+    e.input('xxxx');
+    expect(f.text, 'abc\n');
+    expect(f.cursor, Position(c: 3, l: 0));
+  }, skip: true);
 }
