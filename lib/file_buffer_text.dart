@@ -37,20 +37,12 @@ extension FileBufferText on FileBuffer {
   // replace text in the buffer, add undo operation and recreate lines
   void replace(Editor e, int start, int end, String newText,
       [bool undo = true]) {
+    assert(start <= end);
     bool isDeleteOrReplace = start != end;
-    // don't delete or replace the last newline
     if (isDeleteOrReplace) {
-      if (end > text.length) {
-        end = text.length;
-      }
-      // if the range is the whole text, don't include the last newline, because
-      // we don't want to include it in the Undo, as we will add a newline in
-      // crateLines
-      if (end - start == text.length) {
+      // don't delete the last newline
+      if (end >= text.length) {
         end = text.length - 1;
-      }
-      if (start >= end) {
-        return;
       }
     }
 

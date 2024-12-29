@@ -117,26 +117,6 @@ void main() {
     expect(f.text, '\ndef\nbac\n\nghi\n');
   });
 
-  test('delete newline at end of file', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
-    final f = e.file;
-    f.text = 'abc\ndef\n\n';
-    f.createLines(e, WrapMode.none);
-    f.cursor = Position(c: 0, l: 2);
-    e.input('dd');
-    expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 1));
-  });
-
-  test('ddu should not produce extra newline', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
-    final f = e.file;
-    f.text = 'abc\n';
-    f.createLines(e, WrapMode.none);
-    e.input('ddu');
-    expect(f.text, 'abc\n');
-  });
-
   test('gu should lowercase', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
