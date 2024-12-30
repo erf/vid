@@ -46,9 +46,11 @@ extension FileBufferText on FileBuffer {
     assert(start <= end);
     bool isDeleteOrReplace = start != end;
     if (isDeleteOrReplace) {
-      // don't delete the last newline
+      // don't delete the last newline, except when the prev char is a newline
       if (end >= text.length) {
-        end = text.length - 1;
+        if (start > 0 && text[start - 1] != '\n' || start == 0) {
+          end = text.length - 1;
+        }
       }
     }
 
