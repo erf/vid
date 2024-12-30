@@ -44,13 +44,12 @@ extension FileBufferText on FileBuffer {
     bool undo = true,
   }) {
     assert(start <= end);
-    bool isDeleteOrReplace = start != end;
+    final bool isDeleteOrReplace = start != end;
+    final int len = text.length;
     if (isDeleteOrReplace) {
       // don't delete the last newline, except when the prev char is a newline
-      if (end >= text.length) {
-        if (start > 0 && text[start - 1] != '\n' || start == 0) {
-          end = text.length - 1;
-        }
+      if (end >= len && (start > 0 && text[start - 1] != '\n' || start == 0)) {
+        end = len - 1;
       }
       // no changes to the text
       if (start == end) {
@@ -62,7 +61,7 @@ extension FileBufferText on FileBuffer {
         return;
       }
       // insert newline at the end of the text, if it doesn't exist already
-      if (end >= text.length && !newText.endsWith('\n')) {
+      if (end >= len && !newText.endsWith('\n')) {
         newText += '\n';
       }
     }
