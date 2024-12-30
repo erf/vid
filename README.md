@@ -10,9 +10,9 @@ A minimal vim-like text editor for modern terminals written in Dart 🧑‍💻
 - properly render and edit emojis and wide characters 🍜
 - made for modern terminals that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) (e.g. [Ghostty](https://github.com/mitchellh/ghostty/), [WezTerm](https://github.com/wez/wezterm)) 🧠
 - written in Dart using the [characters](https://pub.dev/packages/characters) package ✨
-- most **vim** motions and operations covered ⚙️
 - unlimited undo and redo ↩️
 - no-wrap, char-wrap or word-wrap 🎁
+- most **vim** motions and operations covered ⚙️
 
 ## Non-goals ❌
 
