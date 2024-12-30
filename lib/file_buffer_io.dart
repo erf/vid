@@ -26,7 +26,11 @@ extension FileBufferIo on FileBuffer {
     final file = File(path);
     if (file.existsSync()) {
       try {
-        final String text = file.readAsStringSync();
+        String text = file.readAsStringSync();
+        // add newline at end of file if missing
+        if (!text.endsWith('\n')) {
+          text += '\n';
+        }
         return ErrorOr.value(FileBuffer(path: path, text: text));
       } catch (error) {
         return ErrorOr.error('Error reading file: $error');
