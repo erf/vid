@@ -13,20 +13,21 @@ import 'text_op.dart';
 extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
   Position positionFromByteIndex(int start) {
-    Line ln = lines.firstWhere((l) => start < l.end, orElse: () => lines.last);
-    int end = start - ln.start;
+    final Line line =
+        lines.firstWhere((l) => start < l.end, orElse: () => lines.last);
+    final int end = start - line.start;
     assert(end >= 0, 'positionFromByteIndex: end is negative: $end');
     if (end > 0) {
-      int charpos = ln.str.substring(0, end).characters.length;
-      return Position(l: ln.no, c: charpos);
+      final int charpos = line.str.substring(0, end).characters.length;
+      return Position(l: line.no, c: charpos);
     } else {
-      return Position(l: ln.no, c: 0);
+      return Position(l: line.no, c: 0);
     }
   }
 
   // get the byte index text from the cursor Position
   int byteIndexFromPosition(Position pos) {
-    Line line = lines[pos.l];
+    final Line line = lines[pos.l];
     if (pos.c == 0) {
       return line.start;
     } else {
@@ -35,8 +36,13 @@ extension FileBufferText on FileBuffer {
   }
 
   // replace text in the buffer, add undo operation and recreate lines
-  void replace(Editor e, int start, int end, String newText,
-      [bool undo = true]) {
+  void replace(
+    Editor editor,
+    int start,
+    int end,
+    String newText, {
+    bool undo = true,
+  }) {
     assert(start <= end);
     bool isDeleteOrReplace = start != end;
     if (isDeleteOrReplace) {
@@ -55,7 +61,7 @@ extension FileBufferText on FileBuffer {
     text = text.replaceRange(start, end, newText);
 
     // we need to recreate the lines, because the text has changed
-    createLines(e, Config.wrapMode);
+    createLines(editor, Config.wrapMode);
   }
 
   // add an undo operation
@@ -92,8 +98,8 @@ extension FileBufferText on FileBuffer {
   }
 
   void replaceRange(Editor e, Range range, String newText) {
-    int start = byteIndexFromPosition(range.start);
-    int end = byteIndexFromPosition(range.end);
+    final int start = byteIndexFromPosition(range.start);
+    final int end = byteIndexFromPosition(range.end);
     replace(e, start, end, newText);
   }
 
@@ -102,8 +108,8 @@ extension FileBufferText on FileBuffer {
   }
 
   void insertAt(Editor e, Position pos, String str, [bool undo = true]) {
-    int start = byteIndexFromPosition(pos);
-    replace(e, start, start, str, undo);
+    final int start = byteIndexFromPosition(pos);
+    replace(e, start, start, str, undo: undo);
   }
 
   void replaceAt(Editor e, Position pos, String str) {
@@ -115,9 +121,9 @@ extension FileBufferText on FileBuffer {
   }
 
   void yankRange(Range range) {
-    Range r = range.norm;
-    int start = byteIndexFromPosition(r.start);
-    int end = byteIndexFromPosition(r.end);
+    final Range r = range.norm;
+    final int start = byteIndexFromPosition(r.start);
+    final int end = byteIndexFromPosition(r.end);
     yankBuffer = text.substring(start, end);
   }
 }
