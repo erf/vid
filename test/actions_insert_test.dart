@@ -74,7 +74,7 @@ void main() {
   test('insert chunk of text', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
-    f.text = '';
+    f.text = '\n';
     f.createLines(e, WrapMode.none);
     f.mode = Mode.insert;
     // insert longer text with multiple lines
