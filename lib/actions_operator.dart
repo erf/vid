@@ -14,7 +14,7 @@ class Operators {
   }
 
   static void delete(Editor e, FileBuffer f, Range range) {
-    int byteIndex = f.byteIndexFromPosition(range.start);
+    final int byteIndex = f.byteIndexFromPosition(range.start);
     f.deleteRange(e, range);
     f.cursor = f.positionFromByteIndex(byteIndex);
     f.clampCursor();
@@ -33,17 +33,17 @@ class Operators {
   }
 
   static void lowerCase(Editor e, FileBuffer f, Range r) {
-    int start = f.byteIndexFromPosition(r.start);
-    int end = f.byteIndexFromPosition(r.end);
-    String replacement = f.text.substring(start, end).toLowerCase();
+    final int start = f.byteIndexFromPosition(r.start);
+    final int end = f.byteIndexFromPosition(r.end);
+    final String replacement = f.text.substring(start, end).toLowerCase();
     f.replace(e, start, end, replacement);
     f.setMode(e, Mode.normal);
   }
 
   static void upperCase(Editor e, FileBuffer f, Range r) {
-    int start = f.byteIndexFromPosition(r.start);
-    int end = f.byteIndexFromPosition(r.end);
-    String replacement = f.text.substring(start, end).toUpperCase();
+    final int start = f.byteIndexFromPosition(r.start);
+    final int end = f.byteIndexFromPosition(r.end);
+    final String replacement = f.text.substring(start, end).toUpperCase();
     f.replace(e, start, end, replacement);
     f.setMode(e, Mode.normal);
   }
