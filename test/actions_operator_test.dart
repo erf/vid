@@ -52,10 +52,10 @@ void main() {
     expect(f.cursor.l, 1);
     expect(f.cursor.c, 0);
     e.input('p');
-    expect(f.text, 'abc\nghi\ndef\n\n');
+    expect(f.text, 'abc\nghi\ndef\n');
     expect(f.cursor.l, 2);
     e.input('kP');
-    expect(f.text, 'abc\ndef\nghi\ndef\n\n');
+    expect(f.text, 'abc\ndef\nghi\ndef\n');
   });
 
   test('cc', () {

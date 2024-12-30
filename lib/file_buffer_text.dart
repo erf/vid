@@ -54,7 +54,7 @@ extension FileBufferText on FileBuffer {
       }
     } else {
       // insert newline at the end of the text
-      if (end >= text.length) {
+      if (end >= text.length && !newText.endsWith('\n')) {
         newText += '\n';
       }
     }
