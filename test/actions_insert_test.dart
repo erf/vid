@@ -61,16 +61,6 @@ void main() {
     expect(f.cursor, Position(c: 2, l: 0));
   });
 
-  test('insert multiple chars as one insert action', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
-    final f = e.file;
-    f.createLines(e, WrapMode.none);
-    e.input('iabc\x1b');
-    expect(f.text, 'abc\n');
-    expect(f.prevEditOp!.input, 'abc');
-    expect(f.cursor, Position(c: 3, l: 0));
-  }, skip: true);
-
   test('insert chunk of text', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
@@ -129,4 +119,14 @@ Nature's serenade, timeless and free.
     expect(f.text, 'ab\n');
     expect(f.cursor, Position(c: 2, l: 0));
   });
+
+  test('insert multiple chars as one insert action', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.createLines(e, WrapMode.none);
+    e.input('iabc\x1b');
+    expect(f.text, 'abc\n');
+    expect(f.prevEditOp!.input, 'abc');
+    expect(f.cursor, Position(c: 3, l: 0));
+  }, skip: true);
 }
