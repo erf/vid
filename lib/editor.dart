@@ -50,7 +50,11 @@ class Editor {
 
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
-    final result = FileBufferIo.load(this, path ?? '', allowNew: true);
+    final result = FileBufferIo.load(
+      this,
+      path: path ?? '',
+      createNewFileIfNotExists: true,
+    );
     if (result.hasError) {
       print(result.error);
       exit(0);
@@ -63,7 +67,11 @@ class Editor {
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
-    ErrorOr<FileBuffer> result = FileBufferIo.load(this, path, allowNew: false);
+    ErrorOr<FileBuffer> result = FileBufferIo.load(
+      this,
+      path: path,
+      createNewFileIfNotExists: false,
+    );
     if (result.hasError) {
       return result;
     }
