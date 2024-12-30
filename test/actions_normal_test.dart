@@ -276,4 +276,15 @@ void main() {
     expect(f.text, '\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });
+
+  test('yank text and paste it at eof should insert newline', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 0);
+    e.input('ye\$p');
+    expect(f.text, 'abc\nabc\n');
+    expect(f.cursor, Position(c: 3, l: 0));
+  });
 }

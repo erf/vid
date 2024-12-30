@@ -52,6 +52,11 @@ extension FileBufferText on FileBuffer {
           end = text.length - 1;
         }
       }
+    } else {
+      // insert newline at the end of the text
+      if (end >= text.length) {
+        newText += '\n';
+      }
     }
 
     // add undo operation
