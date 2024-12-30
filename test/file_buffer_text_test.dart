@@ -13,7 +13,7 @@ void main() {
   test('getPositionFromIndex', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
-    f.text = 'abc\ndef';
+    f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
     expect(f.positionFromByteIndex(0), Position(c: 0, l: 0));
     expect(f.positionFromByteIndex(2), Position(c: 2, l: 0));

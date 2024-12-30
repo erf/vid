@@ -22,7 +22,7 @@ void main() {
   test('insertActionEscape', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
-    f.text = 'abc';
+    f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 0);
     e.input('i\x1b');
