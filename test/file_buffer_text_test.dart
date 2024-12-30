@@ -154,7 +154,7 @@ void main() {
     f.cursor = Position(c: 1, l: 0);
     e.input('xu');
     expect(f.text, 'a\n');
-    expect(f.cursor, Position(c: 1, l: 0));
+    expect(f.cursor, Position(c: 0, l: 0));
   });
 
   test('delete newline at end of file', () {

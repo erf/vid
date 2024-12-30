@@ -92,6 +92,12 @@ class NormalActions {
 
   static void deleteCharNext(Editor e, FileBuffer f) {
     f.deleteAt(e, f.cursor);
+
+    // If the cursor is at the end of the line, move it back one.
+    f.clampCursor();
+    if (f.cursor.c == f.lines[f.cursor.l].charLen - 1 && f.cursor.c > 0) {
+      f.cursor.c--;
+    }
   }
 
   static void joinLines(Editor e, FileBuffer f) {
