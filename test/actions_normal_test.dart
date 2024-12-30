@@ -2,6 +2,8 @@ import 'package:test/test.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
+import 'package:vid/file_buffer_view.dart';
+import 'package:vid/keys.dart';
 import 'package:vid/position.dart';
 import 'package:vid/terminal.dart';
 
@@ -286,5 +288,17 @@ void main() {
     e.input('ye\$p');
     expect(f.text, 'abc\nabc\n');
     expect(f.cursor, Position(c: 3, l: 0));
+  });
+
+  test('dont undo x if at eol', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = '\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 3, l: 0);
+    e.input('iabc${Keys.escape}lxxxuuu');
+    f.clampCursor();
+    expect(f.text, '\n');
+    expect(f.cursor, Position(c: 0, l: 0));
   });
 }
