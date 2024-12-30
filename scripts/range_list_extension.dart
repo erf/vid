@@ -11,6 +11,7 @@ extension RangeListWrite on RangeList {
     buffer.writeln(']);');
     buffer.writeln();
     buffer.writeln('// length: $length');
+    buffer.writeln();
     print(buffer.toString());
   }
 }

@@ -58,6 +58,7 @@ class EmojiSequencesParser {
       );
     }
     buffer.writeln('];');
+    buffer.writeln();
     print(buffer);
   }
 }

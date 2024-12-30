@@ -1142,4 +1142,3 @@ final emojiSequences = [
   [0x1faf8, 0x1f3fe],
   [0x1faf8, 0x1f3ff],
 ];
-

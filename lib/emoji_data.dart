@@ -1288,4 +1288,3 @@ const emojiData = RangeList([
 ]);
 
 // length: 1278
-
