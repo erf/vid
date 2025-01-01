@@ -80,4 +80,12 @@ void main() {
   test('char width of 🇳🇴', () {
     expect('🇳🇴'.charWidth, 2);
   });
+
+  test('char width of 8️⃣', () {
+    expect('8️⃣'.charWidth, 2);
+  });
+
+  test('char width of ⑧', () {
+    expect('⑧'.charWidth, 1);
+  });
 }

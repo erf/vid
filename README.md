@@ -6,7 +6,7 @@ A minimal vim-like text editor for modern terminals written in Dart 🧑‍💻
 
 ## Features 📋
 
-- a minimal vim-like text editor for the terminal ⚡️
+- a minimal vim-like text (UTF-8) editor for the terminal ⚡️
 - properly render and edit emojis and wide characters 🍜
 - made for modern terminals that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) (e.g. [Ghostty](https://github.com/ghostty-org/ghostty), [WezTerm](https://github.com/wez/wezterm)) 🧠
 - written in Dart using the [characters](https://pub.dev/packages/characters) package ✨
@@ -38,3 +38,4 @@ I enjoy building [vid](https://github.com/erf/vid) myself but I'm open to pull r
 I don't accept issues solely for suggestions.
 
 Enjoy ✨
+

@@ -13,27 +13,26 @@ class Unicode {
     // if the string is empty, return 0
     if (str.isEmpty) return 0;
 
-    // Get the Unicode value of the character
-    int codePoint = str.codeUnitAt(0);
+    final List<int> codeUnits = str.codeUnits.toList();
+    final int firstCodeUnit = codeUnits.first;
 
-    // if the string is a single tab return the tab width
-    if (codePoint == 0x0009) {
-      return Config.tabWidth;
-    }
+    final List<int> codePoints = str.runes.toList();
+    final int firstCodePoint = codePoints.first;
 
-    // control characters
-    if (codePoint <= 0x001F) {
-      return 0;
-    }
+    if (codeUnits.length == 1) {
+      // if a tab return the config tab width
+      if (firstCodeUnit == 0x0009) {
+        return Config.tabWidth;
+      }
+      // control characters
+      if (firstCodeUnit <= 0x001F || firstCodeUnit == 0x007F) {
+        return 0;
+      }
 
-    // more control characters
-    if (codePoint >= 0x007F && codePoint <= 0x00A0) {
-      return 0;
-    }
-
-    // ASCII fast path
-    if (codePoint <= 0x00FF) {
-      return 1;
+      // ASCII fast path
+      if (firstCodeUnit <= 0x007F) {
+        return 1;
+      }
     }
 
     // TODO handle zero width
@@ -41,19 +40,15 @@ class Unicode {
 
     // is text presentation
     const int textPresentation = 0xFE0E;
-    if (str.codeUnits.contains(textPresentation)) {
+    if (codeUnits.contains(textPresentation)) {
       return 1;
     }
 
     // is emoji presentation
     const int emojiPresentation = 0xFE0F;
-    if (str.codeUnits.contains(emojiPresentation)) {
+    if (codeUnits.contains(emojiPresentation)) {
       return 2;
     }
-
-    final List<int> codePoints = str.runes.toList();
-
-    final int firstCodePoint = codePoints.first;
 
     // east asian width wide or fullwidth
     if (isWide(firstCodePoint)) {
@@ -61,7 +56,7 @@ class Unicode {
     }
 
     // emoji-data
-    // if (isEmoji(codePoints.first)) {
+    // if (isEmoji(firstCodePoint)) {
     //   return 2;
     // }
 
