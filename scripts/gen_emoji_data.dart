@@ -23,10 +23,22 @@ class EmojiDataParser {
     date = lines.skip(1).take(1).single.replaceFirst('# ', '');
 
     for (var line in lines) {
-      if (line.startsWith('#') || line.trim().isEmpty) continue;
+      final trimmed = line.trim();
 
-      final parts = line.split(';');
-      final range = parts[0].trim();
+      // Skip comments and empty lines
+      if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
+
+      // Split line into data and comment
+      final parts = trimmed.split(';');
+      if (parts.length < 2) continue;
+
+      // Extract the range and property
+      final property = parts[1].split('#')[0].trim();
+      if (property != 'Emoji_Presentation') {
+        continue;
+      }
+
+      final String range = parts[0].trim();
       if (range.contains('..')) {
         final bounds = range.split('..').map((e) => int.parse(e, radix: 16));
         emojiRanges.addRange(IntRange(bounds.first, bounds.last));
