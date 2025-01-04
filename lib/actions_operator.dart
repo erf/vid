@@ -1,4 +1,3 @@
-import 'edit.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_mode.dart';
@@ -25,11 +24,6 @@ class Operators {
     f.yankRange(range);
     e.terminal.copyToClipboard(f.yankBuffer!);
     f.setMode(e, Mode.normal);
-  }
-
-  static void escape(Editor e, FileBuffer f, Range range) {
-    f.setMode(e, Mode.normal);
-    f.editOp = EditOp();
   }
 
   static void lowerCase(Editor e, FileBuffer f, Range r) {
