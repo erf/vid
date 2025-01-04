@@ -420,7 +420,10 @@ class Editor {
     switch (action) {
       case NormalFn():
         action(this, file);
-        if (reset) resetEdit(file);
+        if (reset) {
+          file.prevEditOp = file.editOp;
+          file.editOp = EditOp();
+        }
       case MotionAction():
         edit.motion = action;
         commitEdit(edit);
@@ -498,12 +501,9 @@ class Editor {
       }
       op(this, file, Range(start, end).norm);
     }
-    if (reset) resetEdit(file);
-  }
-
-  // set prevAction and reset action
-  void resetEdit(FileBuffer file) {
-    file.prevEditOp = file.editOp;
-    file.editOp = EditOp();
+    if (reset) {
+      file.prevEditOp = file.editOp;
+      file.editOp = EditOp();
+    }
   }
 }
