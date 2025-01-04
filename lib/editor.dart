@@ -413,6 +413,7 @@ class Editor {
       case KeyMatch.partial:
         return;
       case KeyMatch.match:
+        break;
     }
 
     // if we match a key, execute action
