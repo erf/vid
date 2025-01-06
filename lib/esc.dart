@@ -64,10 +64,10 @@ class Esc {
   static const String disableAlternateScrollMode = '$e[?1007l';
 
   // set cursor style to block
-  static const String cursorStyleBlock = '$e[1 q';
+  static const String cursorStyleBlock = '$e[2 q';
 
   // set cursor style to line
-  static const String cursorStyleLine = '$e[5 q';
+  static const String cursorStyleLine = '$e[6 q';
 
   // reset cursor style
   static const String cursorStyleReset = '$e[ q';
