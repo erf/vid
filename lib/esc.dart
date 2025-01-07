@@ -67,7 +67,7 @@ class Esc {
   static const String cursorStyleBlock = '$e[2 q';
 
   // set cursor style to line
-  static const String cursorStyleLine = '$e[6 q';
+  static const String cursorStyleLine = '$e[5 q';
 
   // reset cursor style
   static const String cursorStyleReset = '$e[ q';
