@@ -13,8 +13,7 @@ void main() {
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 0);
     e.input('Æ');
-    expect(f.editOp.input, '');
-    expect(f.editOp.opInput, '');
+    expect(f.edit.input, '');
     expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'abc\n');
   });
@@ -26,8 +25,7 @@ void main() {
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 0);
     e.input('dÆ');
-    expect(f.editOp.input, '');
-    expect(f.editOp.opInput, '');
+    expect(f.edit.input, '');
     expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'abc\n');
   });
@@ -40,10 +38,8 @@ void main() {
     f.cursor = Position(c: 0, l: 0);
     e.input('dw');
     expect(f.text, '\n');
-    expect(f.editOp.input, '');
-    expect(f.editOp.opInput, '');
-    expect(f.prevEditOp!.input, 'd');
-    expect(f.prevEditOp!.opInput, 'w');
+    expect(f.edit.input, '');
+    expect(f.prevEdit!.input, 'dw');
   });
 
   test('make sure prev motion is correct in normal mode', () {
@@ -53,7 +49,6 @@ void main() {
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 0);
     e.input('w');
-    expect(f.editOp.input, '');
-    expect(f.editOp.opInput, '');
+    expect(f.edit.input, '');
   });
 }

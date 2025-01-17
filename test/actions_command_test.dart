@@ -12,7 +12,7 @@ void main() {
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = Position(l: 0, c: 0);
-    CommandActions.substitute(e, f, ['s/l//']);
+    Commands.substitute(e, f, ['s/l//']);
     expect(f.text, equals('helo world\n'));
   });
 
@@ -21,7 +21,7 @@ void main() {
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = Position(l: 0, c: 0);
-    CommandActions.substitute(e, f, ['s/world/friend/']);
+    Commands.substitute(e, f, ['s/world/friend/']);
     expect(f.text, equals('hello friend\n'));
   });
 
@@ -30,7 +30,7 @@ void main() {
     final f = e.file;
     f.text = 'this is fun fun fun\n';
     f.cursor = Position(l: 0, c: 0);
-    CommandActions.substitute(e, f, ['s/fun/cool/g']);
+    Commands.substitute(e, f, ['s/fun/cool/g']);
     expect(f.text, equals('this is cool cool cool\n'));
   });
 

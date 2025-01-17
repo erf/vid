@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'actions_motion.dart';
+import 'actions_motions.dart';
 import 'editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_mode.dart';

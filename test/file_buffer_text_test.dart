@@ -117,13 +117,13 @@ void main() {
     f.deleteAt(e, Position(c: 0, l: 0));
     f.replaceAt(e, Position(c: 0, l: 0), 'X');
     expect(f.text, 'X\nghi\n');
-    NormalActions.undo(e, f);
+    Normal.undo(e, f);
     expect(f.text, 'f\nghi\n');
-    NormalActions.undo(e, f);
+    Normal.undo(e, f);
     expect(f.text, '👩‍👩‍👦‍👦f\nghi\n');
-    NormalActions.undo(e, f);
+    Normal.undo(e, f);
     expect(f.text, 'd👩‍👩‍👦‍👦f\nghi\n');
-    NormalActions.undo(e, f);
+    Normal.undo(e, f);
     expect(f.text, 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
   });
 

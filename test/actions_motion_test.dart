@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vid/actions_motion.dart';
+import 'package:vid/actions_motions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';

@@ -144,7 +144,7 @@ void main() {
     f.text = 'abc abc abc abc\n';
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 0);
-    f.editOp.findStr = 'c';
+    f.edit.findStr = 'c';
     e.input('f;;');
     expect(f.cursor, Position(c: 10, l: 0));
   });

@@ -1,13 +1,12 @@
-import 'action_typedefs.dart';
+import 'command.dart';
 
 // The current edit operation being performed by the user
 class EditOp {
   EditOp();
 
-  OperatorFn? op;
-  MotionAction? motion;
+  Function? op;
+  Motion? motion;
   String input = '';
-  String opInput = '';
   String countStr = '';
   int? count;
   String? findStr;

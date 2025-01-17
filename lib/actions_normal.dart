@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:vid/file_buffer_lines.dart';
 
-import 'action_typedefs.dart';
 import 'config.dart';
 import 'editor.dart';
 import 'error_or.dart';
@@ -17,8 +16,8 @@ import 'position.dart';
 import 'regex.dart';
 import 'text_op.dart';
 
-class NormalActions {
-  static NormalFn alias(String alias) {
+class Normal {
+  static Function alias(String alias) {
     return (Editor e, FileBuffer f) => e.alias(alias);
   }
 
@@ -34,8 +33,8 @@ class NormalActions {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    f.editOp.linewise = f.prevEditOp?.linewise ?? false;
-    if (f.editOp.linewise) {
+    f.edit.linewise = f.prevEdit?.linewise ?? false;
+    if (f.edit.linewise) {
       f.insertAt(e, Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
           f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
@@ -48,7 +47,7 @@ class NormalActions {
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    if (f.prevEditOp?.linewise ?? false) {
+    if (f.prevEdit?.linewise ?? false) {
       f.insertAt(e, Position(l: f.cursor.l, c: 0), f.yankBuffer!);
       f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
@@ -101,7 +100,7 @@ class NormalActions {
   }
 
   static void joinLines(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.editOp.count ?? 1); i++) {
+    for (int i = 0; i < (f.edit.count ?? 1); i++) {
       if (f.cursor.l >= f.lines.length - 1) {
         return;
       }
@@ -129,19 +128,19 @@ class NormalActions {
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevEditOp == null || f.prevEditOp?.op == null) {
+    if (f.prevEdit == null || f.prevEdit?.op == null) {
       return;
     }
-    f.editOp = f.prevEditOp!;
-    e.commitEdit(f.editOp, false);
+    f.edit = f.prevEdit!;
+    e.commitEdit(f.edit, false);
   }
 
   static void repeatFindStr(Editor e, FileBuffer f) {
-    if (f.prevEditOp == null || f.prevEditOp?.findStr == null) {
+    if (f.prevEdit == null || f.prevEdit?.findStr == null) {
       return;
     }
-    f.editOp = f.prevEditOp!;
-    e.commitEdit(f.editOp, false);
+    f.edit = f.prevEdit!;
+    e.commitEdit(f.edit, false);
   }
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {

@@ -13,7 +13,7 @@ extension FileBufferMode on FileBuffer {
           e.terminal.write(Esc.cursorStyleBlock);
         }
         break;
-      case Mode.operator:
+      case Mode.operatorPending:
         break;
       case Mode.insert:
         if (this.mode != Mode.insert) {
