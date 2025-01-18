@@ -13,9 +13,12 @@ enum KeyMatch { none, partial, match }
   }
 
   // check if input is the start of a key in map
-  final String partialKey =
-      map.keys.firstWhere((key) => key.startsWith(input), orElse: () => '');
+  for (var key in map.keys) {
+    if (key.startsWith(input)) {
+      return (KeyMatch.partial, map[key]);
+    }
+  }
 
   // if partialKey is not empty, we have a partial match
-  return partialKey.isEmpty ? (KeyMatch.none, null) : (KeyMatch.partial, null);
+  return (KeyMatch.none, null);
 }

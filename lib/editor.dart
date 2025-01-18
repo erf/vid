@@ -360,21 +360,6 @@ class Editor {
     return utf8.decode([stdin.readByteSync()]);
   }
 
-  // accumulate countInput: if char is a number, add it to countInput
-  // if char is not a number, parse countInput and set fileBuffer.count
-  bool count(String char, EditOp edit) {
-    int? count = int.tryParse(char);
-    if (count != null && (count > 0 || edit.countStr.isNotEmpty)) {
-      edit.countStr += char;
-      return true;
-    }
-    if (edit.countStr.isNotEmpty) {
-      edit.count = int.parse(edit.countStr);
-      edit.countStr = '';
-    }
-    return false;
-  }
-
   // execute motion and return end position
   Position motionEnd(EditOp edit, Motion motion, Position pos, bool incl) {
     switch (motion) {
@@ -419,26 +404,25 @@ class Editor {
 
   void handleInput(String char) {
     EditOp edit = file.edit;
-    // if char is a number, accumulate countInput
-    if (count(char, edit)) {
-      return;
-    }
+
     // append char to input
     edit.input += char;
 
     // check if we match or partial match a key
     final (KeyMatch match, Command? command) =
-        matchKeys(modeKeyCommandBindings[file.mode]!, edit.input);
+        matchKeys(keyBindings[file.mode]!, edit.input);
 
     // no match, reset editOp
     if (match == KeyMatch.none) {
       file.edit = EditOp();
       return;
     }
+
     // there is a partial match, keep waiting for more input
     if (match == KeyMatch.partial) {
       return;
     }
+
     // if we match a key, execute command
     command?.execute(this, file);
 

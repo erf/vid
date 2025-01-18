@@ -52,10 +52,11 @@ final replaceCommands = <String, Command>{
   '[*]': DefaultReplaceCommand(),
 };
 
+final countCommands = <String, Command>{
+  for (int i = 0; i < 10; i++) i.toString(): CountCommand(i),
+};
+
 final motionCommands = <String, Command>{
-  // TODO add count commands for [1-9]
-  //'1': MotionCommand(CountMotion(Motions.count, count: 1)),
-  //'2': MotionCommand(CountMotion(Motions.count, count: 2)),
   'h': MotionCommand(Motion(Motions.charPrev)),
   'l': MotionCommand(Motion(Motions.charNext)),
   ' ': MotionCommand(Motion(Motions.charNext)),
@@ -69,7 +70,6 @@ final motionCommands = <String, Command>{
   'ge': MotionCommand(Motion(Motions.wordEndPrev)),
   '#': MotionCommand(Motion(Motions.sameWordPrev)),
   '*': MotionCommand(Motion(Motions.sameWordNext)),
-  '0': MotionCommand(Motion(Motions.lineStart)),
   '^': MotionCommand(Motion(Motions.firstNonBlank)),
   '\$': MotionCommand(Motion(Motions.lineEnd, incl: false)),
   'gg': MotionCommand(Motion(Motions.fileStart, linewise: true)),
@@ -118,8 +118,9 @@ final operatorPendingSameCommands = <String, Command>{
   'y': SameOperatorCommand(Operators.yank),
 };
 
-final modeKeyCommandBindings = <Mode, Map<String, Command>>{
+final keyBindings = <Mode, Map<String, Command>>{
   Mode.normal: {
+    ...countCommands,
     ...normalCommands,
     ...motionCommands,
     ...operatorPendingCommands,
