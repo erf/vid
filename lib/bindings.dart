@@ -1,7 +1,7 @@
 import 'package:vid/modes.dart';
 
-import 'actions_command.dart';
 import 'actions_find.dart';
+import 'actions_line_edit.dart';
 import 'actions_motions.dart';
 import 'actions_normal.dart';
 import 'actions_operators.dart';
@@ -98,24 +98,24 @@ final operatorPendingSameCommands = <String, Command>{
   'y': SameOperatorCommand(Operators.yank),
 };
 
-const commandActions = <String, Function>{
-  '': Commands.noop,
-  'q': Commands.quit,
-  'quit': Commands.quit,
-  'q!': Commands.forceQuit,
-  'quit!': Commands.forceQuit,
-  'o': Commands.open,
-  'open': Commands.open,
-  'r': Commands.read,
-  'read': Commands.read,
-  'w': Commands.write,
-  'write': Commands.write,
-  'wq': Commands.writeAndQuit,
-  'x': Commands.writeAndQuit,
-  'exit': Commands.writeAndQuit,
-  'nowrap': Commands.setNoWrap,
-  'charwrap': Commands.setCharWrap,
-  'wordwrap': Commands.setWordWrap,
+const lineEditCommands = <String, Function>{
+  '': LineEdit.noop,
+  'q': LineEdit.quit,
+  'quit': LineEdit.quit,
+  'q!': LineEdit.forceQuit,
+  'quit!': LineEdit.forceQuit,
+  'o': LineEdit.open,
+  'open': LineEdit.open,
+  'r': LineEdit.read,
+  'read': LineEdit.read,
+  'w': LineEdit.write,
+  'write': LineEdit.write,
+  'wq': LineEdit.writeAndQuit,
+  'x': LineEdit.writeAndQuit,
+  'exit': LineEdit.writeAndQuit,
+  'nowrap': LineEdit.setNoWrap,
+  'charwrap': LineEdit.setCharWrap,
+  'wordwrap': LineEdit.setWordWrap,
 };
 
 final keyBindings = <Mode, Map<String, Command>>{
@@ -132,6 +132,6 @@ final keyBindings = <Mode, Map<String, Command>>{
   },
   Mode.insert: insertCommands,
   Mode.replace: replaceCommands,
-  // TODO command
-  // TODO search
+  // TODO lineedit commands
+  // TODO search commands
 };

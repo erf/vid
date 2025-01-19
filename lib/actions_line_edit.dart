@@ -11,7 +11,7 @@ import 'file_buffer_text.dart';
 import 'message.dart';
 import 'modes.dart';
 
-class Commands {
+class LineEdit {
   static void noop(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, Mode.normal);
   }

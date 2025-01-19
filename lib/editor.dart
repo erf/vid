@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 
-import 'actions_command.dart';
 import 'actions_find.dart';
 import 'actions_insert.dart';
+import 'actions_line_edit.dart';
 import 'actions_motions.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
@@ -265,7 +265,7 @@ class Editor {
       switch (file.mode) {
         case Mode.command:
         case Mode.search:
-          command(char);
+          lineEdit(char);
         default:
           handleInput(char);
       }
@@ -306,8 +306,8 @@ class Editor {
     return ErrorOr.value(true);
   }
 
-  // command mode
-  void command(String char) {
+  // line edit command mode
+  void lineEdit(String char) {
     EditOp edit = file.edit;
     switch (char) {
       case Keys.backspace:
@@ -335,13 +335,13 @@ class Editor {
     List<String> args = command.split(' ');
     String cmd = args.isNotEmpty ? args.first : command;
     // command actions
-    if (commandActions.containsKey(cmd)) {
-      commandActions[cmd]!(this, file, args);
+    if (lineEditCommands.containsKey(cmd)) {
+      lineEditCommands[cmd]!(this, file, args);
       return;
     }
     // substitute command
     if (command.startsWith(Regex.substitute)) {
-      Commands.substitute(this, file, [command]);
+      LineEdit.substitute(this, file, [command]);
       return;
     }
     // unknown command
