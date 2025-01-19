@@ -102,8 +102,7 @@ class DefaultInsertCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final String char = f.edit.input;
-    InsertActions.defaultInsert(e, f, char);
+    InsertActions.defaultInsert(e, f, s);
   }
 }
 
@@ -139,7 +138,6 @@ class DefaultReplaceCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final String char = f.edit.input;
-    ReplaceActions.defaultReplace(e, f, char);
+    ReplaceActions.defaultReplace(e, f, s);
   }
 }
