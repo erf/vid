@@ -397,7 +397,9 @@ class Editor {
       op(this, file, Range(start, end).norm);
     }
     if (reset) {
-      file.prevEdit = file.edit;
+      if (op != null || edit.findStr != null) {
+        file.prevEdit = file.edit;
+      }
       file.edit = EditOp();
     }
   }
