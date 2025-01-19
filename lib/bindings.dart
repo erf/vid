@@ -84,6 +84,20 @@ final motionCommands = <String, Command>{
   ')': MotionCommand(Motion(Motions.sentenceNext)),
 };
 
+final operatorPendingCommands = <String, Command>{
+  'c': OperatorCommand(Operators.change),
+  'd': OperatorCommand(Operators.delete),
+  'y': OperatorCommand(Operators.yank),
+  'gu': OperatorCommand(Operators.lowerCase),
+  'gU': OperatorCommand(Operators.upperCase),
+};
+
+final operatorPendingSameCommands = <String, Command>{
+  'c': SameOperatorCommand(Operators.change),
+  'd': SameOperatorCommand(Operators.delete),
+  'y': SameOperatorCommand(Operators.yank),
+};
+
 const commandActions = <String, Function>{
   '': Commands.noop,
   'q': Commands.quit,
@@ -104,20 +118,6 @@ const commandActions = <String, Function>{
   'wordwrap': Commands.setWordWrap,
 };
 
-final operatorPendingCommands = <String, Command>{
-  'c': OperatorCommand(Operators.change),
-  'd': OperatorCommand(Operators.delete),
-  'y': OperatorCommand(Operators.yank),
-  'gu': OperatorCommand(Operators.lowerCase),
-  'gU': OperatorCommand(Operators.upperCase),
-};
-
-final operatorPendingSameCommands = <String, Command>{
-  'c': SameOperatorCommand(Operators.change),
-  'd': SameOperatorCommand(Operators.delete),
-  'y': SameOperatorCommand(Operators.yank),
-};
-
 final keyBindings = <Mode, Map<String, Command>>{
   Mode.normal: {
     ...countCommands,
@@ -132,6 +132,5 @@ final keyBindings = <Mode, Map<String, Command>>{
   Mode.insert: insertCommands,
   Mode.replace: replaceCommands,
   // TODO command
-  //Mode.command: commandActions,
   // TODO search
 };
