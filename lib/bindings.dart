@@ -21,7 +21,7 @@ final normalCommands = <String, Command>{
   'O': NormalCommand(Normal.alias('^i\n${Keys.escape}ki')),
   'r': NormalCommand(Normal.replace),
   'D': NormalCommand(Normal.alias('d\$')),
-  'x': NormalCommand(Normal.deleteCharNext),
+  'x': NormalCommand(Normal.alias('dl')),
   'p': NormalCommand(Normal.pasteAfter),
   'P': NormalCommand(Normal.pasteBefore),
   Keys.ctrlD: NormalCommand(Normal.moveDownHalfPage),

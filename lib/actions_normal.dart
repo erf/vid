@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:vid/edit_op.dart';
 import 'package:vid/file_buffer_lines.dart';
 
 import 'config.dart';
@@ -88,20 +87,6 @@ class Normal {
 
   static void replace(Editor e, FileBuffer f) {
     f.setMode(e, Mode.replace);
-  }
-
-  static void deleteCharNext(Editor e, FileBuffer f) {
-    f.deleteAt(e, f.cursor);
-
-    // If the cursor is at the end of the line, move it back one.
-    f.clampCursor();
-    if (f.cursor.c == f.lines[f.cursor.l].charLen - 1 && f.cursor.c > 0) {
-      f.cursor.c--;
-    }
-
-    f.edit.linewise = false;
-    f.prevEdit = f.edit;
-    f.edit = EditOp();
   }
 
   static void joinLines(Editor e, FileBuffer f) {

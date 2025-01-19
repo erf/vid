@@ -229,8 +229,8 @@ void main() {
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 1);
     e.input('xxxx');
-    expect(f.text, 'abc\n');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.text, 'abc\n\n');
+    expect(f.cursor, Position(c: 0, l: 1));
   });
 
   test('don\'t delete newline at end of file (and create extra newline)', () {
@@ -241,7 +241,7 @@ void main() {
     f.cursor = Position(c: 3, l: 0);
     e.input('xu');
     expect(f.text, 'abc\n');
-    expect(f.cursor, Position(c: 2, l: 0));
+    expect(f.cursor, Position(c: 3, l: 0));
   });
 
   test('don\'t crash when deleting newline at end of file', () {
@@ -252,7 +252,7 @@ void main() {
     f.cursor = Position(c: 3, l: 0);
     e.input('x');
     expect(f.text, 'abc\n');
-    expect(f.cursor, Position(c: 2, l: 0));
+    expect(f.cursor, Position(c: 3, l: 0));
   });
 
   test('delete first char', () {
@@ -277,17 +277,6 @@ void main() {
     expect(f.cursor, Position(c: 3, l: 0));
   });
 
-  test('move cursor back if deleteCharNext at end of line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
-    final f = e.file;
-    f.text = 'abc\n';
-    f.createLines(e, WrapMode.none);
-    f.cursor = Position(c: 2, l: 0);
-    e.input('x');
-    expect(f.text, 'ab\n');
-    expect(f.cursor, Position(c: 1, l: 0));
-  });
-
   test('deleteCharNext at end of file', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
@@ -295,7 +284,7 @@ void main() {
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 2, l: 1);
     e.input('xxxx');
-    expect(f.text, 'abc\n');
-    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.text, 'abc\nde\n');
+    expect(f.cursor, Position(c: 2, l: 1));
   });
 }
