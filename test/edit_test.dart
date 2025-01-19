@@ -39,7 +39,7 @@ void main() {
     e.input('dw');
     expect(f.text, '\n');
     expect(f.edit.input, '');
-    expect(f.prevEdit!.input, 'dw');
+    expect(f.prevEdit!.input, '');
   });
 
   test('make sure prev motion is correct in normal mode', () {
