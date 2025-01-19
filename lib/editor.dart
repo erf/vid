@@ -426,7 +426,7 @@ class Editor {
     }
 
     // if we match a key, execute command
-    command?.execute(this, file);
+    command?.execute(this, file, edit.input);
 
     // TODO make sure we keep the prev input
     // reset input

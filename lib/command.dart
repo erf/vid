@@ -23,7 +23,7 @@ class FindMotion extends Motion {
 abstract class Command {
   const Command();
 
-  void execute(Editor e, FileBuffer f) {}
+  void execute(Editor e, FileBuffer f, String s) {}
 }
 
 class NormalCommand extends Command {
@@ -32,7 +32,7 @@ class NormalCommand extends Command {
   const NormalCommand(this.func);
 
   @override
-  void execute(Editor e, FileBuffer f) => func(e, f);
+  void execute(Editor e, FileBuffer f, String s) => func(e, f);
 }
 
 class OperatorCommand extends Command {
@@ -41,7 +41,7 @@ class OperatorCommand extends Command {
   const OperatorCommand(this.func);
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     f.setMode(e, Mode.operatorPending);
     f.edit.op = func;
   }
@@ -53,7 +53,7 @@ class SameOperatorCommand extends Command {
   const SameOperatorCommand(this.func);
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     if (f.edit.op == func) {
       f.edit.linewise = true;
       f.edit.motion = Motion(Motions.lineStart, linewise: true);
@@ -72,7 +72,7 @@ class CountCommand extends Command {
   final int count;
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     final EditOp edit = f.edit;
 
     if (edit.count == null && count == 0) {
@@ -91,7 +91,7 @@ class MotionCommand extends Command {
   const MotionCommand(this.motion);
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     f.edit.motion = motion;
     e.commitEdit(f.edit);
   }
@@ -101,7 +101,7 @@ class DefaultInsertCommand extends Command {
   const DefaultInsertCommand();
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     final String char = f.edit.input;
     InsertActions.defaultInsert(e, f, char);
   }
@@ -111,7 +111,7 @@ class BackspaceInsertCommand extends Command {
   const BackspaceInsertCommand();
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     InsertActions.backspace(e, f);
   }
 }
@@ -120,7 +120,7 @@ class EnterInsertCommand extends Command {
   const EnterInsertCommand();
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     InsertActions.enter(e, f);
   }
 }
@@ -129,7 +129,7 @@ class EscapeInsertCommand extends Command {
   const EscapeInsertCommand();
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     InsertActions.escape(e, f);
   }
 }
@@ -138,7 +138,7 @@ class DefaultReplaceCommand extends Command {
   const DefaultReplaceCommand();
 
   @override
-  void execute(Editor e, FileBuffer f) {
+  void execute(Editor e, FileBuffer f, String s) {
     final String char = f.edit.input;
     ReplaceActions.defaultReplace(e, f, char);
   }
