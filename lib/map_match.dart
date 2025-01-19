@@ -15,7 +15,7 @@ enum KeyMatch { none, partial, match }
   // check if input is the start of a key in map
   for (var key in map.keys) {
     if (key.startsWith(input)) {
-      return (KeyMatch.partial, map[key]);
+      return (KeyMatch.partial, null);
     }
   }
 
