@@ -126,6 +126,7 @@ final keyBindings = <Mode, Map<String, Command>>{
     ...operatorPendingCommands,
   },
   Mode.operatorPending: {
+    ...countCommands,
     ...motionCommands,
     ...operatorPendingSameCommands,
   },
