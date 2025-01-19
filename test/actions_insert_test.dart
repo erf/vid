@@ -46,10 +46,10 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 1);
-    //e.insert('\x7f');
+    e.input('i${Keys.backspace}');
     expect(f.text, 'abcdef\nghi\n');
     expect(f.cursor, Position(c: 3, l: 0));
-  }, skip: true);
+  });
 
   test('insert I should start at first non-empty line', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
@@ -120,7 +120,7 @@ Nature's serenade, timeless and free.
     expect(f.cursor, Position(c: 2, l: 0));
   });
 
-  test('insert multiple chars as one insert action', () {
+  test('TODO insert multiple chars as one insert action', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.createLines(e, WrapMode.none);
