@@ -152,13 +152,17 @@ class Editor {
         continue;
       }
       // draw line
-      rbuf.writeln(Config.wrapMode == WrapMode.none
-          ? lines[l]
+      switch (Config.wrapMode) {
+        case WrapMode.none:
+          rbuf.writeln(lines[l]
               .str
               .tabsToSpaces
               .characters
-              .renderLine(view.c, terminal.width)
-          : lines[l].str.tabsToSpaces);
+              .renderLine(view.c, terminal.width));
+        case WrapMode.char:
+        case WrapMode.word:
+          rbuf.writeln(lines[l].str.tabsToSpaces);
+      }
     }
   }
 
