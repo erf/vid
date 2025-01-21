@@ -265,11 +265,35 @@ class Editor {
     for (String char in str.characters) {
       handleInput(char);
     }
-
     if (redraw) {
       draw();
     }
     message = null;
+  }
+
+  // match input against key bindings for executing commands
+  void handleInput(String char) {
+    EditOp edit = file.edit;
+
+    // append char to input
+    edit.input += char;
+
+    // check if we match or partial match a key
+    switch (matchKeys(keyBindings[file.mode]!, edit.input)) {
+      // no match, reset input
+      case (KeyMatch.none, _):
+        file.edit = EditOp();
+        return;
+      // partial match, wait for more input
+      case (KeyMatch.partial, _):
+        return;
+      // full match, execute command
+      case (KeyMatch.match, Command command):
+        command.execute(this, file, char);
+    }
+
+    // reset input and make ready for next command
+    edit.input = '';
   }
 
   // Insert a chunk of non-special chars - line by line in order to correctly
@@ -347,29 +371,5 @@ class Editor {
       }
       file.edit = EditOp();
     }
-  }
-
-  void handleInput(String char) {
-    EditOp edit = file.edit;
-
-    // append char to input
-    edit.input += char;
-
-    // check if we match or partial match a key
-    switch (matchKeys(keyBindings[file.mode]!, edit.input)) {
-      // no match, reset input
-      case (KeyMatch.none, _):
-        file.edit = EditOp();
-        return;
-      // partial match, wait for more input
-      case (KeyMatch.partial, _):
-        return;
-      // full match, execute command
-      case (KeyMatch.match, Command command):
-        command.execute(this, file, char);
-    }
-
-    // reset input and make ready for next command
-    edit.input = '';
   }
 }
