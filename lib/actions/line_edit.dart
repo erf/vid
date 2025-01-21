@@ -6,6 +6,7 @@ import '../file_buffer_io.dart';
 import '../file_buffer_lines.dart';
 import '../file_buffer_mode.dart';
 import '../file_buffer_text.dart';
+import '../file_buffer_utils.dart';
 import '../message.dart';
 import '../modes.dart';
 import 'normal.dart';
@@ -41,7 +42,7 @@ class LineEdit {
       return;
     }
     String path = args[1];
-    ErrorOr result = e.insertFile(path);
+    ErrorOr result = f.insertFile(e, path);
     if (result.hasError) {
       e.showMessage(Message.error(result.error!));
     } else {

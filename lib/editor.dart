@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 
-import 'actions/insert_actions.dart';
 import 'actions/motions.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
@@ -19,7 +18,6 @@ import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'find_motion.dart';
-import 'keys.dart';
 import 'line.dart';
 import 'map_match.dart';
 import 'message.dart';
@@ -294,35 +292,6 @@ class Editor {
 
     // reset input and make ready for next command
     edit.input = '';
-  }
-
-  // Insert a chunk of non-special chars - line by line in order to correctly
-  // update cursor position. Add the whole string to the undo list at the end.
-  void insertChunk(String str) {
-    final String buffer = str;
-    final Position cursor = Position.from(file.cursor);
-    final int start = file.byteIndexFromPosition(cursor);
-    while (str.isNotEmpty) {
-      int nlPos = str.indexOf(Keys.newline);
-      if (nlPos == -1) {
-        InsertActions.defaultInsert(this, file, str, undo: false);
-        break;
-      }
-      String line = str.substring(0, nlPos);
-      InsertActions.defaultInsert(this, file, line, undo: false);
-      InsertActions.enter(this, file, undo: false);
-      str = str.substring(nlPos + 1);
-    }
-    file.addUndo(start: start, end: start, newText: buffer, cursor: cursor);
-  }
-
-  ErrorOr<bool> insertFile(String path) {
-    final file = File(path);
-    if (!file.existsSync()) {
-      return ErrorOr.error('File not found \'$path\'');
-    }
-    insertChunk(file.readAsStringSync());
-    return ErrorOr.value(true);
   }
 
   String readNextChar() {
