@@ -51,7 +51,7 @@ class EmojiSequencesParser {
 // File: $filename
 // $date
 ''');
-    buffer.writeln('final emojiSequences = [');
+    buffer.writeln('const emojiSequences = [');
     for (var seq in emojiSequences) {
       buffer.writeln(
         '  [${seq.map((cp) => '0x${cp.toRadixString(16)}').join(', ')}],',

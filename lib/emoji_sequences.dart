@@ -4,7 +4,7 @@
 // File: emoji-sequences.txt
 // Date: 2024-05-01, 21:25:24 GMT
 
-final emojiSequences = [
+const emojiSequences = [
   [0xa9, 0xfe0f],
   [0xae, 0xfe0f],
   [0x203c, 0xfe0f],
