@@ -2,11 +2,11 @@ import 'package:test/test.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
-import 'package:vid/terminal.dart';
+import 'package:vid/terminal_dummy.dart';
 
 void main() {
   test('no wrap', () {
-    final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
+    final e = Editor(terminal: TerminalDummy(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     f.createLines(e, WrapMode.none);
@@ -15,7 +15,7 @@ void main() {
   });
 
   test('no wrap two lines', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -25,7 +25,7 @@ void main() {
   });
 
   test('no wrap with empty line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = '\n';
     f.createLines(e, WrapMode.none);
@@ -34,7 +34,7 @@ void main() {
   });
 
   test('no wrap with newline at end of file', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -44,7 +44,7 @@ void main() {
   });
 
   test('word wrap simple', () {
-    final e = Editor(terminal: TestTerminal(8, 10), redraw: false);
+    final e = Editor(terminal: TerminalDummy(8, 10), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     f.createLines(e, WrapMode.word);
@@ -54,7 +54,7 @@ void main() {
   });
 
   test('word wrap with emoji at end', () {
-    final e = Editor(terminal: TestTerminal(8, 20), redraw: false);
+    final e = Editor(terminal: TerminalDummy(8, 20), redraw: false);
     final f = e.file;
     f.text = 'abc def😀 ghi jkl\n';
     f.createLines(e, WrapMode.word);
@@ -65,7 +65,7 @@ void main() {
   });
 
   test('word wrap check indices', () {
-    final e = Editor(terminal: TestTerminal(20, 20), redraw: false);
+    final e = Editor(terminal: TerminalDummy(20, 20), redraw: false);
     final f = e.file;
     f.text = 'The old bookstore exuded\n';
     f.createLines(e, WrapMode.word);
@@ -79,7 +79,7 @@ void main() {
   });
 
   test('word wrap to four lines', () {
-    final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
+    final e = Editor(terminal: TerminalDummy(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     f.createLines(e, WrapMode.word);
@@ -91,7 +91,7 @@ void main() {
   });
 
   test('char wrap to three lines', () {
-    final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
+    final e = Editor(terminal: TerminalDummy(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     f.createLines(e, WrapMode.char);

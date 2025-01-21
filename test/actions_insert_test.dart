@@ -5,11 +5,11 @@ import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/keys.dart';
 import 'package:vid/modes.dart';
 import 'package:vid/position.dart';
-import 'package:vid/terminal.dart';
+import 'package:vid/terminal_dummy.dart';
 
 void main() {
   test('defaultInsert', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -20,7 +20,7 @@ void main() {
   });
 
   test('insertActionEscape', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -30,7 +30,7 @@ void main() {
   });
 
   test('insertActionEnter', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcdef\n';
     f.createLines(e, WrapMode.none);
@@ -41,7 +41,7 @@ void main() {
   });
 
   test('insertActionBackspace', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -52,7 +52,7 @@ void main() {
   });
 
   test('insert I should start at first non-empty line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = '  abc\n';
     f.createLines(e, WrapMode.none);
@@ -62,7 +62,7 @@ void main() {
   });
 
   test('insert chunk of text', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = '\n';
     f.createLines(e, WrapMode.none);
@@ -87,7 +87,7 @@ Nature's serenade, timeless and free.
   });
 
   test('insert chunk of text in middle of a line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcd\n';
     f.createLines(e, WrapMode.none);
@@ -98,7 +98,7 @@ Nature's serenade, timeless and free.
   });
 
   test('insert chunk of text in middle of a line already in insert mode', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.mode = Mode.insert;
     f.text = 'abcd\n';
@@ -110,7 +110,7 @@ Nature's serenade, timeless and free.
   });
 
   test('insert backspace at eol should not move back extra char', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -121,7 +121,7 @@ Nature's serenade, timeless and free.
   });
 
   test('TODO insert multiple chars as one insert action', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.createLines(e, WrapMode.none);
     e.input('iabc\x1b');

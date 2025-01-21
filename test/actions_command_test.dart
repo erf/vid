@@ -4,11 +4,11 @@ import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/position.dart';
-import 'package:vid/terminal.dart';
+import 'package:vid/terminal_dummy.dart';
 
 void main() {
   test('substitute should delete the first occurrence of a pattern', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = Position(l: 0, c: 0);
@@ -17,7 +17,7 @@ void main() {
   });
 
   test('substitute should replace the first occurrence of a pattern', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = Position(l: 0, c: 0);
@@ -26,7 +26,7 @@ void main() {
   });
 
   test('substitute should replace multiple occurrences of a pattern', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is fun fun fun\n';
     f.cursor = Position(l: 0, c: 0);
@@ -35,7 +35,7 @@ void main() {
   });
 
   test('search should find the first occurrence of a pattern', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
     f.createLines(e, WrapMode.none);

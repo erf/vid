@@ -7,11 +7,11 @@ import 'package:vid/file_buffer_lines.dart';
 import 'package:vid/file_buffer_text.dart';
 import 'package:vid/position.dart';
 import 'package:vid/range.dart';
-import 'package:vid/terminal.dart';
+import 'package:vid/terminal_dummy.dart';
 
 void main() {
   test('getPositionFromIndex', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -22,7 +22,7 @@ void main() {
   });
 
   test('replaceAt', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -35,7 +35,7 @@ void main() {
   });
 
   test('deleteRange', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -48,7 +48,7 @@ void main() {
   });
 
   test('insertAt', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -61,7 +61,7 @@ void main() {
   });
 
   test('deleteAt', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -74,7 +74,7 @@ void main() {
   });
 
   test('deleteAt last on line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -85,7 +85,7 @@ void main() {
   });
 
   test('deleteAt with emoji', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ab🪼de\n';
     f.createLines(e, WrapMode.none);
@@ -94,7 +94,7 @@ void main() {
   });
 
   test('replaceAt with emoji', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ab🪼de\n';
     f.createLines(e, WrapMode.none);
@@ -103,7 +103,7 @@ void main() {
   });
 
   test('multiple undo', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     e.file = FileBuffer(text: 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
     final f = e.file;
     f.createLines(e, WrapMode.none);
@@ -128,7 +128,7 @@ void main() {
   });
 
   test('redo', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n123\n';
     f.createLines(e, WrapMode.none);
@@ -147,7 +147,7 @@ void main() {
   });
 
   test('delete last newline undo should not create extra newline', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'a\n';
     f.createLines(e, WrapMode.none);
@@ -158,7 +158,7 @@ void main() {
   });
 
   test('delete newline at end of file', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n\n';
     f.createLines(e, WrapMode.none);
