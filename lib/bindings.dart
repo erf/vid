@@ -57,22 +57,31 @@ final normalCommands = <String, Command>{
   'zz': NormalCommand(Normal.centerView),
 };
 
-final insertCommands = <String, Command>{
+const insertCommands = <String, Command>{
   Keys.backspace: BackspaceInsertCommand(),
   Keys.newline: EnterInsertCommand(),
   Keys.escape: EscapeInsertCommand(),
   '[*]': DefaultInsertCommand(),
 };
 
-final replaceCommands = <String, Command>{
+const replaceCommands = <String, Command>{
   '[*]': DefaultReplaceCommand(),
 };
 
-final countCommands = <String, Command>{
-  for (int i = 0; i < 10; i++) i.toString(): CountCommand(i),
+const countCommands = <String, Command>{
+  '0': CountCommand(0),
+  '1': CountCommand(1),
+  '2': CountCommand(2),
+  '3': CountCommand(3),
+  '4': CountCommand(4),
+  '5': CountCommand(5),
+  '6': CountCommand(6),
+  '7': CountCommand(7),
+  '8': CountCommand(8),
+  '9': CountCommand(9),
 };
 
-final motionCommands = <String, Command>{
+const motionCommands = <String, Command>{
   'h': MotionCommand(Motion(Motions.charPrev)),
   'l': MotionCommand(Motion(Motions.charNext)),
   ' ': MotionCommand(Motion(Motions.charNext)),
@@ -100,7 +109,7 @@ final motionCommands = <String, Command>{
   ')': MotionCommand(Motion(Motions.sentenceNext)),
 };
 
-final operatorPendingCommands = <String, Command>{
+const operatorPendingCommands = <String, Command>{
   'c': OperatorCommand(Operators.change),
   'd': OperatorCommand(Operators.delete),
   'y': OperatorCommand(Operators.yank),
@@ -108,21 +117,21 @@ final operatorPendingCommands = <String, Command>{
   'gU': OperatorCommand(Operators.upperCase),
 };
 
-final operatorPendingSameCommands = <String, Command>{
+const operatorPendingSameCommands = <String, Command>{
   Keys.escape: EscapeCommand(),
   'c': SameOperatorCommand(Operators.change),
   'd': SameOperatorCommand(Operators.delete),
   'y': SameOperatorCommand(Operators.yank),
 };
 
-final lineEditInputCommands = <String, Command>{
+const lineEditInputCommands = <String, Command>{
   Keys.escape: LineEditEscapeCommand(),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditEnterCommand(),
   '[*]': LineEditInputCommand(),
 };
 
-final lineEditSearchCommands = <String, Command>{
+const lineEditSearchCommands = <String, Command>{
   Keys.escape: LineEditEscapeCommand(),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditSearchEnterCommand(),

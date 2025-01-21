@@ -6,6 +6,8 @@ import '../modes.dart';
 import 'command.dart';
 
 class EscapeCommand extends Command {
+  const EscapeCommand();
+
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.setMode(e, Mode.normal);
