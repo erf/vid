@@ -1,7 +1,6 @@
-import 'package:vid/emoji_data.dart';
-
 import 'config.dart';
 import 'east_asian_width.dart';
+import 'emoji_data.dart';
 import 'emoji_sequence_trie.dart';
 import 'emoji_sequences.dart';
 

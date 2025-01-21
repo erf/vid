@@ -1,15 +1,14 @@
-import 'package:vid/file_buffer_lines.dart';
-
-import 'normal.dart';
 import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer.dart';
 import '../file_buffer_io.dart';
+import '../file_buffer_lines.dart';
 import '../file_buffer_mode.dart';
 import '../file_buffer_text.dart';
 import '../message.dart';
 import '../modes.dart';
+import 'normal.dart';
 
 class LineEdit {
   static void noop(Editor e, FileBuffer f, List<String> args) {

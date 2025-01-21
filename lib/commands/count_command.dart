@@ -1,10 +1,10 @@
-import 'package:vid/actions/motions.dart';
-import 'package:vid/commands/command.dart';
-import 'package:vid/edit_op.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer.dart';
-import 'package:vid/message.dart';
-import 'package:vid/motion.dart';
+import '../actions/motions.dart';
+import '../edit_op.dart';
+import '../editor.dart';
+import '../file_buffer.dart';
+import '../message.dart';
+import '../motion.dart';
+import 'command.dart';
 
 class CountCommand extends Command {
   const CountCommand(this.count);

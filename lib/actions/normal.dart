@@ -1,12 +1,11 @@
 import 'dart:math';
 
-import 'package:vid/file_buffer_lines.dart';
-
 import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer.dart';
 import '../file_buffer_io.dart';
+import '../file_buffer_lines.dart';
 import '../file_buffer_mode.dart';
 import '../file_buffer_text.dart';
 import '../file_buffer_view.dart';

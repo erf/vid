@@ -1,4 +1,4 @@
-import 'package:vid/motion.dart';
+import 'motion.dart';
 
 // EditOp is a class that represents an edit operation.
 class EditOp {

@@ -1,4 +1,4 @@
-import 'package:vid/emoji_sequences.dart';
+import 'emoji_sequences.dart';
 
 class TrieNode {
   final Map<int, TrieNode> children = {};

@@ -1,8 +1,8 @@
-import 'package:vid/commands/command.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer.dart';
-import 'package:vid/file_buffer_mode.dart';
-import 'package:vid/modes.dart';
+import '../editor.dart';
+import '../file_buffer.dart';
+import '../file_buffer_mode.dart';
+import '../modes.dart';
+import 'command.dart';
 
 class LineEditEscapeCommand extends Command {
   const LineEditEscapeCommand();

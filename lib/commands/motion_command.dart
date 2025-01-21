@@ -1,7 +1,7 @@
-import 'package:vid/commands/command.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer.dart';
-import 'package:vid/motion.dart';
+import '../editor.dart';
+import '../file_buffer.dart';
+import '../motion.dart';
+import 'command.dart';
 
 class MotionCommand extends Command {
   final Motion motion;

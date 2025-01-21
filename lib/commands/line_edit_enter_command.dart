@@ -1,12 +1,12 @@
-import 'package:vid/actions/line_edit.dart';
-import 'package:vid/commands/command.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer.dart';
-import 'package:vid/file_buffer_mode.dart';
-import 'package:vid/commands/line_edit_commands.dart';
-import 'package:vid/message.dart';
-import 'package:vid/modes.dart';
-import 'package:vid/regex.dart';
+import '../actions/line_edit.dart';
+import '../editor.dart';
+import '../file_buffer.dart';
+import '../file_buffer_mode.dart';
+import '../message.dart';
+import '../modes.dart';
+import '../regex.dart';
+import 'command.dart';
+import 'line_edit_commands.dart';
 
 class LineEditEnterCommand extends Command {
   const LineEditEnterCommand();

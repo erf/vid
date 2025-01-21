@@ -1,4 +1,4 @@
-import 'package:vid/actions/line_edit.dart';
+import '../actions/line_edit.dart';
 
 const lineEditCommands = <String, Function>{
   '': LineEdit.noop,

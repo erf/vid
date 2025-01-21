@@ -1,10 +1,10 @@
-import 'package:vid/actions/find_actions.dart';
-import 'package:vid/commands/command.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer.dart';
-import 'package:vid/file_buffer_mode.dart';
-import 'package:vid/find_motion.dart';
-import 'package:vid/modes.dart';
+import '../actions/find_actions.dart';
+import '../editor.dart';
+import '../file_buffer.dart';
+import '../file_buffer_mode.dart';
+import '../find_motion.dart';
+import '../modes.dart';
+import 'command.dart';
 
 class LineEditSearchEnterCommand extends Command {
   const LineEditSearchEnterCommand();

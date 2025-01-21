@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
-import 'package:vid/find_motion.dart';
-import 'package:vid/motion.dart';
 
 import 'actions/insert_actions.dart';
 import 'actions/motions.dart';
@@ -20,11 +18,13 @@ import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
+import 'find_motion.dart';
 import 'keys.dart';
 import 'line.dart';
 import 'map_match.dart';
 import 'message.dart';
 import 'modes.dart';
+import 'motion.dart';
 import 'position.dart';
 import 'range.dart';
 import 'regex.dart';

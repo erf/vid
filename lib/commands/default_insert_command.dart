@@ -1,7 +1,7 @@
-import 'package:vid/actions/insert_actions.dart';
-import 'package:vid/commands/command.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer.dart';
+import '../actions/insert_actions.dart';
+import '../editor.dart';
+import '../file_buffer.dart';
+import 'command.dart';
 
 class DefaultInsertCommand extends Command {
   const DefaultInsertCommand();
