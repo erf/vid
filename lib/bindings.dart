@@ -1,10 +1,27 @@
+import 'package:vid/commands/backspace_insert_command.dart';
+import 'package:vid/commands/count_command.dart';
+import 'package:vid/commands/default_insert_command.dart';
+import 'package:vid/commands/default_replace_command.dart';
+import 'package:vid/commands/enter_insert_command.dart';
+import 'package:vid/commands/escape_insert_command.dart';
+import 'package:vid/find_motion.dart';
+import 'package:vid/commands/line_edit_backspace_command.dart';
+import 'package:vid/commands/line_edit_enter_command.dart';
+import 'package:vid/commands/line_edit_escape_command.dart';
+import 'package:vid/commands/line_edit_input_command.dart';
+import 'package:vid/commands/line_edit_search_enter_command.dart';
 import 'package:vid/modes.dart';
+import 'package:vid/motion.dart';
+import 'package:vid/commands/motion_command.dart';
+import 'package:vid/commands/normal_command.dart';
+import 'package:vid/commands/operator_command.dart';
+import 'package:vid/commands/same_operator_command.dart';
 
-import 'actions_find.dart';
-import 'actions_motions.dart';
-import 'actions_normal.dart';
-import 'actions_operators.dart';
-import 'command.dart';
+import 'actions/find_actions.dart';
+import 'actions/motions.dart';
+import 'actions/normal.dart';
+import 'actions/operators.dart';
+import 'commands/command.dart';
 import 'keys.dart';
 
 final normalCommands = <String, Command>{

@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/find_motion.dart';
+import 'package:vid/motion.dart';
 
-import 'actions_insert.dart';
-import 'actions_motions.dart';
+import 'actions/insert_actions.dart';
+import 'actions/motions.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
-import 'command.dart';
+import 'commands/command.dart';
 import 'config.dart';
 import 'edit_op.dart';
 import 'error_or.dart';

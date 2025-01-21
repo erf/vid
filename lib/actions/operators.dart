@@ -1,10 +1,10 @@
-import 'editor.dart';
-import 'file_buffer.dart';
-import 'file_buffer_mode.dart';
-import 'file_buffer_text.dart';
-import 'file_buffer_view.dart';
-import 'modes.dart';
-import 'range.dart';
+import '../editor.dart';
+import '../file_buffer.dart';
+import '../file_buffer_mode.dart';
+import '../file_buffer_text.dart';
+import '../file_buffer_view.dart';
+import '../modes.dart';
+import '../range.dart';
 
 class Operators {
   static void change(Editor e, FileBuffer f, Range range) {

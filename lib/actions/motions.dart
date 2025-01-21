@@ -2,13 +2,13 @@ import 'dart:math';
 
 import 'package:characters/characters.dart';
 
-import 'characters_render.dart';
-import 'file_buffer.dart';
-import 'file_buffer_text.dart';
-import 'position.dart';
-import 'regex.dart';
-import 'string_ext.dart';
-import 'utils.dart';
+import '../characters_render.dart';
+import '../file_buffer.dart';
+import '../file_buffer_text.dart';
+import '../position.dart';
+import '../regex.dart';
+import '../string_ext.dart';
+import '../utils.dart';
 
 class Motions {
   static Position charNext(FileBuffer f, Position p, [bool incl = false]) {

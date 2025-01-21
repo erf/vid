@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'file_buffer.dart';
-import 'file_buffer_text.dart';
-import 'position.dart';
+import '../file_buffer.dart';
+import '../file_buffer_text.dart';
+import '../position.dart';
 
 class FindActions {
   // find the next occurence of the given character on the current line
