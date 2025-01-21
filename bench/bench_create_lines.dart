@@ -4,7 +4,6 @@ import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_lines.dart';
-import 'package:vid/terminal.dart';
 import 'package:vid/terminal_dummy.dart';
 
 void main() {
