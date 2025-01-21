@@ -356,22 +356,18 @@ class Editor {
     edit.input += char;
 
     // check if we match or partial match a key
-    final (KeyMatch match, Command? command) =
-        matchKeys(keyBindings[file.mode]!, edit.input);
-
-    // no match, reset editOp
-    if (match == KeyMatch.none) {
-      file.edit = EditOp();
-      return;
+    switch (matchKeys(keyBindings[file.mode]!, edit.input)) {
+      // no match, reset input
+      case (KeyMatch.none, _):
+        file.edit = EditOp();
+        return;
+      // partial match, wait for more input
+      case (KeyMatch.partial, _):
+        return;
+      // full match, execute command
+      case (KeyMatch.match, Command command):
+        command.execute(this, file, char);
     }
-
-    // there is a partial match, keep waiting for more input
-    if (match == KeyMatch.partial) {
-      return;
-    }
-
-    // if we match a key, execute command
-    command?.execute(this, file, char);
 
     // reset input and make ready for next command
     edit.input = '';
