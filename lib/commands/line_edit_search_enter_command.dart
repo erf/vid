@@ -11,10 +11,9 @@ class LineEditSearchEnterCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final String pattern = f.edit.lineEdit;
     f.setMode(e, Mode.normal);
     f.edit.motion = FindMotion(FindActions.searchNext);
-    f.edit.findStr = pattern;
+    f.edit.findStr = f.edit.lineEdit;
     e.commitEdit(f.edit);
   }
 }

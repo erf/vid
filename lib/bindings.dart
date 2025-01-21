@@ -3,6 +3,7 @@ import 'package:vid/commands/count_command.dart';
 import 'package:vid/commands/default_insert_command.dart';
 import 'package:vid/commands/default_replace_command.dart';
 import 'package:vid/commands/enter_insert_command.dart';
+import 'package:vid/commands/escape_command.dart';
 import 'package:vid/commands/escape_insert_command.dart';
 import 'package:vid/commands/line_edit_backspace_command.dart';
 import 'package:vid/commands/line_edit_enter_command.dart';
@@ -109,6 +110,7 @@ final operatorPendingCommands = <String, Command>{
 };
 
 final operatorPendingSameCommands = <String, Command>{
+  Keys.escape: EscapeCommand(),
   'c': SameOperatorCommand(Operators.change),
   'd': SameOperatorCommand(Operators.delete),
   'y': SameOperatorCommand(Operators.yank),
