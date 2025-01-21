@@ -1,3 +1,5 @@
+import 'package:vid/commands/alias_command.dart';
+
 import 'actions/find_actions.dart';
 import 'actions/motions.dart';
 import 'actions/normal.dart';
@@ -24,26 +26,26 @@ import 'keys.dart';
 import 'modes.dart';
 import 'motion.dart';
 
-final normalCommands = <String, Command>{
+const normalCommands = <String, Command>{
   'q': NormalCommand(Normal.quit),
   'Q': NormalCommand(Normal.quitWithoutSaving),
-  'S': NormalCommand(Normal.alias('^C')),
+  'S': AliasCommand('^C'),
   's': NormalCommand(Normal.save),
   'i': NormalCommand(Normal.insert),
   'a': NormalCommand(Normal.appendCharNext),
-  'A': NormalCommand(Normal.alias('\$i')),
-  'I': NormalCommand(Normal.alias('^i')),
-  'o': NormalCommand(Normal.alias('A\n')),
-  'O': NormalCommand(Normal.alias('^i\n${Keys.escape}ki')),
+  'A': AliasCommand('\$i'),
+  'I': AliasCommand('^i'),
+  'o': AliasCommand('A\n'),
+  'O': AliasCommand('^i\n${Keys.escape}ki'),
   'r': NormalCommand(Normal.replace),
-  'D': NormalCommand(Normal.alias('d\$')),
-  'x': NormalCommand(Normal.alias('dl')),
+  'D': AliasCommand('d\$'),
+  'x': AliasCommand('dl'),
   'p': NormalCommand(Normal.pasteAfter),
   'P': NormalCommand(Normal.pasteBefore),
   Keys.ctrlD: NormalCommand(Normal.moveDownHalfPage),
   Keys.ctrlU: NormalCommand(Normal.moveUpHalfPage),
   'J': NormalCommand(Normal.joinLines),
-  'C': NormalCommand(Normal.alias('c\$')),
+  'C': AliasCommand('c\$'),
   'u': NormalCommand(Normal.undo),
   'U': NormalCommand(Normal.redo),
   '.': NormalCommand(Normal.repeat),
@@ -138,7 +140,7 @@ const lineEditSearchCommands = <String, Command>{
   '[*]': LineEditInputCommand(),
 };
 
-final keyBindings = <Mode, Map<String, Command>>{
+const keyBindings = <Mode, Map<String, Command>>{
   Mode.normal: {
     ...countCommands,
     ...normalCommands,
