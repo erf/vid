@@ -4,18 +4,18 @@ import 'package:vid/commands/default_insert_command.dart';
 import 'package:vid/commands/default_replace_command.dart';
 import 'package:vid/commands/enter_insert_command.dart';
 import 'package:vid/commands/escape_insert_command.dart';
-import 'package:vid/find_motion.dart';
 import 'package:vid/commands/line_edit_backspace_command.dart';
 import 'package:vid/commands/line_edit_enter_command.dart';
 import 'package:vid/commands/line_edit_escape_command.dart';
 import 'package:vid/commands/line_edit_input_command.dart';
 import 'package:vid/commands/line_edit_search_enter_command.dart';
-import 'package:vid/modes.dart';
-import 'package:vid/motion.dart';
 import 'package:vid/commands/motion_command.dart';
 import 'package:vid/commands/normal_command.dart';
 import 'package:vid/commands/operator_command.dart';
 import 'package:vid/commands/same_operator_command.dart';
+import 'package:vid/find_motion.dart';
+import 'package:vid/modes.dart';
+import 'package:vid/motion.dart';
 
 import 'actions/find_actions.dart';
 import 'actions/motions.dart';
@@ -116,15 +116,15 @@ final operatorPendingSameCommands = <String, Command>{
 
 final lineEditInputCommands = <String, Command>{
   Keys.escape: LineEditEscapeCommand(),
-  Keys.newline: LineEditEnterCommand(),
   Keys.backspace: LineEditBackspaceCommand(),
+  Keys.newline: LineEditEnterCommand(),
   '[*]': LineEditInputCommand(),
 };
 
 final lineEditSearchCommands = <String, Command>{
   Keys.escape: LineEditEscapeCommand(),
-  Keys.newline: LineEditSearchEnterCommand(),
   Keys.backspace: LineEditBackspaceCommand(),
+  Keys.newline: LineEditSearchEnterCommand(),
   '[*]': LineEditInputCommand(),
 };
 
