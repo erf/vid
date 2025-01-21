@@ -30,14 +30,14 @@ import 'string_ext.dart';
 import 'terminal.dart';
 
 class Editor {
-  Terminal terminal;
+  final Terminal terminal;
+  final bool redraw;
+  final StringBuffer rbuf = StringBuffer();
   FileBuffer file = FileBuffer();
-  StringBuffer rbuf = StringBuffer();
   Message? message;
   Timer? messageTimer;
   String? logPath;
   File? logFile;
-  bool redraw;
 
   Editor({
     required this.terminal,
