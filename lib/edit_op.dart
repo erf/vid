@@ -10,4 +10,5 @@ class EditOp {
   int? count;
   String? findStr;
   bool linewise = false;
+  String lineEdit = '';
 }

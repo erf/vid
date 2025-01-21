@@ -4,9 +4,7 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 
-import 'actions_find.dart';
 import 'actions_insert.dart';
-import 'actions_line_edit.dart';
 import 'actions_motions.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
@@ -18,7 +16,6 @@ import 'esc.dart';
 import 'file_buffer.dart';
 import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
-import 'file_buffer_mode.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
 import 'keys.dart';
@@ -129,7 +126,7 @@ class Editor {
     switch (file.mode) {
       case Mode.command:
       case Mode.search:
-        drawCommand();
+        drawLineEdit();
       default:
         drawStatus();
         drawCursor(cursorpos);
@@ -174,13 +171,15 @@ class Editor {
   }
 
   // draw the command input line
-  void drawCommand() {
+  void drawLineEdit() {
+    final String lineEdit = file.edit.lineEdit;
+
     if (file.mode == Mode.search) {
-      rbuf.write('/${file.edit.input} ');
+      rbuf.write('/$lineEdit ');
     } else {
-      rbuf.write(':${file.edit.input} ');
+      rbuf.write(':$lineEdit ');
     }
-    int cursor = file.edit.input.length + 2;
+    int cursor = lineEdit.length + 2;
     rbuf.write(Esc.cursorStyleLine);
     rbuf.write(Esc.cursorPosition(c: cursor, l: terminal.height));
   }
@@ -262,13 +261,7 @@ class Editor {
       return;
     }
     for (String char in str.characters) {
-      switch (file.mode) {
-        case Mode.command:
-        case Mode.search:
-          lineEdit(char);
-        default:
-          handleInput(char);
-      }
+      handleInput(char);
     }
 
     if (redraw) {
@@ -304,56 +297,6 @@ class Editor {
     }
     insertChunk(file.readAsStringSync());
     return ErrorOr.value(true);
-  }
-
-  // line edit command mode
-  void lineEdit(String char) {
-    EditOp edit = file.edit;
-    switch (char) {
-      case Keys.backspace:
-        if (edit.input.isEmpty) {
-          file.setMode(this, Mode.normal);
-        } else {
-          edit.input = edit.input.substring(0, edit.input.length - 1);
-        }
-      case Keys.escape:
-        file.setMode(this, Mode.normal);
-        edit.input = '';
-      case Keys.newline:
-        if (file.mode == Mode.search) {
-          doSearch(edit.input);
-        } else {
-          doCommand(edit.input);
-        }
-        edit.input = '';
-      default:
-        edit.input += char;
-    }
-  }
-
-  void doCommand(String command) {
-    List<String> args = command.split(' ');
-    String cmd = args.isNotEmpty ? args.first : command;
-    // command actions
-    if (lineEditCommands.containsKey(cmd)) {
-      lineEditCommands[cmd]!(this, file, args);
-      return;
-    }
-    // substitute command
-    if (command.startsWith(Regex.substitute)) {
-      LineEdit.substitute(this, file, [command]);
-      return;
-    }
-    // unknown command
-    file.setMode(this, Mode.normal);
-    showMessage(Message.error('Unknown command \'$command\''));
-  }
-
-  void doSearch(String pattern) {
-    file.setMode(this, Mode.normal);
-    file.edit.motion = FindMotion(FindActions.searchNext);
-    file.edit.findStr = pattern;
-    commitEdit(file.edit);
   }
 
   String readNextChar() {
@@ -426,7 +369,7 @@ class Editor {
     }
 
     // if we match a key, execute command
-    command?.execute(this, file, edit.input);
+    command?.execute(this, file, char);
 
     // reset input and make ready for next command
     edit.input = '';
