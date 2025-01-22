@@ -282,20 +282,15 @@ class Editor {
 
     // check if we match or partial match a key
     switch (matchKeys(keyBindings[file.mode]!, edit.input)) {
-      // no match, reset input
       case (KeyMatch.none, _):
         file.edit = EditOp();
-        return;
-      // partial match, wait for more input
       case (KeyMatch.partial, _):
+        // wait for more input
         return;
-      // full match, execute command
       case (KeyMatch.match, Command command):
         command.execute(this, file, char);
+        edit.input = '';
     }
-
-    // reset input and make ready for next command
-    edit.input = '';
   }
 
   String readNextChar() {
