@@ -4,14 +4,12 @@ import 'actions/find_actions.dart';
 import 'actions/motions.dart';
 import 'actions/normal.dart';
 import 'actions/operators.dart';
-import 'commands/backspace_insert_command.dart';
 import 'commands/command.dart';
 import 'commands/count_command.dart';
-import 'commands/default_insert_command.dart';
-import 'commands/default_replace_command.dart';
-import 'commands/enter_insert_command.dart';
-import 'commands/escape_command.dart';
-import 'commands/escape_insert_command.dart';
+import 'commands/insert_backspace_command.dart';
+import 'commands/insert_default_command.dart';
+import 'commands/insert_enter_command.dart';
+import 'commands/insert_escape_command.dart';
 import 'commands/line_edit_backspace_command.dart';
 import 'commands/line_edit_enter_command.dart';
 import 'commands/line_edit_escape_command.dart';
@@ -20,7 +18,9 @@ import 'commands/line_edit_search_enter_command.dart';
 import 'commands/motion_command.dart';
 import 'commands/normal_command.dart';
 import 'commands/operator_command.dart';
-import 'commands/same_operator_command.dart';
+import 'commands/operator_escape_command.dart';
+import 'commands/operator_pending_same_command.dart';
+import 'commands/replace_default_command.dart';
 import 'find_motion.dart';
 import 'keys.dart';
 import 'modes.dart';
@@ -119,13 +119,13 @@ const operatorCommands = <String, Command>{
   'gU': OperatorCommand(Operators.upperCase),
 };
 
-const operatorSameCommands = <String, Command>{
-  'c': OperatorSameCommand(Operators.change),
-  'd': OperatorSameCommand(Operators.delete),
-  'y': OperatorSameCommand(Operators.yank),
+const operatorPendingSameCommands = <String, Command>{
+  'c': OperatorPendingSameCommand(Operators.change),
+  'd': OperatorPendingSameCommand(Operators.delete),
+  'y': OperatorPendingSameCommand(Operators.yank),
 };
 
-const lineEditCommands = <String, Command>{
+const lineEditInputCommands = <String, Command>{
   Keys.escape: LineEditEscapeCommand(),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditEnterCommand(),
@@ -150,10 +150,10 @@ const keyBindings = <Mode, Map<String, Command>>{
     Keys.escape: OperatorEscapeCommand(),
     ...countCommands,
     ...motionCommands,
-    ...operatorSameCommands,
+    ...operatorPendingSameCommands,
   },
   Mode.insert: insertCommands,
   Mode.replace: replaceCommands,
-  Mode.command: lineEditCommands,
+  Mode.command: lineEditInputCommands,
   Mode.search: lineEditSearchCommands,
 };
