@@ -6,8 +6,8 @@ import '../find_motion.dart';
 import '../modes.dart';
 import 'command.dart';
 
-class LineEditSearchEnterCommand extends Command {
-  const LineEditSearchEnterCommand();
+class LineEditSearchCommand extends Command {
+  const LineEditSearchCommand();
 
   @override
   void execute(Editor e, FileBuffer f, String s) {

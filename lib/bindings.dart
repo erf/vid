@@ -11,10 +11,10 @@ import 'commands/insert_backspace_command.dart';
 import 'commands/insert_default_command.dart';
 import 'commands/insert_enter_command.dart';
 import 'commands/insert_escape_command.dart';
-import 'commands/line_edit_backspace_command.dart';
+import 'commands/line_edit_delete_command.dart';
 import 'commands/line_edit_enter_command.dart';
 import 'commands/line_edit_input_command.dart';
-import 'commands/line_edit_search_enter_command.dart';
+import 'commands/line_edit_search_command.dart';
 import 'commands/motion_command.dart';
 import 'commands/normal_command.dart';
 import 'commands/operator_command.dart';
@@ -127,15 +127,15 @@ const operatorPendingSameCommands = <String, Command>{
 
 const lineEditInputCommands = <String, Command>{
   Keys.escape: ModeCommand(Mode.normal),
-  Keys.backspace: LineEditBackspaceCommand(),
+  Keys.backspace: LineEditDeleteCommand(),
   Keys.newline: LineEditEnterCommand(),
   '[*]': LineEditInputCommand(),
 };
 
 const lineEditSearchCommands = <String, Command>{
   Keys.escape: ModeCommand(Mode.normal),
-  Keys.backspace: LineEditBackspaceCommand(),
-  Keys.newline: LineEditSearchEnterCommand(),
+  Keys.backspace: LineEditDeleteCommand(),
+  Keys.newline: LineEditSearchCommand(),
   '[*]': LineEditInputCommand(),
 };
 

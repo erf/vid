@@ -5,8 +5,8 @@ import '../file_buffer_mode.dart';
 import '../modes.dart';
 import 'command.dart';
 
-class LineEditBackspaceCommand extends Command {
-  const LineEditBackspaceCommand();
+class LineEditDeleteCommand extends Command {
+  const LineEditDeleteCommand();
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
