@@ -60,14 +60,14 @@ const normalCommands = <String, Command>{
 };
 
 const insertCommands = <String, Command>{
-  Keys.backspace: BackspaceInsertCommand(),
-  Keys.newline: EnterInsertCommand(),
-  Keys.escape: EscapeInsertCommand(),
-  '[*]': DefaultInsertCommand(),
+  Keys.backspace: InsertBackspaceCommand(),
+  Keys.newline: InsertEnterCommand(),
+  Keys.escape: InsertEscapeCommand(),
+  '[*]': InsertDefaultCommand(),
 };
 
 const replaceCommands = <String, Command>{
-  '[*]': DefaultReplaceCommand(),
+  '[*]': ReplaceDefaultCommand(),
 };
 
 const countCommands = <String, Command>{
@@ -111,7 +111,7 @@ const motionCommands = <String, Command>{
   ')': MotionCommand(Motion(Motions.sentenceNext)),
 };
 
-const operatorPendingCommands = <String, Command>{
+const operatorCommands = <String, Command>{
   'c': OperatorCommand(Operators.change),
   'd': OperatorCommand(Operators.delete),
   'y': OperatorCommand(Operators.yank),
@@ -119,14 +119,13 @@ const operatorPendingCommands = <String, Command>{
   'gU': OperatorCommand(Operators.upperCase),
 };
 
-const operatorPendingSameCommands = <String, Command>{
-  Keys.escape: EscapeCommand(),
-  'c': SameOperatorCommand(Operators.change),
-  'd': SameOperatorCommand(Operators.delete),
-  'y': SameOperatorCommand(Operators.yank),
+const operatorSameCommands = <String, Command>{
+  'c': OperatorSameCommand(Operators.change),
+  'd': OperatorSameCommand(Operators.delete),
+  'y': OperatorSameCommand(Operators.yank),
 };
 
-const lineEditInputCommands = <String, Command>{
+const lineEditCommands = <String, Command>{
   Keys.escape: LineEditEscapeCommand(),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditEnterCommand(),
@@ -145,15 +144,16 @@ const keyBindings = <Mode, Map<String, Command>>{
     ...countCommands,
     ...normalCommands,
     ...motionCommands,
-    ...operatorPendingCommands,
+    ...operatorCommands,
   },
   Mode.operatorPending: {
+    Keys.escape: OperatorEscapeCommand(),
     ...countCommands,
     ...motionCommands,
-    ...operatorPendingSameCommands,
+    ...operatorSameCommands,
   },
   Mode.insert: insertCommands,
   Mode.replace: replaceCommands,
-  Mode.command: lineEditInputCommands,
+  Mode.command: lineEditCommands,
   Mode.search: lineEditSearchCommands,
 };

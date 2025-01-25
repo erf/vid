@@ -3,8 +3,8 @@ import '../editor.dart';
 import '../file_buffer.dart';
 import 'command.dart';
 
-class BackspaceInsertCommand extends Command {
-  const BackspaceInsertCommand();
+class InsertBackspaceCommand extends Command {
+  const InsertBackspaceCommand();
 
   @override
   void execute(Editor e, FileBuffer f, String s) {

@@ -7,10 +7,10 @@ import '../modes.dart';
 import '../motion.dart';
 import 'command.dart';
 
-class SameOperatorCommand extends Command {
+class OperatorSameCommand extends Command {
   final Function func;
 
-  const SameOperatorCommand(this.func);
+  const OperatorSameCommand(this.func);
 
   @override
   void execute(Editor e, FileBuffer f, String s) {

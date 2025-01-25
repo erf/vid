@@ -3,8 +3,8 @@ import '../editor.dart';
 import '../file_buffer.dart';
 import 'command.dart';
 
-class DefaultInsertCommand extends Command {
-  const DefaultInsertCommand();
+class InsertDefaultCommand extends Command {
+  const InsertDefaultCommand();
 
   @override
   void execute(Editor e, FileBuffer f, String s) {

@@ -3,8 +3,8 @@ import '../editor.dart';
 import '../file_buffer.dart';
 import 'command.dart';
 
-class DefaultReplaceCommand extends Command {
-  const DefaultReplaceCommand();
+class ReplaceDefaultCommand extends Command {
+  const ReplaceDefaultCommand();
 
   @override
   void execute(Editor e, FileBuffer f, String s) {

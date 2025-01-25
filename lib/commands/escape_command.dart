@@ -5,8 +5,8 @@ import '../file_buffer_mode.dart';
 import '../modes.dart';
 import 'command.dart';
 
-class EscapeCommand extends Command {
-  const EscapeCommand();
+class OperatorEscapeCommand extends Command {
+  const OperatorEscapeCommand();
 
   @override
   void execute(Editor e, FileBuffer f, String s) {

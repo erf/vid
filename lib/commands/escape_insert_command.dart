@@ -3,8 +3,8 @@ import '../editor.dart';
 import '../file_buffer.dart';
 import 'command.dart';
 
-class EscapeInsertCommand extends Command {
-  const EscapeInsertCommand();
+class InsertEscapeCommand extends Command {
+  const InsertEscapeCommand();
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
