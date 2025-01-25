@@ -1,4 +1,5 @@
 import 'package:vid/commands/alias_command.dart';
+import 'package:vid/commands/set_mode_command.dart';
 
 import 'actions/find_actions.dart';
 import 'actions/motions.dart';
@@ -12,7 +13,6 @@ import 'commands/insert_enter_command.dart';
 import 'commands/insert_escape_command.dart';
 import 'commands/line_edit_backspace_command.dart';
 import 'commands/line_edit_enter_command.dart';
-import 'commands/line_edit_escape_command.dart';
 import 'commands/line_edit_input_command.dart';
 import 'commands/line_edit_search_enter_command.dart';
 import 'commands/motion_command.dart';
@@ -31,13 +31,13 @@ const normalCommands = <String, Command>{
   'Q': NormalCommand(Normal.quitWithoutSaving),
   'S': AliasCommand('^C'),
   's': NormalCommand(Normal.save),
-  'i': NormalCommand(Normal.insert),
+  'i': SetModeCommand(Mode.insert),
   'a': NormalCommand(Normal.appendCharNext),
   'A': AliasCommand('\$i'),
   'I': AliasCommand('^i'),
   'o': AliasCommand('A\n'),
   'O': AliasCommand('^i\n${Keys.escape}ki'),
-  'r': NormalCommand(Normal.replace),
+  'r': SetModeCommand(Mode.replace),
   'D': AliasCommand('d\$'),
   'x': AliasCommand('dl'),
   'p': NormalCommand(Normal.pasteAfter),
@@ -53,8 +53,8 @@ const normalCommands = <String, Command>{
   'n': NormalCommand(Normal.repeatFindStr),
   Keys.ctrlA: NormalCommand(Normal.increase),
   Keys.ctrlX: NormalCommand(Normal.decrease),
-  ':': NormalCommand(Normal.command),
-  '/': NormalCommand(Normal.search),
+  ':': SetModeCommand(Mode.command),
+  '/': SetModeCommand(Mode.search),
   Keys.ctrlW: NormalCommand(Normal.toggleWrap),
   'zz': NormalCommand(Normal.centerView),
 };
@@ -126,14 +126,14 @@ const operatorPendingSameCommands = <String, Command>{
 };
 
 const lineEditInputCommands = <String, Command>{
-  Keys.escape: LineEditEscapeCommand(),
+  Keys.escape: SetModeCommand(Mode.normal),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditEnterCommand(),
   '[*]': LineEditInputCommand(),
 };
 
 const lineEditSearchCommands = <String, Command>{
-  Keys.escape: LineEditEscapeCommand(),
+  Keys.escape: SetModeCommand(Mode.normal),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditSearchEnterCommand(),
   '[*]': LineEditInputCommand(),

@@ -16,22 +16,6 @@ import '../regex.dart';
 import '../text_op.dart';
 
 class Normal {
-  static void insert(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.insert);
-  }
-
-  static void replace(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.replace);
-  }
-
-  static void command(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.command);
-  }
-
-  static void search(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.search);
-  }
-
   static void moveDownHalfPage(Editor e, FileBuffer f) {
     f.cursor.l += e.terminal.height ~/ 2;
     f.cursor.l = min(f.cursor.l, f.lines.length - 1);
