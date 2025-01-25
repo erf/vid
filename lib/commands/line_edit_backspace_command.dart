@@ -11,10 +11,11 @@ class LineEditBackspaceCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     EditOp edit = f.edit;
-    if (edit.lineEdit.isEmpty) {
+    String lineEdit = edit.lineEdit;
+    if (lineEdit.isEmpty) {
       f.setMode(e, Mode.normal);
     } else {
-      edit.lineEdit = edit.lineEdit.substring(0, edit.lineEdit.length - 1);
+      edit.lineEdit = lineEdit.substring(0, lineEdit.length - 1);
     }
   }
 }
