@@ -16,10 +16,6 @@ import '../regex.dart';
 import '../text_op.dart';
 
 class Normal {
-  static Function alias(String alias) {
-    return (Editor e, FileBuffer f) => e.alias(alias);
-  }
-
   static void moveDownHalfPage(Editor e, FileBuffer f) {
     f.cursor.l += e.terminal.height ~/ 2;
     f.cursor.l = min(f.cursor.l, f.lines.length - 1);
