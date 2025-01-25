@@ -16,6 +16,22 @@ import '../regex.dart';
 import '../text_op.dart';
 
 class Normal {
+  static void insert(Editor e, FileBuffer f) {
+    f.setMode(e, Mode.insert);
+  }
+
+  static void replace(Editor e, FileBuffer f) {
+    f.setMode(e, Mode.replace);
+  }
+
+  static void command(Editor e, FileBuffer f) {
+    f.setMode(e, Mode.command);
+  }
+
+  static void search(Editor e, FileBuffer f) {
+    f.setMode(e, Mode.search);
+  }
+
   static void moveDownHalfPage(Editor e, FileBuffer f) {
     f.cursor.l += e.terminal.height ~/ 2;
     f.cursor.l = min(f.cursor.l, f.lines.length - 1);
@@ -71,17 +87,9 @@ class Normal {
     }
   }
 
-  static void insert(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.insert);
-  }
-
   static void appendCharNext(Editor e, FileBuffer f) {
     f.setMode(e, Mode.insert);
     f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
-  }
-
-  static void replace(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.replace);
   }
 
   static void joinLines(Editor e, FileBuffer f) {
@@ -151,14 +159,6 @@ class Normal {
 
   static void decrease(Editor e, FileBuffer f) {
     increaseNextWord(e, f, -1);
-  }
-
-  static void command(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.command);
-  }
-
-  static void search(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.search);
   }
 
   static void toggleWrap(Editor e, FileBuffer f) {
