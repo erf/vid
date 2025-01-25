@@ -4,10 +4,10 @@ import 'package:vid/file_buffer.dart';
 import 'package:vid/file_buffer_mode.dart';
 import 'package:vid/modes.dart';
 
-class SetModeCommand extends Command {
+class ModeCommand extends Command {
   final Mode mode;
 
-  const SetModeCommand(this.mode);
+  const ModeCommand(this.mode);
 
   @override
   void execute(Editor e, FileBuffer f, String s) => f.setMode(e, mode);

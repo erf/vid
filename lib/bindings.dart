@@ -1,5 +1,5 @@
 import 'package:vid/commands/alias_command.dart';
-import 'package:vid/commands/set_mode_command.dart';
+import 'package:vid/commands/mode_command.dart';
 
 import 'actions/find_actions.dart';
 import 'actions/motions.dart';
@@ -31,13 +31,13 @@ const normalCommands = <String, Command>{
   'Q': NormalCommand(Normal.quitWithoutSaving),
   'S': AliasCommand('^C'),
   's': NormalCommand(Normal.save),
-  'i': SetModeCommand(Mode.insert),
+  'i': ModeCommand(Mode.insert),
   'a': NormalCommand(Normal.appendCharNext),
   'A': AliasCommand('\$i'),
   'I': AliasCommand('^i'),
   'o': AliasCommand('A\n'),
   'O': AliasCommand('^i\n${Keys.escape}ki'),
-  'r': SetModeCommand(Mode.replace),
+  'r': ModeCommand(Mode.replace),
   'D': AliasCommand('d\$'),
   'x': AliasCommand('dl'),
   'p': NormalCommand(Normal.pasteAfter),
@@ -53,8 +53,8 @@ const normalCommands = <String, Command>{
   'n': NormalCommand(Normal.repeatFindStr),
   Keys.ctrlA: NormalCommand(Normal.increase),
   Keys.ctrlX: NormalCommand(Normal.decrease),
-  ':': SetModeCommand(Mode.command),
-  '/': SetModeCommand(Mode.search),
+  ':': ModeCommand(Mode.command),
+  '/': ModeCommand(Mode.search),
   Keys.ctrlW: NormalCommand(Normal.toggleWrap),
   'zz': NormalCommand(Normal.centerView),
 };
@@ -126,14 +126,14 @@ const operatorPendingSameCommands = <String, Command>{
 };
 
 const lineEditInputCommands = <String, Command>{
-  Keys.escape: SetModeCommand(Mode.normal),
+  Keys.escape: ModeCommand(Mode.normal),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditEnterCommand(),
   '[*]': LineEditInputCommand(),
 };
 
 const lineEditSearchCommands = <String, Command>{
-  Keys.escape: SetModeCommand(Mode.normal),
+  Keys.escape: ModeCommand(Mode.normal),
   Keys.backspace: LineEditBackspaceCommand(),
   Keys.newline: LineEditSearchEnterCommand(),
   '[*]': LineEditInputCommand(),
