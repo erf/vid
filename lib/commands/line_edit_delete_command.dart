@@ -1,4 +1,4 @@
-import '../edit_op.dart';
+import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer.dart';
 import '../file_buffer_mode.dart';
@@ -10,7 +10,7 @@ class LineEditDeleteCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final EditOp edit = f.edit;
+    final Edit edit = f.edit;
     final String lineEdit = edit.lineEdit;
     if (lineEdit.isEmpty) {
       f.setMode(e, Mode.normal);

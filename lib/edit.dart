@@ -1,8 +1,8 @@
 import 'motion.dart';
 
-// EditOp is a class that represents an edit operation.
-class EditOp {
-  EditOp();
+// Edit is a class that represents an edit operation.
+class Edit {
+  Edit();
 
   Function? op;
   Motion? motion;

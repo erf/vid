@@ -1,4 +1,4 @@
-import '../edit_op.dart';
+import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer.dart';
 import '../file_buffer_mode.dart';
@@ -11,6 +11,6 @@ class OperatorEscapeCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.setMode(e, Mode.normal);
-    f.edit = EditOp();
+    f.edit = Edit();
   }
 }

@@ -1,4 +1,4 @@
-import 'edit_op.dart';
+import 'edit.dart';
 import 'line.dart';
 import 'modes.dart';
 import 'position.dart';
@@ -31,10 +31,10 @@ class FileBuffer {
   Mode mode = Mode.normal;
 
   // the current edit action
-  EditOp edit = EditOp();
+  Edit edit = Edit();
 
   // the previous edit operation
-  EditOp? prevEdit;
+  Edit? prevEdit;
 
   // the yanked text
   String? yankBuffer;

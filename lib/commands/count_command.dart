@@ -1,5 +1,5 @@
 import '../actions/motions.dart';
-import '../edit_op.dart';
+import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer.dart';
 import '../message.dart';
@@ -13,7 +13,7 @@ class CountCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final EditOp edit = f.edit;
+    final Edit edit = f.edit;
     if (edit.count == null && count == 0) {
       f.edit.motion = Motion(Motions.lineStart);
       e.commitEdit(edit);

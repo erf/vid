@@ -9,7 +9,7 @@ import 'bindings.dart';
 import 'characters_render.dart';
 import 'commands/command.dart';
 import 'config.dart';
-import 'edit_op.dart';
+import 'edit.dart';
 import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer.dart';
@@ -252,7 +252,7 @@ class Editor {
   }
 
   void alias(String str) {
-    file.edit = EditOp();
+    file.edit = Edit();
     input(str);
   }
 
@@ -275,7 +275,7 @@ class Editor {
 
   // match input against key bindings for executing commands
   void handleInput(String char) {
-    EditOp edit = file.edit;
+    Edit edit = file.edit;
 
     // append char to input
     edit.cmdKey += char;
@@ -283,7 +283,7 @@ class Editor {
     // check if we match or partial match a key
     switch (matchKeys(keyBindings[file.mode]!, edit.cmdKey)) {
       case (KeyMatch.none, _):
-        file.edit = EditOp();
+        file.edit = Edit();
       case (KeyMatch.partial, _):
         // wait for more input
         return;
@@ -298,7 +298,7 @@ class Editor {
   }
 
   // execute motion and return end position
-  Position motionEnd(EditOp edit, Motion motion, Position pos, bool incl) {
+  Position motionEnd(Edit edit, Motion motion, Position pos, bool incl) {
     switch (motion) {
       case FindMotion(func: Function find):
         String nextChar = edit.findStr ?? readNextChar();
@@ -310,7 +310,7 @@ class Editor {
   }
 
   // execute operator on motion range count times
-  void commitEdit(EditOp edit, [bool reset = true]) {
+  void commitEdit(Edit edit, [bool reset = true]) {
     Motion motion = edit.motion!; // motion should not be null
     Function? op = edit.op;
     edit.linewise = motion.linewise;
@@ -337,7 +337,7 @@ class Editor {
       if (op != null || edit.findStr != null) {
         file.prevEdit = file.edit;
       }
-      file.edit = EditOp();
+      file.edit = Edit();
     }
   }
 }
