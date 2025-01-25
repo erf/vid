@@ -1,41 +1,38 @@
 # vid
 
-A minimal vim-like text editor for modern terminals written in Dart 🧑‍💻
+A minimal vim-like text editor for modern terminals written in [Dart](https://dart.dev/overview)
 
-> Note: made for myself for fun and learning and not meant to replace your current editor 😅
+> Made for myself for fun and learning and not meant to replace your current editor
 
-## Features 📋
+## Features
 
-- a minimal vim-like text (UTF-8) editor for the terminal ⚡️
-- properly render and edit emojis and wide characters 🍜
-- made for modern terminals that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) (e.g. [Ghostty](https://github.com/ghostty-org/ghostty), [WezTerm](https://github.com/wez/wezterm)) 🧠
-- written in Dart using the [characters](https://pub.dev/packages/characters) package ✨
-- unlimited undo and redo ↩️
-- no-wrap, char-wrap or word-wrap 🎁
-- many basic **vim** motions and operators ⚙️
-- a minimal command mode 🚀
+- a minimal vim-like text editor for the terminal
+- properly render and edit emojis and wide characters (like 🧑‍🧑‍🧒‍🧒)
+- made for modern terminals that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) (e.g. [Ghostty](https://github.com/ghostty-org/ghostty), [WezTerm](https://github.com/wez/wezterm))
+- written in Dart using the [characters](https://pub.dev/packages/characters) package
+- unlimited undo and redo
+- no-wrap, char-wrap or word-wrap
+- basic vim motions and operators
+- minimal command mode
 
 ## Non-goals ❌
 
-- no syntax highlighting (only bg / fg colors)
-- no plugins (let's keep things minimal)
-- no 100 % vim compat (we support a minimal subset)
-- no window manager (just open a new tab, use terminal split features etc.)
-- no pre-built binaries ([build](build.sh) it yourself using Dart)
+- syntax highlighting
+- plugins
+- 100 % vim compat
+- window manager (just open a new tab or use terminal split features)
+- pre-built binaries (just build it yourself)
 
-## Keyboard shortcuts ↔️
+## Keyboard shortcuts
 
 See [bindings.dart](lib/bindings.dart)
 
-## Configuration 📜
+## Configuration
 
 See [config.dart](lib/config.dart)
 
-## Contributing 🙋‍♂️
+## Contributing
 
-I enjoy building [vid](https://github.com/erf/vid) myself but I'm open to pull requests that align with its minimal philosophy.
+I'm open to PR's that align with vid's minimal philosophy.
 
 I don't accept issues solely for suggestions.
-
-Enjoy ✨
-
