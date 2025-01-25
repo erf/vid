@@ -6,7 +6,26 @@ import '../message.dart';
 import '../modes.dart';
 import '../regex.dart';
 import 'command.dart';
-import 'line_edit_commands.dart';
+
+const lineEditCommands = <String, Function>{
+  '': LineEdit.noop,
+  'q': LineEdit.quit,
+  'quit': LineEdit.quit,
+  'q!': LineEdit.forceQuit,
+  'quit!': LineEdit.forceQuit,
+  'o': LineEdit.open,
+  'open': LineEdit.open,
+  'r': LineEdit.read,
+  'read': LineEdit.read,
+  'w': LineEdit.write,
+  'write': LineEdit.write,
+  'wq': LineEdit.writeAndQuit,
+  'x': LineEdit.writeAndQuit,
+  'exit': LineEdit.writeAndQuit,
+  'nowrap': LineEdit.setNoWrap,
+  'charwrap': LineEdit.setCharWrap,
+  'wordwrap': LineEdit.setWordWrap,
+};
 
 class LineEditEnterCommand extends Command {
   const LineEditEnterCommand();
@@ -16,17 +35,14 @@ class LineEditEnterCommand extends Command {
     final String command = f.edit.lineEdit;
     List<String> args = command.split(' ');
     String cmd = args.isNotEmpty ? args.first : command;
-    // command actions
     if (lineEditCommands.containsKey(cmd)) {
       lineEditCommands[cmd]!(e, f, args);
       return;
     }
-    // substitute command
     if (command.startsWith(Regex.substitute)) {
       LineEdit.substitute(e, f, [command]);
       return;
     }
-    // unknown command
     f.edit.lineEdit = '';
     f.setMode(e, Mode.normal);
     e.showMessage(Message.error('Unknown command \'$command\''));

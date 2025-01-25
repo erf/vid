@@ -10,8 +10,8 @@ class LineEditDeleteCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    EditOp edit = f.edit;
-    String lineEdit = edit.lineEdit;
+    final EditOp edit = f.edit;
+    final String lineEdit = edit.lineEdit;
     if (lineEdit.isEmpty) {
       f.setMode(e, Mode.normal);
     } else {
