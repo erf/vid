@@ -126,7 +126,7 @@ Nature's serenade, timeless and free.
     f.createLines(e, WrapMode.none);
     e.input('iabc\x1b');
     expect(f.text, 'abc\n');
-    expect(f.prevEdit!.input, 'abc');
+    expect(f.prevEdit!.cmdKey, 'abc');
     expect(f.cursor, Position(c: 3, l: 0));
   }, skip: true);
 }

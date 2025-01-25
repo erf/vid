@@ -278,10 +278,10 @@ class Editor {
     EditOp edit = file.edit;
 
     // append char to input
-    edit.input += char;
+    edit.cmdKey += char;
 
     // check if we match or partial match a key
-    switch (matchKeys(keyBindings[file.mode]!, edit.input)) {
+    switch (matchKeys(keyBindings[file.mode]!, edit.cmdKey)) {
       case (KeyMatch.none, _):
         file.edit = EditOp();
       case (KeyMatch.partial, _):
@@ -289,7 +289,7 @@ class Editor {
         return;
       case (KeyMatch.match, Command command):
         command.execute(this, file, char);
-        edit.input = '';
+        edit.cmdKey = '';
     }
   }
 

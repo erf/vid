@@ -6,7 +6,7 @@ class EditOp {
 
   Function? op;
   Motion? motion;
-  String input = '';
+  String cmdKey = '';
   int? count;
   String? findStr;
   bool linewise = false;
