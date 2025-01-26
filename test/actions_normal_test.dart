@@ -298,4 +298,24 @@ void main() {
     expect(f.text, '\n\nghi\njkl\n');
     expect(f.cursor, Position(c: 0, l: 2));
   });
+
+  test('go down one line with j', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 0);
+    e.input('j');
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
+
+  test('go up one line with k', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 2);
+    e.input('k');
+    expect(f.cursor, Position(c: 0, l: 1));
+  });
 }
