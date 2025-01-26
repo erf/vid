@@ -134,4 +134,13 @@ void main() {
     e.input('gUe');
     expect(f.text, 'ABC\n');
   });
+
+  test('count should work for dd', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines(e, WrapMode.none);
+    e.input('2dd');
+    expect(f.text, 'ghi\n');
+  });
 }
