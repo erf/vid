@@ -310,7 +310,7 @@ class Editor {
   }
 
   // execute operator on motion range count times
-  void commitEdit(Edit edit, [bool reset = true]) {
+  void commitEdit(Edit edit) {
     Motion motion = edit.motion!; // motion should not be null
     Function? op = edit.op;
     edit.linewise = motion.linewise;
@@ -333,11 +333,9 @@ class Editor {
       }
       op(this, file, Range(start, end).norm);
     }
-    if (reset) {
-      if (op != null || edit.findStr != null) {
-        file.prevEdit = file.edit;
-      }
-      file.edit = Edit();
+    if (op != null || edit.findStr != null) {
+      file.prevEdit = file.edit;
     }
+    file.edit = Edit();
   }
 }

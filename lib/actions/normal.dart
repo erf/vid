@@ -117,7 +117,7 @@ class Normal {
       return;
     }
     f.edit = f.prevEdit!;
-    e.commitEdit(f.edit, false);
+    e.commitEdit(f.edit);
   }
 
   static void repeatFindStr(Editor e, FileBuffer f) {
@@ -125,7 +125,7 @@ class Normal {
       return;
     }
     f.edit = f.prevEdit!;
-    e.commitEdit(f.edit, false);
+    e.commitEdit(f.edit);
   }
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {

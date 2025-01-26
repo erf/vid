@@ -287,4 +287,15 @@ void main() {
     expect(f.text, 'abc\nde\n');
     expect(f.cursor, Position(c: 2, l: 1));
   });
+
+  test('delete to eol, move down, repeat and move down', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\njkl\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 0);
+    e.input('Dj.j');
+    expect(f.text, '\n\nghi\njkl\n');
+    expect(f.cursor, Position(c: 0, l: 2));
+  });
 }
