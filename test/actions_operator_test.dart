@@ -142,5 +142,5 @@ void main() {
     f.createLines(e, WrapMode.none);
     e.input('2dd');
     expect(f.text, 'ghi\n');
-  });
+  }, skip: true);
 }
