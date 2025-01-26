@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/file_buffer_mode.dart';
 
 import 'actions/motions.dart';
 import 'bindings.dart';
@@ -283,6 +284,7 @@ class Editor {
     // check if we match or partial match a key
     switch (matchKeys(keyBindings[file.mode]!, edit.cmdKey)) {
       case (KeyMatch.none, _):
+        file.setMode(this, Mode.normal);
         file.edit = Edit();
       case (KeyMatch.partial, _):
         // wait for more input
