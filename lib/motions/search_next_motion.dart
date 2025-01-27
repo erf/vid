@@ -8,7 +8,7 @@ class SearchNextMotion extends Motion {
   const SearchNextMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     final String pattern = f.edit.findStr ?? '';
     int start = f.byteIndexFromPosition(p);
     Match? match = RegExp(RegExp.escape(pattern))

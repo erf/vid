@@ -10,8 +10,8 @@ class FindTillNextCharMotion extends Motion {
   const FindTillNextCharMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
-    final Position pNew = FindNextCharMotion().run(f, p);
+  Position run(FileBuffer f, Position p, {bool op = false}) {
+    final Position pNew = FindNextCharMotion().run(f, p, op: op);
     pNew.c = max(pNew.c - 1, p.c);
     return pNew;
   }

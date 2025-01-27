@@ -9,7 +9,7 @@ class FindPrevCharMotion extends Motion {
   const FindPrevCharMotion();
 
   @override
-  Position run(FileBuffer f, Position p, {String? c}) {
+  Position run(FileBuffer f, Position p, {bool op = false, String? c}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
     final start = f.byteIndexFromPosition(p);
     final matches = f.edit.findStr!.allMatches(f.text.substring(0, start));

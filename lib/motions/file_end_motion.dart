@@ -11,7 +11,7 @@ class FileEndMotion extends Motion {
   const FileEndMotion() : super(inclusive: true, linewise: true);
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     int line = f.edit.count == null
         ? max(0, f.lines.length - 1)
         : clamp(f.edit.count! - 1, 0, f.lines.length - 1);

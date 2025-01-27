@@ -8,7 +8,7 @@ class ParagraphPrevMotion extends Motion {
   const ParagraphPrevMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     return Motions.regexPrev(f, p, Regex.paragraphPrev);
   }
 }

@@ -8,7 +8,7 @@ class WrapperMotion extends Motion {
   final Position Function(FileBuffer f, Position p) func;
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     return func(f, p);
   }
 }

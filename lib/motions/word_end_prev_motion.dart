@@ -10,7 +10,7 @@ class WordEndPrevMotion extends Motion {
   const WordEndPrevMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     final int start = f.byteIndexFromPosition(p);
     final matches = Regex.word.allMatches(f.text);
     if (matches.isEmpty) return p;

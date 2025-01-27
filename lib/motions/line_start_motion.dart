@@ -10,7 +10,7 @@ class LineStartMotion extends Motion {
   });
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     return Position(l: p.l, c: 0);
   }
 }

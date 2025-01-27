@@ -8,7 +8,7 @@ class LineUpMotion extends Motion {
   const LineUpMotion() : super(inclusive: true, linewise: true);
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     if (p.l == 0) return p;
     return Motions.moveLine(f, p, p.l - 1);
   }

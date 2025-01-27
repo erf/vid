@@ -10,11 +10,10 @@ class LineEndMotion extends Motion {
   });
 
   @override
-  Position run(FileBuffer f, Position p) {
-    bool hasOperator = f.edit.op != null;
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     return Position(
       l: p.l,
-      c: f.lines[p.l].charLen - ((inclusive && hasOperator) ? 0 : 1),
+      c: f.lines[p.l].charLen - ((inclusive && op) ? 0 : 1),
     );
   }
 }

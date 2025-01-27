@@ -304,16 +304,15 @@ class Editor {
     Position start = file.cursor;
     Position end = file.cursor;
     for (int i = 0; i < (edit.count ?? 1); i++) {
-      end = motion.run(file, end);
-      //end = motion.run(file, end, inclusive: op != null);
+      end = motion.run(file, end, op: op != null);
     }
     if (op == null) {
       file.cursor = end;
     } else {
       if (motion.linewise) {
-        final range = Range(start, end).norm;
-        start = LineStartMotion(inclusive: true).run(file, range.start);
-        end = LineEndMotion(inclusive: true).run(file, range.end);
+        final r = Range(start, end).norm;
+        start = LineStartMotion(inclusive: true).run(file, r.start, op: true);
+        end = LineEndMotion(inclusive: true).run(file, r.end, op: true);
       }
       op(this, file, Range(start, end).norm);
     }

@@ -10,5 +10,5 @@ abstract class Motion {
   final bool inclusive;
   final bool linewise;
 
-  Position run(FileBuffer f, Position p);
+  Position run(FileBuffer f, Position p, {bool op = false});
 }

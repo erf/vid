@@ -10,7 +10,7 @@ class ParagraphNextMotion extends Motion {
   const ParagraphNextMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     return Motions.regexNext(f, p, Regex.paragraph);
   }
 }

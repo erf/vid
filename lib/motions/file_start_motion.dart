@@ -9,10 +9,10 @@ class FileStartMotion extends Motion {
   const FileStartMotion() : super(inclusive: true, linewise: true);
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     int line = f.edit.count == null
         ? 0
         : clamp(f.edit.count! - 1, 0, f.lines.length - 1);
-    return FirstNonBlankMotion().run(f, Position(l: line, c: 0));
+    return FirstNonBlankMotion().run(f, Position(l: line, c: 0), op: op);
   }
 }

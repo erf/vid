@@ -8,7 +8,7 @@ class SameWordPrevMotion extends Motion {
   const SameWordPrevMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     return Motions.matchCursorWord(f, p, forward: false);
   }
 }

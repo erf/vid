@@ -7,7 +7,7 @@ class CharNextMotion extends Motion {
   const CharNextMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     int c = p.c + 1;
     if (c < f.lines[p.l].charLen) {
       return Position(l: p.l, c: c);

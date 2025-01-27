@@ -10,8 +10,8 @@ class FindTillPrevCharMotion extends Motion {
   const FindTillPrevCharMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
-    final prev = FindPrevCharMotion().run(f, p);
+  Position run(FileBuffer f, Position p, {bool op = false}) {
+    final prev = FindPrevCharMotion().run(f, p, op: op);
     prev.c = min(prev.c + 1, p.c);
     return prev;
   }

@@ -10,7 +10,7 @@ class WordCapPrevMotion extends Motion {
   const WordCapPrevMotion();
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     return Motions.regexPrev(f, p, Regex.wordCap);
   }
 }

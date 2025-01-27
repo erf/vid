@@ -8,7 +8,7 @@ class LineDownMotion extends Motion {
   const LineDownMotion() : super(inclusive: true, linewise: true);
 
   @override
-  Position run(FileBuffer f, Position p) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     if (p.l == f.lines.length - 1) return p;
     return Motions.moveLine(f, p, p.l + 1);
   }

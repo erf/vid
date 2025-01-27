@@ -10,14 +10,12 @@ class WordEndMotion extends Motion {
   const WordEndMotion() : super(inclusive: true);
 
   @override
-  Position run(FileBuffer f, Position p) {
-    bool hasOperator = f.edit.op != null;
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     final int start = f.byteIndexFromPosition(p);
     final matches = Regex.word.allMatches(f.text, start);
     if (matches.isEmpty) return p;
     final RegExpMatch match = matches.firstWhere((m) => start < m.end - 1,
         orElse: () => matches.first);
-    return f.positionFromByteIndex(
-        match.end - ((inclusive && hasOperator) ? 0 : 1));
+    return f.positionFromByteIndex(match.end - ((inclusive && op) ? 0 : 1));
   }
 }
