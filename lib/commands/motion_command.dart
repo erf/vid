@@ -1,6 +1,6 @@
 import '../editor.dart';
 import '../file_buffer.dart';
-import '../motion.dart';
+import '../motions/motion.dart';
 import 'command.dart';
 
 class MotionCommand extends Command {

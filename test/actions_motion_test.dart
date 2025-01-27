@@ -1,8 +1,23 @@
 import 'package:test/test.dart';
-import 'package:vid/actions/motions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
+import 'package:vid/motions/char_next_motion.dart';
+import 'package:vid/motions/char_prev_motion.dart';
+import 'package:vid/motions/file_end_motion.dart';
+import 'package:vid/motions/file_start_motion.dart';
+import 'package:vid/motions/first_non_blank_motion.dart';
+import 'package:vid/motions/line_down_motion.dart';
+import 'package:vid/motions/line_end_motion.dart';
+import 'package:vid/motions/line_up_motion.dart';
+import 'package:vid/motions/same_word_next_motion.dart';
+import 'package:vid/motions/same_word_prev_motion.dart';
+import 'package:vid/motions/word_cap_next_motion.dart';
+import 'package:vid/motions/word_cap_prev_motion.dart';
+import 'package:vid/motions/word_end_motion.dart';
+import 'package:vid/motions/word_end_prev_motion.dart';
+import 'package:vid/motions/word_next_motion.dart';
+import 'package:vid/motions/word_prev_motion.dart';
 import 'package:vid/position.dart';
 import 'package:vid/terminal_dummy.dart';
 
@@ -12,11 +27,11 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.charNext(f, Position(c: 0, l: 0)), Position(c: 1, l: 0));
-    expect(Motions.charNext(f, Position(c: 2, l: 0)), Position(c: 3, l: 0));
-    expect(Motions.charNext(f, Position(c: 3, l: 0)), Position(c: 0, l: 1));
-    expect(Motions.charNext(f, Position(c: 0, l: 1)), Position(c: 1, l: 1));
-    expect(Motions.charNext(f, Position(c: 2, l: 1)), Position(c: 3, l: 1));
+    expect(CharNextMotion().run(f, Position(c: 0, l: 0)), Position(c: 1, l: 0));
+    expect(CharNextMotion().run(f, Position(c: 2, l: 0)), Position(c: 3, l: 0));
+    expect(CharNextMotion().run(f, Position(c: 3, l: 0)), Position(c: 0, l: 1));
+    expect(CharNextMotion().run(f, Position(c: 0, l: 1)), Position(c: 1, l: 1));
+    expect(CharNextMotion().run(f, Position(c: 2, l: 1)), Position(c: 3, l: 1));
   });
 
   test('motionCharPrev', () {
@@ -24,10 +39,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.charPrev(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.charPrev(f, Position(c: 2, l: 0)), Position(c: 1, l: 0));
-    expect(Motions.charPrev(f, Position(c: 0, l: 1)), Position(c: 3, l: 0));
-    expect(Motions.charPrev(f, Position(c: 2, l: 1)), Position(c: 1, l: 1));
+    expect(CharPrevMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(CharPrevMotion().run(f, Position(c: 2, l: 0)), Position(c: 1, l: 0));
+    expect(CharPrevMotion().run(f, Position(c: 0, l: 1)), Position(c: 3, l: 0));
+    expect(CharPrevMotion().run(f, Position(c: 2, l: 1)), Position(c: 1, l: 1));
   });
 
   test('motion.lineUp', () {
@@ -35,10 +50,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.lineUp(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.lineUp(f, Position(c: 2, l: 0)), Position(c: 2, l: 0));
-    expect(Motions.lineUp(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
-    expect(Motions.lineUp(f, Position(c: 2, l: 1)), Position(c: 2, l: 0));
+    expect(LineUpMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(LineUpMotion().run(f, Position(c: 2, l: 0)), Position(c: 2, l: 0));
+    expect(LineUpMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
+    expect(LineUpMotion().run(f, Position(c: 2, l: 1)), Position(c: 2, l: 0));
   });
 
   test('motion.lineUp with emojis', () {
@@ -46,8 +61,8 @@ void main() {
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.lineUp(f, Position(c: 2, l: 2)), Position(c: 1, l: 1));
-    expect(Motions.lineUp(f, Position(c: 1, l: 1)), Position(c: 2, l: 0));
+    expect(LineUpMotion().run(f, Position(c: 2, l: 2)), Position(c: 1, l: 1));
+    expect(LineUpMotion().run(f, Position(c: 1, l: 1)), Position(c: 2, l: 0));
   });
 
   test('motion.lineDown', () {
@@ -55,10 +70,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.lineDown(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
-    expect(Motions.lineDown(f, Position(c: 2, l: 0)), Position(c: 2, l: 1));
-    expect(Motions.lineDown(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
-    expect(Motions.lineDown(f, Position(c: 2, l: 1)), Position(c: 2, l: 1));
+    expect(LineDownMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
+    expect(LineDownMotion().run(f, Position(c: 2, l: 0)), Position(c: 2, l: 1));
+    expect(LineDownMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
+    expect(LineDownMotion().run(f, Position(c: 2, l: 1)), Position(c: 2, l: 1));
   });
 
   test('motion.lineDown with emojis', () {
@@ -66,8 +81,8 @@ void main() {
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.lineDown(f, Position(c: 2, l: 0)), Position(c: 1, l: 1));
-    expect(Motions.lineDown(f, Position(c: 1, l: 1)), Position(c: 2, l: 2));
+    expect(LineDownMotion().run(f, Position(c: 2, l: 0)), Position(c: 1, l: 1));
+    expect(LineDownMotion().run(f, Position(c: 1, l: 1)), Position(c: 2, l: 2));
   });
 
   test('motionFileStart', () {
@@ -75,10 +90,14 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.fileStart(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.fileStart(f, Position(c: 2, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.fileStart(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
-    expect(Motions.fileStart(f, Position(c: 2, l: 1)), Position(c: 0, l: 0));
+    expect(
+        FileStartMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(
+        FileStartMotion().run(f, Position(c: 2, l: 0)), Position(c: 0, l: 0));
+    expect(
+        FileStartMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
+    expect(
+        FileStartMotion().run(f, Position(c: 2, l: 1)), Position(c: 0, l: 0));
   });
 
   test('motionFileEnd', () {
@@ -86,10 +105,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.fileEnd(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
-    expect(Motions.fileEnd(f, Position(c: 2, l: 0)), Position(c: 0, l: 1));
-    expect(Motions.fileEnd(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
-    expect(Motions.fileEnd(f, Position(c: 2, l: 1)), Position(c: 0, l: 1));
+    expect(FileEndMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
+    expect(FileEndMotion().run(f, Position(c: 2, l: 0)), Position(c: 0, l: 1));
+    expect(FileEndMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
+    expect(FileEndMotion().run(f, Position(c: 2, l: 1)), Position(c: 0, l: 1));
   });
 
   test('motionWordNext', () {
@@ -97,12 +116,12 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.wordNext(f, Position(c: 0, l: 0)), Position(c: 4, l: 0));
-    expect(Motions.wordNext(f, Position(c: 3, l: 0)), Position(c: 4, l: 0));
-    expect(Motions.wordNext(f, Position(c: 4, l: 0)), Position(c: 8, l: 0));
-    expect(Motions.wordNext(f, Position(c: 8, l: 0)), Position(c: 0, l: 1));
-    expect(Motions.wordNext(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
-    expect(Motions.wordNext(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
+    expect(WordNextMotion().run(f, Position(c: 0, l: 0)), Position(c: 4, l: 0));
+    expect(WordNextMotion().run(f, Position(c: 3, l: 0)), Position(c: 4, l: 0));
+    expect(WordNextMotion().run(f, Position(c: 4, l: 0)), Position(c: 8, l: 0));
+    expect(WordNextMotion().run(f, Position(c: 8, l: 0)), Position(c: 0, l: 1));
+    expect(WordNextMotion().run(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
+    expect(WordNextMotion().run(f, Position(c: 2, l: 1)), Position(c: 4, l: 1));
   });
 
   test('motionWordCapNext', () {
@@ -110,7 +129,10 @@ void main() {
     final f = e.file;
     f.text = 'abc,def ghi\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.wordCapNext(f, Position(c: 0, l: 0)), Position(c: 8, l: 0));
+    expect(
+      WordCapNextMotion().run(f, Position(c: 0, l: 0)),
+      Position(c: 8, l: 0),
+    );
   });
 
   test('motionWordEnd', () {
@@ -118,12 +140,12 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.wordEnd(f, Position(c: 0, l: 0)), Position(c: 2, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 3, l: 0)), Position(c: 6, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 4, l: 0)), Position(c: 6, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 8, l: 0)), Position(c: 10, l: 0));
-    expect(Motions.wordEnd(f, Position(c: 10, l: 0)), Position(c: 2, l: 1));
-    expect(Motions.wordEnd(f, Position(c: 2, l: 1)), Position(c: 6, l: 1));
+    expect(WordEndMotion().run(f, Position(c: 0, l: 0)), Position(c: 2, l: 0));
+    expect(WordEndMotion().run(f, Position(c: 3, l: 0)), Position(c: 6, l: 0));
+    expect(WordEndMotion().run(f, Position(c: 4, l: 0)), Position(c: 6, l: 0));
+    expect(WordEndMotion().run(f, Position(c: 8, l: 0)), Position(c: 10, l: 0));
+    expect(WordEndMotion().run(f, Position(c: 10, l: 0)), Position(c: 2, l: 1));
+    expect(WordEndMotion().run(f, Position(c: 2, l: 1)), Position(c: 6, l: 1));
   });
 
   test('motionWordPrev', () {
@@ -131,12 +153,12 @@ void main() {
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.wordPrev(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.wordPrev(f, Position(c: 3, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.wordPrev(f, Position(c: 4, l: 0)), Position(c: 0, l: 0));
-    expect(Motions.wordPrev(f, Position(c: 5, l: 0)), Position(c: 4, l: 0));
-    expect(Motions.wordPrev(f, Position(c: 4, l: 1)), Position(c: 0, l: 1));
-    expect(Motions.wordPrev(f, Position(c: 0, l: 1)), Position(c: 8, l: 0));
+    expect(WordPrevMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+    expect(WordPrevMotion().run(f, Position(c: 3, l: 0)), Position(c: 0, l: 0));
+    expect(WordPrevMotion().run(f, Position(c: 4, l: 0)), Position(c: 0, l: 0));
+    expect(WordPrevMotion().run(f, Position(c: 5, l: 0)), Position(c: 4, l: 0));
+    expect(WordPrevMotion().run(f, Position(c: 4, l: 1)), Position(c: 0, l: 1));
+    expect(WordPrevMotion().run(f, Position(c: 0, l: 1)), Position(c: 8, l: 0));
   });
 
   test('motionWordCapPrev', () {
@@ -144,7 +166,10 @@ void main() {
     final f = e.file;
     f.text = 'abc def, ghi\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.wordCapPrev(f, Position(c: 9, l: 0)), Position(c: 4, l: 0));
+    expect(
+      WordCapPrevMotion().run(f, Position(c: 9, l: 0)),
+      Position(c: 4, l: 0),
+    );
   });
 
   test('motionWordEndPrev', () {
@@ -152,10 +177,22 @@ void main() {
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
-    expect(Motions.wordEndPrev(f, Position(c: 4, l: 0)), Position(c: 2, l: 0));
-    expect(Motions.wordEndPrev(f, Position(c: 8, l: 0)), Position(c: 6, l: 0));
-    expect(Motions.wordEndPrev(f, Position(c: 10, l: 0)), Position(c: 6, l: 0));
-    expect(Motions.wordEndPrev(f, Position(c: 1, l: 1)), Position(c: 10, l: 0));
+    expect(
+      WordEndPrevMotion().run(f, Position(c: 4, l: 0)),
+      Position(c: 2, l: 0),
+    );
+    expect(
+      WordEndPrevMotion().run(f, Position(c: 8, l: 0)),
+      Position(c: 6, l: 0),
+    );
+    expect(
+      WordEndPrevMotion().run(f, Position(c: 10, l: 0)),
+      Position(c: 6, l: 0),
+    );
+    expect(
+      WordEndPrevMotion().run(f, Position(c: 1, l: 1)),
+      Position(c: 10, l: 0),
+    );
   });
 
   test('motionFindWordOnCursorNext', () {
@@ -164,11 +201,17 @@ void main() {
     f.text = 'det er fint, fint er det saus\n';
     f.createLines(e, WrapMode.none);
     expect(
-        Motions.sameWordNext(f, Position(l: 0, c: 0)), Position(l: 0, c: 21));
+      SameWordNextMotion().run(f, Position(l: 0, c: 0)),
+      Position(l: 0, c: 21),
+    );
     expect(
-        Motions.sameWordNext(f, Position(l: 0, c: 10)), Position(l: 0, c: 13));
+      SameWordNextMotion().run(f, Position(l: 0, c: 10)),
+      Position(l: 0, c: 13),
+    );
     expect(
-        Motions.sameWordNext(f, Position(l: 0, c: 27)), Position(l: 0, c: 25));
+      SameWordNextMotion().run(f, Position(l: 0, c: 27)),
+      Position(l: 0, c: 25),
+    );
   });
 
   test('motionFindWordOnCursorPrev', () {
@@ -177,9 +220,13 @@ void main() {
     f.text = 'det er fint, fint er det saus\n';
     f.createLines(e, WrapMode.none);
     expect(
-        Motions.sameWordPrev(f, Position(l: 0, c: 15)), Position(l: 0, c: 7));
+      SameWordPrevMotion().run(f, Position(l: 0, c: 15)),
+      Position(l: 0, c: 7),
+    );
     expect(
-        Motions.sameWordPrev(f, Position(l: 0, c: 27)), Position(l: 0, c: 25));
+      SameWordPrevMotion().run(f, Position(l: 0, c: 27)),
+      Position(l: 0, c: 25),
+    );
   });
 
   test('motionFirstNoneBlank', () {
@@ -188,15 +235,25 @@ void main() {
     f.text = '  abc\n';
     f.createLines(e, WrapMode.none);
     expect(
-        Motions.firstNonBlank(f, Position(l: 0, c: 0)), Position(l: 0, c: 2));
+      FirstNonBlankMotion().run(f, Position(l: 0, c: 0)),
+      Position(l: 0, c: 2),
+    );
     expect(
-        Motions.firstNonBlank(f, Position(l: 0, c: 1)), Position(l: 0, c: 2));
+      FirstNonBlankMotion().run(f, Position(l: 0, c: 1)),
+      Position(l: 0, c: 2),
+    );
     expect(
-        Motions.firstNonBlank(f, Position(l: 0, c: 2)), Position(l: 0, c: 2));
+      FirstNonBlankMotion().run(f, Position(l: 0, c: 2)),
+      Position(l: 0, c: 2),
+    );
     expect(
-        Motions.firstNonBlank(f, Position(l: 0, c: 3)), Position(l: 0, c: 2));
+      FirstNonBlankMotion().run(f, Position(l: 0, c: 3)),
+      Position(l: 0, c: 2),
+    );
     expect(
-        Motions.firstNonBlank(f, Position(l: 0, c: 5)), Position(l: 0, c: 2));
+      FirstNonBlankMotion().run(f, Position(l: 0, c: 5)),
+      Position(l: 0, c: 2),
+    );
   });
 
   test('motionLineEnd', () {
@@ -204,13 +261,9 @@ void main() {
     final f = e.file;
     f.text = 'abc def\nghi jkl\n';
     f.createLines(e, WrapMode.none);
-    expect(
-        Motions.lineEnd(f, Position(l: 0, c: 0), false), Position(l: 0, c: 7));
-    expect(
-        Motions.lineEnd(f, Position(l: 0, c: 3), false), Position(l: 0, c: 7));
-    expect(
-        Motions.lineEnd(f, Position(l: 1, c: 0), false), Position(l: 1, c: 7));
-    expect(
-        Motions.lineEnd(f, Position(l: 1, c: 3), false), Position(l: 1, c: 7));
+    expect(LineEndMotion().run(f, Position(l: 0, c: 0)), Position(l: 0, c: 7));
+    expect(LineEndMotion().run(f, Position(l: 0, c: 3)), Position(l: 0, c: 7));
+    expect(LineEndMotion().run(f, Position(l: 1, c: 0)), Position(l: 1, c: 7));
+    expect(LineEndMotion().run(f, Position(l: 1, c: 3)), Position(l: 1, c: 7));
   });
 }

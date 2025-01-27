@@ -1,9 +1,8 @@
-import '../actions/find_actions.dart';
 import '../editor.dart';
 import '../file_buffer.dart';
 import '../file_buffer_mode.dart';
-import '../find_motion.dart';
 import '../modes.dart';
+import '../motions/search_next_motion.dart';
 import 'command.dart';
 
 class LineEditSearchCommand extends Command {
@@ -12,7 +11,7 @@ class LineEditSearchCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.setMode(e, Mode.normal);
-    f.edit.motion = FindMotion(FindActions.searchNext);
+    f.edit.motion = SearchNextMotion();
     f.edit.findStr = f.edit.lineEdit;
     e.commitEdit(f.edit);
   }

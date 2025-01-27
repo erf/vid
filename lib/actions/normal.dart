@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:vid/edit.dart';
+import 'package:vid/line.dart';
 
 import '../config.dart';
 import '../editor.dart';
@@ -30,25 +31,27 @@ class Normal {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
+    final String buffer = f.yankBuffer!;
+    final Line line = f.lines[f.cursor.l];
     f.edit.linewise = f.prevEdit?.linewise ?? false;
     if (f.edit.linewise) {
-      f.insertAt(e, Position(l: f.cursor.l, c: f.lines[f.cursor.l].charLen),
-          f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: line.charLen), buffer);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
-    } else if (f.lines[f.cursor.l].str == ' ') {
-      f.insertAt(e, Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+    } else if (line.str == ' ') {
+      f.insertAt(e, Position(l: f.cursor.l, c: 0), buffer);
     } else {
-      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c + 1), f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c + 1), buffer);
     }
   }
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
+    final String buffer = f.yankBuffer!;
     if (f.prevEdit?.linewise ?? false) {
-      f.insertAt(e, Position(l: f.cursor.l, c: 0), f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: 0), buffer);
       f.cursor = Position(l: f.cursor.l, c: 0);
     } else {
-      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c), f.yankBuffer!);
+      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c), buffer);
     }
   }
 

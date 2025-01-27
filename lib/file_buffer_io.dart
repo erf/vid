@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'editor.dart';
@@ -72,5 +73,10 @@ extension FileBufferIo on FileBuffer {
     setSavepoint();
     e.terminal.write(Esc.setWindowTitle(path));
     return ErrorOr.value(true);
+  }
+
+  // read a single character from stdin (used by find motions)
+  String readNextChar() {
+    return utf8.decode([stdin.readByteSync()]);
   }
 }

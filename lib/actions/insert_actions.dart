@@ -1,12 +1,13 @@
 import 'dart:math';
 
+import 'package:vid/motions/line_down_motion.dart';
+
 import '../editor.dart';
 import '../file_buffer.dart';
 import '../file_buffer_mode.dart';
 import '../file_buffer_text.dart';
 import '../keys.dart';
 import '../modes.dart';
-import 'motions.dart';
 
 class InsertActions {
   static void defaultInsert(Editor e, FileBuffer f, String s,
@@ -20,7 +21,7 @@ class InsertActions {
     f.insertAt(e, f.cursor, Keys.newline, undo);
     f.cursor.c = 0;
     f.view.c = 0;
-    f.cursor = Motions.lineDown(f, f.cursor);
+    f.cursor = LineDownMotion().run(f, f.cursor);
   }
 
   static void escape(Editor e, FileBuffer f) {

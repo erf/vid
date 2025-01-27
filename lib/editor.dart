@@ -4,8 +4,9 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 import 'package:vid/file_buffer_mode.dart';
+import 'package:vid/motions/line_end_motion.dart';
+import 'package:vid/motions/line_start_motion.dart';
 
-import 'actions/motions.dart';
 import 'bindings.dart';
 import 'characters_render.dart';
 import 'commands/command.dart';
@@ -18,12 +19,11 @@ import 'file_buffer_io.dart';
 import 'file_buffer_lines.dart';
 import 'file_buffer_text.dart';
 import 'file_buffer_view.dart';
-import 'find_motion.dart';
 import 'line.dart';
 import 'map_match.dart';
 import 'message.dart';
 import 'modes.dart';
-import 'motion.dart';
+import 'motions/motion.dart';
 import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
@@ -295,43 +295,25 @@ class Editor {
     }
   }
 
-  String readNextChar() {
-    return utf8.decode([stdin.readByteSync()]);
-  }
-
-  // execute motion and return end position
-  Position motionEnd(Edit edit, Motion motion, Position pos, bool incl) {
-    switch (motion) {
-      case FindMotion(func: Function find):
-        String nextChar = edit.findStr ?? readNextChar();
-        edit.findStr = nextChar;
-        return find(file, pos, nextChar, incl);
-      case Motion(func: Function move):
-        return move(file, pos, incl);
-    }
-  }
-
   // execute operator on motion range count times
   void commitEdit(Edit edit) {
-    Motion motion = edit.motion!; // motion should not be null
-    Function? op = edit.op;
+    assert(edit.motion != null);
+    Motion motion = edit.motion!;
     edit.linewise = motion.linewise;
+    Function? op = edit.op;
     Position start = file.cursor;
     Position end = file.cursor;
     for (int i = 0; i < (edit.count ?? 1); i++) {
-      if (motion.incl != null) {
-        end = motionEnd(edit, motion, end, motion.incl!);
-      } else {
-        end = motionEnd(edit, motion, end, op != null);
-      }
+      end = motion.run(file, end);
+      //end = motion.run(file, end, inclusive: op != null);
     }
     if (op == null) {
       file.cursor = end;
     } else {
       if (motion.linewise) {
         final range = Range(start, end).norm;
-        start = Motions.lineStart(file, range.start, true);
-        end = Motions.lineEnd(file, range.end, true);
+        start = LineStartMotion(inclusive: true).run(file, range.start);
+        end = LineEndMotion(inclusive: true).run(file, range.end);
       }
       op(this, file, Range(start, end).norm);
     }

@@ -1,0 +1,16 @@
+import 'package:vid/file_buffer.dart';
+import 'package:vid/position.dart';
+import 'package:vid/regex.dart';
+
+import '../actions/motions.dart';
+import 'motion.dart';
+
+// find the next WORD from the cursor position
+class WordCapNextMotion extends Motion {
+  const WordCapNextMotion();
+
+  @override
+  Position run(FileBuffer f, Position p) {
+    return Motions.regexNext(f, p, Regex.wordCap);
+  }
+}

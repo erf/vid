@@ -1,8 +1,9 @@
 import 'package:test/test.dart';
-import 'package:vid/actions/find_actions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer_lines.dart';
+import 'package:vid/motions/find_next_char_motion.dart';
+import 'package:vid/motions/find_prev_char_motion.dart';
 import 'package:vid/position.dart';
 import 'package:vid/terminal_dummy.dart';
 
@@ -13,19 +14,9 @@ void main() {
     f.text = 'abca\ndef\n';
     f.createLines(e, WrapMode.none);
     final cursor = Position(c: 0, l: 0);
-    expect(
-        FindActions.findNextChar(f, cursor, 'a', false), Position(c: 3, l: 0));
-    expect(
-        FindActions.findNextChar(f, cursor, 'b', false), Position(c: 1, l: 0));
-    expect(
-        FindActions.findNextChar(f, cursor, 'c', false), Position(c: 2, l: 0));
-    // inclusive
-    expect(
-        FindActions.findNextChar(f, cursor, 'a', true), Position(c: 4, l: 0));
-    expect(
-        FindActions.findNextChar(f, cursor, 'b', true), Position(c: 2, l: 0));
-    expect(
-        FindActions.findNextChar(f, cursor, 'c', true), Position(c: 3, l: 0));
+    expect(FindNextCharMotion().run(f, cursor, c: 'a'), Position(c: 3, l: 0));
+    expect(FindNextCharMotion().run(f, cursor, c: 'b'), Position(c: 1, l: 0));
+    expect(FindNextCharMotion().run(f, cursor, c: 'c'), Position(c: 2, l: 0));
   });
 
   test('motionFindPrevChar', () {
@@ -34,12 +25,9 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
     final cursor = Position(c: 2, l: 0);
-    expect(
-        FindActions.findPrevChar(f, cursor, 'a', false), Position(c: 0, l: 0));
-    expect(
-        FindActions.findPrevChar(f, cursor, 'b', false), Position(c: 1, l: 0));
-    expect(
-        FindActions.findPrevChar(f, cursor, 'c', false), Position(c: 2, l: 0));
+    expect(FindPrevCharMotion().run(f, cursor, c: 'a'), Position(c: 0, l: 0));
+    expect(FindPrevCharMotion().run(f, cursor, c: 'b'), Position(c: 1, l: 0));
+    expect(FindPrevCharMotion().run(f, cursor, c: 'c'), Position(c: 2, l: 0));
   });
 
   test('till with delete operator', () {

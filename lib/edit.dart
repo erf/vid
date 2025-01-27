@@ -1,4 +1,4 @@
-import 'motion.dart';
+import 'motions/motion.dart';
 
 // Edit is a class that represents an edit operation.
 class Edit {
