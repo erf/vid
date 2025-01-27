@@ -311,7 +311,7 @@ class Editor {
     } else {
       if (motion.linewise) {
         final r = Range(start, end).norm;
-        start = LineStartMotion(inclusive: true).run(file, r.start, op: true);
+        start = LineStartMotion().run(file, r.start, op: true);
         end = LineEndMotion(inclusive: true).run(file, r.end, op: true);
       }
       op(this, file, Range(start, end).norm);
