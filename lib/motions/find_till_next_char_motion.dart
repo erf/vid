@@ -11,8 +11,8 @@ class FindTillNextCharMotion extends Motion {
 
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {
-    final Position pNew = FindNextCharMotion().run(f, p, op: op);
-    pNew.c = max(pNew.c - 1, p.c);
-    return pNew;
+    final Position next = FindNextCharMotion().run(f, p, op: op);
+    next.c = max(next.c - 1, p.c);
+    return next;
   }
 }

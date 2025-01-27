@@ -11,12 +11,12 @@ class FindNextCharMotion extends Motion {
   @override
   Position run(FileBuffer f, Position p, {bool op = false, String? c}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
-    final pnext = Position(c: p.c + 1, l: p.l);
-    final int start = f.byteIndexFromPosition(pnext);
+    final Position next = Position(c: p.c + 1, l: p.l);
+    final int start = f.byteIndexFromPosition(next);
     final Match? match = f.edit.findStr!.allMatches(f.text, start).firstOrNull;
     if (match == null) return p;
-    final Position newpos = f.positionFromByteIndex(match.start);
-    if (inclusive && op) newpos.c++;
-    return newpos;
+    final Position matchPos = f.positionFromByteIndex(match.start);
+    if (inclusive && op) matchPos.c++;
+    return matchPos;
   }
 }

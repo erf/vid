@@ -11,10 +11,10 @@ class FindPrevCharMotion extends Motion {
   @override
   Position run(FileBuffer f, Position p, {bool op = false, String? c}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
-    final start = f.byteIndexFromPosition(p);
+    final int start = f.byteIndexFromPosition(p);
     final matches = f.edit.findStr!.allMatches(f.text.substring(0, start));
     if (matches.isEmpty) return p;
-    final match = matches.last;
+    final Match match = matches.last;
     return f.positionFromByteIndex(match.start);
   }
 }

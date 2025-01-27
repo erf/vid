@@ -11,7 +11,7 @@ class FindTillPrevCharMotion extends Motion {
 
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {
-    final prev = FindPrevCharMotion().run(f, p, op: op);
+    final Position prev = FindPrevCharMotion().run(f, p, op: op);
     prev.c = min(prev.c + 1, p.c);
     return prev;
   }
