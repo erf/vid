@@ -142,5 +142,15 @@ void main() {
     f.createLines(e, WrapMode.none);
     e.input('2dd');
     expect(f.text, 'ghi\n');
-  }, skip: true);
+  });
+
+  test('dd at eof', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 2);
+    e.input('dd');
+    expect(f.text, 'abc\n');
+  });
 }
