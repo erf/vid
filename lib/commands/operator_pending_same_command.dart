@@ -1,4 +1,4 @@
-import 'package:vid/motions/line_end_motion.dart';
+import 'package:vid/motions/same_motion.dart';
 
 import '../edit.dart';
 import '../editor.dart';
@@ -16,7 +16,7 @@ class OperatorPendingSameCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     if (f.edit.op == func) {
-      f.edit.motion = LineEndMotion(linewise: true);
+      f.edit.motion = SameMotion();
       e.commitEdit(f.edit);
       f.cursor = LineStartMotion().run(f, f.cursor);
     } else {
