@@ -147,10 +147,10 @@ void main() {
   test('dd at eof', () {
     final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
-    f.text = 'abc\ndef\nghi';
+    f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 0, l: 2);
     e.input('dd');
-    expect(f.text, 'abc\n');
+    expect(f.text, 'abc\ndef\n');
   });
 }
