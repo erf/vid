@@ -313,6 +313,11 @@ class Editor {
         end = Position(l: r.end.l, c: file.lines[r.end.l].charLen);
       }
       op(this, file, Range(start, end).norm);
+
+      if (motion.linewise) {
+        file.cursor = Position(l: start.l, c: 0);
+        file.clampCursor();
+      }
     }
     if (op != null || edit.findStr != null) {
       file.prevEdit = file.edit;
