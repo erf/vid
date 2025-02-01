@@ -4,8 +4,6 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 import 'package:vid/file_buffer_mode.dart';
-import 'package:vid/motions/line_end_motion.dart';
-import 'package:vid/motions/line_start_motion.dart';
 
 import 'bindings.dart';
 import 'characters_render.dart';
@@ -311,8 +309,8 @@ class Editor {
     } else {
       if (motion.linewise) {
         final r = Range(start, end).norm;
-        start = LineStartMotion().run(file, r.start, op: true);
-        end = LineEndMotion(inclusive: true).run(file, r.end, op: true);
+        start = Position(l: r.start.l, c: 0);
+        end = Position(l: r.end.l, c: file.lines[r.end.l].charLen);
       }
       op(this, file, Range(start, end).norm);
     }
