@@ -144,4 +144,15 @@ void main() {
     e.input('dd');
     expect(f.text, 'abc\ndef\n');
   });
+
+  test('dd with space', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\n\ndef\nghi\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 1);
+    e.input('dd');
+    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.text, 'abc\ndef\nghi\n');
+  });
 }
