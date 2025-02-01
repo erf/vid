@@ -1,3 +1,4 @@
+import '../actions/operators.dart';
 import '../editor.dart';
 import '../file_buffer.dart';
 import '../file_buffer_mode.dart';
@@ -5,7 +6,7 @@ import '../modes.dart';
 import 'command.dart';
 
 class OperatorCommand extends Command {
-  final Function func;
+  final OperatorFunction func;
 
   const OperatorCommand(this.func);
 

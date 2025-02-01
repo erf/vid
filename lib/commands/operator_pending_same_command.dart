@@ -5,12 +5,10 @@ import '../editor.dart';
 import '../file_buffer.dart';
 import '../file_buffer_mode.dart';
 import '../modes.dart';
-import 'command.dart';
+import 'operator_command.dart';
 
-class OperatorPendingSameCommand extends Command {
-  final Function func;
-
-  const OperatorPendingSameCommand(this.func);
+class OperatorPendingSameCommand extends OperatorCommand {
+  const OperatorPendingSameCommand(super.func);
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
