@@ -6,10 +6,12 @@ import '../position.dart';
 import 'motion.dart';
 
 class FindPrevCharMotion extends Motion {
-  const FindPrevCharMotion();
+  const FindPrevCharMotion({this.c});
+
+  final String? c;
 
   @override
-  Position run(FileBuffer f, Position p, {bool op = false, String? c}) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
     final int start = f.byteIndexFromPosition(p);
     final matches = f.edit.findStr!.allMatches(f.text.substring(0, start));

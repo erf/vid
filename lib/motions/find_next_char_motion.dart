@@ -6,10 +6,16 @@ import '../position.dart';
 import 'motion.dart';
 
 class FindNextCharMotion extends Motion {
-  const FindNextCharMotion({super.inclusive = true, super.linewise});
+  const FindNextCharMotion({
+    this.c,
+    super.inclusive = true,
+    super.linewise,
+  });
+
+  final String? c;
 
   @override
-  Position run(FileBuffer f, Position p, {bool op = false, String? c}) {
+  Position run(FileBuffer f, Position p, {bool op = false}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
     final Position next = Position(c: p.c + 1, l: p.l);
     final int start = f.byteIndexFromPosition(next);
