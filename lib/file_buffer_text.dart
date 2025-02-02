@@ -16,7 +16,6 @@ extension FileBufferText on FileBuffer {
     final Line line =
         lines.firstWhere((l) => start < l.end, orElse: () => lines.last);
     final int end = start - line.start;
-    assert(end >= 0, 'positionFromByteIndex: end is negative: $end');
     if (end > 0) {
       final int charpos = line.text.substring(0, end).characters.length;
       return Position(l: line.no, c: charpos);
