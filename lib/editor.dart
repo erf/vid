@@ -153,11 +153,8 @@ class Editor {
       // draw line
       switch (Config.wrapMode) {
         case WrapMode.none:
-          rbuf.writeln(lines[l]
-              .text
-              .tabsToSpaces
-              .characters
-              .renderLine(view.c, terminal.width));
+          rbuf.writeln(
+              lines[l].text.tabsToSpaces.ch.renderLine(view.c, terminal.width));
         case WrapMode.char:
         case WrapMode.word:
           rbuf.writeln(lines[l].text.tabsToSpaces);
