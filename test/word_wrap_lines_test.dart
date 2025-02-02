@@ -11,7 +11,7 @@ void main() {
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     f.createLines(e, WrapMode.none);
     expect(f.lines.length, 1);
-    expect(f.lines[0].str, 'hei jeg heter Erlend 😀😀😀 ');
+    expect(f.lines[0].text, 'hei jeg heter Erlend 😀😀😀 ');
   });
 
   test('no wrap two lines', () {
@@ -20,8 +20,8 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
     expect(f.lines.length, 2);
-    expect(f.lines[0].str, 'abc ');
-    expect(f.lines[1].str, 'def ');
+    expect(f.lines[0].text, 'abc ');
+    expect(f.lines[1].text, 'def ');
   });
 
   test('no wrap with empty line', () {
@@ -30,7 +30,7 @@ void main() {
     f.text = '\n';
     f.createLines(e, WrapMode.none);
     expect(f.lines.length, 1);
-    expect(f.lines[0].str, ' ');
+    expect(f.lines[0].text, ' ');
   });
 
   test('no wrap with newline at end of file', () {
@@ -39,8 +39,8 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
     expect(f.lines.length, 2);
-    expect(f.lines[0].str, 'abc ');
-    expect(f.lines[1].str, 'def ');
+    expect(f.lines[0].text, 'abc ');
+    expect(f.lines[1].text, 'def ');
   });
 
   test('word wrap simple', () {
@@ -49,8 +49,8 @@ void main() {
     f.text = 'abc def ghi jkl\n';
     f.createLines(e, WrapMode.word);
     expect(f.lines.length, 2);
-    expect(f.lines[0].str, 'abc def ');
-    expect(f.lines[1].str, 'ghi jkl ');
+    expect(f.lines[0].text, 'abc def ');
+    expect(f.lines[1].text, 'ghi jkl ');
   });
 
   test('word wrap with emoji at end', () {
@@ -59,9 +59,9 @@ void main() {
     f.text = 'abc def😀 ghi jkl\n';
     f.createLines(e, WrapMode.word);
     expect(f.lines.length, 3);
-    expect(f.lines[0].str, 'abc ');
-    expect(f.lines[1].str, 'def😀 ');
-    expect(f.lines[2].str, 'ghi jkl ');
+    expect(f.lines[0].text, 'abc ');
+    expect(f.lines[1].text, 'def😀 ');
+    expect(f.lines[2].text, 'ghi jkl ');
   });
 
   test('word wrap check indices', () {
@@ -70,10 +70,10 @@ void main() {
     f.text = 'The old bookstore exuded\n';
     f.createLines(e, WrapMode.word);
     expect(f.lines.length, 2);
-    expect(f.lines[0].str, 'The old bookstore ');
+    expect(f.lines[0].text, 'The old bookstore ');
     expect(f.lines[0].start, 0);
     expect(f.lines[0].end, 18);
-    expect(f.lines[1].str, 'exuded ');
+    expect(f.lines[1].text, 'exuded ');
     expect(f.lines[1].start, 18);
     expect(f.lines[1].end, 25);
   });
@@ -84,10 +84,10 @@ void main() {
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     f.createLines(e, WrapMode.word);
     expect(f.lines.length, 4);
-    expect(f.lines[0].str, 'hei jeg ');
-    expect(f.lines[1].str, 'heter ');
-    expect(f.lines[2].str, 'Erlend ');
-    expect(f.lines[3].str, '😀😀😀 ');
+    expect(f.lines[0].text, 'hei jeg ');
+    expect(f.lines[1].text, 'heter ');
+    expect(f.lines[2].text, 'Erlend ');
+    expect(f.lines[3].text, '😀😀😀 ');
   });
 
   test('char wrap to three lines', () {
@@ -96,8 +96,8 @@ void main() {
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     f.createLines(e, WrapMode.char);
     expect(f.lines.length, 3);
-    expect(f.lines[0].str, 'hei jeg het');
-    expect(f.lines[1].str, 'er Erlend ');
-    expect(f.lines[2].str, '😀😀😀 ');
+    expect(f.lines[0].text, 'hei jeg het');
+    expect(f.lines[1].text, 'er Erlend ');
+    expect(f.lines[2].text, '😀😀😀 ');
   });
 }

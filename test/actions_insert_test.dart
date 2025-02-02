@@ -80,8 +80,8 @@ Nature's serenade, timeless and free.
 
 """;
     e.input(longTextWithMultipleLines);
-    expect(f.lines[0].str, 'In the heart of the silent forest, ');
-    expect(f.lines[7].str, 'Nature\'s serenade, timeless and free. ');
+    expect(f.lines[0].text, 'In the heart of the silent forest, ');
+    expect(f.lines[7].text, 'Nature\'s serenade, timeless and free. ');
     expect(f.lines.length, 10);
     expect(f.cursor, Position(c: 0, l: 9));
   });

@@ -37,7 +37,7 @@ class Normal {
     if (f.edit.linewise) {
       f.insertAt(e, Position(l: f.cursor.l, c: line.charLen), buffer);
       f.cursor = Position(l: f.cursor.l + 1, c: 0);
-    } else if (line.str == ' ') {
+    } else if (line.text == ' ') {
       f.insertAt(e, Position(l: f.cursor.l, c: 0), buffer);
     } else {
       f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c + 1), buffer);
@@ -136,7 +136,7 @@ class Normal {
     final i = f.byteIndexFromPosition(p);
     final line = f.lines[p.l];
     final start = line.start;
-    final matches = Regex.number.allMatches(line.str);
+    final matches = Regex.number.allMatches(line.text);
     if (matches.isEmpty) return;
     final m = matches.firstWhere((m) => i < (m.end + start),
         orElse: () => matches.last);

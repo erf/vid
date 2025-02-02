@@ -12,9 +12,9 @@ import '../utils.dart';
 
 class Motions {
   static Position moveLine(FileBuffer f, Position p, int nextLine) {
-    int curlen = f.lines[p.l].str.characters.renderLength(p.c);
+    int curlen = f.lines[p.l].text.characters.renderLength(p.c);
     int nextlen = 0;
-    Characters chars = f.lines[nextLine].str.characters.takeWhile((c) {
+    Characters chars = f.lines[nextLine].text.characters.takeWhile((c) {
       nextlen += c.charWidth;
       return nextlen <= curlen;
     });

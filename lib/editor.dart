@@ -118,7 +118,7 @@ class Editor {
     rbuf.write(Esc.homeAndEraseDown);
     file.clampCursor();
     Position cursor = file.cursor;
-    int cursorpos = file.lines[cursor.l].str.ch.renderLength(cursor.c);
+    int cursorpos = file.lines[cursor.l].text.ch.renderLength(cursor.c);
     file.clampView(terminal, cursorpos);
     drawLines();
 
@@ -154,13 +154,13 @@ class Editor {
       switch (Config.wrapMode) {
         case WrapMode.none:
           rbuf.writeln(lines[l]
-              .str
+              .text
               .tabsToSpaces
               .characters
               .renderLine(view.c, terminal.width));
         case WrapMode.char:
         case WrapMode.word:
-          rbuf.writeln(lines[l].str.tabsToSpaces);
+          rbuf.writeln(lines[l].text.tabsToSpaces);
       }
     }
   }

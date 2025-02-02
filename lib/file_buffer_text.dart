@@ -18,7 +18,7 @@ extension FileBufferText on FileBuffer {
     final int end = start - line.start;
     assert(end >= 0, 'positionFromByteIndex: end is negative: $end');
     if (end > 0) {
-      final int charpos = line.str.substring(0, end).characters.length;
+      final int charpos = line.text.substring(0, end).characters.length;
       return Position(l: line.no, c: charpos);
     } else {
       return Position(l: line.no, c: 0);
@@ -31,7 +31,7 @@ extension FileBufferText on FileBuffer {
     if (pos.c == 0) {
       return line.start;
     } else {
-      return line.start + line.str.characters.take(pos.c).string.length;
+      return line.start + line.text.characters.take(pos.c).string.length;
     }
   }
 

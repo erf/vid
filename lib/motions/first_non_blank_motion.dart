@@ -9,7 +9,7 @@ class FirstNonBlankMotion extends Motion {
 
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {
-    final int firstNonBlank = f.lines[p.l].str.indexOf(Regex.nonSpace);
+    final int firstNonBlank = f.lines[p.l].text.indexOf(Regex.nonSpace);
     return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
   }
 }

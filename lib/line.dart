@@ -1,23 +1,23 @@
 import 'package:characters/characters.dart';
 
 class Line {
-  final String str;
+  final String text;
   final int start;
   final int no;
 
   const Line(
-    this.str, {
+    this.text, {
     required this.start,
     required this.no,
   });
 
-  int get len => str.length;
+  int get len => text.length;
 
   int get end => start + len;
 
-  int get charLen => str.characters.length;
+  int get charLen => text.characters.length;
 
-  bool get isEmpty => str.isEmpty;
+  bool get isEmpty => text.isEmpty;
 
-  bool get isNotEmpty => str.isNotEmpty;
+  bool get isNotEmpty => text.isNotEmpty;
 }
