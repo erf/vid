@@ -19,6 +19,7 @@ import 'package:vid/motions/word_end_motion.dart';
 import 'package:vid/motions/word_end_prev_motion.dart';
 import 'package:vid/motions/word_prev_motion.dart';
 
+import 'actions/line_edit.dart';
 import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'commands/command.dart';
@@ -143,6 +144,26 @@ const operatorPendingSameCommands = <String, Command>{
   'c': OperatorPendingSameCommand(Operators.change),
   'd': OperatorPendingSameCommand(Operators.delete),
   'y': OperatorPendingSameCommand(Operators.yank),
+};
+
+const lineEditCommands = <String, Function>{
+  '': LineEdit.noop,
+  'q': LineEdit.quit,
+  'quit': LineEdit.quit,
+  'q!': LineEdit.forceQuit,
+  'quit!': LineEdit.forceQuit,
+  'o': LineEdit.open,
+  'open': LineEdit.open,
+  'r': LineEdit.read,
+  'read': LineEdit.read,
+  'w': LineEdit.write,
+  'write': LineEdit.write,
+  'wq': LineEdit.writeAndQuit,
+  'x': LineEdit.writeAndQuit,
+  'exit': LineEdit.writeAndQuit,
+  'nowrap': LineEdit.setNoWrap,
+  'charwrap': LineEdit.setCharWrap,
+  'wordwrap': LineEdit.setWordWrap,
 };
 
 const lineEditInputCommands = <String, Command>{
