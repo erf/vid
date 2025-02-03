@@ -4,18 +4,22 @@ import 'bench_utils.dart';
 
 // test the performance of looking up emojis
 void main() {
-  benchmarkEastAsianWidth(genRandomUnicodeChars(1000000));
+  benchmarkEastAsianWidth(genRandomUnicodeChars(numOfChars));
 }
 
 void benchmarkEastAsianWidth(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
-  int num = 0;
+  int num1 = 0;
+  int num2 = 0;
   for (final unicodeChar in unicodeChars) {
     if (Unicode.isWide(unicodeChar.runes.first)) {
-      num++;
+      num2++;
+    } else {
+      num1++;
     }
   }
   stopwatch.stop();
   print('EastAsianWidth benchmark: ${stopwatch.elapsedMilliseconds}ms');
-  print('contains: $num');
+  print('contains 1: $num1');
+  print('contains 2: $num2');
 }

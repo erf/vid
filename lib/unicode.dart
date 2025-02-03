@@ -13,12 +13,9 @@ class Unicode {
     if (str.isEmpty) return 0;
 
     final List<int> codeUnits = str.codeUnits.toList();
-    final int firstCodeUnit = codeUnits.first;
-
-    final List<int> codePoints = str.runes.toList();
-    final int firstCodePoint = codePoints.first;
 
     if (codeUnits.length == 1) {
+      final int firstCodeUnit = codeUnits.first;
       // if a tab return the config tab width
       if (firstCodeUnit == 0x0009) {
         return Config.tabWidth;
@@ -48,6 +45,8 @@ class Unicode {
     if (codeUnits.contains(emojiPresentation)) {
       return 2;
     }
+    final List<int> codePoints = str.runes.toList();
+    final int firstCodePoint = codePoints.first;
 
     // east asian width wide or fullwidth
     if (isWide(firstCodePoint)) {

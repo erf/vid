@@ -1,4 +1,4 @@
-import 'package:vid/unicode.dart';
+import 'package:vid/regex.dart';
 
 import 'bench_utils.dart';
 
@@ -11,15 +11,15 @@ void benchmarkEmojiSequences(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num1 = 0;
   int num2 = 0;
-  for (final unicodeChar in unicodeChars) {
-    if (Unicode.isEmojiSequence(unicodeChar.runes.toList())) {
+  for (final String unicodeChar in unicodeChars) {
+    if (Regex.emoji.hasMatch(unicodeChar)) {
       num2++;
     } else {
       num1++;
     }
   }
   stopwatch.stop();
-  print('Emoji Sequences benchmark: ${stopwatch.elapsedMilliseconds}ms');
+  print('Regex is Emoji benchmark: ${stopwatch.elapsedMilliseconds}ms');
   print('contains 1: $num1');
   print('contains 2: $num2');
 }
