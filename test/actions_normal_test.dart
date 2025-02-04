@@ -318,4 +318,15 @@ void main() {
     e.input('k');
     expect(f.cursor, Position(c: 0, l: 1));
   });
+
+  test('x with count', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abcdef\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 0, l: 0);
+    e.input('3x');
+    expect(f.text, 'def\n');
+    expect(f.cursor, Position(c: 0, l: 0));
+  });
 }
