@@ -4,6 +4,10 @@ import 'motions/motion.dart';
 class Edit {
   Edit();
 
+  factory Edit.withCount(int? count) {
+    return Edit()..count = count;
+  }
+
   Function? op;
   Motion? motion;
   String cmdKey = '';
