@@ -248,7 +248,7 @@ class Editor {
   }
 
   void alias(String str) {
-    file.edit = Edit();
+    file.edit = Edit.withCount(file.edit.count);
     input(str);
   }
 
