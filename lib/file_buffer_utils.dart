@@ -12,7 +12,7 @@ extension FileBufferUtils on FileBuffer {
   ErrorOr<bool> insertFile(Editor e, String path) {
     final file = File(path);
     if (!file.existsSync()) {
-      return ErrorOr.error('File not found \'$path\'');
+      return ErrorOr.error('File not found: \'$path\'');
     }
     insertChunk(e, file.readAsStringSync());
     return ErrorOr.value(true);

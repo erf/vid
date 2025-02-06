@@ -26,6 +26,6 @@ class LineEditEnterCommand extends Command {
     }
     f.edit.lineEdit = '';
     f.setMode(e, Mode.normal);
-    e.showMessage(Message.error('Unknown command \'$command\''));
+    e.showMessage(Message.error('Unknown command: \'$command\''));
   }
 }

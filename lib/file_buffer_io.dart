@@ -20,7 +20,7 @@ extension FileBufferIo on FileBuffer {
 
     // check if path is a directory
     if (Directory(path).existsSync()) {
-      return ErrorOr.error('Cannot open directory \'$path\'');
+      return ErrorOr.error('Cannot open directory: \'$path\'');
     }
 
     // load file if it exists
@@ -34,7 +34,7 @@ extension FileBufferIo on FileBuffer {
         }
         return ErrorOr.value(FileBuffer(path: path, text: text));
       } catch (error) {
-        return ErrorOr.error('Error reading file: $error');
+        return ErrorOr.error('Error reading file: \'$error\'');
       }
     }
 
@@ -44,7 +44,7 @@ extension FileBufferIo on FileBuffer {
     }
 
     // file not found
-    return ErrorOr.error('File not found \'$path\'');
+    return ErrorOr.error('File not found: \'$path\'');
   }
 
   // parse line number argument if it exists
@@ -63,12 +63,12 @@ extension FileBufferIo on FileBuffer {
   // we pass a path so we can try to save to a new file name before setting the path
   ErrorOr<bool> save(Editor e, String? path) {
     if (path == null || path.isEmpty) {
-      return ErrorOr.error('path is empty');
+      return ErrorOr.error('Path is empty');
     }
     try {
       File(path).writeAsStringSync(text);
     } catch (error) {
-      return ErrorOr.error('Error saving file \'$path\'');
+      return ErrorOr.error('Error saving file: \'$path\'');
     }
     setSavepoint();
     e.terminal.write(Esc.setWindowTitle(path));
