@@ -68,4 +68,15 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 0));
     expect(f.text, 'ghi\njkl\n');
   });
+
+  test('3dd', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\njkl\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 1, l: 0);
+    e.input('3dd');
+    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.text, 'jkl\n');
+  });
 }
