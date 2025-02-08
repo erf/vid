@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  release:
+    types: [created]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - name: Install dependencies
+        run: dart pub get
+      - name: Run tests
+        run: dart test
+
+  build:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            binary: vid-linux
+          - os: macos-latest
+            binary: vid-macos
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - name: Install dependencies
+        run: dart pub get
+      - name: Build binary
+        run: dart compile exe bin/vid.dart -o ${{ matrix.binary }}
+      
+      # Upload artifacts for testing
+      - name: Upload build artifact
+        # if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.binary }}
+          path: ${{ matrix.binary }}
+      
+      # Only upload to release if this is a release
+      - name: Upload release binary
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./${{ matrix.binary }}
+          asset_name: ${{ matrix.binary }}
+          asset_content_type: application/octet-stream

@@ -40,3 +40,4 @@ See [config.dart](lib/config.dart)
 I'm open to PR's that align with vid's minimal philosophy.
 
 I don't accept issues solely for suggestions.
+
