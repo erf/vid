@@ -13,7 +13,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 ## Technical Details 🛠️
 
-- Written in Dart using the [characters](https://pub.dev/packages/characters) package for robust text handling
+- Written in Dart using the [characters](https://pub.dev/packages/characters) package for handling grapheme clusters
 - Built for modern terminals that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) like [Ghostty](https://github.com/ghostty-org/ghostty) and [WezTerm](https://github.com/wez/wezterm)
 
 ## Non-goals ❌
@@ -25,7 +25,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 ## Keyboard Shortcuts
 
-See [bindings.dart](lib/bindings.dart) for the full list of vim-like key mappings
+See [bindings.dart](lib/bindings.dart) for the full list of vim-like key mappings.
 
 ## Configuration
 
@@ -36,4 +36,3 @@ See [config.dart](lib/config.dart)
 I'm open to PR's that align with vid's minimal philosophy.
 
 I don't accept issues solely for suggestions.
-
