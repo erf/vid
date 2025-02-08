@@ -4,28 +4,32 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 > Made for myself for fun and learning and not meant to replace your current editor
 
-## Features
+## Features ✨
 
-- a minimal vim-like text editor for the terminal
-- properly render and edit emojis and wide characters (like 🧑‍🧑‍🧒‍🧒)
-- made for modern terminals that supports [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) (e.g. [Ghostty](https://github.com/ghostty-org/ghostty), [WezTerm](https://github.com/wez/wezterm))
-- written in Dart using the [characters](https://pub.dev/packages/characters) package
-- unlimited undo and redo
-- no-wrap, char-wrap or word-wrap
-- basic vim motions and operators
-- minimal command mode
+- Basic vim motions and operators with minimal command mode
+- Properly render and edit emojis and wide characters
+- Unlimited undo and redo
+- Multiple text wrap modes:
+  - No-wrap
+  - Character-wrap
+  - Word-wrap
+
+## Technical Details 🛠️
+
+- Written in Dart using the [characters](https://pub.dev/packages/characters) package for robust text handling
+- Built for modern terminals that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) like [Ghostty](https://github.com/ghostty-org/ghostty) and [WezTerm](https://github.com/wez/wezterm)
 
 ## Non-goals ❌
 
-- syntax highlighting
-- plugins
-- 100 % vim compat
-- window manager (just open a new tab or use terminal split features)
-- pre-built binaries (just build it yourself)
+- Syntax highlighting
+- Plugins
+- 100% vim compatibility
+- Window manager (just use terminal tabs/splits)
+- Pre-built binaries (build it yourself)
 
-## Keyboard shortcuts
+## Keyboard Shortcuts
 
-See [bindings.dart](lib/bindings.dart)
+See [bindings.dart](lib/bindings.dart) for the full list of vim-like key mappings
 
 ## Configuration
 
