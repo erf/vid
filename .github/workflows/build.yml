@@ -46,16 +46,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         
-      # Delete existing latest tag and release
-      - name: Delete latest release
-        uses: dev-drprasad/delete-tag-and-release@v1.0
-        with:
-          tag_name: latest
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_release: true
+      # Delete existing releases and tag
+      - name: Clean up existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest --yes || true
+          git push origin :refs/tags/latest || true
+        continue-on-error: true
       
       # Create new release with all artifacts
       - name: Update latest release
@@ -69,6 +71,9 @@ jobs:
             vid-macos/vid-macos
           body: |
             Automated build from the latest changes
+            
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
             Build time: ${{ github.event.head_commit.timestamp }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
