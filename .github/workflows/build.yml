@@ -46,6 +46,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4  # Need this to get commit info
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         
@@ -67,6 +68,9 @@ jobs:
             vid-macos/vid-macos
           body: |
             Automated build from the latest changes
+            
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
             Build time: ${{ github.event.head_commit.timestamp }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
