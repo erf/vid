@@ -35,26 +35,40 @@ jobs:
       - name: Build binary
         run: dart compile exe bin/vid.dart -o ${{ matrix.binary }}
       
-      # Update latest release
+      # Upload artifacts for collection
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.binary }}
+          path: ${{ matrix.binary }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        
+      # Delete existing latest tag and release
+      - name: Delete latest release
+        uses: dev-drprasad/delete-tag-and-release@v1.0
+        with:
+          tag_name: latest
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true
+      
+      # Create new release with all artifacts
       - name: Update latest release
         uses: softprops/action-gh-release@v1
         with:
           name: 'Latest Build'
           tag_name: 'latest'
           prerelease: true
-          files: ${{ matrix.binary }}
-          body: 'Automated build from the latest changes'
+          files: |
+            vid-linux/vid-linux
+            vid-macos/vid-macos
+          body: |
+            Automated build from the latest changes
+            Build time: ${{ github.event.head_commit.timestamp }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      # Only upload to regular release if this is a release
-      - name: Upload release binary
-        if: github.event_name == 'release' && !contains(github.ref, 'latest')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ matrix.binary }}
-          asset_name: ${{ matrix.binary }}
-          asset_content_type: application/octet-stream
