@@ -9,10 +9,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - Basic vim motions and operators with minimal command mode
 - Properly render and edit emojis and wide characters
 - Unlimited undo and redo
-- Multiple text wrap modes:
-  - No-wrap
-  - Character-wrap
-  - Word-wrap
+- Multiple text wrap modes: no-wrap, character-wrap, word-wrap
 
 ## Technical Details 🛠️
 
@@ -25,7 +22,6 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - Plugins
 - 100% vim compatibility
 - Window manager (just use terminal tabs/splits)
-- Pre-built binaries (build it yourself)
 
 ## Keyboard Shortcuts
 
@@ -40,3 +36,4 @@ See [config.dart](lib/config.dart)
 I'm open to PR's that align with vid's minimal philosophy.
 
 I don't accept issues solely for suggestions.
+
