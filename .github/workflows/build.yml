@@ -66,6 +66,7 @@ jobs:
           name: 'Latest Build'
           tag_name: 'latest'
           prerelease: true
+          draft: false
           files: |
             vid-linux/vid-linux
             vid-macos/vid-macos
