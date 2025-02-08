@@ -49,13 +49,11 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         
-      # Delete existing latest tag and release
-      - name: Delete latest release
-        uses: dev-drprasad/delete-tag-and-release@v1.0
-        with:
-          tag_name: latest
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_release: true
+      # Delete existing tag (using git commands)
+      - name: Delete existing tag
+        run: |
+          git push origin :refs/tags/latest || true
+        continue-on-error: true
       
       # Create new release with all artifacts
       - name: Update latest release
