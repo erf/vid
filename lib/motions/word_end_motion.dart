@@ -11,10 +11,10 @@ class WordEndMotion extends Motion {
 
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {
-    final int start = f.byteIndexFromPosition(p);
+    final start = f.byteIndexFromPosition(p);
     final matches = Regex.word.allMatches(f.text, start);
     if (matches.isEmpty) return p;
-    final RegExpMatch match = matches.firstWhere((m) => start < m.end - 1,
+    final match = matches.firstWhere((m) => start < m.end - 1,
         orElse: () => matches.first);
     return f.positionFromByteIndex(match.end - ((inclusive && op) ? 0 : 1));
   }

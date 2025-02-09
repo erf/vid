@@ -14,7 +14,7 @@ class WordEndPrevMotion extends Motion {
     final int start = f.byteIndexFromPosition(p);
     final matches = Regex.word.allMatches(f.text);
     if (matches.isEmpty) return p;
-    final RegExpMatch match =
+    final match =
         matches.lastWhere((m) => start > m.end, orElse: () => matches.last);
     return f.positionFromByteIndex(match.end - 1);
   }
