@@ -23,9 +23,10 @@ class Motions {
   }
 
   // find the first match after the cursor position
-  static Position regexNext(FileBuffer f, Position p, RegExp regExp) {
+  static Position regexNext(FileBuffer f, Position p, RegExp regExp,
+      {int skip = 0}) {
     int start = f.byteIndexFromPosition(p);
-    final matches = regExp.allMatches(f.text, start);
+    final matches = regExp.allMatches(f.text, start + skip);
     if (matches.isEmpty) return p;
     final m = matches.firstWhere((ma) => ma.start > start,
         orElse: () => matches.first);
