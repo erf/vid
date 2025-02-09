@@ -62,6 +62,7 @@ class Editor {
     if (Config.rememberCursorPosition) {
       cursorPerFile = FileBufferIo.loadCursorPositions();
       file.cursor = file.positionFromByteIndex(cursorPerFile[file.path] ?? 0);
+      file.centerView(terminal);
     }
     draw();
   }
