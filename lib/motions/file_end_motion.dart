@@ -11,10 +11,10 @@ class FileEndMotion extends Motion {
 
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {
+    int line = f.lines.length - 1;
     if (f.edit.count != null) {
-      int line = min(f.edit.count! - 1, f.lines.last.no);
-      return FirstNonBlankMotion().run(f, Position(l: line, c: 0));
+      line = min(f.edit.count! - 1, f.lines.length - 1);
     }
-    return FirstNonBlankMotion().run(f, Position(l: f.lines.last.no, c: 0));
+    return FirstNonBlankMotion().run(f, Position(l: line, c: 0), op: op);
   }
 }
