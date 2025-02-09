@@ -79,4 +79,15 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 1));
     expect(f.text, 'xxx\ntest\n');
   });
+
+  test('2dd with cursor at first line at eof', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\n';
+    f.createLines(e, WrapMode.none);
+    f.cursor = Position(c: 4, l: 0);
+    e.input('2dd');
+    expect(f.cursor, Position(c: 0, l: 0));
+    expect(f.text, 'ghi\n');
+  });
 }
