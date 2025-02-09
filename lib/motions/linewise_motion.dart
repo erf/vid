@@ -9,8 +9,8 @@ class LinewiseMotion extends Motion {
   @override
   Position run(FileBuffer f, Position p, {bool op = true}) {
     final line = f.lines[p.l];
-    if (p.l == f.lines.length - 1) return Position(l: p.l, c: line.charLen);
-    if (p.c == line.charLen) return Position(l: p.l + 1, c: line.charLen);
+    if (p.l >= f.lines.length - 1) return Position(l: p.l, c: line.charLen);
+    if (p.c >= line.charLen) return Position(l: p.l + 1, c: line.charLen);
     return Position(l: p.l, c: line.charLen);
   }
 }

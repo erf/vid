@@ -72,11 +72,11 @@ void main() {
   test('3dd', () {
     final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
     final f = e.file;
-    f.text = 'abc\ndef\nghi\njkl\n';
+    f.text = 'xxx\nabc yo\ndef\nghi\njkl\n';
     f.createLines(e, WrapMode.none);
-    f.cursor = Position(c: 1, l: 0);
+    f.cursor = Position(c: 1, l: 1);
     e.input('3dd');
-    expect(f.cursor, Position(c: 0, l: 0));
-    expect(f.text, 'jkl\n');
+    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.text, 'xxx\njkl\n');
   });
 }
