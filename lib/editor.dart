@@ -33,6 +33,7 @@ class Editor {
   final bool redraw;
   final StringBuffer rbuf = StringBuffer();
   FileBuffer file = FileBuffer();
+  Map<String, int> cursorPerFile = {};
   Message? message;
   Timer? messageTimer;
   String? logPath;
@@ -58,6 +59,10 @@ class Editor {
     file.parseCliArgs(args);
     initTerminal(path);
     file.createLines(this, Config.wrapMode);
+    if (Config.rememberCursorPosition) {
+      cursorPerFile = FileBufferIo.loadCursorPositions();
+      file.cursor = file.positionFromByteIndex(cursorPerFile[file.path] ?? 0);
+    }
     draw();
   }
 
@@ -92,6 +97,10 @@ class Editor {
   }
 
   void quit() {
+    if (Config.rememberCursorPosition && file.path != null) {
+      cursorPerFile[file.path!] = file.byteIndexFromPosition(file.cursor);
+      FileBufferIo.saveCursorPositions(cursorPerFile);
+    }
     terminal.write(Esc.popWindowTitle);
     terminal.write(Esc.textStylesReset);
     terminal.write(Esc.cursorStyleReset);
