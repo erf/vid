@@ -12,9 +12,9 @@ import '../modes.dart';
 class InsertActions {
   static void defaultInsert(Editor e, FileBuffer f, String s,
       {bool undo = true}) {
-    int byteIndex = f.byteIndexFromPosition(f.cursor);
+    int byteIndex = f.indexFromPosition(f.cursor);
     f.insertAt(e, f.cursor, s, undo);
-    f.cursor = f.positionFromByteIndex(byteIndex + s.length);
+    f.cursor = f.positionFromIndex(byteIndex + s.length);
   }
 
   static void enter(Editor e, FileBuffer f, {bool undo = true}) {

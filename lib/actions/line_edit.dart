@@ -106,7 +106,7 @@ class LineEdit {
         break;
       }
       f.replace(e, match.start, match.end, replacement);
-      f.cursor = f.positionFromByteIndex(match.start);
+      f.cursor = f.positionFromIndex(match.start);
       if (!global) {
         break;
       }

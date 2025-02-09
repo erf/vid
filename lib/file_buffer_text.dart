@@ -12,7 +12,7 @@ import 'text_op.dart';
 // text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {
   // get the cursor Position from the byte index in the String text by looking through the lines
-  Position positionFromByteIndex(int start) {
+  Position positionFromIndex(int start) {
     final Line line =
         lines.firstWhere((l) => start < l.end, orElse: () => lines.last);
     final int end = start - line.start;
@@ -25,7 +25,7 @@ extension FileBufferText on FileBuffer {
   }
 
   // get the byte index text from the cursor Position
-  int byteIndexFromPosition(Position pos) {
+  int indexFromPosition(Position pos) {
     final Line line = lines[pos.l];
     if (pos.c == 0) {
       return line.start;
@@ -111,8 +111,8 @@ extension FileBufferText on FileBuffer {
   }
 
   void replaceRange(Editor e, Range range, String newText) {
-    final int start = byteIndexFromPosition(range.start);
-    final int end = byteIndexFromPosition(range.end);
+    final int start = indexFromPosition(range.start);
+    final int end = indexFromPosition(range.end);
     replace(e, start, end, newText);
   }
 
@@ -121,7 +121,7 @@ extension FileBufferText on FileBuffer {
   }
 
   void insertAt(Editor e, Position pos, String str, [bool undo = true]) {
-    final int start = byteIndexFromPosition(pos);
+    final int start = indexFromPosition(pos);
     replace(e, start, start, str, undo: undo);
   }
 
@@ -135,8 +135,8 @@ extension FileBufferText on FileBuffer {
 
   void yankRange(Range range) {
     final Range r = range.norm;
-    final int start = byteIndexFromPosition(r.start);
-    final int end = byteIndexFromPosition(r.end);
+    final int start = indexFromPosition(r.start);
+    final int end = indexFromPosition(r.end);
     yankBuffer = text.substring(start, end);
   }
 }

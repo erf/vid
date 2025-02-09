@@ -133,7 +133,7 @@ class Normal {
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {
     final p = f.cursor;
-    final i = f.byteIndexFromPosition(p);
+    final i = f.indexFromPosition(p);
     final line = f.lines[p.l];
     final start = line.start;
     final matches = Regex.number.allMatches(line.text);
@@ -145,7 +145,7 @@ class Normal {
     final num = int.parse(s);
     final numstr = (num + count).toString();
     f.replace(e, start + m.start, start + m.end, numstr);
-    f.cursor = f.positionFromByteIndex(start + m.start + numstr.length - 1);
+    f.cursor = f.positionFromIndex(start + m.start + numstr.length - 1);
   }
 
   static void increase(Editor e, FileBuffer f) {

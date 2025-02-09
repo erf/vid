@@ -23,7 +23,7 @@ extension FileBufferUtils on FileBuffer {
   void insertChunk(Editor e, String str) {
     final String buffer = str;
     final Position cursor = Position.from(this.cursor);
-    final int start = byteIndexFromPosition(cursor);
+    final int start = indexFromPosition(cursor);
     while (str.isNotEmpty) {
       int nlPos = str.indexOf(Keys.newline);
       if (nlPos == -1) {

@@ -61,7 +61,7 @@ class Editor {
     file.createLines(this, Config.wrapMode);
     if (Config.rememberCursorPosition) {
       cursorPerFile = FileBufferIo.loadCursorPositions();
-      file.cursor = file.positionFromByteIndex(cursorPerFile[file.path] ?? 0);
+      file.cursor = file.positionFromIndex(cursorPerFile[file.path] ?? 0);
       file.centerView(terminal);
     }
     draw();
@@ -99,7 +99,7 @@ class Editor {
 
   void quit() {
     if (Config.rememberCursorPosition && file.path != null) {
-      cursorPerFile[file.path!] = file.byteIndexFromPosition(file.cursor);
+      cursorPerFile[file.path!] = file.indexFromPosition(file.cursor);
       FileBufferIo.saveCursorPositions(cursorPerFile);
     }
     terminal.write(Esc.popWindowTitle);
@@ -112,9 +112,9 @@ class Editor {
   }
 
   void onResize(ProcessSignal signal) {
-    int byteIndex = file.byteIndexFromPosition(file.cursor);
+    int byteIndex = file.indexFromPosition(file.cursor);
     file.createLines(this, Config.wrapMode);
-    file.cursor = file.positionFromByteIndex(byteIndex);
+    file.cursor = file.positionFromIndex(byteIndex);
     showMessage(Message.info('${terminal.width}x${terminal.height}'));
     draw();
   }

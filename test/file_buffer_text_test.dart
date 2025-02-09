@@ -15,10 +15,10 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
-    expect(f.positionFromByteIndex(0), Position(c: 0, l: 0));
-    expect(f.positionFromByteIndex(2), Position(c: 2, l: 0));
-    expect(f.positionFromByteIndex(4), Position(c: 0, l: 1));
-    expect(f.positionFromByteIndex(6), Position(c: 2, l: 1));
+    expect(f.positionFromIndex(0), Position(c: 0, l: 0));
+    expect(f.positionFromIndex(2), Position(c: 2, l: 0));
+    expect(f.positionFromIndex(4), Position(c: 0, l: 1));
+    expect(f.positionFromIndex(6), Position(c: 2, l: 1));
   });
 
   test('replaceAt', () {
