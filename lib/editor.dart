@@ -60,17 +60,30 @@ class Editor {
     initTerminal(path);
     file.createLines(this, Config.wrapMode);
     initCursorPositions();
+    setCursorPosition();
     draw();
   }
 
   void initCursorPositions() {
     if (Config.rememberCursorPosition) {
       cursorPerFile = FileBufferIo.loadCursorPositions();
+    }
+  }
+
+  void setCursorPosition() {
+    if (Config.rememberCursorPosition) {
       int? cursorPosition = cursorPerFile[file.path];
       if (cursorPosition != null) {
         file.cursor = file.positionFromIndex(cursorPosition);
         file.centerView(terminal);
       }
+    }
+  }
+
+  void saveCursorPosition() {
+    if (Config.rememberCursorPosition && file.path != null) {
+      cursorPerFile[file.path!] = file.indexFromPosition(file.cursor);
+      FileBufferIo.saveCursorPositions(cursorPerFile);
     }
   }
 
@@ -86,6 +99,7 @@ class Editor {
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
     file.createLines(this, Config.wrapMode);
+    setCursorPosition();
     draw();
     return result;
   }
@@ -102,13 +116,6 @@ class Editor {
     terminal.input.listen(onInput);
     terminal.resize.listen(onResize);
     terminal.sigint.listen(onSigint);
-  }
-
-  void saveCursorPosition() {
-    if (Config.rememberCursorPosition && file.path != null) {
-      cursorPerFile[file.path!] = file.indexFromPosition(file.cursor);
-      FileBufferIo.saveCursorPositions(cursorPerFile);
-    }
   }
 
   void quit() {
