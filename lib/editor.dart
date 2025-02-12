@@ -59,6 +59,11 @@ class Editor {
     file.parseCliArgs(args);
     initTerminal(path);
     file.createLines(this, Config.wrapMode);
+    initCursorPositions();
+    draw();
+  }
+
+  void initCursorPositions() {
     if (Config.rememberCursorPosition) {
       cursorPerFile = FileBufferIo.loadCursorPositions();
       int? cursorPosition = cursorPerFile[file.path];
@@ -67,7 +72,6 @@ class Editor {
         file.centerView(terminal);
       }
     }
-    draw();
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
@@ -100,11 +104,16 @@ class Editor {
     terminal.sigint.listen(onSigint);
   }
 
-  void quit() {
+  void saveCursorPosition() {
     if (Config.rememberCursorPosition && file.path != null) {
       cursorPerFile[file.path!] = file.indexFromPosition(file.cursor);
       FileBufferIo.saveCursorPositions(cursorPerFile);
     }
+  }
+
+  void quit() {
+    saveCursorPosition();
+
     terminal.write(Esc.popWindowTitle);
     terminal.write(Esc.textStylesReset);
     terminal.write(Esc.cursorStyleReset);
