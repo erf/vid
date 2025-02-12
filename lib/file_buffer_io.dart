@@ -86,7 +86,7 @@ extension FileBufferIo on FileBuffer {
   }
 
   static String get cursorPositionsPath {
-    return '$cacheDir/.vid_cursor_positions.cvs';
+    return '$cacheDir/vid_cursor_positions.csv';
   }
 
   // load cursors positions from XDG_CACHE_HOME
