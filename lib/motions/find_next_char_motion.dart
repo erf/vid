@@ -6,11 +6,7 @@ import '../position.dart';
 import 'motion.dart';
 
 class FindNextCharMotion extends Motion {
-  const FindNextCharMotion({
-    this.c,
-    super.inclusive = true,
-    super.linewise,
-  });
+  const FindNextCharMotion({this.c, super.inclusive = true, super.linewise});
 
   final String? c;
 

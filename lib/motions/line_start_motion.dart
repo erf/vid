@@ -4,10 +4,7 @@ import 'package:vid/position.dart';
 import 'motion.dart';
 
 class LineStartMotion extends Motion {
-  const LineStartMotion({
-    super.inclusive,
-    super.linewise = true,
-  });
+  const LineStartMotion({super.inclusive, super.linewise = true});
 
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {

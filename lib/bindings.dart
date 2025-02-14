@@ -87,9 +87,7 @@ const insertCommands = <String, Command>{
   '[*]': InsertDefaultCommand(),
 };
 
-const replaceCommands = <String, Command>{
-  '[*]': ReplaceDefaultCommand(),
-};
+const replaceCommands = <String, Command>{'[*]': ReplaceDefaultCommand()};
 
 const countCommands = <String, Command>{
   '0': CountCommand(0),

@@ -1,8 +1,1 @@
-enum Mode {
-  normal,
-  operatorPending,
-  insert,
-  replace,
-  command,
-  search,
-}
+enum Mode { normal, operatorPending, insert, replace, command, search }

@@ -14,8 +14,10 @@ class WordEndPrevMotion extends Motion {
     final int start = f.indexFromPosition(p);
     final matches = Regex.word.allMatches(f.text);
     if (matches.isEmpty) return p;
-    final match =
-        matches.lastWhere((m) => start > m.end, orElse: () => matches.last);
+    final match = matches.lastWhere(
+      (m) => start > m.end,
+      orElse: () => matches.last,
+    );
     return f.positionFromIndex(match.end - 1);
   }
 }

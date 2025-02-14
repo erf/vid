@@ -97,10 +97,12 @@ extension FileBufferIo on FileBuffer {
     }
     try {
       final lines = file.readAsLinesSync();
-      return Map.fromEntries(lines.map((line) {
-        final parts = line.split(',');
-        return MapEntry(parts[0], int.tryParse(parts[1]) ?? 0);
-      }));
+      return Map.fromEntries(
+        lines.map((line) {
+          final parts = line.split(',');
+          return MapEntry(parts[0], int.tryParse(parts[1]) ?? 0);
+        }),
+      );
     } catch (error) {
       return {};
     }

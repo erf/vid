@@ -138,8 +138,10 @@ class Normal {
     final start = line.start;
     final matches = Regex.number.allMatches(line.text);
     if (matches.isEmpty) return;
-    final m = matches.firstWhere((m) => i < (m.end + start),
-        orElse: () => matches.last);
+    final m = matches.firstWhere(
+      (m) => i < (m.end + start),
+      orElse: () => matches.last,
+    );
     if (i >= (m.end + start)) return;
     final s = m.group(1)!;
     final num = int.parse(s);

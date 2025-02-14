@@ -10,8 +10,12 @@ import '../keys.dart';
 import '../modes.dart';
 
 class InsertActions {
-  static void defaultInsert(Editor e, FileBuffer f, String s,
-      {bool undo = true}) {
+  static void defaultInsert(
+    Editor e,
+    FileBuffer f,
+    String s, {
+    bool undo = true,
+  }) {
     int byteIndex = f.indexFromPosition(f.cursor);
     f.insertAt(e, f.cursor, s, undo);
     f.cursor = f.positionFromIndex(byteIndex + s.length);

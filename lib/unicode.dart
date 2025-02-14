@@ -75,9 +75,11 @@ class Unicode {
   }
 
   static bool isEmojiSequence(List<int> codePoints) {
-    return emojiSequences.any((seq) =>
-        seq.length == codePoints.length &&
-        seq.every((cp) => codePoints.contains(cp)));
+    return emojiSequences.any(
+      (seq) =>
+          seq.length == codePoints.length &&
+          seq.every((cp) => codePoints.contains(cp)),
+    );
   }
 
   static bool isEmojiSequenceTrie(List<int> codePoints) {

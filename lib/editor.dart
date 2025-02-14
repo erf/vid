@@ -39,10 +39,7 @@ class Editor {
   String? logPath;
   File? logFile;
 
-  Editor({
-    required this.terminal,
-    this.redraw = true,
-  });
+  Editor({required this.terminal, this.redraw = true});
 
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
@@ -183,7 +180,8 @@ class Editor {
       switch (Config.wrapMode) {
         case WrapMode.none:
           rbuf.writeln(
-              lines[l].text.tabsToSpaces.ch.renderLine(view.c, terminal.width));
+            lines[l].text.tabsToSpaces.ch.renderLine(view.c, terminal.width),
+          );
         case WrapMode.char:
         case WrapMode.word:
           rbuf.writeln(lines[l].text.tabsToSpaces);
@@ -222,8 +220,12 @@ class Editor {
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String wrap = Config.wrapSymbols[Config.wrapMode.index];
-    String left =
-        [mode, path, modified, wrap].where((s) => s.isNotEmpty).join(' ');
+    String left = [
+      mode,
+      path,
+      modified,
+      wrap,
+    ].where((s) => s.isNotEmpty).join(' ');
     String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
     int padLeft = terminal.width - left.length - 2;
     String status = ' $left ${right.padLeft(padLeft)}';

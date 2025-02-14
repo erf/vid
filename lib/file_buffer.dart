@@ -7,10 +7,7 @@ import 'text_op.dart';
 // all things related to the file buffer
 class FileBuffer {
   // create a new file buffer
-  FileBuffer({
-    this.text = '\n',
-    this.path,
-  });
+  FileBuffer({this.text = '\n', this.path});
 
   // the text of the file
   String text;

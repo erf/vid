@@ -5,11 +5,7 @@ class Line {
   final int start;
   final int no;
 
-  const Line(
-    this.text, {
-    required this.start,
-    required this.no,
-  });
+  const Line(this.text, {required this.start, required this.no});
 
   int get len => text.length;
 

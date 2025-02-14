@@ -10,6 +10,7 @@ class Regex {
   static final sentence = RegExp(r'(?<=[.!?][ \t\n])\w|\n|^\w|(?<=\n\n).');
   // just for testing
   static final emoji = RegExp(
-      r'[\p{Extended_Pictographic}\p{Emoji_Presentation}]',
-      unicode: true);
+    r'[\p{Extended_Pictographic}\p{Emoji_Presentation}]',
+    unicode: true,
+  );
 }
