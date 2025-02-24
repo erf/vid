@@ -25,6 +25,7 @@ extension FileBufferIo on FileBuffer {
 
     // load file if it exists
     final file = File(path);
+    final abs = file.absolute.path;
     if (file.existsSync()) {
       try {
         String text = file.readAsStringSync();
@@ -32,7 +33,7 @@ extension FileBufferIo on FileBuffer {
         if (!text.endsWith('\n')) {
           text += '\n';
         }
-        return ErrorOr.value(FileBuffer(path: path, text: text));
+        return ErrorOr.value(FileBuffer(path: path, abs: abs, text: text));
       } catch (error) {
         return ErrorOr.error('Error reading file: \'$error\'');
       }
@@ -40,7 +41,7 @@ extension FileBufferIo on FileBuffer {
 
     // create new file if allowed
     if (createNewFileIfNotExists) {
-      return ErrorOr.value(FileBuffer(path: path));
+      return ErrorOr.value(FileBuffer(path: path, abs: abs));
     }
 
     // file not found
@@ -96,10 +97,10 @@ extension FileBufferIo on FileBuffer {
       return {};
     }
     try {
-      final lines = file.readAsLinesSync();
+      final List<String> lines = file.readAsLinesSync();
       return Map.fromEntries(
         lines.map((line) {
-          final parts = line.split(',');
+          final List<String> parts = line.split(',');
           return MapEntry(parts[0], int.tryParse(parts[1]) ?? 0);
         }),
       );

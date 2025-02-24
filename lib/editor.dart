@@ -69,7 +69,7 @@ class Editor {
 
   void setCursorPosition() {
     if (Config.rememberCursorPosition) {
-      int? cursorPosition = cursorPerFile[file.path];
+      int? cursorPosition = cursorPerFile[file.abs];
       if (cursorPosition != null) {
         file.cursor = file.positionFromIndex(cursorPosition);
         file.centerView(terminal);
@@ -79,7 +79,7 @@ class Editor {
 
   void saveCursorPosition() {
     if (Config.rememberCursorPosition && file.path != null) {
-      cursorPerFile[file.path!] = file.indexFromPosition(file.cursor);
+      cursorPerFile[file.abs!] = file.indexFromPosition(file.cursor);
       FileBufferIo.saveCursorPositions(cursorPerFile);
     }
   }
