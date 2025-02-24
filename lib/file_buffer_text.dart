@@ -17,8 +17,9 @@ extension FileBufferText on FileBuffer {
       (l) => start < l.end,
       orElse: () => lines.last,
     );
-    final int end = start - line.start;
+    int end = start - line.start;
     if (end > 0) {
+      end = end.clamp(0, line.text.length);
       final int charpos = line.text.substring(0, end).characters.length;
       return Position(l: line.no, c: charpos);
     } else {
