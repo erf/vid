@@ -79,7 +79,11 @@ class Editor {
 
   void saveCursorPosition() {
     if (Config.rememberCursorPosition && file.path != null) {
-      cursorPerFile[file.abs!] = file.indexFromPosition(file.cursor);
+      if (file.cursor.l == 0 && file.cursor.c == 0) {
+        cursorPerFile.remove(file.abs!);
+      } else {
+        cursorPerFile[file.abs!] = file.indexFromPosition(file.cursor);
+      }
       FileBufferIo.saveCursorPositions(cursorPerFile);
     }
   }

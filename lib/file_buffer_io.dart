@@ -111,7 +111,7 @@ extension FileBufferIo on FileBuffer {
 
   static void saveCursorPositions(Map<String, int> cursorPositionsPerFile) {
     final file = File(cursorPositionsPath);
-    final lines = cursorPositionsPerFile.entries
+    final String lines = cursorPositionsPerFile.entries
         .map((entry) => '${entry.key},${entry.value}')
         .join('\n');
     file.writeAsStringSync(lines);
