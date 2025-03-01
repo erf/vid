@@ -13,6 +13,6 @@ class FindPrevCharMotion extends Motion {
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
-    return Motions.regexPrev(f, p, RegExp(f.edit.findStr!));
+    return Motions.regexPrev(f, p, RegExp(RegExp.escape(f.edit.findStr!)));
   }
 }

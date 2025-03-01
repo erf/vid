@@ -13,7 +13,11 @@ class FindNextCharMotion extends Motion {
   @override
   Position run(FileBuffer f, Position p, {bool op = false}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
-    final matchPos = Motions.regexNext(f, p, RegExp(f.edit.findStr!));
+    final matchPos = Motions.regexNext(
+      f,
+      p,
+      RegExp(RegExp.escape(f.edit.findStr!)),
+    );
     if (inclusive && op) matchPos.c++;
     return matchPos;
   }

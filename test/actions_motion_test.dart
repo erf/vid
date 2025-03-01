@@ -6,6 +6,8 @@ import 'package:vid/motions/char_next_motion.dart';
 import 'package:vid/motions/char_prev_motion.dart';
 import 'package:vid/motions/file_end_motion.dart';
 import 'package:vid/motions/file_start_motion.dart';
+import 'package:vid/motions/find_next_char_motion.dart';
+import 'package:vid/motions/find_prev_char_motion.dart';
 import 'package:vid/motions/first_non_blank_motion.dart';
 import 'package:vid/motions/line_down_motion.dart';
 import 'package:vid/motions/line_end_motion.dart';
@@ -273,5 +275,27 @@ void main() {
     expect(LineEndMotion().run(f, Position(l: 0, c: 3)), Position(l: 0, c: 7));
     expect(LineEndMotion().run(f, Position(l: 1, c: 0)), Position(l: 1, c: 7));
     expect(LineEndMotion().run(f, Position(l: 1, c: 3)), Position(l: 1, c: 7));
+  });
+
+  test('FindNextCharMotion with dot', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'test.\n';
+    f.createLines(e, WrapMode.none);
+    expect(
+      FindNextCharMotion(c: '.').run(f, Position(l: 0, c: 0)),
+      Position(l: 0, c: 4),
+    );
+  });
+
+  test('FindPrevCharMotion with dot', () {
+    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'hello. test.\n';
+    f.createLines(e, WrapMode.none);
+    expect(
+      FindPrevCharMotion(c: '.').run(f, Position(l: 0, c: 10)),
+      Position(l: 0, c: 5),
+    );
   });
 }
