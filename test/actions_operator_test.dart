@@ -24,9 +24,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
     f.cursor = Position(c: 1, l: 1);
-    e.input(
-      'dk',
-    );
+    e.input('dk');
     expect(f.text, 'ghi\n');
     expect(f.cursor, Position(c: 0, l: 0));
   });

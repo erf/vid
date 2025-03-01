@@ -107,12 +107,7 @@ void main() {
     e.file = FileBuffer(text: 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
     final f = e.file;
     f.createLines(e, WrapMode.none);
-    f.deleteRange(
-        e,
-        Range(
-          Position(c: 0, l: 0),
-          Position(c: 0, l: 1),
-        ));
+    f.deleteRange(e, Range(Position(c: 0, l: 0), Position(c: 0, l: 1)));
     f.deleteAt(e, Position(c: 0, l: 0));
     f.deleteAt(e, Position(c: 0, l: 0));
     f.replaceAt(e, Position(c: 0, l: 0), 'X');

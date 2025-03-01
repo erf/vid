@@ -23,7 +23,9 @@ void main() {
     expect('abc'.ch.removeRange(0, 3).string, '');
     expect('abcdef'.ch.removeRange(1, 5).string, 'af');
     expect(
-        'a👩‍👩‍👦‍👦👩‍👩‍👦‍👦f'.ch.removeRange(0, 2).string, '👩‍👩‍👦‍👦f');
+      'a👩‍👩‍👦‍👦👩‍👩‍👦‍👦f'.ch.removeRange(0, 2).string,
+      '👩‍👩‍👦‍👦f',
+    );
   });
 
   test('deleteCharAt', () {

@@ -7,8 +7,11 @@ void main() {
     expect('abc'.ch.renderLineEnd(1).string, 'a');
     expect('abc'.ch.renderLineEnd(3).string, 'abc');
     expect('😀😀abc'.ch.renderLineEnd(4).string, '😀😀');
-    expect('😀😀abc'.ch.renderLineEnd(3).string, '😀',
-        reason: 'should skip if in middle of emoji');
+    expect(
+      '😀😀abc'.ch.renderLineEnd(3).string,
+      '😀',
+      reason: 'should skip if in middle of emoji',
+    );
   });
 
   test('skipWhileLessThanRenderedLength', () {
@@ -16,8 +19,11 @@ void main() {
     expect('abc'.ch.renderLineStart(2).string, 'c');
     expect('abc'.ch.renderLineStart(3).string, '');
     expect('😀😀abc'.ch.renderLineStart(4).string, 'abc');
-    expect('😀😀abc'.ch.renderLineStart(3).string, ' abc',
-        reason: 'should add space at start if emoji');
+    expect(
+      '😀😀abc'.ch.renderLineStart(3).string,
+      ' abc',
+      reason: 'should add space at start if emoji',
+    );
   });
 
   test('skip initial emoji and make space', () {
@@ -40,12 +46,18 @@ void main() {
     expect('abc'.ch.renderLine(0, 1).string, 'a');
     expect('abc'.ch.renderLine(0, 3).string, 'abc');
     expect('❤️‍🔥❤️‍🔥ab'.ch.renderLine(2, 4).string, '❤️‍🔥ab');
-    expect('❤️‍🔥❤️‍🔥ab'.ch.renderLine(3, 4).string, ' ab',
-        reason: 'Replace half emoji at start with space');
+    expect(
+      '❤️‍🔥❤️‍🔥ab'.ch.renderLine(3, 4).string,
+      ' ab',
+      reason: 'Replace half emoji at start with space',
+    );
     expect('abcd🥹'.ch.renderLine(4, 6).string, '🥹');
     expect('abcd🥹'.ch.renderLine(5, 6).string, ' ');
-    expect('abcd🥹'.ch.renderLine(3, 5).string, 'd🥹',
-        reason: 'Draw full emoji even if only half indexed');
+    expect(
+      'abcd🥹'.ch.renderLine(3, 5).string,
+      'd🥹',
+      reason: 'Draw full emoji even if only half indexed',
+    );
     expect('abcd🥹'.ch.renderLine(3, 6).string, 'd🥹');
     expect('abcd🥹'.ch.renderLine(0, 5).string, 'abcd');
   });

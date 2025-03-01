@@ -91,13 +91,21 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
     expect(
-        FileStartMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
+      FileStartMotion().run(f, Position(c: 0, l: 0)),
+      Position(c: 0, l: 0),
+    );
     expect(
-        FileStartMotion().run(f, Position(c: 2, l: 0)), Position(c: 0, l: 0));
+      FileStartMotion().run(f, Position(c: 2, l: 0)),
+      Position(c: 0, l: 0),
+    );
     expect(
-        FileStartMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
+      FileStartMotion().run(f, Position(c: 0, l: 1)),
+      Position(c: 0, l: 0),
+    );
     expect(
-        FileStartMotion().run(f, Position(c: 2, l: 1)), Position(c: 0, l: 0));
+      FileStartMotion().run(f, Position(c: 2, l: 1)),
+      Position(c: 0, l: 0),
+    );
   });
 
   test('motionFileEnd', () {
