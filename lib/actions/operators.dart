@@ -1,8 +1,8 @@
 import '../editor.dart';
-import '../file_buffer.dart';
-import '../file_buffer_mode.dart';
-import '../file_buffer_text.dart';
-import '../file_buffer_view.dart';
+import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_mode.dart';
+import '../file_buffer/file_buffer_text.dart';
+import '../file_buffer/file_buffer_view.dart';
 import '../modes.dart';
 import '../range.dart';
 

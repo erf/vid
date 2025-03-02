@@ -1,8 +1,8 @@
-import 'edit.dart';
-import 'line.dart';
-import 'modes.dart';
-import 'position.dart';
-import 'text_op.dart';
+import '../edit.dart';
+import '../line.dart';
+import '../modes.dart';
+import '../position.dart';
+import '../text_op.dart';
 
 // all things related to the file buffer
 class FileBuffer {

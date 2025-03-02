@@ -1,6 +1,6 @@
 import 'package:vid/editor.dart';
 import 'package:vid/extensions/extension.dart';
-import 'package:vid/file_buffer.dart';
+import 'package:vid/file_buffer/file_buffer.dart';
 
 class ExtensionRegistry {
   final Editor _editor;

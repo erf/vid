@@ -2,8 +2,8 @@ import 'package:vid/motions/linewise_motion.dart';
 
 import '../edit.dart';
 import '../editor.dart';
-import '../file_buffer.dart';
-import '../file_buffer_mode.dart';
+import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_mode.dart';
 import '../modes.dart';
 import 'operator_command.dart';
 

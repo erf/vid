@@ -1,8 +1,8 @@
 import '../actions/line_edit.dart';
 import '../bindings.dart';
 import '../editor.dart';
-import '../file_buffer.dart';
-import '../file_buffer_mode.dart';
+import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_mode.dart';
 import '../message.dart';
 import '../modes.dart';
 import '../regex.dart';

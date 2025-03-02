@@ -1,6 +1,6 @@
 import '../editor.dart';
-import '../file_buffer.dart';
-import '../file_buffer_mode.dart';
+import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_mode.dart';
 import '../modes.dart';
 import '../motions/search_next_motion.dart';
 import 'command.dart';

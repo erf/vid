@@ -1,4 +1,4 @@
-import 'package:vid/file_buffer.dart';
+import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/position.dart';
 import 'package:vid/regex.dart';
 

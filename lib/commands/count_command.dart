@@ -2,7 +2,7 @@ import 'package:vid/motions/line_start_motion.dart';
 
 import '../edit.dart';
 import '../editor.dart';
-import '../file_buffer.dart';
+import '../file_buffer/file_buffer.dart';
 import '../message.dart';
 import 'command.dart';
 

@@ -2,12 +2,12 @@ import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
 
-import 'config.dart';
-import 'editor.dart';
+import '../config.dart';
+import '../editor.dart';
 import 'file_buffer.dart';
-import 'keys.dart';
-import 'line.dart';
-import 'string_ext.dart';
+import '../keys.dart';
+import '../line.dart';
+import '../string_ext.dart';
 
 extension FileBufferLines on FileBuffer {
   // check if file is empty, only one line with empty string

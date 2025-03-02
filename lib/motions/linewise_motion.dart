@@ -1,6 +1,6 @@
 import 'package:vid/motions/motion.dart';
 
-import '../file_buffer.dart';
+import '../file_buffer/file_buffer.dart';
 import '../position.dart';
 
 class LinewiseMotion extends Motion {

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:vid/motions/motion.dart';
 
-import '../file_buffer.dart';
+import '../file_buffer/file_buffer.dart';
 import '../position.dart';
 import 'first_non_blank_motion.dart';
 

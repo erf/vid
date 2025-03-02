@@ -1,7 +1,7 @@
-import 'editor.dart';
-import 'esc.dart';
+import '../editor.dart';
+import '../esc.dart';
 import 'file_buffer.dart';
-import 'modes.dart';
+import '../modes.dart';
 
 extension FileBufferMode on FileBuffer {
   void setMode(Editor e, Mode mode) {

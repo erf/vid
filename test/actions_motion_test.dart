@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/file_buffer_lines.dart';
+import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/motions/char_next_motion.dart';
 import 'package:vid/motions/char_prev_motion.dart';
 import 'package:vid/motions/file_end_motion.dart';

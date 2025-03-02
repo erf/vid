@@ -1,5 +1,5 @@
 import '../actions/motions.dart';
-import '../file_buffer.dart';
+import '../file_buffer/file_buffer.dart';
 import '../position.dart';
 import 'motion.dart';
 

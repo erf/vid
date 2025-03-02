@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/file_buffer_lines.dart';
+import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/position.dart';
 import 'package:vid/terminal_dummy.dart';
 

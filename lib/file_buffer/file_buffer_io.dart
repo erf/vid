@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'editor.dart';
-import 'error_or.dart';
-import 'esc.dart';
+import '../editor.dart';
+import '../error_or.dart';
+import '../esc.dart';
 import 'file_buffer.dart';
 
 extension FileBufferIo on FileBuffer {

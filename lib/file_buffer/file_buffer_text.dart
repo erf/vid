@@ -1,13 +1,13 @@
 import 'package:characters/characters.dart';
 
-import 'config.dart';
-import 'editor.dart';
+import '../config.dart';
+import '../editor.dart';
 import 'file_buffer.dart';
 import 'file_buffer_lines.dart';
-import 'line.dart';
-import 'position.dart';
-import 'range.dart';
-import 'text_op.dart';
+import '../line.dart';
+import '../position.dart';
+import '../range.dart';
+import '../text_op.dart';
 
 // text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {

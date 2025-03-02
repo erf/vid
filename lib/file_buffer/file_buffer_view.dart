@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'file_buffer.dart';
-import 'terminal.dart';
-import 'utils.dart';
+import '../terminal.dart';
+import '../utils.dart';
 
 extension FileBufferView on FileBuffer {
   // clamp cursor position to valid range

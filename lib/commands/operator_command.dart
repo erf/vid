@@ -1,7 +1,7 @@
 import '../actions/operators.dart';
 import '../editor.dart';
-import '../file_buffer.dart';
-import '../file_buffer_mode.dart';
+import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_mode.dart';
 import '../modes.dart';
 import 'command.dart';
 

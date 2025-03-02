@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:characters/characters.dart';
 
 import '../characters_render.dart';
-import '../file_buffer.dart';
-import '../file_buffer_text.dart';
+import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_text.dart';
 import '../position.dart';
 import '../regex.dart';
 import '../string_ext.dart';

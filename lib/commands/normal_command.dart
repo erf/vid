@@ -1,5 +1,5 @@
 import '../editor.dart';
-import '../file_buffer.dart';
+import '../file_buffer/file_buffer.dart';
 import 'command.dart';
 
 class NormalCommand extends Command {
