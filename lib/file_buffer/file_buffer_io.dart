@@ -33,7 +33,7 @@ extension FileBufferIo on FileBuffer {
         if (!text.endsWith('\n')) {
           text += '\n';
         }
-        return ErrorOr.value(FileBuffer(path: path, abs: abs, text: text));
+        return ErrorOr.value(FileBuffer(path: path, absolutePath: abs, text: text));
       } catch (error) {
         return ErrorOr.error('Error reading file: \'$error\'');
       }
@@ -41,7 +41,7 @@ extension FileBufferIo on FileBuffer {
 
     // create new file if allowed
     if (createNewFileIfNotExists) {
-      return ErrorOr.value(FileBuffer(path: path, abs: abs));
+      return ErrorOr.value(FileBuffer(path: path, absolutePath: abs));
     }
 
     // file not found

@@ -17,7 +17,7 @@ class CursorPositionExtension implements Extension {
 
   @override
   void onFileOpen(Editor editor, FileBuffer file) {
-    int? cursorPosition = cursorPerFile[file.abs];
+    int? cursorPosition = cursorPerFile[file.absolutePath];
     if (cursorPosition != null) {
       file.cursor = file.positionFromIndex(cursorPosition);
       file.centerView(editor.terminal);
@@ -29,9 +29,9 @@ class CursorPositionExtension implements Extension {
     FileBuffer file = editor.file;
     if (file.path != null) {
       if (file.cursor.l == 0 && file.cursor.c == 0) {
-        cursorPerFile.remove(file.abs!);
+        cursorPerFile.remove(file.absolutePath!);
       } else {
-        cursorPerFile[file.abs!] = file.indexFromPosition(file.cursor);
+        cursorPerFile[file.absolutePath!] = file.indexFromPosition(file.cursor);
       }
       FileBufferIo.saveCursorPositions(cursorPerFile);
     }
