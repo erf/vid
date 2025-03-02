@@ -85,35 +85,4 @@ extension FileBufferIo on FileBuffer {
     return Platform.environment['XDG_CACHE_HOME'] ??
         '${Platform.environment['HOME']}/.cache';
   }
-
-  static String get cursorPositionsPath {
-    return '$cacheDir/vid_cursor_positions.csv';
-  }
-
-  // load cursors positions from XDG_CACHE_HOME
-  static Map<String, int> loadCursorPositions() {
-    final file = File(cursorPositionsPath);
-    if (!file.existsSync()) {
-      return {};
-    }
-    try {
-      final List<String> lines = file.readAsLinesSync();
-      return Map.fromEntries(
-        lines.map((line) {
-          final List<String> parts = line.split(',');
-          return MapEntry(parts[0], int.tryParse(parts[1]) ?? 0);
-        }),
-      );
-    } catch (error) {
-      return {};
-    }
-  }
-
-  static void saveCursorPositions(Map<String, int> cursorPositionsPerFile) {
-    final file = File(cursorPositionsPath);
-    final String lines = cursorPositionsPerFile.entries
-        .map((entry) => '${entry.key},${entry.value}')
-        .join('\n');
-    file.writeAsStringSync(lines);
-  }
 }

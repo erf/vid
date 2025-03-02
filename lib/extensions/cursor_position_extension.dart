@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:vid/file_buffer/file_buffer_io.dart';
 import 'package:vid/file_buffer/file_buffer_text.dart';
 import 'package:vid/file_buffer/file_buffer_view.dart';
@@ -12,7 +14,7 @@ class CursorPositionExtension implements Extension {
 
   @override
   void onInit(Editor editor) {
-    cursorPerFile = FileBufferIo.loadCursorPositions();
+    cursorPerFile = loadCursorPositions();
   }
 
   @override
@@ -33,7 +35,38 @@ class CursorPositionExtension implements Extension {
       } else {
         cursorPerFile[file.absolutePath!] = file.indexFromPosition(file.cursor);
       }
-      FileBufferIo.saveCursorPositions(cursorPerFile);
+      saveCursorPositions(cursorPerFile);
     }
+  }
+
+  String get cursorPositionsPath {
+    return '${FileBufferIo.cacheDir}/vid_cursor_positions.csv';
+  }
+
+  // load cursors positions from XDG_CACHE_HOME
+  Map<String, int> loadCursorPositions() {
+    final file = File(cursorPositionsPath);
+    if (!file.existsSync()) {
+      return {};
+    }
+    try {
+      final List<String> lines = file.readAsLinesSync();
+      return Map.fromEntries(
+        lines.map((line) {
+          final List<String> parts = line.split(',');
+          return MapEntry(parts[0], int.tryParse(parts[1]) ?? 0);
+        }),
+      );
+    } catch (error) {
+      return {};
+    }
+  }
+
+  void saveCursorPositions(Map<String, int> cursorPositionsPerFile) {
+    final file = File(cursorPositionsPath);
+    final String lines = cursorPositionsPerFile.entries
+        .map((entry) => '${entry.key},${entry.value}')
+        .join('\n');
+    file.writeAsStringSync(lines);
   }
 }
