@@ -114,4 +114,20 @@ extension FileBufferText on FileBuffer {
     final int end = indexFromPosition(r.end);
     yankBuffer = text.substring(start, end);
   }
+
+  TextOp? undo() {
+    if (undoList.isEmpty) return null;
+    TextOp op = undoList.removeLast();
+    text = text.replaceRange(op.start, op.endNew, op.prevText);
+    redoList.add(op);
+    return op;
+  }
+  
+  TextOp? redo() {
+    if (redoList.isEmpty) return null;
+    TextOp op = redoList.removeLast();
+    text = text.replaceRange(op.start, op.endPrev, op.newText);
+    undoList.add(op);
+    return op;
+  }
 }
