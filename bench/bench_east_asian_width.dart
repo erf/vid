@@ -1,4 +1,4 @@
-import 'package:vid/unicode.dart';
+import 'package:vid/grapheme/unicode.dart';
 
 import 'bench_utils.dart';
 

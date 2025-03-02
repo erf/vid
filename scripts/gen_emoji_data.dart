@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:vid/range_list.dart';
+import 'package:vid/grapheme/range_list.dart';
 
 import 'range_list_extension.dart';
 

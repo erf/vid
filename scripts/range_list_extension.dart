@@ -1,4 +1,4 @@
-import 'package:vid/range_list.dart';
+import 'package:vid/grapheme/range_list.dart';
 
 extension RangeListWrite on RangeList {
   void write(StringBuffer buffer, String variableName) {

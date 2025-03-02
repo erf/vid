@@ -1,7 +1,7 @@
 import 'package:characters/characters.dart';
 
 import 'config.dart';
-import 'unicode.dart';
+import 'grapheme/unicode.dart';
 
 extension StringExt on String {
   // Shorthand for characters (Characters(this))

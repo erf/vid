@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vid/range_list.dart';
+import 'package:vid/grapheme/range_list.dart';
 
 void main() {
   group('RangeList', () {
