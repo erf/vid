@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:vid/extensions/cursor_position_extension.dart';
+import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/file_buffer_mode.dart';
 
 import 'bindings.dart';
@@ -33,13 +35,15 @@ class Editor {
   final bool redraw;
   final StringBuffer rbuf = StringBuffer();
   FileBuffer file = FileBuffer();
-  Map<String, int> cursorPerFile = {};
   Message? message;
   Timer? messageTimer;
   String? logPath;
   File? logFile;
+  late final ExtensionRegistry extensions;
 
-  Editor({required this.terminal, this.redraw = true});
+  Editor({required this.terminal, this.redraw = true}) {
+    extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
+  }
 
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
@@ -56,36 +60,9 @@ class Editor {
     file.parseCliArgs(args);
     initTerminal(path);
     file.createLines(this, Config.wrapMode);
-    initCursorPositions();
-    setCursorPosition();
+    extensions.notifyInit();
+    extensions.notifyFileOpen(file);
     draw();
-  }
-
-  void initCursorPositions() {
-    if (Config.rememberCursorPosition) {
-      cursorPerFile = FileBufferIo.loadCursorPositions();
-    }
-  }
-
-  void setCursorPosition() {
-    if (Config.rememberCursorPosition) {
-      int? cursorPosition = cursorPerFile[file.abs];
-      if (cursorPosition != null) {
-        file.cursor = file.positionFromIndex(cursorPosition);
-        file.centerView(terminal);
-      }
-    }
-  }
-
-  void saveCursorPosition() {
-    if (Config.rememberCursorPosition && file.path != null) {
-      if (file.cursor.l == 0 && file.cursor.c == 0) {
-        cursorPerFile.remove(file.abs!);
-      } else {
-        cursorPerFile[file.abs!] = file.indexFromPosition(file.cursor);
-      }
-      FileBufferIo.saveCursorPositions(cursorPerFile);
-    }
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
@@ -100,7 +77,7 @@ class Editor {
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
     file.createLines(this, Config.wrapMode);
-    setCursorPosition();
+    extensions.notifyFileOpen(file);
     draw();
     return result;
   }
@@ -120,7 +97,7 @@ class Editor {
   }
 
   void quit() {
-    saveCursorPosition();
+    extensions.notifyQuit();
 
     terminal.write(Esc.popWindowTitle);
     terminal.write(Esc.textStylesReset);
