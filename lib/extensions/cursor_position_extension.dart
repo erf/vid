@@ -1,11 +1,10 @@
 import 'dart:io';
 
-import 'package:vid/file_buffer/file_buffer_io.dart';
-import 'package:vid/file_buffer/file_buffer_text.dart';
-import 'package:vid/file_buffer/file_buffer_view.dart';
-
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_index.dart';
+import '../file_buffer/file_buffer_io.dart';
+import '../file_buffer/file_buffer_view.dart';
 import 'extension.dart';
 
 /// Extension that remembers cursor positions for files
