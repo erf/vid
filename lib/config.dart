@@ -7,5 +7,4 @@ class Config {
   static List<String> wrapSymbols = ['', '|↵', '↵'];
   static WrapMode wrapMode = WrapMode.none;
   static String breakat = ' !@*-+;:,./?';
-  static bool rememberCursorPosition = true;
 }
