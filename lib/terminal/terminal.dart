@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:vid/terminal.dart';
+import 'package:vid/terminal/terminal_interface.dart';
 
-class TerminalImpl extends Terminal {
+class Terminal extends TerminalInterface {
   // set raw mode
   @override
   set rawMode(bool rawMode) {

@@ -4,11 +4,11 @@ import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/modes.dart';
 import 'package:vid/position.dart';
-import 'package:vid/terminal_dummy.dart';
+import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('dd', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -19,7 +19,7 @@ void main() {
   });
 
   test('dk', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -30,7 +30,7 @@ void main() {
   });
 
   test('dj', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -40,7 +40,7 @@ void main() {
     expect(f.cursor, Position(c: 0, l: 0));
   });
   test('dd p kP', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -57,7 +57,7 @@ void main() {
   });
 
   test('cc', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -70,7 +70,7 @@ void main() {
   });
 
   test('yyP', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -84,7 +84,7 @@ void main() {
   });
 
   test('ywP', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\n';
     f.createLines(e, WrapMode.none);
@@ -96,7 +96,7 @@ void main() {
   });
 
   test('ddjp', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -105,7 +105,7 @@ void main() {
   });
 
   test('ddjpxp', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -116,7 +116,7 @@ void main() {
   });
 
   test('gu should lowercase', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ABC\n';
     f.createLines(e, WrapMode.none);
@@ -125,7 +125,7 @@ void main() {
   });
 
   test('gU should uppercase', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
     f.createLines(e, WrapMode.none);
@@ -134,7 +134,7 @@ void main() {
   });
 
   test('dd at eof', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.createLines(e, WrapMode.none);
@@ -144,7 +144,7 @@ void main() {
   });
 
   test('dd with space', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\nghi\n';
     f.createLines(e, WrapMode.none);

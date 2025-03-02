@@ -28,10 +28,10 @@ import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
-import 'terminal.dart';
+import 'terminal/terminal_interface.dart';
 
 class Editor {
-  final Terminal terminal;
+  final TerminalInterface terminal;
   final bool redraw;
   final StringBuffer rbuf = StringBuffer();
   FileBuffer file = FileBuffer();

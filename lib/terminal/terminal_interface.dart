@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'esc.dart';
+import '../esc.dart';
 
-abstract class Terminal {
+abstract class TerminalInterface {
   set rawMode(bool rawMode);
 
   int get width;

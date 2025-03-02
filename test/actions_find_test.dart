@@ -5,11 +5,11 @@ import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/motions/find_next_char_motion.dart';
 import 'package:vid/motions/find_prev_char_motion.dart';
 import 'package:vid/position.dart';
-import 'package:vid/terminal_dummy.dart';
+import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('motionFindNextChar', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abca\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -20,7 +20,7 @@ void main() {
   });
 
   test('motionFindPrevChar', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -31,7 +31,7 @@ void main() {
   });
 
   test('till with delete operator', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines(e, WrapMode.none);
@@ -42,7 +42,7 @@ void main() {
   });
 
   test('find with delete operator', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
     f.createLines(e, WrapMode.none);

@@ -4,11 +4,11 @@ import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/file_buffer/file_buffer_lines.dart';
-import 'package:vid/terminal_dummy.dart';
+import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   String text = File('sample-data/Sema.zig').readAsStringSync();
-  final editor = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+  final editor = Editor(terminal: TestTerminal(80, 24), redraw: false);
   benchmarkCreateLinesWrapModeNone(editor, text);
   benchmarkCreateLinesWrapModeChar(editor, text);
   benchmarkCreateLinesWrapModeWord(editor, text);

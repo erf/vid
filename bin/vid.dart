@@ -1,6 +1,6 @@
 import 'package:vid/editor.dart' as vid;
-import 'package:vid/terminal_impl.dart';
+import 'package:vid/terminal/terminal.dart';
 
 void main(List<String> args) {
-  vid.Editor(terminal: TerminalImpl()).init(args);
+  vid.Editor(terminal: Terminal()).init(args);
 }

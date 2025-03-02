@@ -21,11 +21,11 @@ import 'package:vid/motions/word_end_prev_motion.dart';
 import 'package:vid/motions/word_next_motion.dart';
 import 'package:vid/motions/word_prev_motion.dart';
 import 'package:vid/position.dart';
-import 'package:vid/terminal_dummy.dart';
+import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('motionCharNext', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -37,7 +37,7 @@ void main() {
   });
 
   test('motionCharPrev', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -48,7 +48,7 @@ void main() {
   });
 
   test('motion.lineUp', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -59,7 +59,7 @@ void main() {
   });
 
   test('motion.lineUp with emojis', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
     f.createLines(e, WrapMode.none);
@@ -68,7 +68,7 @@ void main() {
   });
 
   test('motion.lineDown', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -79,7 +79,7 @@ void main() {
   });
 
   test('motion.lineDown with emojis', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
     f.createLines(e, WrapMode.none);
@@ -88,7 +88,7 @@ void main() {
   });
 
   test('motionFileStart', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -111,7 +111,7 @@ void main() {
   });
 
   test('motionFileEnd', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.createLines(e, WrapMode.none);
@@ -122,7 +122,7 @@ void main() {
   });
 
   test('motionWordNext', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
@@ -135,7 +135,7 @@ void main() {
   });
 
   test('motionWordCapNext', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc,def ghi\n';
     f.createLines(e, WrapMode.none);
@@ -146,7 +146,7 @@ void main() {
   });
 
   test('motionWordEnd', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
@@ -159,7 +159,7 @@ void main() {
   });
 
   test('motionWordPrev', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
@@ -172,7 +172,7 @@ void main() {
   });
 
   test('motionWordCapPrev', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def, ghi\n';
     f.createLines(e, WrapMode.none);
@@ -183,7 +183,7 @@ void main() {
   });
 
   test('motionWordEndPrev', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
     f.createLines(e, WrapMode.none);
@@ -206,7 +206,7 @@ void main() {
   });
 
   test('motionFindWordOnCursorNext', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
     f.createLines(e, WrapMode.none);
@@ -225,7 +225,7 @@ void main() {
   });
 
   test('motionFindWordOnCursorPrev', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
     f.createLines(e, WrapMode.none);
@@ -240,7 +240,7 @@ void main() {
   });
 
   test('motionFirstNoneBlank', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '  abc\n';
     f.createLines(e, WrapMode.none);
@@ -267,7 +267,7 @@ void main() {
   });
 
   test('motionLineEnd', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def\nghi jkl\n';
     f.createLines(e, WrapMode.none);
@@ -278,7 +278,7 @@ void main() {
   });
 
   test('FindNextCharMotion with dot', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'test.\n';
     f.createLines(e, WrapMode.none);
@@ -289,7 +289,7 @@ void main() {
   });
 
   test('FindPrevCharMotion with dot', () {
-    final e = Editor(terminal: TerminalDummy(80, 24), redraw: false);
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello. test.\n';
     f.createLines(e, WrapMode.none);

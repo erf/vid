@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:vid/terminal.dart';
+import 'package:vid/terminal/terminal_interface.dart';
 
-class TerminalDummy extends Terminal {
-  TerminalDummy(this._width, this._height);
+class TestTerminal extends TerminalInterface {
+  TestTerminal(this._width, this._height);
 
   final int _width;
   final int _height;
