@@ -1,13 +1,13 @@
 import 'dart:math';
 
-import 'package:vid/motions/line_down_motion.dart';
-
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_mode.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../keys.dart';
 import '../modes.dart';
+import '../motions/line_down_motion.dart';
 
 class InsertActions {
   static void defaultInsert(

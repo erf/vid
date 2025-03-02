@@ -2,6 +2,7 @@ import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_io.dart';
 import '../file_buffer/file_buffer_lines.dart';
 import '../file_buffer/file_buffer_mode.dart';

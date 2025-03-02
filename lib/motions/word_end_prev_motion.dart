@@ -1,6 +1,5 @@
-import 'package:vid/file_buffer/file_buffer_text.dart';
-
 import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_index.dart';
 import '../position.dart';
 import '../regex.dart';
 import 'motion.dart';

@@ -1,17 +1,17 @@
 import 'dart:math';
 
-import 'package:vid/edit.dart';
-import 'package:vid/line.dart';
-
 import '../config.dart';
+import '../edit.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_io.dart';
 import '../file_buffer/file_buffer_lines.dart';
 import '../file_buffer/file_buffer_mode.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../file_buffer/file_buffer_view.dart';
+import '../line.dart';
 import '../message.dart';
 import '../modes.dart';
 import '../position.dart';

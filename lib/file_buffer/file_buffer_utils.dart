@@ -3,10 +3,11 @@ import 'dart:io';
 import '../actions/insert_actions.dart';
 import '../editor.dart';
 import '../error_or.dart';
-import 'file_buffer.dart';
-import 'file_buffer_text.dart';
 import '../keys.dart';
 import '../position.dart';
+import 'file_buffer.dart';
+import 'file_buffer_index.dart';
+import 'file_buffer_text.dart';
 
 extension FileBufferUtils on FileBuffer {
   ErrorOr<bool> insertFile(Editor e, String path) {
