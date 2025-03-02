@@ -26,11 +26,11 @@ class Motions {
   static Position regexNext(
     FileBuffer f,
     Position p,
-    RegExp regExp, {
+    RegExp pattern, {
     int skip = 0,
   }) {
     int start = f.indexFromPosition(p);
-    final matches = regExp.allMatches(f.text, start + skip);
+    final matches = pattern.allMatches(f.text, start + skip);
     if (matches.isEmpty) return p;
     final m = matches.firstWhere(
       (ma) => ma.start > start,
@@ -40,9 +40,9 @@ class Motions {
   }
 
   // find the first match before the cursor position
-  static Position regexPrev(FileBuffer f, Position p, RegExp regex) {
+  static Position regexPrev(FileBuffer f, Position p, RegExp pattern) {
     final int start = f.indexFromPosition(p);
-    final matches = regex.allMatches(f.text.substring(0, start));
+    final matches = pattern.allMatches(f.text.substring(0, start));
     if (matches.isEmpty) return p;
     return f.positionFromIndex(matches.last.start);
   }
@@ -66,12 +66,12 @@ class Motions {
     }
     // we are on the word and we want to find the next same word
     final String wordToMatch = f.text.substring(match.start, match.end);
-    final RegExp regExp = RegExp(RegExp.escape(wordToMatch));
+    final RegExp pattern = RegExp(RegExp.escape(wordToMatch));
     // find the next same word
     final int index =
         forward
-            ? f.text.indexOf(regExp, match.end)
-            : f.text.lastIndexOf(regExp, max(0, match.start - 1));
+            ? f.text.indexOf(pattern, match.end)
+            : f.text.lastIndexOf(pattern, max(0, match.start - 1));
     return index == -1
         ? f.positionFromIndex(match.start)
         : f.positionFromIndex(index);
