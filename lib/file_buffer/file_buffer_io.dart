@@ -25,7 +25,7 @@ extension FileBufferIo on FileBuffer {
 
     // load file if it exists
     final file = File(path);
-    final abs = file.absolute.path;
+    final String absolutePath = file.absolute.path;
     if (file.existsSync()) {
       try {
         String text = file.readAsStringSync();
@@ -33,7 +33,9 @@ extension FileBufferIo on FileBuffer {
         if (!text.endsWith('\n')) {
           text += '\n';
         }
-        return ErrorOr.value(FileBuffer(path: path, absolutePath: abs, text: text));
+        return ErrorOr.value(
+          FileBuffer(path: path, absolutePath: absolutePath, text: text),
+        );
       } catch (error) {
         return ErrorOr.error('Error reading file: \'$error\'');
       }
@@ -41,7 +43,7 @@ extension FileBufferIo on FileBuffer {
 
     // create new file if allowed
     if (createNewFileIfNotExists) {
-      return ErrorOr.value(FileBuffer(path: path, absolutePath: abs));
+      return ErrorOr.value(FileBuffer(path: path, absolutePath: absolutePath));
     }
 
     // file not found
