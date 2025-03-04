@@ -28,7 +28,7 @@ class CursorPositionExtension implements Extension {
   @override
   void onQuit(Editor editor) {
     FileBuffer file = editor.file;
-    if (file.path != null) {
+    if (file.absolutePath != null) {
       if (file.cursor.l == 0 && file.cursor.c == 0) {
         cursorPerFile.remove(file.absolutePath!);
       } else {
