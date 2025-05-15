@@ -9,9 +9,8 @@ import 'file_buffer.dart';
 extension FileBufferIo on FileBuffer {
   // load file from disk or create new file, return file name
   static ErrorOr<FileBuffer> load(
-    Editor editor, {
-    required String path,
-    required bool createNewFileIfNotExists,
+    String path, {
+    required bool createIfNotExists,
   }) {
     //  if no path is given, return an empty file buffer
     if (path.isEmpty) {
@@ -42,7 +41,7 @@ extension FileBufferIo on FileBuffer {
     }
 
     // create new file if allowed
-    if (createNewFileIfNotExists) {
+    if (createIfNotExists) {
       return ErrorOr.value(FileBuffer(path: path, absolutePath: absolutePath));
     }
 
