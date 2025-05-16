@@ -5,6 +5,9 @@ import '../modes.dart';
 
 extension FileBufferMode on FileBuffer {
   void setMode(Editor e, Mode mode) {
+    if (e.file.mode == mode) {
+      return;
+    }
     switch (mode) {
       case Mode.normal:
         e.terminal.write(Esc.cursorStyleBlock);
