@@ -122,7 +122,7 @@ extension FileBufferText on FileBuffer {
     redoList.add(op);
     return op;
   }
-  
+
   TextOp? redo() {
     if (redoList.isEmpty) return null;
     TextOp op = redoList.removeLast();
