@@ -68,10 +68,9 @@ class Motions {
     final String wordToMatch = f.text.substring(match.start, match.end);
     final RegExp pattern = RegExp(RegExp.escape(wordToMatch));
     // find the next same word
-    final int index =
-        forward
-            ? f.text.indexOf(pattern, match.end)
-            : f.text.lastIndexOf(pattern, max(0, match.start - 1));
+    final int index = forward
+        ? f.text.indexOf(pattern, match.end)
+        : f.text.lastIndexOf(pattern, max(0, match.start - 1));
     return index == -1
         ? f.positionFromIndex(match.start)
         : f.positionFromIndex(index);
