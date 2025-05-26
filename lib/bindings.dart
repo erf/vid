@@ -49,7 +49,6 @@ import 'motions/word_next_motion.dart';
 
 const normalCommands = <String, Command>{
   'q': NormalCommand(Normal.quit),
-  'Q': NormalCommand(Normal.quitWithoutSaving),
   'S': AliasCommand('^C'),
   's': NormalCommand(Normal.save),
   'i': ModeCommand(Mode.insert),
