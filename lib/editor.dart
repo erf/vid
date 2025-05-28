@@ -150,16 +150,44 @@ class Editor {
         continue;
       }
       // draw line
+      String lineText;
       switch (Config.wrapMode) {
         case WrapMode.none:
-          rbuf.writeln(
-            lines[l].text.tabsToSpaces.ch.renderLine(view.c, terminal.width),
-          );
+          lineText = lines[l].text.tabsToSpaces.ch
+              .renderLine(view.c, terminal.width)
+              .string;
         case WrapMode.char:
         case WrapMode.word:
-          rbuf.writeln(lines[l].text.tabsToSpaces);
+          lineText = lines[l].text.tabsToSpaces;
       }
+
+      // Add line length marker if configured
+      if (Config.showLineLengthMarker && Config.wrapMode == WrapMode.none) {
+        lineText = _addLineLengthMarker(lineText, view.c);
+      }
+
+      rbuf.writeln(lineText);
     }
+  }
+
+  /// Adds a subtle marker at the configured maxLineLength position
+  String _addLineLengthMarker(String lineText, int viewColumn) {
+    final int markerCol = Config.maxLineLength - 1 - viewColumn;
+
+    // Check if marker is visible on screen
+    if (markerCol < 0 || markerCol >= terminal.width) {
+      return lineText;
+    }
+
+    // Pad line to reach marker position if needed
+    if (lineText.length <= markerCol) {
+      lineText = lineText.padRight(markerCol + 1);
+    }
+
+    // Use replaceRange to insert the styled marker
+    const String styledMarker =
+        '${Esc.dimMode}${Esc.grayBackground}${Config.maxLineLengthMarker}${Esc.textStylesReset}';
+    return lineText.replaceRange(markerCol, markerCol + 1, styledMarker);
   }
 
   void drawCursor(int cursorpos) {

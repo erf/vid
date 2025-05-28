@@ -33,6 +33,15 @@ class Esc {
   // green color
   static const String greenColor = '$e[32m';
 
+  // dim/faint mode
+  static const String dimMode = '$e[2m';
+
+  // gray background color (256-color)
+  static const String grayBackground = '$e[48;5;240m';
+
+  // light gray background color (256-color)
+  static const String lightGrayBackground = '$e[48;5;250m';
+
   // reset colors
   static const String textStylesReset = '$e[0m';
 
