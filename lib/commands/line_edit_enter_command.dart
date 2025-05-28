@@ -18,6 +18,7 @@ class LineEditEnterCommand extends Command {
     String cmd = args.isNotEmpty ? args.first : command;
     if (lineEditCommands.containsKey(cmd)) {
       lineEditCommands[cmd]!(e, f, args);
+      f.edit.lineEdit = '';
       return;
     }
     if (command.startsWith(Regex.substitute)) {
