@@ -161,6 +161,8 @@ const lineEditCommands = <String, Function>{
   'nowrap': LineEdit.setNoWrap,
   'charwrap': LineEdit.setCharWrap,
   'wordwrap': LineEdit.setWordWrap,
+  'cc': LineEdit.setColorColumn,
+  'colorcolumn': LineEdit.setColorColumn,
 };
 
 const lineEditInputCommands = <String, Command>{

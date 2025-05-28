@@ -131,4 +131,22 @@ class LineEdit {
     Config.wrapMode = WrapMode.word;
     f.createLines(e, Config.wrapMode);
   }
+
+  static void setColorColumn(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, Mode.normal);
+    if (args.length < 2 || args[1].isEmpty) {
+      Config.colorcolumn = null;
+      e.showMessage(Message.info('Unset color column'));
+      f.createLines(e, Config.wrapMode);
+      return;
+    }
+    int? column = int.tryParse(args[1]);
+    if (column == null || column < 0) {
+      e.showMessage(Message.error('Invalid column number'));
+      return;
+    }
+    Config.colorcolumn = column;
+    f.createLines(e, Config.wrapMode);
+    e.showMessage(Message.info('Set color column to $column'));
+  }
 }

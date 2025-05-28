@@ -7,7 +7,6 @@ class Config {
   static const List<String> wrapSymbols = ['', '|↵', '↵'];
   static WrapMode wrapMode = WrapMode.none;
   static const String breakat = ' !@*-+;:,./?';
-  static const int maxLineLength = 80;
-  static const String maxLineLengthMarker = ' ';
-  static const bool showLineLengthMarker = true;
+  static int? colorcolumn;
+  static const String colorcolumnMarker = ' ';
 }
