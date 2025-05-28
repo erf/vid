@@ -134,18 +134,29 @@ class LineEdit {
 
   static void setColorColumn(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, Mode.normal);
+    // If no column is specified, toggle the color column
     if (args.length < 2 || args[1].isEmpty) {
-      Config.colorcolumn = null;
-      e.showMessage(Message.info('Unset color column'));
+      if (Config.colorColumn == null) {
+        Config.colorColumn = Config.defaultColorColumn;
+        e.showMessage(
+          Message.info(
+            'Set default color column (${Config.defaultColorColumn})',
+          ),
+        );
+      } else {
+        Config.colorColumn = null;
+        e.showMessage(Message.info('Unset color column'));
+      }
       f.createLines(e, Config.wrapMode);
       return;
     }
+    // If a column is specified, set it
     int? column = int.tryParse(args[1]);
     if (column == null || column < 0) {
       e.showMessage(Message.error('Invalid column number'));
       return;
     }
-    Config.colorcolumn = column;
+    Config.colorColumn = column;
     f.createLines(e, Config.wrapMode);
     e.showMessage(Message.info('Set color column to $column'));
   }

@@ -162,7 +162,7 @@ class Editor {
       }
 
       // Add line length marker if configured
-      if (Config.colorcolumn != null && Config.wrapMode == WrapMode.none) {
+      if (Config.colorColumn != null && Config.wrapMode == WrapMode.none) {
         lineText = _addLineLengthMarker(lineText, view.c);
       }
 
@@ -172,7 +172,8 @@ class Editor {
 
   /// Adds a subtle marker at the configured maxLineLength position
   String _addLineLengthMarker(String lineText, int viewColumn) {
-    final int markerCol = (Config.colorcolumn ?? 80) - 1 - viewColumn;
+    final int markerCol =
+        (Config.colorColumn ?? Config.defaultColorColumn) - 1 - viewColumn;
 
     // Check if marker is visible on screen
     if (markerCol < 0 || markerCol >= terminal.width) {

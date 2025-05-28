@@ -7,6 +7,7 @@ class Config {
   static const List<String> wrapSymbols = ['', '|↵', '↵'];
   static WrapMode wrapMode = WrapMode.none;
   static const String breakat = ' !@*-+;:,./?';
-  static int? colorcolumn;
+  static int? colorColumn;
   static const String colorcolumnMarker = ' ';
+  static const int defaultColorColumn = 80;
 }
