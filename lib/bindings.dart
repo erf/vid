@@ -50,7 +50,7 @@ import 'motions/word_next_motion.dart';
 const normalCommands = <String, Command>{
   'q': NormalCommand(Normal.quit),
   'S': AliasCommand('^C'),
-  's': AliasCommand('dli'),
+  's': NormalCommand(Normal.save),
   'i': ModeCommand(Mode.insert),
   'a': NormalCommand(Normal.appendCharNext),
   'A': AliasCommand('\$i'),
