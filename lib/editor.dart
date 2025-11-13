@@ -33,8 +33,8 @@ import 'terminal/terminal_interface.dart';
 class Editor {
   final TerminalInterface terminal;
   final bool redraw;
-  final StringBuffer rbuf = StringBuffer();
-  FileBuffer file = FileBuffer();
+  final rbuf = StringBuffer();
+  var file = FileBuffer();
   Message? message;
   Timer? messageTimer;
   String? logPath;
