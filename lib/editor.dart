@@ -31,20 +31,23 @@ import 'string_ext.dart';
 import 'terminal/terminal_base.dart';
 
 class Editor {
-  final config = Config();
+  final Config config;
+  int? colorColumn;
   final TerminalBase terminal;
   final bool redraw;
-  final rbuf = StringBuffer();
+  final renderBuffer = StringBuffer();
   var file = FileBuffer();
   Message? message;
   Timer? messageTimer;
   String? logPath;
   File? logFile;
-  late final ExtensionRegistry extensions;
+  ExtensionRegistry? extensions;
 
-  Editor({required this.terminal, this.redraw = true}) {
-    extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
-  }
+  Editor({
+    required this.terminal,
+    this.redraw = true,
+    this.config = const Config(),
+  });
 
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
@@ -57,8 +60,10 @@ class Editor {
     file.parseCliArgs(args);
     initTerminal(path);
     file.createLines(this, wrapMode: config.wrapMode);
-    extensions.notifyInit();
-    extensions.notifyFileOpen(file);
+
+    extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
+    extensions?.notifyInit();
+    extensions?.notifyFileOpen(file);
     draw();
   }
 
@@ -70,7 +75,7 @@ class Editor {
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
     file.createLines(this, wrapMode: config.wrapMode);
-    extensions.notifyFileOpen(file);
+    extensions?.notifyFileOpen(file);
     draw();
     return result;
   }
@@ -90,7 +95,7 @@ class Editor {
   }
 
   void quit() {
-    extensions.notifyQuit();
+    extensions?.notifyQuit();
 
     terminal.write(Esc.popWindowTitle);
     terminal.write(Esc.textStylesReset);
@@ -114,8 +119,8 @@ class Editor {
   }
 
   void draw() {
-    rbuf.clear();
-    rbuf.write(Esc.homeAndEraseDown);
+    renderBuffer.clear();
+    renderBuffer.write(Esc.homeAndEraseDown);
     file.clampCursor();
     Position cursor = file.cursor;
     int cursorpos = file.lines[cursor.l].text.ch.renderLength(
@@ -133,7 +138,7 @@ class Editor {
         drawStatus();
         drawCursor(cursorpos);
     }
-    terminal.write(rbuf);
+    terminal.write(renderBuffer);
   }
 
   void drawLines() {
@@ -145,12 +150,12 @@ class Editor {
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
       if (l > lines.length - 1) {
-        rbuf.writeln('~');
+        renderBuffer.writeln('~');
         continue;
       }
       // for empty lines draw empty line
       if (lines[l].isEmpty) {
-        rbuf.writeln();
+        renderBuffer.writeln();
         continue;
       }
       // draw line
@@ -168,18 +173,18 @@ class Editor {
       }
 
       // Add line length marker if configured
-      if (config.colorColumn != null && config.wrapMode == .none) {
+      if (colorColumn != null && config.wrapMode == .none) {
         lineText = _addLineLengthMarker(lineText, view.c);
       }
 
-      rbuf.writeln(lineText);
+      renderBuffer.writeln(lineText);
     }
   }
 
   /// Adds a subtle marker at the configured maxLineLength position
   String _addLineLengthMarker(String lineText, int viewColumn) {
     final int markerCol =
-        (config.colorColumn ?? config.defaultColorColumn) - 1 - viewColumn;
+        (colorColumn ?? config.defaultColorColumn) - 1 - viewColumn;
 
     // Check if marker is visible on screen
     if (markerCol < 0 || markerCol >= terminal.width) {
@@ -203,7 +208,7 @@ class Editor {
       l: file.cursor.l - file.view.l + 1,
       c: cursorpos - file.view.c + 1,
     );
-    rbuf.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
+    renderBuffer.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
   }
 
   // draw the command input line
@@ -211,18 +216,18 @@ class Editor {
     final String lineEdit = file.edit.lineEdit;
 
     if (file.mode == .search) {
-      rbuf.write('/$lineEdit ');
+      renderBuffer.write('/$lineEdit ');
     } else {
-      rbuf.write(':$lineEdit ');
+      renderBuffer.write(':$lineEdit ');
     }
     int cursor = lineEdit.length + 2;
-    rbuf.write(Esc.cursorStyleLine);
-    rbuf.write(Esc.cursorPosition(c: cursor, l: terminal.height));
+    renderBuffer.write(Esc.cursorStyleLine);
+    renderBuffer.write(Esc.cursorPosition(c: cursor, l: terminal.height));
   }
 
   void drawStatus() {
-    rbuf.write(Esc.invertColors);
-    rbuf.write(Esc.cursorPosition(c: 1, l: terminal.height));
+    renderBuffer.write(Esc.invertColors);
+    renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height));
 
     Position cursor = file.cursor;
     String mode = statusModeLabel(file.mode);
@@ -240,24 +245,24 @@ class Editor {
     String status = ' $left ${right.padLeft(padLeft)}';
 
     if (status.length <= terminal.width - 1) {
-      rbuf.write(status);
+      renderBuffer.write(status);
     } else {
-      rbuf.write(status.substring(0, terminal.width));
+      renderBuffer.write(status.substring(0, terminal.width));
     }
 
     // draw message
     if (message != null) {
       if (message!.type == .error) {
-        rbuf.write(Esc.redColor);
+        renderBuffer.write(Esc.redColor);
       } else {
-        rbuf.write(Esc.greenColor);
+        renderBuffer.write(Esc.greenColor);
       }
-      rbuf.write(Esc.cursorPosition(c: 1, l: terminal.height - 1));
-      rbuf.write(' ${message!.text} ');
-      rbuf.write(Esc.textStylesReset);
+      renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height - 1));
+      renderBuffer.write(' ${message!.text} ');
+      renderBuffer.write(Esc.textStylesReset);
     }
 
-    rbuf.write(Esc.reverseColors);
+    renderBuffer.write(Esc.reverseColors);
   }
 
   String statusModeLabel(Mode mode) {

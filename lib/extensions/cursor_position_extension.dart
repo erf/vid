@@ -11,6 +11,8 @@ import 'extension.dart';
 class CursorPositionExtension implements Extension {
   Map<String, int> cursorPerFile = {};
 
+  CursorPositionExtension();
+
   @override
   void onInit(Editor editor) {
     cursorPerFile = loadCursorPositions();

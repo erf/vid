@@ -113,19 +113,19 @@ class LineEdit {
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config.wrapMode = .none;
+    e.config.copyWith(wrapMode: .none);
     f.createLines(e, wrapMode: .none);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config.wrapMode = .char;
+    e.config.copyWith(wrapMode: .char);
     f.createLines(e, wrapMode: .char);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config.wrapMode = .word;
+    e.config.copyWith(wrapMode: .word);
     f.createLines(e, wrapMode: .word);
   }
 
@@ -133,13 +133,13 @@ class LineEdit {
     f.setMode(e, .normal);
     // If no column is specified, toggle the color column
     if (args.length < 2 || args[1].isEmpty) {
-      if (e.config.colorColumn == null) {
-        e.config.colorColumn = e.config.defaultColorColumn;
+      if (e.colorColumn == null) {
+        e.colorColumn = e.config.defaultColorColumn;
         e.showMessage(
           .info('Set default color column (${e.config.defaultColorColumn})'),
         );
       } else {
-        e.config.colorColumn = null;
+        e.colorColumn = null;
         e.showMessage(.info('Unset color column'));
       }
       f.createLines(e, wrapMode: e.config.wrapMode);
@@ -151,7 +151,7 @@ class LineEdit {
       e.showMessage(.error('Invalid column number'));
       return;
     }
-    e.config.colorColumn = column;
+    e.colorColumn = column;
     f.createLines(e, wrapMode: e.config.wrapMode);
     e.showMessage(.info('Set color column to $column'));
   }
