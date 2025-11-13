@@ -6,7 +6,6 @@ import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_mode.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../keys.dart';
-import '../modes.dart';
 import '../motions/line_down_motion.dart';
 
 class InsertActions {
@@ -29,15 +28,15 @@ class InsertActions {
   }
 
   static void escape(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     f.cursor.c--;
     f.cursor.c = max(f.cursor.c, 0);
   }
 
   static void backspace(Editor e, FileBuffer f) {
     if (f.cursor.c == 0 && f.cursor.l == 0) return;
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     e.alias('hdl');
-    f.setMode(e, Mode.insert);
+    f.setMode(e, .insert);
   }
 }

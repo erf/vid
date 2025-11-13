@@ -6,7 +6,7 @@ class Message {
 
   Message(this.text, this.type);
 
-  factory Message.info(String message) => Message(message, MessageType.info);
+  factory Message.info(String message) => Message(message, .info);
 
-  factory Message.error(String message) => Message(message, MessageType.error);
+  factory Message.error(String message) => Message(message, .error);
 }

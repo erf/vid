@@ -104,7 +104,7 @@ class Editor {
     int byteIndex = file.indexFromPosition(file.cursor);
     file.createLines(this, Config.wrapMode);
     file.cursor = file.positionFromIndex(byteIndex);
-    showMessage(Message.info('${terminal.width}x${terminal.height}'));
+    showMessage(.info('${terminal.width}x${terminal.height}'));
     draw();
   }
 
@@ -122,8 +122,8 @@ class Editor {
     drawLines();
 
     switch (file.mode) {
-      case Mode.command:
-      case Mode.search:
+      case .command:
+      case .search:
         drawLineEdit();
       default:
         drawStatus();
@@ -152,17 +152,17 @@ class Editor {
       // draw line
       String lineText;
       switch (Config.wrapMode) {
-        case WrapMode.none:
+        case .none:
           lineText = lines[l].text.tabsToSpaces.ch
               .renderLine(view.c, terminal.width)
               .string;
-        case WrapMode.char:
-        case WrapMode.word:
+        case .char:
+        case .word:
           lineText = lines[l].text.tabsToSpaces;
       }
 
       // Add line length marker if configured
-      if (Config.colorColumn != null && Config.wrapMode == WrapMode.none) {
+      if (Config.colorColumn != null && Config.wrapMode == .none) {
         lineText = _addLineLengthMarker(lineText, view.c);
       }
 
@@ -203,7 +203,7 @@ class Editor {
   void drawLineEdit() {
     final String lineEdit = file.edit.lineEdit;
 
-    if (file.mode == Mode.search) {
+    if (file.mode == .search) {
       rbuf.write('/$lineEdit ');
     } else {
       rbuf.write(':$lineEdit ');
@@ -240,7 +240,7 @@ class Editor {
 
     // draw message
     if (message != null) {
-      if (message!.type == MessageType.error) {
+      if (message!.type == .error) {
         rbuf.write(Esc.redColor);
       } else {
         rbuf.write(Esc.greenColor);
@@ -255,12 +255,12 @@ class Editor {
 
   String statusModeLabel(Mode mode) {
     return switch (mode) {
-      Mode.normal => 'NOR',
-      Mode.operatorPending => 'PEN',
-      Mode.insert => 'INS',
-      Mode.replace => 'REP',
-      Mode.command => 'CMD',
-      Mode.search => 'SRC',
+      .normal => 'NOR',
+      .operatorPending => 'PEN',
+      .insert => 'INS',
+      .replace => 'REP',
+      .command => 'CMD',
+      .search => 'SRC',
     };
   }
 
@@ -311,13 +311,13 @@ class Editor {
 
     // check if we match or partial match a key
     switch (matchKeys(keyBindings[file.mode]!, edit.cmdKey)) {
-      case (KeyMatch.none, _):
-        file.setMode(this, Mode.normal);
+      case (.none, _):
+        file.setMode(this, .normal);
         file.edit = Edit();
-      case (KeyMatch.partial, _):
+      case (.partial, _):
         // wait for more input
         return;
-      case (KeyMatch.match, Command command):
+      case (.match, Command command):
         command.execute(this, file, char);
         edit.cmdKey = '';
     }

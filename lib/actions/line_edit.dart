@@ -8,51 +8,49 @@ import '../file_buffer/file_buffer_lines.dart';
 import '../file_buffer/file_buffer_mode.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../file_buffer/file_buffer_utils.dart';
-import '../message.dart';
-import '../modes.dart';
 import 'normal.dart';
 
 class LineEdit {
   static void noop(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
   }
 
   static void open(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     if (f.modified) {
-      e.showMessage(Message.error('File has unsaved changes'));
+      e.showMessage(.error('File has unsaved changes'));
       return;
     }
     if (args.length < 2 || args[1].isEmpty) {
-      e.showMessage(Message.error('No file name'));
+      e.showMessage(.error('No file name'));
       return;
     }
     String path = args[1];
     ErrorOr<FileBuffer> result = e.loadFile(path);
     if (result.hasError) {
-      e.showMessage(Message.error(result.error!));
+      e.showMessage(.error(result.error!));
     } else {
-      e.showMessage(Message.info('Opened \'$path\''));
+      e.showMessage(.info('Opened \'$path\''));
     }
   }
 
   static void read(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     if (args.length < 2 || args[1].isEmpty) {
-      e.showMessage(Message.error('No file name'));
+      e.showMessage(.error('No file name'));
       return;
     }
     String path = args[1];
     ErrorOr result = f.insertFile(e, path);
     if (result.hasError) {
-      e.showMessage(Message.error(result.error!));
+      e.showMessage(.error(result.error!));
     } else {
-      e.showMessage(Message.info('Read \'$path\''));
+      e.showMessage(.info('Read \'$path\''));
     }
   }
 
   static void write(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
 
     String? path = f.path;
     if (args.length > 1) {
@@ -61,15 +59,15 @@ class LineEdit {
 
     final ErrorOr<bool> result = f.save(e, path);
     if (result.hasError) {
-      e.showMessage(Message.error(result.error!));
+      e.showMessage(.error(result.error!));
     } else {
       f.path = path; // set path after successful save
-      e.showMessage(Message.info('Saved \'$path\''));
+      e.showMessage(.info('Saved \'$path\''));
     }
   }
 
   static void writeAndQuit(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
 
     String? path = f.path;
     if (args.length > 1) {
@@ -78,14 +76,14 @@ class LineEdit {
 
     ErrorOr result = f.save(e, path);
     if (result.hasError) {
-      e.showMessage(Message.error(result.error!));
+      e.showMessage(.error(result.error!));
     } else {
       e.quit();
     }
   }
 
   static void quit(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     Normal.quit(e, f);
   }
 
@@ -99,7 +97,7 @@ class LineEdit {
     String replacement = parts.length >= 3 ? parts[2] : '';
     bool global = parts.length >= 4 && parts[3] == 'g';
 
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     final regex = RegExp(RegExp.escape(pattern));
     while (true) {
       Match? match = regex.firstMatch(f.text);
@@ -115,37 +113,35 @@ class LineEdit {
   }
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
-    Config.wrapMode = WrapMode.none;
+    f.setMode(e, .normal);
+    Config.wrapMode = .none;
     f.createLines(e, Config.wrapMode);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
-    Config.wrapMode = WrapMode.char;
+    f.setMode(e, .normal);
+    Config.wrapMode = .char;
     f.createLines(e, Config.wrapMode);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
-    Config.wrapMode = WrapMode.word;
+    f.setMode(e, .normal);
+    Config.wrapMode = .word;
     f.createLines(e, Config.wrapMode);
   }
 
   static void setColorColumn(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     // If no column is specified, toggle the color column
     if (args.length < 2 || args[1].isEmpty) {
       if (Config.colorColumn == null) {
         Config.colorColumn = Config.defaultColorColumn;
         e.showMessage(
-          Message.info(
-            'Set default color column (${Config.defaultColorColumn})',
-          ),
+          .info('Set default color column (${Config.defaultColorColumn})'),
         );
       } else {
         Config.colorColumn = null;
-        e.showMessage(Message.info('Unset color column'));
+        e.showMessage(.info('Unset color column'));
       }
       f.createLines(e, Config.wrapMode);
       return;
@@ -153,11 +149,11 @@ class LineEdit {
     // If a column is specified, set it
     int? column = int.tryParse(args[1]);
     if (column == null || column < 0) {
-      e.showMessage(Message.error('Invalid column number'));
+      e.showMessage(.error('Invalid column number'));
       return;
     }
     Config.colorColumn = column;
     f.createLines(e, Config.wrapMode);
-    e.showMessage(Message.info('Set color column to $column'));
+    e.showMessage(.info('Set color column to $column'));
   }
 }

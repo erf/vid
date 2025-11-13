@@ -51,13 +51,13 @@ const normalCommands = <String, Command>{
   'q': NormalCommand(Normal.quit),
   'S': AliasCommand('^C'),
   's': NormalCommand(Normal.save),
-  'i': ModeCommand(Mode.insert),
+  'i': ModeCommand(.insert),
   'a': NormalCommand(Normal.appendCharNext),
   'A': AliasCommand('\$i'),
   'I': AliasCommand('^i'),
   'o': AliasCommand('A\n'),
   'O': AliasCommand('^i\n${Keys.escape}ki'),
-  'r': ModeCommand(Mode.replace),
+  'r': ModeCommand(.replace),
   'D': AliasCommand('d\$'),
   'x': AliasCommand('dl'),
   'p': NormalCommand(Normal.pasteAfter),
@@ -73,8 +73,8 @@ const normalCommands = <String, Command>{
   'n': NormalCommand(Normal.repeatFindStr),
   Keys.ctrlA: NormalCommand(Normal.increase),
   Keys.ctrlX: NormalCommand(Normal.decrease),
-  ':': ModeCommand(Mode.command),
-  '/': ModeCommand(Mode.search),
+  ':': ModeCommand(.command),
+  '/': ModeCommand(.search),
   Keys.ctrlW: NormalCommand(Normal.toggleWrap),
   'zz': NormalCommand(Normal.centerView),
 };
@@ -166,34 +166,34 @@ const lineEditCommands = <String, Function>{
 };
 
 const lineEditInputCommands = <String, Command>{
-  Keys.escape: ModeCommand(Mode.normal),
+  Keys.escape: ModeCommand(.normal),
   Keys.backspace: LineEditDeleteCommand(),
   Keys.newline: LineEditEnterCommand(),
   '[*]': LineEditInputCommand(),
 };
 
 const lineEditSearchCommands = <String, Command>{
-  Keys.escape: ModeCommand(Mode.normal),
+  Keys.escape: ModeCommand(.normal),
   Keys.backspace: LineEditDeleteCommand(),
   Keys.newline: LineEditSearchCommand(),
   '[*]': LineEditInputCommand(),
 };
 
 const keyBindings = <Mode, Map<String, Command>>{
-  Mode.normal: {
+  .normal: {
     ...countCommands,
     ...normalCommands,
     ...motionCommands,
     ...operatorCommands,
   },
-  Mode.operatorPending: {
+  .operatorPending: {
     Keys.escape: OperatorEscapeCommand(),
     ...countCommands,
     ...motionCommands,
     ...operatorPendingSameCommands,
   },
-  Mode.insert: insertCommands,
-  Mode.replace: replaceCommands,
-  Mode.command: lineEditInputCommands,
-  Mode.search: lineEditSearchCommands,
+  .insert: insertCommands,
+  .replace: replaceCommands,
+  .command: lineEditInputCommands,
+  .search: lineEditSearchCommands,
 };

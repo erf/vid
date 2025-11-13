@@ -2,7 +2,6 @@ import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../file_buffer/file_buffer_mode.dart';
-import '../modes.dart';
 import 'command.dart';
 
 class LineEditDeleteCommand extends Command {
@@ -13,7 +12,7 @@ class LineEditDeleteCommand extends Command {
     final Edit edit = f.edit;
     final String lineEdit = edit.lineEdit;
     if (lineEdit.isEmpty) {
-      f.setMode(e, Mode.normal);
+      f.setMode(e, .normal);
     } else {
       edit.lineEdit = lineEdit.substring(0, lineEdit.length - 1);
     }

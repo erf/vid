@@ -4,7 +4,6 @@ import 'package:vid/file_buffer/file_buffer_text.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../modes.dart';
 import 'command.dart';
 
 class ReplaceDefaultCommand extends Command {
@@ -12,7 +11,7 @@ class ReplaceDefaultCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     if (f.empty) return;
     f.replaceAt(e, f.cursor, s);
   }

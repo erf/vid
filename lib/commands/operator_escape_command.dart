@@ -2,7 +2,6 @@ import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../file_buffer/file_buffer_mode.dart';
-import '../modes.dart';
 import 'command.dart';
 
 class OperatorEscapeCommand extends Command {
@@ -10,7 +9,7 @@ class OperatorEscapeCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    f.setMode(e, Mode.normal);
+    f.setMode(e, .normal);
     f.edit = Edit();
   }
 }

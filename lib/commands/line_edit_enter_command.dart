@@ -3,8 +3,6 @@ import '../bindings.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../file_buffer/file_buffer_mode.dart';
-import '../message.dart';
-import '../modes.dart';
 import '../regex.dart';
 import 'command.dart';
 
@@ -26,7 +24,7 @@ class LineEditEnterCommand extends Command {
       return;
     }
     f.edit.lineEdit = '';
-    f.setMode(e, Mode.normal);
-    e.showMessage(Message.error('Unknown command: \'$command\''));
+    f.setMode(e, .normal);
+    e.showMessage(.error('Unknown command: \'$command\''));
   }
 }

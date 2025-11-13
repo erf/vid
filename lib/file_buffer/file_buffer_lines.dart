@@ -4,10 +4,10 @@ import 'package:characters/characters.dart';
 
 import '../config.dart';
 import '../editor.dart';
-import 'file_buffer.dart';
 import '../keys.dart';
 import '../line.dart';
 import '../string_ext.dart';
+import 'file_buffer.dart';
 
 extension FileBufferLines on FileBuffer {
   // check if file is empty, only one line with empty string
@@ -25,11 +25,11 @@ extension FileBufferLines on FileBuffer {
     for (int i = 0; i < textLines.length; i++) {
       String line = textLines[i];
       switch (wrapMode) {
-        case WrapMode.none:
+        case .none:
           noWrapLine(lines, line, start, width);
-        case WrapMode.char:
+        case .char:
           charWrapLine(lines, line, start, width);
-        case WrapMode.word:
+        case .word:
           wordWrapLine(lines, line, start, width);
       }
       start = lines.last.end;

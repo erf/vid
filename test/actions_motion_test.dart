@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/motions/char_next_motion.dart';
@@ -28,7 +27,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(CharNextMotion().run(f, Position(c: 0, l: 0)), Position(c: 1, l: 0));
     expect(CharNextMotion().run(f, Position(c: 2, l: 0)), Position(c: 3, l: 0));
     expect(CharNextMotion().run(f, Position(c: 3, l: 0)), Position(c: 0, l: 1));
@@ -40,7 +39,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(CharPrevMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
     expect(CharPrevMotion().run(f, Position(c: 2, l: 0)), Position(c: 1, l: 0));
     expect(CharPrevMotion().run(f, Position(c: 0, l: 1)), Position(c: 3, l: 0));
@@ -51,7 +50,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(LineUpMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
     expect(LineUpMotion().run(f, Position(c: 2, l: 0)), Position(c: 2, l: 0));
     expect(LineUpMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 0));
@@ -62,7 +61,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(LineUpMotion().run(f, Position(c: 2, l: 2)), Position(c: 1, l: 1));
     expect(LineUpMotion().run(f, Position(c: 1, l: 1)), Position(c: 2, l: 0));
   });
@@ -71,7 +70,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(LineDownMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
     expect(LineDownMotion().run(f, Position(c: 2, l: 0)), Position(c: 2, l: 1));
     expect(LineDownMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
@@ -82,7 +81,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(LineDownMotion().run(f, Position(c: 2, l: 0)), Position(c: 1, l: 1));
     expect(LineDownMotion().run(f, Position(c: 1, l: 1)), Position(c: 2, l: 2));
   });
@@ -91,7 +90,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       FileStartMotion().run(f, Position(c: 0, l: 0)),
       Position(c: 0, l: 0),
@@ -114,7 +113,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(FileEndMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 1));
     expect(FileEndMotion().run(f, Position(c: 2, l: 0)), Position(c: 0, l: 1));
     expect(FileEndMotion().run(f, Position(c: 0, l: 1)), Position(c: 0, l: 1));
@@ -125,7 +124,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(WordNextMotion().run(f, Position(c: 0, l: 0)), Position(c: 4, l: 0));
     expect(WordNextMotion().run(f, Position(c: 3, l: 0)), Position(c: 4, l: 0));
     expect(WordNextMotion().run(f, Position(c: 4, l: 0)), Position(c: 8, l: 0));
@@ -138,7 +137,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc,def ghi\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       WordCapNextMotion().run(f, Position(c: 0, l: 0)),
       Position(c: 8, l: 0),
@@ -149,7 +148,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(WordEndMotion().run(f, Position(c: 0, l: 0)), Position(c: 2, l: 0));
     expect(WordEndMotion().run(f, Position(c: 3, l: 0)), Position(c: 6, l: 0));
     expect(WordEndMotion().run(f, Position(c: 4, l: 0)), Position(c: 6, l: 0));
@@ -162,7 +161,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(WordPrevMotion().run(f, Position(c: 0, l: 0)), Position(c: 0, l: 0));
     expect(WordPrevMotion().run(f, Position(c: 3, l: 0)), Position(c: 0, l: 0));
     expect(WordPrevMotion().run(f, Position(c: 4, l: 0)), Position(c: 0, l: 0));
@@ -175,7 +174,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def, ghi\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       WordCapPrevMotion().run(f, Position(c: 9, l: 0)),
       Position(c: 4, l: 0),
@@ -186,7 +185,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       WordEndPrevMotion().run(f, Position(c: 4, l: 0)),
       Position(c: 2, l: 0),
@@ -209,7 +208,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       SameWordNextMotion().run(f, Position(l: 0, c: 0)),
       Position(l: 0, c: 21),
@@ -228,7 +227,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       SameWordPrevMotion().run(f, Position(l: 0, c: 15)),
       Position(l: 0, c: 7),
@@ -243,7 +242,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '  abc\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       FirstNonBlankMotion().run(f, Position(l: 0, c: 0)),
       Position(l: 0, c: 2),
@@ -270,7 +269,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def\nghi jkl\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(LineEndMotion().run(f, Position(l: 0, c: 0)), Position(l: 0, c: 7));
     expect(LineEndMotion().run(f, Position(l: 0, c: 3)), Position(l: 0, c: 7));
     expect(LineEndMotion().run(f, Position(l: 1, c: 0)), Position(l: 1, c: 7));
@@ -281,7 +280,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'test.\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       FindNextCharMotion(c: '.').run(f, Position(l: 0, c: 0)),
       Position(l: 0, c: 4),
@@ -292,7 +291,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello. test.\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(
       FindPrevCharMotion(c: '.').run(f, Position(l: 0, c: 10)),
       Position(l: 0, c: 5),

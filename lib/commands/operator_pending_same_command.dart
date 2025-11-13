@@ -4,7 +4,6 @@ import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../file_buffer/file_buffer_mode.dart';
-import '../modes.dart';
 import 'operator_command.dart';
 
 class OperatorPendingSameCommand extends OperatorCommand {
@@ -16,7 +15,7 @@ class OperatorPendingSameCommand extends OperatorCommand {
       f.edit.motion = LinewiseMotion();
       e.commitEdit(f.edit);
     } else {
-      f.setMode(e, Mode.normal);
+      f.setMode(e, .normal);
       f.edit = Edit();
     }
   }

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/file_buffer/file_buffer_lines.dart';
@@ -17,7 +16,7 @@ void main() {
 void benchmarkCreateLinesWrapModeNone(Editor editor, String text) {
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor, WrapMode.none);
+  f.createLines(editor, .none);
   print('create lines (wrap none): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }
@@ -25,7 +24,7 @@ void benchmarkCreateLinesWrapModeNone(Editor editor, String text) {
 void benchmarkCreateLinesWrapModeChar(Editor editor, String text) {
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor, WrapMode.char);
+  f.createLines(editor, .char);
   print('create lines (wrap char): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }
@@ -33,7 +32,7 @@ void benchmarkCreateLinesWrapModeChar(Editor editor, String text) {
 void benchmarkCreateLinesWrapModeWord(Editor editor, String text) {
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor, WrapMode.word);
+  f.createLines(editor, .word);
   print('create lines (wrap word): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }

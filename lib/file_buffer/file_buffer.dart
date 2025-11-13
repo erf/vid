@@ -28,7 +28,7 @@ class FileBuffer {
   Position view = Position();
 
   // the current mode
-  Mode mode = Mode.normal;
+  Mode mode = .normal;
 
   // the current edit action
   Edit edit = Edit();

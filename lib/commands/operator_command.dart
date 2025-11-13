@@ -2,7 +2,6 @@ import '../actions/operators.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../file_buffer/file_buffer_mode.dart';
-import '../modes.dart';
 import 'command.dart';
 
 class OperatorCommand extends Command {
@@ -12,7 +11,7 @@ class OperatorCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    f.setMode(e, Mode.operatorPending);
+    f.setMode(e, .operatorPending);
     f.edit.op = func;
   }
 }

@@ -1,7 +1,7 @@
 import '../editor.dart';
 import '../esc.dart';
-import 'file_buffer.dart';
 import '../modes.dart';
+import 'file_buffer.dart';
 
 extension FileBufferMode on FileBuffer {
   void setMode(Editor e, Mode mode) {
@@ -9,9 +9,9 @@ extension FileBufferMode on FileBuffer {
       return;
     }
     switch (mode) {
-      case Mode.normal:
+      case .normal:
         e.terminal.write(Esc.cursorStyleBlock);
-      case Mode.insert:
+      case .insert:
         e.terminal.write(Esc.cursorStyleLine);
       default:
         break;

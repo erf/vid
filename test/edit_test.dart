@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/position.dart';
@@ -10,7 +9,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     f.cursor = Position(c: 0, l: 0);
     e.input('Æ');
     expect(f.edit.cmdKey, '');
@@ -22,7 +21,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     f.cursor = Position(c: 0, l: 0);
     e.input('dÆ');
     expect(f.edit.cmdKey, '');
@@ -34,7 +33,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     f.cursor = Position(c: 0, l: 0);
     e.input('dw');
     expect(f.text, '\n');
@@ -46,7 +45,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     f.cursor = Position(c: 0, l: 0);
     e.input('w');
     expect(f.edit.cmdKey, '');

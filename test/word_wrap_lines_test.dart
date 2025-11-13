@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/terminal/test_terminal.dart';
@@ -9,7 +8,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(f.lines.length, 1);
     expect(f.lines[0].text, 'hei jeg heter Erlend 😀😀😀 ');
   });
@@ -18,7 +17,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'abc ');
     expect(f.lines[1].text, 'def ');
@@ -28,7 +27,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(f.lines.length, 1);
     expect(f.lines[0].text, ' ');
   });
@@ -37,7 +36,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e, WrapMode.none);
+    f.createLines(e, .none);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'abc ');
     expect(f.lines[1].text, 'def ');
@@ -47,7 +46,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(8, 10), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
-    f.createLines(e, WrapMode.word);
+    f.createLines(e, .word);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'abc def ');
     expect(f.lines[1].text, 'ghi jkl ');
@@ -57,7 +56,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(8, 20), redraw: false);
     final f = e.file;
     f.text = 'abc def😀 ghi jkl\n';
-    f.createLines(e, WrapMode.word);
+    f.createLines(e, .word);
     expect(f.lines.length, 3);
     expect(f.lines[0].text, 'abc ');
     expect(f.lines[1].text, 'def😀 ');
@@ -68,7 +67,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(20, 20), redraw: false);
     final f = e.file;
     f.text = 'The old bookstore exuded\n';
-    f.createLines(e, WrapMode.word);
+    f.createLines(e, .word);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'The old bookstore ');
     expect(f.lines[0].start, 0);
@@ -82,7 +81,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
-    f.createLines(e, WrapMode.word);
+    f.createLines(e, .word);
     expect(f.lines.length, 4);
     expect(f.lines[0].text, 'hei jeg ');
     expect(f.lines[1].text, 'heter ');
@@ -94,7 +93,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
-    f.createLines(e, WrapMode.char);
+    f.createLines(e, .char);
     expect(f.lines.length, 3);
     expect(f.lines[0].text, 'hei jeg het');
     expect(f.lines[1].text, 'er Erlend ');

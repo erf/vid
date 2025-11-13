@@ -12,8 +12,6 @@ import '../file_buffer/file_buffer_mode.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../file_buffer/file_buffer_view.dart';
 import '../line.dart';
-import '../message.dart';
-import '../modes.dart';
 import '../position.dart';
 import '../regex.dart';
 import '../text_op.dart';
@@ -57,7 +55,7 @@ class Normal {
 
   static void quit(Editor e, FileBuffer f) {
     if (f.modified) {
-      e.showMessage(Message.error('File has unsaved changes'));
+      e.showMessage(.error('File has unsaved changes'));
     } else {
       e.quit();
     }
@@ -70,14 +68,14 @@ class Normal {
   static void save(Editor e, FileBuffer f) {
     ErrorOr result = f.save(e, f.path);
     if (result.hasError) {
-      e.showMessage(Message.error(result.error!));
+      e.showMessage(.error(result.error!));
     } else {
-      e.showMessage(Message.info('File saved'));
+      e.showMessage(.info('File saved'));
     }
   }
 
   static void appendCharNext(Editor e, FileBuffer f) {
-    f.setMode(e, Mode.insert);
+    f.setMode(e, .insert);
     f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
   }
 
