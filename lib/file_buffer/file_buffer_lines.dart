@@ -26,23 +26,23 @@ extension FileBufferLines on FileBuffer {
       String line = textLines[i];
       switch (wrapMode) {
         case .none:
-          noWrapLine(lines, line, start, width);
+          _noWrapLine(lines, line, start, width);
         case .char:
-          charWrapLine(lines, line, start, width, e.config);
+          _charWrapLine(lines, line, start, width, e.config);
         case .word:
-          wordWrapLine(lines, line, start, width, e.config);
+          _wordWrapLine(lines, line, start, width, e.config);
       }
       start = lines.last.end;
     }
   }
 
   // split long line into smaller lines by character
-  void noWrapLine(List<Line> lines, String line, int start, int width) {
+  void _noWrapLine(List<Line> lines, String line, int start, int width) {
     lines.add(Line('$line ', start: start, no: lines.length));
   }
 
   // split long line into smaller lines by word
-  void wordWrapLine(
+  void _wordWrapLine(
     List<Line> lines,
     String line,
     int start,
@@ -96,7 +96,7 @@ extension FileBufferLines on FileBuffer {
     }
   }
 
-  void charWrapLine(
+  void _charWrapLine(
     List<Line> lines,
     String line,
     int start,
