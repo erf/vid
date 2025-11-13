@@ -56,7 +56,7 @@ extension FileBufferText on FileBuffer {
     text = text.replaceRange(start, end, newText);
 
     // we need to recreate the lines, because the text has changed
-    createLines(e, wrapMode: e.config.wrapMode);
+    createLines(e);
   }
 
   // add an undo operation

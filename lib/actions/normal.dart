@@ -93,7 +93,7 @@ class Normal {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       TextOp? op = f.undo();
       if (op != null) {
-        f.createLines(e, wrapMode: e.config.wrapMode);
+        f.createLines(e);
         f.cursor = op.cursor;
       }
     }
@@ -104,7 +104,7 @@ class Normal {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       TextOp? op = f.redo();
       if (op != null) {
-        f.createLines(e, wrapMode: e.config.wrapMode);
+        f.createLines(e);
         f.cursor = op.cursor;
       }
     }
@@ -157,8 +157,8 @@ class Normal {
   static void toggleWrap(Editor e, FileBuffer f) {
     int wrapModeCurr = e.config.wrapMode.index;
     int wrapModeNext = (wrapModeCurr + 1) % 3;
-    e.config.copyWith(wrapMode: WrapMode.values[wrapModeNext]);
-    f.createLines(e, wrapMode: e.config.wrapMode);
+    e.config = e.config.copyWith(wrapMode: WrapMode.values[wrapModeNext]);
+    f.createLines(e);
   }
 
   static void centerView(Editor e, FileBuffer f) {

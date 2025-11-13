@@ -14,7 +14,7 @@ extension FileBufferLines on FileBuffer {
   bool get empty => lines.length == 1 && lines.first.isEmpty;
 
   // split text into lines
-  void createLines(Editor e, {WrapMode wrapMode = .none}) {
+  void createLines(Editor e) {
     // split text into lines (remove last empty line)
     final List<String> textLines = text.split(Keys.newline)..removeLast();
 
@@ -24,7 +24,7 @@ extension FileBufferLines on FileBuffer {
     int width = e.terminal.width;
     for (int i = 0; i < textLines.length; i++) {
       String line = textLines[i];
-      switch (wrapMode) {
+      switch (e.config.wrapMode) {
         case .none:
           _noWrapLine(lines, line, start, width);
         case .char:

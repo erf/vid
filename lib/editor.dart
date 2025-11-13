@@ -31,7 +31,7 @@ import 'string_ext.dart';
 import 'terminal/terminal_base.dart';
 
 class Editor {
-  final Config config;
+  Config config;
   int? colorColumn;
   final TerminalBase terminal;
   final bool redraw;
@@ -59,7 +59,7 @@ class Editor {
     file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
-    file.createLines(this, wrapMode: config.wrapMode);
+    file.createLines(this);
 
     extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
     extensions?.notifyInit();
@@ -74,7 +74,7 @@ class Editor {
     }
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
-    file.createLines(this, wrapMode: config.wrapMode);
+    file.createLines(this);
     extensions?.notifyFileOpen(file);
     draw();
     return result;
@@ -108,7 +108,7 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     int byteIndex = file.indexFromPosition(file.cursor);
-    file.createLines(this, wrapMode: config.wrapMode);
+    file.createLines(this);
     file.cursor = file.positionFromIndex(byteIndex);
     showMessage(.info('${terminal.width}x${terminal.height}'));
     draw();

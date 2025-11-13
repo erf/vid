@@ -113,20 +113,20 @@ class LineEdit {
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config.copyWith(wrapMode: .none);
-    f.createLines(e, wrapMode: .none);
+    e.config = e.config.copyWith(wrapMode: .none);
+    f.createLines(e);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config.copyWith(wrapMode: .char);
-    f.createLines(e, wrapMode: .char);
+    e.config = e.config.copyWith(wrapMode: .char);
+    f.createLines(e);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config.copyWith(wrapMode: .word);
-    f.createLines(e, wrapMode: .word);
+    e.config = e.config.copyWith(wrapMode: .word);
+    f.createLines(e);
   }
 
   static void setColorColumn(Editor e, FileBuffer f, List<String> args) {
@@ -142,7 +142,7 @@ class LineEdit {
         e.colorColumn = null;
         e.showMessage(.info('Unset color column'));
       }
-      f.createLines(e, wrapMode: e.config.wrapMode);
+      f.createLines(e);
       return;
     }
     // If a column is specified, set it
@@ -152,7 +152,7 @@ class LineEdit {
       return;
     }
     e.colorColumn = column;
-    f.createLines(e, wrapMode: e.config.wrapMode);
+    f.createLines(e);
     e.showMessage(.info('Set color column to $column'));
   }
 }
