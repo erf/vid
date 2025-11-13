@@ -16,7 +16,7 @@ void main() {
 void benchmarkCreateLinesWrapModeNone(Editor editor, String text) {
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor, .none);
+  f.createLines(editor, wrapMode: .none);
   print('create lines (wrap none): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }
@@ -24,7 +24,7 @@ void benchmarkCreateLinesWrapModeNone(Editor editor, String text) {
 void benchmarkCreateLinesWrapModeChar(Editor editor, String text) {
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor, .char);
+  f.createLines(editor, wrapMode: .char);
   print('create lines (wrap char): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }
@@ -32,7 +32,7 @@ void benchmarkCreateLinesWrapModeChar(Editor editor, String text) {
 void benchmarkCreateLinesWrapModeWord(Editor editor, String text) {
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor, .word);
+  f.createLines(editor, wrapMode: .word);
   print('create lines (wrap word): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }

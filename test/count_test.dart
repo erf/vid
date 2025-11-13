@@ -9,7 +9,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 0, l: 0);
     e.input('3w');
     expect(f.cursor, Position(c: 12, l: 0));
@@ -19,7 +19,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 0, l: 0);
     e.input('3dw');
     expect(f.cursor, Position(c: 0, l: 0));
@@ -30,7 +30,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\njkl\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 0, l: 0);
     e.input('2dj');
     expect(f.cursor, Position(c: 0, l: 0));
@@ -41,7 +41,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 0, l: 0);
     e.input('10w');
     expect(f.cursor, Position(c: 39, l: 0));
@@ -51,7 +51,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 39, l: 0);
     e.input('0');
     expect(f.cursor, Position(c: 0, l: 0));
@@ -61,7 +61,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'xxx\nabc yo\ndef\nghi\njkl\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 1, l: 1);
     e.input('3dd');
     expect(f.cursor, Position(c: 0, l: 1));
@@ -72,7 +72,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'xxx\nabc\ndef ghi\n\ntest\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 1, l: 1);
     e.input('3dd');
     expect(f.cursor, Position(c: 0, l: 1));
@@ -83,7 +83,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(c: 4, l: 0);
     e.input('2dd');
     expect(f.cursor, Position(c: 0, l: 0));

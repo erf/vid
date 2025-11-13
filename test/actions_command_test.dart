@@ -37,7 +37,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
-    f.createLines(e, .none);
+    f.createLines(e);
     f.cursor = Position(l: 0, c: 0);
     e.input('/world\n');
     expect(f.cursor, equals(Position(l: 0, c: 6)));

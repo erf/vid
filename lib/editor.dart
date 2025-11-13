@@ -55,7 +55,7 @@ class Editor {
     file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
-    file.createLines(this, Config.wrapMode);
+    file.createLines(this, wrapMode: Config.wrapMode);
     extensions.notifyInit();
     extensions.notifyFileOpen(file);
     draw();
@@ -68,7 +68,7 @@ class Editor {
     }
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
-    file.createLines(this, Config.wrapMode);
+    file.createLines(this, wrapMode: Config.wrapMode);
     extensions.notifyFileOpen(file);
     draw();
     return result;
@@ -102,7 +102,7 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     int byteIndex = file.indexFromPosition(file.cursor);
-    file.createLines(this, Config.wrapMode);
+    file.createLines(this, wrapMode: Config.wrapMode);
     file.cursor = file.positionFromIndex(byteIndex);
     showMessage(.info('${terminal.width}x${terminal.height}'));
     draw();

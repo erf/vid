@@ -115,19 +115,19 @@ class LineEdit {
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     Config.wrapMode = .none;
-    f.createLines(e, Config.wrapMode);
+    f.createLines(e, wrapMode: .none);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     Config.wrapMode = .char;
-    f.createLines(e, Config.wrapMode);
+    f.createLines(e, wrapMode: .char);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     Config.wrapMode = .word;
-    f.createLines(e, Config.wrapMode);
+    f.createLines(e, wrapMode: .word);
   }
 
   static void setColorColumn(Editor e, FileBuffer f, List<String> args) {
@@ -143,7 +143,7 @@ class LineEdit {
         Config.colorColumn = null;
         e.showMessage(.info('Unset color column'));
       }
-      f.createLines(e, Config.wrapMode);
+      f.createLines(e, wrapMode: Config.wrapMode);
       return;
     }
     // If a column is specified, set it
@@ -153,7 +153,7 @@ class LineEdit {
       return;
     }
     Config.colorColumn = column;
-    f.createLines(e, Config.wrapMode);
+    f.createLines(e, wrapMode: Config.wrapMode);
     e.showMessage(.info('Set color column to $column'));
   }
 }

@@ -14,7 +14,7 @@ extension FileBufferLines on FileBuffer {
   bool get empty => lines.length == 1 && lines.first.isEmpty;
 
   // split text into lines
-  void createLines(Editor e, WrapMode wrapMode) {
+  void createLines(Editor e, {WrapMode wrapMode = .none}) {
     // split text into lines (remove last empty line)
     final List<String> textLines = text.split(Keys.newline)..removeLast();
 

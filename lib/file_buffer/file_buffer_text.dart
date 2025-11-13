@@ -49,7 +49,7 @@ extension FileBufferText on FileBuffer {
     text = text.replaceRange(start, end, newText);
 
     // we need to recreate the lines, because the text has changed
-    createLines(editor, Config.wrapMode);
+    createLines(editor, wrapMode: Config.wrapMode);
   }
 
   // add an undo operation
