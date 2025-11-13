@@ -54,8 +54,8 @@ class CursorPositionExtension implements Extension {
       final List<String> lines = file.readAsLinesSync();
       return Map.fromEntries(
         lines.map((line) {
-          final List<String> parts = line.split(',');
-          return MapEntry(parts[0], int.tryParse(parts[1]) ?? 0);
+          final [path, pos] = line.split(',');
+          return MapEntry(path, int.tryParse(pos) ?? 0);
         }),
       );
     } catch (error) {
@@ -65,7 +65,7 @@ class CursorPositionExtension implements Extension {
 
   void saveCursorPositions(Map<String, int> cursorPositionsPerFile) {
     final file = File(cursorPositionsPath);
-    final String lines = cursorPositionsPerFile.entries
+    final lines = cursorPositionsPerFile.entries
         .map((entry) => '${entry.key},${entry.value}')
         .join('\n');
     file.writeAsStringSync(lines);
