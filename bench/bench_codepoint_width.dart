@@ -11,7 +11,7 @@ void benchmarkCodepointWidth(List<String> unicodeChars) {
   int num1 = 0;
   int num2 = 0;
   for (final unicodeChar in unicodeChars) {
-    int w = Unicode.charWidth(unicodeChar);
+    int w = Unicode.charWidth(unicodeChar, tabWidth: 4);
     if (w == 1) {
       num1++;
     } else {

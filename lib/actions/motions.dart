@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:characters/characters.dart';
+import 'package:vid/editor.dart';
 
 import '../characters_render.dart';
 import '../file_buffer/file_buffer.dart';
@@ -11,11 +12,14 @@ import '../string_ext.dart';
 import '../utils.dart';
 
 class Motions {
-  static Position moveLine(FileBuffer f, Position p, int nextLine) {
-    int curlen = f.lines[p.l].text.characters.renderLength(p.c);
+  static Position moveLine(Editor e, FileBuffer f, Position p, int nextLine) {
+    int curlen = f.lines[p.l].text.characters.renderLength(
+      p.c,
+      e.config.tabWidth,
+    );
     int nextlen = 0;
     Characters chars = f.lines[nextLine].text.characters.takeWhile((c) {
-      nextlen += c.charWidth;
+      nextlen += c.charWidth(e.config.tabWidth);
       return nextlen <= curlen;
     });
     int char = clamp(chars.length, 0, f.lines[nextLine].charLen - 1);

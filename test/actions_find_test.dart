@@ -13,9 +13,9 @@ void main() {
     f.text = 'abca\ndef\n';
     f.createLines(e);
     final cursor = Position(c: 0, l: 0);
-    expect(FindNextCharMotion(c: 'a').run(f, cursor), Position(c: 3, l: 0));
-    expect(FindNextCharMotion(c: 'b').run(f, cursor), Position(c: 1, l: 0));
-    expect(FindNextCharMotion(c: 'c').run(f, cursor), Position(c: 2, l: 0));
+    expect(FindNextCharMotion(c: 'a').run(e, f, cursor), Position(c: 3, l: 0));
+    expect(FindNextCharMotion(c: 'b').run(e, f, cursor), Position(c: 1, l: 0));
+    expect(FindNextCharMotion(c: 'c').run(e, f, cursor), Position(c: 2, l: 0));
   });
 
   test('motionFindPrevChar', () {
@@ -24,9 +24,9 @@ void main() {
     f.text = 'abc\ndef\n';
     f.createLines(e);
     final cursor = Position(c: 2, l: 0);
-    expect(FindPrevCharMotion(c: 'a').run(f, cursor), Position(c: 0, l: 0));
-    expect(FindPrevCharMotion(c: 'b').run(f, cursor), Position(c: 1, l: 0));
-    expect(FindPrevCharMotion(c: 'c').run(f, cursor), Position(c: 2, l: 0));
+    expect(FindPrevCharMotion(c: 'a').run(e, f, cursor), Position(c: 0, l: 0));
+    expect(FindPrevCharMotion(c: 'b').run(e, f, cursor), Position(c: 1, l: 0));
+    expect(FindPrevCharMotion(c: 'c').run(e, f, cursor), Position(c: 2, l: 0));
   });
 
   test('till with delete operator', () {

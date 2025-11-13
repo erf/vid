@@ -24,7 +24,7 @@ class InsertActions {
     f.insertAt(e, f.cursor, Keys.newline, undo);
     f.cursor.c = 0;
     f.view.c = 0;
-    f.cursor = LineDownMotion().run(f, f.cursor);
+    f.cursor = LineDownMotion().run(e, f, f.cursor);
   }
 
   static void escape(Editor e, FileBuffer f) {

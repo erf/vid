@@ -1,4 +1,3 @@
-import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
@@ -114,19 +113,19 @@ class LineEdit {
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    Config.wrapMode = .none;
+    e.config.wrapMode = .none;
     f.createLines(e, wrapMode: .none);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    Config.wrapMode = .char;
+    e.config.wrapMode = .char;
     f.createLines(e, wrapMode: .char);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    Config.wrapMode = .word;
+    e.config.wrapMode = .word;
     f.createLines(e, wrapMode: .word);
   }
 
@@ -134,16 +133,16 @@ class LineEdit {
     f.setMode(e, .normal);
     // If no column is specified, toggle the color column
     if (args.length < 2 || args[1].isEmpty) {
-      if (Config.colorColumn == null) {
-        Config.colorColumn = Config.defaultColorColumn;
+      if (e.config.colorColumn == null) {
+        e.config.colorColumn = e.config.defaultColorColumn;
         e.showMessage(
-          .info('Set default color column (${Config.defaultColorColumn})'),
+          .info('Set default color column (${e.config.defaultColorColumn})'),
         );
       } else {
-        Config.colorColumn = null;
+        e.config.colorColumn = null;
         e.showMessage(.info('Unset color column'));
       }
-      f.createLines(e, wrapMode: Config.wrapMode);
+      f.createLines(e, wrapMode: e.config.wrapMode);
       return;
     }
     // If a column is specified, set it
@@ -152,8 +151,8 @@ class LineEdit {
       e.showMessage(.error('Invalid column number'));
       return;
     }
-    Config.colorColumn = column;
-    f.createLines(e, wrapMode: Config.wrapMode);
+    e.config.colorColumn = column;
+    f.createLines(e, wrapMode: e.config.wrapMode);
     e.showMessage(.info('Set color column to $column'));
   }
 }

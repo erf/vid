@@ -3,8 +3,9 @@ import 'package:vid/string_ext.dart';
 
 void main() {
   test('make sure we convert tabs to spaces', () {
-    expect('\t'.tabsToSpaces, '    ');
-    expect('\t\t'.tabsToSpaces, '        ');
-    expect('a\tb'.tabsToSpaces, 'a    b');
+    expect('\t'.tabsToSpaces(4), '    ');
+    expect('\t\t'.tabsToSpaces(4), '        ');
+    expect('a\tb'.tabsToSpaces(4), 'a    b');
+    expect('a\tb'.tabsToSpaces(2), 'a  b');
   });
 }

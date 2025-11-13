@@ -31,6 +31,7 @@ import 'string_ext.dart';
 import 'terminal/terminal_interface.dart';
 
 class Editor {
+  final config = Config();
   final TerminalInterface terminal;
   final bool redraw;
   final rbuf = StringBuffer();
@@ -55,7 +56,7 @@ class Editor {
     file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
-    file.createLines(this, wrapMode: Config.wrapMode);
+    file.createLines(this, wrapMode: config.wrapMode);
     extensions.notifyInit();
     extensions.notifyFileOpen(file);
     draw();
@@ -68,7 +69,7 @@ class Editor {
     }
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
-    file.createLines(this, wrapMode: Config.wrapMode);
+    file.createLines(this, wrapMode: config.wrapMode);
     extensions.notifyFileOpen(file);
     draw();
     return result;
@@ -102,7 +103,7 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     int byteIndex = file.indexFromPosition(file.cursor);
-    file.createLines(this, wrapMode: Config.wrapMode);
+    file.createLines(this, wrapMode: config.wrapMode);
     file.cursor = file.positionFromIndex(byteIndex);
     showMessage(.info('${terminal.width}x${terminal.height}'));
     draw();
@@ -117,7 +118,10 @@ class Editor {
     rbuf.write(Esc.homeAndEraseDown);
     file.clampCursor();
     Position cursor = file.cursor;
-    int cursorpos = file.lines[cursor.l].text.ch.renderLength(cursor.c);
+    int cursorpos = file.lines[cursor.l].text.ch.renderLength(
+      cursor.c,
+      config.tabWidth,
+    );
     file.clampView(terminal, cursorpos);
     drawLines();
 
@@ -151,18 +155,20 @@ class Editor {
       }
       // draw line
       String lineText;
-      switch (Config.wrapMode) {
+      switch (config.wrapMode) {
         case .none:
-          lineText = lines[l].text.tabsToSpaces.ch
-              .renderLine(view.c, terminal.width)
+          lineText = lines[l].text
+              .tabsToSpaces(config.tabWidth)
+              .ch
+              .renderLine(view.c, terminal.width, config.tabWidth)
               .string;
         case .char:
         case .word:
-          lineText = lines[l].text.tabsToSpaces;
+          lineText = lines[l].text.tabsToSpaces(config.tabWidth);
       }
 
       // Add line length marker if configured
-      if (Config.colorColumn != null && Config.wrapMode == .none) {
+      if (config.colorColumn != null && config.wrapMode == .none) {
         lineText = _addLineLengthMarker(lineText, view.c);
       }
 
@@ -173,7 +179,7 @@ class Editor {
   /// Adds a subtle marker at the configured maxLineLength position
   String _addLineLengthMarker(String lineText, int viewColumn) {
     final int markerCol =
-        (Config.colorColumn ?? Config.defaultColorColumn) - 1 - viewColumn;
+        (config.colorColumn ?? config.defaultColorColumn) - 1 - viewColumn;
 
     // Check if marker is visible on screen
     if (markerCol < 0 || markerCol >= terminal.width) {
@@ -186,8 +192,9 @@ class Editor {
     }
 
     // Use replaceRange to insert the styled marker
-    const String styledMarker =
-        '${Esc.dimMode}${Esc.grayBackground}${Config.colorcolumnMarker}${Esc.textStylesReset}';
+    final styledMarker =
+        '${Esc.dimMode}${Esc.grayBackground}${config.colorcolumnMarker}${Esc.textStylesReset}';
+
     return lineText.replaceRange(markerCol, markerCol + 1, styledMarker);
   }
 
@@ -221,7 +228,7 @@ class Editor {
     String mode = statusModeLabel(file.mode);
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
-    String wrap = Config.wrapSymbols[Config.wrapMode.index];
+    String wrap = config.wrapSymbol;
     String left = [
       mode,
       path,
@@ -269,7 +276,7 @@ class Editor {
     draw();
     if (timed) {
       messageTimer?.cancel();
-      messageTimer = Timer(Duration(milliseconds: Config.messageTime), () {
+      messageTimer = Timer(Duration(milliseconds: config.messageTime), () {
         this.message = null;
         draw();
       });
@@ -332,7 +339,7 @@ class Editor {
     Position start = file.cursor;
     Position end = file.cursor;
     for (int i = 0; i < (edit.count ?? 1); i++) {
-      end = motion.run(file, end, op: op != null);
+      end = motion.run(this, file, end, op: op != null);
     }
     if (op == null) {
       file.cursor = end;

@@ -1,3 +1,4 @@
+import 'package:vid/editor.dart';
 import 'package:vid/motions/motion.dart';
 
 import '../file_buffer/file_buffer.dart';
@@ -7,7 +8,7 @@ class LinewiseMotion extends Motion {
   const LinewiseMotion({super.linewise = true});
 
   @override
-  Position run(FileBuffer f, Position p, {bool op = true}) {
+  Position run(Editor e, FileBuffer f, Position p, {bool op = true}) {
     final line = f.lines[p.l];
     if (p.l >= f.lines.length - 1) {
       return Position(l: p.l, c: line.charLen);

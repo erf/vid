@@ -1,4 +1,5 @@
-import '../config.dart';
+import 'package:vid/config.dart';
+
 import '../editor.dart';
 import '../position.dart';
 import '../range.dart';
@@ -11,7 +12,7 @@ import 'file_buffer_lines.dart';
 extension FileBufferText on FileBuffer {
   // replace text in the buffer, add undo operation and recreate lines
   void replace(
-    Editor editor,
+    Editor e,
     int start,
     int end,
     String newText, {
@@ -42,14 +43,20 @@ extension FileBufferText on FileBuffer {
 
     // add undo operation
     if (undo) {
-      addUndo(start: start, end: end, newText: newText, cursor: cursor);
+      addUndo(
+        start: start,
+        end: end,
+        newText: newText,
+        cursor: cursor,
+        config: e.config,
+      );
     }
 
     // replace text and create lines
     text = text.replaceRange(start, end, newText);
 
     // we need to recreate the lines, because the text has changed
-    createLines(editor, wrapMode: Config.wrapMode);
+    createLines(e, wrapMode: e.config.wrapMode);
   }
 
   // add an undo operation
@@ -58,6 +65,7 @@ extension FileBufferText on FileBuffer {
     required int end,
     required String newText,
     required Position cursor,
+    required Config config,
   }) {
     // text operation
     final textOp = TextOp(
@@ -70,8 +78,8 @@ extension FileBufferText on FileBuffer {
     undoList.add(textOp);
 
     // limit undo operations
-    if (undoList.length > Config.maxNumUndo) {
-      int end = undoList.length - Config.maxNumUndo;
+    if (undoList.length > config.maxNumUndo) {
+      int end = undoList.length - config.maxNumUndo;
       undoList.removeRange(0, end);
     }
 

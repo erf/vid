@@ -1,3 +1,5 @@
+import 'package:vid/editor.dart';
+
 import '../file_buffer/file_buffer.dart';
 import '../file_buffer/file_buffer_index.dart';
 import '../position.dart';
@@ -9,7 +11,7 @@ class WordEndMotion extends Motion {
   const WordEndMotion() : super(inclusive: true);
 
   @override
-  Position run(FileBuffer f, Position p, {bool op = false}) {
+  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
     final start = f.indexFromPosition(p);
     final matches = Regex.word.allMatches(f.text, start);
     if (matches.isEmpty) return p;

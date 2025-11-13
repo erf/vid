@@ -1,6 +1,5 @@
 import 'package:characters/characters.dart';
 
-import 'config.dart';
 import 'grapheme/unicode.dart';
 
 extension StringExt on String {
@@ -8,11 +7,11 @@ extension StringExt on String {
   Characters get ch => characters;
 
   // generate a string of spaces the same length as the tab width
-  static String tabSpaces = List.generate(Config.tabWidth, (_) => ' ').join();
+  String tabSpaces(int tabWidth) => List.generate(tabWidth, (_) => ' ').join();
 
   // replace all tabs with spaces
-  String get tabsToSpaces => replaceAll('\t', tabSpaces);
+  String tabsToSpaces(int tabWidth) => replaceAll('\t', tabSpaces(tabWidth));
 
   // Try to determine the rendered width of a single character
-  int get charWidth => Unicode.charWidth(this);
+  int charWidth(int tabWidth) => Unicode.charWidth(this, tabWidth: tabWidth);
 }

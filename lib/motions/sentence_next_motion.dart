@@ -1,3 +1,5 @@
+import 'package:vid/editor.dart';
+
 import '../actions/motions.dart';
 import '../file_buffer/file_buffer.dart';
 import '../position.dart';
@@ -10,7 +12,7 @@ class SentenceNextMotion extends Motion {
   const SentenceNextMotion();
 
   @override
-  Position run(FileBuffer f, Position p, {bool op = false}) {
+  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
     return Motions.regexNext(f, p, Regex.sentence);
   }
 }

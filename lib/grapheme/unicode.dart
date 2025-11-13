@@ -1,4 +1,3 @@
-import '../config.dart';
 import 'east_asian_width.dart';
 import 'emoji_data.dart';
 import 'emoji_sequence_trie.dart';
@@ -8,7 +7,7 @@ import 'emoji_sequences.dart';
 // based on: https://wcwidth.readthedocs.io/en/latest/specs.html
 class Unicode {
   // Get the rendered width of a single character
-  static int charWidth(String str) {
+  static int charWidth(String str, {required int tabWidth}) {
     // if the string is empty, return 0
     if (str.isEmpty) return 0;
 
@@ -18,7 +17,7 @@ class Unicode {
       final int firstCodeUnit = codeUnits.first;
       // if a tab return the config tab width
       if (firstCodeUnit == 0x0009) {
-        return Config.tabWidth;
+        return tabWidth;
       }
       // control characters
       if (firstCodeUnit <= 0x001F || firstCodeUnit == 0x007F) {

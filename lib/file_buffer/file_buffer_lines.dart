@@ -28,9 +28,9 @@ extension FileBufferLines on FileBuffer {
         case .none:
           noWrapLine(lines, line, start, width);
         case .char:
-          charWrapLine(lines, line, start, width);
+          charWrapLine(lines, line, start, width, e.config);
         case .word:
-          wordWrapLine(lines, line, start, width);
+          wordWrapLine(lines, line, start, width, e.config);
       }
       start = lines.last.end;
     }
@@ -42,7 +42,13 @@ extension FileBufferLines on FileBuffer {
   }
 
   // split long line into smaller lines by word
-  void wordWrapLine(List<Line> lines, String line, int start, int width) {
+  void wordWrapLine(
+    List<Line> lines,
+    String line,
+    int start,
+    int width,
+    Config config,
+  ) {
     // if line is empty add an empty line
     if (line.isEmpty) {
       lines.add(Line(' ', start: start, no: lines.length));
@@ -60,11 +66,11 @@ extension FileBufferLines on FileBuffer {
     for (String char in line.characters) {
       index += char.length;
 
-      int charWidth = char.charWidth;
+      int charWidth = char.charWidth(config.tabWidth);
       lineWidth += charWidth;
       lineWidthAtBreakIndex += charWidth;
 
-      if (Config.breakat.contains(char)) {
+      if (config.breakat.contains(char)) {
         breakIndex = index;
         lineWidthAtBreakIndex = 0;
       }
@@ -90,7 +96,13 @@ extension FileBufferLines on FileBuffer {
     }
   }
 
-  void charWrapLine(List<Line> lines, String line, int start, int width) {
+  void charWrapLine(
+    List<Line> lines,
+    String line,
+    int start,
+    int width,
+    Config config,
+  ) {
     // if line is empty add an empty line
     if (line.isEmpty) {
       lines.add(Line(' ', start: start, no: lines.length));
@@ -105,7 +117,7 @@ extension FileBufferLines on FileBuffer {
 
     for (String char in line.characters) {
       int charLength = char.length;
-      int charWidth = char.charWidth;
+      int charWidth = char.charWidth(config.tabWidth);
       index += charLength;
       lineWidth += charWidth;
 

@@ -1,13 +1,15 @@
 enum WrapMode { none, char, word }
 
 class Config {
-  static const int messageTime = 3000;
-  static const int tabWidth = 4;
-  static const int maxNumUndo = 100;
-  static const List<String> wrapSymbols = ['', '|↵', '↵'];
-  static WrapMode wrapMode = .none;
-  static const String breakat = ' !@*-+;:,./?';
-  static int? colorColumn;
-  static const String colorcolumnMarker = ' ';
-  static const int defaultColorColumn = 80;
+  int messageTime = 3000;
+  int tabWidth = 4;
+  int maxNumUndo = 100;
+  List<String> wrapSymbols = ['', '|↵', '↵'];
+  WrapMode wrapMode = .none;
+  String breakat = ' !@*-+;:,./?';
+  int? colorColumn;
+  String colorcolumnMarker = ' ';
+  int defaultColorColumn = 80;
+  
+  String get wrapSymbol => wrapSymbols[wrapMode.index];
 }

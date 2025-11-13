@@ -36,6 +36,12 @@ extension FileBufferUtils on FileBuffer {
       InsertActions.enter(e, this, undo: false);
       str = str.substring(nlPos + 1);
     }
-    addUndo(start: start, end: start, newText: buffer, cursor: cursor);
+    addUndo(
+      start: start,
+      end: start,
+      newText: buffer,
+      cursor: cursor,
+      config: e.config,
+    );
   }
 }
