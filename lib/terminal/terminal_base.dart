@@ -3,7 +3,7 @@ import 'dart:io';
 
 import '../esc.dart';
 
-abstract class TerminalInterface {
+abstract class TerminalBase {
   set rawMode(bool rawMode);
 
   int get width;

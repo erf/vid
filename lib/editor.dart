@@ -28,11 +28,11 @@ import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
-import 'terminal/terminal_interface.dart';
+import 'terminal/terminal_base.dart';
 
 class Editor {
   final config = Config();
-  final TerminalInterface terminal;
+  final TerminalBase terminal;
   final bool redraw;
   final rbuf = StringBuffer();
   var file = FileBuffer();

@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:vid/terminal/terminal_interface.dart';
+import 'package:vid/terminal/terminal_base.dart';
 
-class TestTerminal extends TerminalInterface {
+class TestTerminal extends TerminalBase {
   TestTerminal(this._width, this._height);
 
   final int _width;

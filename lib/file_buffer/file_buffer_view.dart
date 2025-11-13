@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import '../terminal/terminal_interface.dart';
+import '../terminal/terminal_base.dart';
 import '../utils.dart';
 import 'file_buffer.dart';
 
@@ -12,12 +12,12 @@ extension FileBufferView on FileBuffer {
   }
 
   // clamp view on cursor position
-  void clampView(TerminalInterface term, int cursorpos) {
+  void clampView(TerminalBase term, int cursorpos) {
     view.l = clamp(view.l, cursor.l, cursor.l - term.height + 2);
     view.c = clamp(view.c, cursorpos, cursorpos - term.width + 1);
   }
 
-  void centerView(TerminalInterface term) {
+  void centerView(TerminalBase term) {
     view.l = cursor.l - (term.height - 2) ~/ 2;
     view.l = math.max(view.l, 0);
   }
