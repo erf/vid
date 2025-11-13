@@ -8,9 +8,4 @@ class Regex {
   static final paragraph = RegExp(r'(?<=\n)\n|^\w|\n$');
   static final paragraphPrev = RegExp(r'(?<=\n)\n|^\w');
   static final sentence = RegExp(r'(?<=[.!?][ \t\n])\w|\n|^\w|(?<=\n\n).');
-  // just for testing
-  static final emoji = RegExp(
-    r'[\p{Extended_Pictographic}\p{Emoji_Presentation}]',
-    unicode: true,
-  );
 }
