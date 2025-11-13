@@ -157,7 +157,7 @@ class Normal {
   static void toggleWrap(Editor e, FileBuffer f) {
     int wrapModeCurr = e.config.wrapMode.index;
     int wrapModeNext = (wrapModeCurr + 1) % 3;
-    e.setConfig(wrapMode: WrapMode.values[wrapModeNext]);
+    e.setWrapMode(WrapMode.values[wrapModeNext]);
     f.createLines(e);
   }
 

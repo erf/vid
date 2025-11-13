@@ -8,7 +8,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
-    e.setConfig(wrapMode: .none);
+    e.setWrapMode(.none);
     f.createLines(e);
     expect(f.lines.length, 1);
     expect(f.lines[0].text, 'hei jeg heter Erlend 😀😀😀 ');
@@ -47,7 +47,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(8, 10), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
-    e.setConfig(wrapMode: .word);
+    e.setWrapMode(.word);
     f.createLines(e);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'abc def ');
@@ -58,7 +58,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(8, 20), redraw: false);
     final f = e.file;
     f.text = 'abc def😀 ghi jkl\n';
-    e.setConfig(wrapMode: .word);
+    e.setWrapMode(.word);
     f.createLines(e);
     expect(f.lines.length, 3);
     expect(f.lines[0].text, 'abc ');
@@ -70,7 +70,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(20, 20), redraw: false);
     final f = e.file;
     f.text = 'The old bookstore exuded\n';
-    e.setConfig(wrapMode: .word);
+    e.setWrapMode(.word);
     f.createLines(e);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'The old bookstore ');
@@ -85,7 +85,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
-    e.setConfig(wrapMode: .word);
+    e.setWrapMode(.word);
     f.createLines(e);
     expect(f.lines.length, 4);
     expect(f.lines[0].text, 'hei jeg ');
@@ -98,7 +98,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(12, 12), redraw: false);
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
-    e.setConfig(wrapMode: .char);
+    e.setWrapMode(.char);
     f.createLines(e);
     expect(f.lines.length, 3);
     expect(f.lines[0].text, 'hei jeg het');
