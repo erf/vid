@@ -366,4 +366,26 @@ class Editor {
     }
     file.edit = Edit();
   }
+
+  void setConfig({
+    int? messageTime,
+    int? tabWidth,
+    int? maxNumUndo,
+    List<String>? wrapSymbols,
+    WrapMode? wrapMode,
+    String? breakat,
+    String? colorcolumnMarker,
+    int? defaultColorColumn,
+  }) {
+    config = config.copyWith(
+      messageTime: messageTime,
+      tabWidth: tabWidth,
+      maxNumUndo: maxNumUndo,
+      wrapSymbols: wrapSymbols,
+      wrapMode: wrapMode,
+      breakat: breakat,
+      colorcolumnMarker: colorcolumnMarker,
+      defaultColorColumn: defaultColorColumn,
+    );
+  }
 }

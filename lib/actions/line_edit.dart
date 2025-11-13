@@ -113,19 +113,19 @@ class LineEdit {
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config = e.config.copyWith(wrapMode: .none);
+    e.setConfig(wrapMode: .none);
     f.createLines(e);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config = e.config.copyWith(wrapMode: .char);
+    e.setConfig(wrapMode: .char);
     f.createLines(e);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.config = e.config.copyWith(wrapMode: .word);
+    e.setConfig(wrapMode: .word);
     f.createLines(e);
   }
 
