@@ -65,7 +65,7 @@ void main() {
     final f = e.file;
     f.text = '\n';
     f.createLines(e, .none);
-    f.mode = Mode.insert;
+    f.mode = .insert;
     // insert longer text with multiple lines
     const longTextWithMultipleLines = """
 In the heart of the silent forest,
