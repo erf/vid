@@ -4,7 +4,7 @@ version: 0.1.0
 homepage: https://github.com/erf/vid
 
 environment:
-  sdk: ^3.9.0
+  sdk: ^3.10.0-290.4.beta
 
 dependencies:
   characters: ^1.4.1
