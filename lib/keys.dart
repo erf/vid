@@ -8,4 +8,5 @@ class Keys {
   static const String ctrlX = '\x18';
   static const String ctrlA = '\x01';
   static const String ctrlW = '\x17';
+  static const String tab = '\t';
 }
