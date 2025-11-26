@@ -114,18 +114,18 @@ class LineEdit {
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.setWrapMode(.none);
-    f.createLines(e);
+    f.splitLines(e);
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.setWrapMode(.char);
-    f.createLines(e);
+    f.splitLines(e);
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.setWrapMode(.word);
-    f.createLines(e);
+    f.splitLines(e);
   }
 }

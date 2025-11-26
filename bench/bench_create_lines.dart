@@ -22,7 +22,7 @@ void benchmarkCreateLinesWrapModeNone(Editor editor, String text) {
   editor.config = editor.config.copyWith(wrapMode: .none);
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor);
+  f.splitLines(editor);
   print('create lines (wrap none): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }
@@ -31,7 +31,7 @@ void benchmarkCreateLinesWrapModeChar(Editor editor, String text) {
   editor.config = editor.config.copyWith(wrapMode: .char);
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor);
+  f.splitLines(editor);
   print('create lines (wrap char): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }
@@ -40,7 +40,7 @@ void benchmarkCreateLinesWrapModeWord(Editor editor, String text) {
   editor.config = editor.config.copyWith(wrapMode: .word);
   final stopWatch = Stopwatch()..start();
   final f = FileBuffer(text: text);
-  f.createLines(editor);
+  f.splitLines(editor);
   print('create lines (wrap word): ${stopWatch.elapsedMilliseconds} ms');
   stopWatch.stop();
 }

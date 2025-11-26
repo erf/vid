@@ -14,7 +14,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.positionFromIndex(0), Position(c: 0, l: 0));
     expect(f.positionFromIndex(2), Position(c: 2, l: 0));
     expect(f.positionFromIndex(4), Position(c: 0, l: 1));
@@ -25,7 +25,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.replaceAt(e, Position(c: 0, l: 0), 'X');
     expect(f.text, 'Xbc\ndef\n');
     final op = f.undoList.last;
@@ -38,7 +38,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.deleteRange(e, Range(Position(c: 0, l: 0), Position(c: 1, l: 1)));
     expect(f.text, 'ef\n');
     final op = f.undoList.last;
@@ -51,7 +51,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.insertAt(e, Position(c: 0, l: 1), 'X');
     expect(f.text, 'abc\nXdef\n');
     final op = f.undoList.last;
@@ -64,7 +64,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.deleteAt(e, Position(c: 0, l: 1));
     expect(f.text, 'abc\nef\n');
     final op = f.undoList.last;
@@ -77,7 +77,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.deleteAt(e, Position(c: 0, l: 2));
     f.deleteAt(e, Position(c: 0, l: 2));
     f.deleteAt(e, Position(c: 0, l: 2));
@@ -88,7 +88,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ab🪼de\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.deleteAt(e, Position(c: 2, l: 0));
     expect(f.text, 'abde\n');
   });
@@ -97,7 +97,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ab🪼de\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.replaceAt(e, Position(c: 2, l: 0), 'X');
     expect(f.text, 'abXde\n');
   });
@@ -106,7 +106,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     e.file = FileBuffer(text: 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
     final f = e.file;
-    f.createLines(e);
+    f.splitLines(e);
     f.deleteRange(e, Range(Position(c: 0, l: 0), Position(c: 0, l: 1)));
     f.deleteAt(e, Position(c: 0, l: 0));
     f.deleteAt(e, Position(c: 0, l: 0));
@@ -126,7 +126,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n123\n';
-    f.createLines(e);
+    f.splitLines(e);
     e.input('dw');
     expect(f.text, 'world\n123\n');
     e.input('u');
@@ -145,7 +145,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'a\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 1, l: 0);
     e.input('xu');
     expect(f.text, 'a\n');
@@ -156,7 +156,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 2);
     e.input('dd');
     expect(f.text, 'abc\ndef\n');

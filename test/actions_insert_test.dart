@@ -11,7 +11,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 1, l: 0);
     e.input('id\x1b');
     expect(f.text, 'adbc\n');
@@ -22,7 +22,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 0);
     e.input('i\x1b');
     expect(f.mode, Mode.normal);
@@ -32,7 +32,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcdef\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 3, l: 0);
     e.input('i\n');
     expect(f.text, 'abc\ndef\n');
@@ -43,7 +43,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 1);
     e.input('i${Keys.backspace}');
     expect(f.text, 'abcdef\nghi\n');
@@ -54,7 +54,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '  abc\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 5, l: 0);
     e.input('I');
     expect(f.cursor, Position(c: 2, l: 0));
@@ -64,7 +64,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.mode = .insert;
     // insert longer text with multiple lines
     const longTextWithMultipleLines = """
@@ -89,7 +89,7 @@ Nature's serenade, timeless and free.
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abcd\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 2, l: 0);
     e.input('iHI');
     expect(f.text, 'abHIcd\n');
@@ -101,7 +101,7 @@ Nature's serenade, timeless and free.
     final f = e.file;
     f.mode = Mode.insert;
     f.text = 'abcd\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 2, l: 0);
     e.input('HI');
     expect(f.text, 'abHIcd\n');
@@ -112,7 +112,7 @@ Nature's serenade, timeless and free.
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 3, l: 0);
     e.input('i${Keys.backspace}');
     expect(f.text, 'ab\n');
@@ -122,7 +122,7 @@ Nature's serenade, timeless and free.
   test('TODO insert multiple chars as one insert action', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
-    f.createLines(e);
+    f.splitLines(e);
     e.input('iabc\x1b');
     expect(f.text, 'abc\n');
     expect(f.prevEdit!.cmdKey, 'abc');

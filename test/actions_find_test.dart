@@ -11,7 +11,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abca\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     final cursor = Position(c: 0, l: 0);
     expect(FindNextCharMotion(c: 'a').run(e, f, cursor), Position(c: 3, l: 0));
     expect(FindNextCharMotion(c: 'b').run(e, f, cursor), Position(c: 1, l: 0));
@@ -22,7 +22,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     final cursor = Position(c: 2, l: 0);
     expect(FindPrevCharMotion(c: 'a').run(e, f, cursor), Position(c: 0, l: 0));
     expect(FindPrevCharMotion(c: 'b').run(e, f, cursor), Position(c: 1, l: 0));
@@ -33,7 +33,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 0);
     f.edit.findStr = 't';
     e.input('dt');
@@ -44,7 +44,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is a test\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 0);
     f.edit.findStr = 't';
     e.input('df');

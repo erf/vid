@@ -9,7 +9,7 @@ void main() {
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     e.setWrapMode(.none);
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 1);
     expect(f.lines[0].text, 'hei jeg heter Erlend 😀😀😀 ');
   });
@@ -18,7 +18,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'abc ');
     expect(f.lines[1].text, 'def ');
@@ -28,7 +28,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = '\n';
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 1);
     expect(f.lines[0].text, ' ');
   });
@@ -37,7 +37,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'abc ');
     expect(f.lines[1].text, 'def ');
@@ -48,7 +48,7 @@ void main() {
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     e.setWrapMode(.word);
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'abc def ');
     expect(f.lines[1].text, 'ghi jkl ');
@@ -59,7 +59,7 @@ void main() {
     final f = e.file;
     f.text = 'abc def😀 ghi jkl\n';
     e.setWrapMode(.word);
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 3);
     expect(f.lines[0].text, 'abc ');
     expect(f.lines[1].text, 'def😀 ');
@@ -71,7 +71,7 @@ void main() {
     final f = e.file;
     f.text = 'The old bookstore exuded\n';
     e.setWrapMode(.word);
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 2);
     expect(f.lines[0].text, 'The old bookstore ');
     expect(f.lines[0].start, 0);
@@ -86,7 +86,7 @@ void main() {
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     e.setWrapMode(.word);
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 4);
     expect(f.lines[0].text, 'hei jeg ');
     expect(f.lines[1].text, 'heter ');
@@ -99,7 +99,7 @@ void main() {
     final f = e.file;
     f.text = 'hei jeg heter Erlend 😀😀😀\n';
     e.setWrapMode(.char);
-    f.createLines(e);
+    f.splitLines(e);
     expect(f.lines.length, 3);
     expect(f.lines[0].text, 'hei jeg het');
     expect(f.lines[1].text, 'er Erlend ');

@@ -58,7 +58,7 @@ class Editor {
     file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
-    file.createLines(this);
+    file.splitLines(this);
 
     extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
     extensions?.notifyInit();
@@ -73,7 +73,7 @@ class Editor {
     }
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
-    file.createLines(this);
+    file.splitLines(this);
     extensions?.notifyFileOpen(file);
     draw();
     return result;
@@ -107,7 +107,7 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     int byteIndex = file.indexFromPosition(file.cursor);
-    file.createLines(this);
+    file.splitLines(this);
     file.cursor = file.positionFromIndex(byteIndex);
     showMessage(.info('${terminal.width}x${terminal.height}'));
     draw();

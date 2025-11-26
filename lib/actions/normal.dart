@@ -93,7 +93,7 @@ class Normal {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       TextOp? op = f.undo();
       if (op != null) {
-        f.createLines(e);
+        f.splitLines(e);
         f.cursor = op.cursor;
       }
     }
@@ -104,7 +104,7 @@ class Normal {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       TextOp? op = f.redo();
       if (op != null) {
-        f.createLines(e);
+        f.splitLines(e);
         f.cursor = op.cursor;
       }
     }
@@ -158,7 +158,7 @@ class Normal {
     int wrapModeCurr = e.config.wrapMode.index;
     int wrapModeNext = (wrapModeCurr + 1) % 3;
     e.setWrapMode(WrapMode.values[wrapModeNext]);
-    f.createLines(e);
+    f.splitLines(e);
   }
 
   static void centerView(Editor e, FileBuffer f) {

@@ -10,7 +10,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 0);
     e.input('dd');
     expect(f.text, 'def\nghi\n');
@@ -21,7 +21,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 1, l: 1);
     e.input('dk');
     expect(f.text, 'ghi\n');
@@ -32,7 +32,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 1, l: 0);
     e.input('dj');
     expect(f.text, 'ghi\n');
@@ -42,7 +42,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 1, l: 1);
     e.input('dd');
     expect(f.text, 'abc\nghi\n');
@@ -59,7 +59,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 1, l: 1);
     e.input('cc');
     expect(f.text, 'abc\nghi\n');
@@ -72,7 +72,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 1, l: 1);
     e.input('yy');
     expect(f.yankBuffer, 'def\n');
@@ -86,7 +86,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc def ghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 4, l: 0);
     e.input('yw');
     expect(f.yankBuffer, 'def ');
@@ -98,7 +98,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     e.input('ddjp');
     expect(f.text, '\ndef\nabc\n\nghi\n');
   });
@@ -107,7 +107,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     e.input('ddjp');
     expect(f.text, '\ndef\nabc\n\nghi\n');
     e.input('xp');
@@ -118,7 +118,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ABC\n';
-    f.createLines(e);
+    f.splitLines(e);
     e.input('gue');
     expect(f.text, 'abc\n');
   });
@@ -127,7 +127,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n';
-    f.createLines(e);
+    f.splitLines(e);
     e.input('gUe');
     expect(f.text, 'ABC\n');
   });
@@ -136,7 +136,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 2);
     e.input('dd');
     expect(f.text, 'abc\ndef\n');
@@ -146,7 +146,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\n\ndef\nghi\n';
-    f.createLines(e);
+    f.splitLines(e);
     f.cursor = Position(c: 0, l: 1);
     e.input('dd');
     expect(f.cursor, Position(c: 0, l: 1));
