@@ -34,6 +34,7 @@ class Editor {
   Config config;
   final TerminalBase terminal;
   final bool redraw;
+  final renderLines = <String>[];
   final renderBuffer = StringBuffer();
   var file = FileBuffer();
   Message? message;
@@ -127,6 +128,8 @@ class Editor {
       config.tabWidth,
     );
     file.clampView(terminal, cursorpos);
+
+    createRenderLines();
     drawLines();
 
     switch (file.mode) {
@@ -140,7 +143,9 @@ class Editor {
     terminal.write(renderBuffer);
   }
 
-  void drawLines() {
+  void createRenderLines() {
+    renderLines.clear();
+
     List<Line> lines = file.lines;
     Position view = file.view;
     int lineStart = view.l;
@@ -149,28 +154,33 @@ class Editor {
     for (int l = lineStart; l < lineEnd; l++) {
       // if no more lines draw '~'
       if (l > lines.length - 1) {
-        renderBuffer.writeln('~');
+        renderLines.add('~');
         continue;
       }
       // for empty lines draw empty line
       if (lines[l].isEmpty) {
-        renderBuffer.writeln();
+        renderLines.add('');
         continue;
       }
-      // draw line
-      String lineText;
+      // add line
       switch (config.wrapMode) {
         case .none:
-          lineText = lines[l].text
-              .tabsToSpaces(config.tabWidth)
-              .ch
-              .renderLine(view.c, terminal.width, config.tabWidth)
-              .string;
+          renderLines.add(
+            lines[l].text
+                .tabsToSpaces(config.tabWidth)
+                .ch
+                .renderLine(view.c, terminal.width, config.tabWidth)
+                .string,
+          );
         case .char:
         case .word:
-          lineText = lines[l].text.tabsToSpaces(config.tabWidth);
+          renderLines.add(lines[l].text.tabsToSpaces(config.tabWidth));
       }
+    }
+  }
 
+  void drawLines() {
+    for (String lineText in renderLines) {
       renderBuffer.writeln(lineText);
     }
   }
