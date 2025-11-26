@@ -6,6 +6,7 @@ import 'package:characters/characters.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/file_buffer/file_buffer_mode.dart';
+import 'package:vid/keys.dart';
 
 import 'bindings.dart';
 import 'characters_render.dart';
@@ -129,8 +130,7 @@ class Editor {
     );
     file.clampView(terminal, cursorpos);
 
-    createRenderLines();
-    drawLines();
+    renderBuffer.writeAll(createRenderLines(), Keys.newline);
 
     switch (file.mode) {
       case .command:
@@ -143,7 +143,7 @@ class Editor {
     terminal.write(renderBuffer);
   }
 
-  void createRenderLines() {
+  List<String> createRenderLines() {
     renderLines.clear();
 
     List<Line> lines = file.lines;
@@ -177,12 +177,7 @@ class Editor {
           renderLines.add(lines[l].text.tabsToSpaces(config.tabWidth));
       }
     }
-  }
-
-  void drawLines() {
-    for (String lineText in renderLines) {
-      renderBuffer.writeln(lineText);
-    }
+    return renderLines;
   }
 
   void drawCursor(int cursorpos) {
