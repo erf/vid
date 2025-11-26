@@ -7,8 +7,6 @@ class Config {
   final List<String> wrapSymbols;
   final WrapMode wrapMode;
   final String breakat;
-  final String colorcolumnMarker;
-  final int defaultColorColumn;
 
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
@@ -19,8 +17,6 @@ class Config {
     this.wrapSymbols = const ['', '|↵', '↵'],
     this.wrapMode = WrapMode.none,
     this.breakat = ' !@*-+;:,./?',
-    this.colorcolumnMarker = ' ',
-    this.defaultColorColumn = 80,
   });
 
   Config copyWith({
@@ -30,8 +26,6 @@ class Config {
     List<String>? wrapSymbols,
     WrapMode? wrapMode,
     String? breakat,
-    String? colorcolumnMarker,
-    int? defaultColorColumn,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -40,8 +34,6 @@ class Config {
       wrapSymbols: wrapSymbols ?? this.wrapSymbols,
       wrapMode: wrapMode ?? this.wrapMode,
       breakat: breakat ?? this.breakat,
-      colorcolumnMarker: colorcolumnMarker ?? this.colorcolumnMarker,
-      defaultColorColumn: defaultColorColumn ?? this.defaultColorColumn,
     );
   }
 }

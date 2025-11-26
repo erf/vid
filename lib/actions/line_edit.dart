@@ -128,31 +128,4 @@ class LineEdit {
     e.setWrapMode(.word);
     f.createLines(e);
   }
-
-  static void setColorColumn(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    // If no column is specified, toggle the color column
-    if (args.length < 2 || args[1].isEmpty) {
-      if (e.colorColumn == null) {
-        e.colorColumn = e.config.defaultColorColumn;
-        e.showMessage(
-          .info('Set default color column (${e.config.defaultColorColumn})'),
-        );
-      } else {
-        e.colorColumn = null;
-        e.showMessage(.info('Unset color column'));
-      }
-      f.createLines(e);
-      return;
-    }
-    // If a column is specified, set it
-    int? column = int.tryParse(args[1]);
-    if (column == null || column < 0) {
-      e.showMessage(.error('Invalid column number'));
-      return;
-    }
-    e.colorColumn = column;
-    f.createLines(e);
-    e.showMessage(.info('Set color column to $column'));
-  }
 }

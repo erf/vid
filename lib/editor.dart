@@ -32,7 +32,6 @@ import 'terminal/terminal_base.dart';
 
 class Editor {
   Config config;
-  int? colorColumn;
   final TerminalBase terminal;
   final bool redraw;
   final renderBuffer = StringBuffer();
@@ -172,35 +171,8 @@ class Editor {
           lineText = lines[l].text.tabsToSpaces(config.tabWidth);
       }
 
-      // Add line length marker if configured
-      if (colorColumn != null && config.wrapMode == .none) {
-        lineText = _addLineLengthMarker(lineText, view.c);
-      }
-
       renderBuffer.writeln(lineText);
     }
-  }
-
-  /// Adds a subtle marker at the configured maxLineLength position
-  String _addLineLengthMarker(String lineText, int viewColumn) {
-    final int markerCol =
-        (colorColumn ?? config.defaultColorColumn) - 1 - viewColumn;
-
-    // Check if marker is visible on screen
-    if (markerCol < 0 || markerCol >= terminal.width) {
-      return lineText;
-    }
-
-    // Pad line to reach marker position if needed
-    if (lineText.length <= markerCol) {
-      lineText = lineText.padRight(markerCol + 1);
-    }
-
-    // Use replaceRange to insert the styled marker
-    final styledMarker =
-        '${Esc.dimMode}${Esc.grayBackground}${config.colorcolumnMarker}${Esc.textStylesReset}';
-
-    return lineText.replaceRange(markerCol, markerCol + 1, styledMarker);
   }
 
   void drawCursor(int cursorpos) {
