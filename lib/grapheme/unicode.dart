@@ -33,13 +33,13 @@ class Unicode {
     // TODO handle zero width
     // https://wcwidth.readthedocs.io/en/latest/specs.html#width-of-0
 
-    // is text presentation
+    // is text presentation (VS15)
     const int textPresentation = 0xFE0E;
     if (codeUnits.contains(textPresentation)) {
       return 1;
     }
 
-    // is emoji presentation
+    // is emoji presentation (VS16)
     const int emojiPresentation = 0xFE0F;
     if (codeUnits.contains(emojiPresentation)) {
       return 2;
