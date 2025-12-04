@@ -8,6 +8,12 @@ import 'file_buffer.dart';
 
 /// Navigation helpers for byte-offset based cursor/viewport operations
 extension FileBufferNav on FileBuffer {
+  /// Get the text of line n (excluding \n) - O(1)
+  String lineTextAt(int lineNum) {
+    if (lineNum < 0 || lineNum >= lines.length) return '';
+    return text.substring(lines[lineNum].start, lines[lineNum].end);
+  }
+
   /// Find byte offset of line start - O(log n) lookup
   int lineStart(int offset) {
     if (lines.isEmpty) return 0;
@@ -26,7 +32,7 @@ extension FileBufferNav on FileBuffer {
   String lineText(int offset) {
     if (lines.isEmpty) return '';
     int lineNum = lineNumberFromOffset(offset);
-    return text.substring(lines[lineNum].start, lines[lineNum].end);
+    return lineTextAt(lineNum);
   }
 
   /// Get line number for offset - O(log n) using cached index

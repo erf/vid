@@ -13,15 +13,13 @@ import '../text_op.dart';
 
 class Normal {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
-    int cursorLine = f.lineNumber(f.cursor);
-    int targetLine = cursorLine + e.terminal.height ~/ 2;
+    int targetLine = f.cursorLine + e.terminal.height ~/ 2;
     targetLine = min(targetLine, f.totalLines - 1);
     f.cursor = f.offsetOfLine(targetLine);
   }
 
   static void moveUpHalfPage(Editor e, FileBuffer f) {
-    int cursorLine = f.lineNumber(f.cursor);
-    int targetLine = cursorLine - e.terminal.height ~/ 2;
+    int targetLine = f.cursorLine - e.terminal.height ~/ 2;
     targetLine = max(targetLine, 0);
     f.cursor = f.offsetOfLine(targetLine);
   }

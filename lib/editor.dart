@@ -114,13 +114,13 @@ class Editor {
     renderBuffer.write(Esc.homeAndEraseDown);
     file.clampCursor();
 
-    // Compute line numbers ONCE (avoid multiple O(n) scans)
-    int cursorLine = file.lineNumber(file.cursor);
+    // Use cached cursorLine (updated by clampCursor), compute viewportLine
+    int cursorLine = file.cursorLine;
     int viewportLine = file.lineNumber(file.viewport);
 
     // Calculate cursor render position (column width on screen)
     String lineTextToCursor = file.text.substring(
-      file.lineStart(file.cursor),
+      file.lines[cursorLine].start,
       file.cursor,
     );
     int cursorRenderCol = lineTextToCursor.ch.renderLength(
