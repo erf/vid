@@ -16,7 +16,7 @@ class FileBuffer {
   String _text;
 
   // cached line start offsets: _lineOffsets[i] = byte offset where line i starts
-  List<int> _lineOffsets = [];
+  final List<int> _lineOffsets = [];
 
   // the path to the file
   String? path;
@@ -54,6 +54,7 @@ class FileBuffer {
   // --- Getters/Setters ---
 
   String get text => _text;
+
   set text(String value) {
     _text = value;
     _buildLineIndex();
@@ -69,7 +70,8 @@ class FileBuffer {
 
   // build line index by scanning for newlines
   void _buildLineIndex() {
-    _lineOffsets = [0]; // line 0 starts at offset 0
+    _lineOffsets.clear();
+    _lineOffsets.add(0); // line 0 starts at offset 0
     for (int i = 0; i < _text.length; i++) {
       if (_text[i] == '\n') {
         _lineOffsets.add(i + 1); // next line starts after the newline
