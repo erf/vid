@@ -2,21 +2,17 @@ import 'package:vid/editor.dart';
 import 'package:vid/motions/motion.dart';
 
 import '../file_buffer/file_buffer.dart';
-import '../position.dart';
+import '../file_buffer/file_buffer_nav.dart';
 
 class CharNextMotion extends Motion {
   const CharNextMotion();
 
   @override
-  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
-    int c = p.c + 1;
-    if (c < f.lines[p.l].charLen) {
-      return Position(l: p.l, c: c);
-    }
-    int l = p.l + 1;
-    if (l >= f.lines.length) {
-      return p;
-    }
-    return Position(l: l, c: 0);
+  int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
+    int next = f.nextGrapheme(offset);
+    // If we moved past a newline, we're at the next line
+    // If we're at the end of file, stay put
+    if (next >= f.text.length) return offset;
+    return next;
   }
 }

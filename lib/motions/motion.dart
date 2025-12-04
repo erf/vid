@@ -1,7 +1,6 @@
 import 'package:vid/editor.dart';
 
 import '../file_buffer/file_buffer.dart';
-import '../position.dart';
 
 abstract class Motion {
   const Motion({this.inclusive = false, this.linewise = false});
@@ -9,5 +8,6 @@ abstract class Motion {
   final bool inclusive;
   final bool linewise;
 
-  Position run(Editor e, FileBuffer f, Position p, {bool op = false});
+  /// Run the motion from the given byte offset, return the new byte offset
+  int run(Editor e, FileBuffer f, int offset, {bool op = false});
 }

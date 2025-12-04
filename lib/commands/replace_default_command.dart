@@ -1,4 +1,3 @@
-import 'package:vid/file_buffer/file_buffer_lines.dart';
 import 'package:vid/file_buffer/file_buffer_mode.dart';
 import 'package:vid/file_buffer/file_buffer_text.dart';
 
@@ -12,7 +11,8 @@ class ReplaceDefaultCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.setMode(e, .normal);
-    if (f.empty) return;
-    f.replaceAt(e, f.cursor, s);
+    // Check if text is empty (just a trailing newline)
+    if (f.text.length <= 1) return;
+    f.replaceAt(f.cursor, s, config: e.config);
   }
 }

@@ -2,15 +2,17 @@ import 'package:vid/editor.dart';
 import 'package:vid/motions/motion.dart';
 
 import '../file_buffer/file_buffer.dart';
-import '../position.dart';
+import '../file_buffer/file_buffer_nav.dart';
 import '../regex.dart';
 
 class FirstNonBlankMotion extends Motion {
   const FirstNonBlankMotion() : super(linewise: true);
 
   @override
-  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
-    final int firstNonBlank = f.lines[p.l].text.indexOf(Regex.nonSpace);
-    return Position(l: p.l, c: firstNonBlank == -1 ? 0 : firstNonBlank);
+  int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
+    String lineText = f.lineText(offset);
+    int lineStart = f.lineStart(offset);
+    final int firstNonBlank = lineText.indexOf(Regex.nonSpace);
+    return firstNonBlank == -1 ? lineStart : lineStart + firstNonBlank;
   }
 }

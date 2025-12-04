@@ -5,6 +5,7 @@ import '../editor.dart';
 import '../error_or.dart';
 import '../esc.dart';
 import 'file_buffer.dart';
+import 'file_buffer_nav.dart';
 
 extension FileBufferIo on FileBuffer {
   // load file from disk or create new file, return file name
@@ -49,14 +50,15 @@ extension FileBufferIo on FileBuffer {
     return ErrorOr.error('File not found: \'$path\'');
   }
 
-  // parse line number argument if it exists
+  // parse line number argument if it exists, set cursor to start of that line
   void parseCliArgs(List<String> args) {
     if (args.length > 1 && args.last.startsWith('+')) {
       final lineNo = args.last.substring(1);
       if (lineNo.isNotEmpty) {
-        cursor.l = (int.tryParse(lineNo) ?? 1) - 1;
+        int targetLine = (int.tryParse(lineNo) ?? 1) - 1;
+        cursor = offsetOfLine(targetLine);
       } else {
-        cursor.l = 0;
+        cursor = 0;
       }
     }
   }

@@ -2,20 +2,24 @@ import 'package:vid/editor.dart';
 import 'package:vid/motions/motion.dart';
 
 import '../file_buffer/file_buffer.dart';
-import '../position.dart';
+import '../file_buffer/file_buffer_nav.dart';
 
 class LinewiseMotion extends Motion {
   const LinewiseMotion({super.linewise = true});
 
   @override
-  Position run(Editor e, FileBuffer f, Position p, {bool op = true}) {
-    final line = f.lines[p.l];
-    if (p.l >= f.lines.length - 1) {
-      return Position(l: p.l, c: line.charLen);
+  int run(Editor e, FileBuffer f, int offset, {bool op = true}) {
+    int lineEnd = f.lineEnd(offset);
+    int lineStart = f.lineStart(offset);
+
+    // If already at line end (but not an empty line), move to end of next line
+    // This enables count support (e.g., 3dd deletes 3 lines)
+    // For empty lines (lineStart == lineEnd), stay on current line
+    if (offset >= lineEnd &&
+        lineStart != lineEnd &&
+        lineEnd + 1 < f.text.length) {
+      return f.lineEnd(lineEnd + 1);
     }
-    if (p.c >= line.charLen) {
-      return Position(l: p.l + 1, c: f.lines[p.l + 1].charLen);
-    }
-    return Position(l: p.l, c: line.charLen);
+    return lineEnd;
   }
 }

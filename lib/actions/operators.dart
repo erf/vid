@@ -1,9 +1,8 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_mode.dart';
+import '../file_buffer/file_buffer_nav.dart';
 import '../file_buffer/file_buffer_text.dart';
-import '../file_buffer/file_buffer_view.dart';
 import '../range.dart';
 
 typedef OperatorFunction = void Function(Editor e, FileBuffer f, Range range);
@@ -15,9 +14,9 @@ class Operators {
   }
 
   static void delete(Editor e, FileBuffer f, Range r) {
-    final int byteIndex = f.indexFromPosition(r.start);
-    f.deleteRange(e, r);
-    f.cursor = f.positionFromIndex(byteIndex);
+    final Range range = r.norm;
+    f.deleteRange(range, config: e.config);
+    f.cursor = range.start;
     f.clampCursor();
     f.setMode(e, .normal);
   }
@@ -29,18 +28,16 @@ class Operators {
   }
 
   static void lowerCase(Editor e, FileBuffer f, Range r) {
-    int start = f.indexFromPosition(r.start);
-    int end = f.indexFromPosition(r.end);
-    String replacement = f.text.substring(start, end).toLowerCase();
-    f.replace(e, start, end, replacement);
+    final Range range = r.norm;
+    String replacement = f.text.substring(range.start, range.end).toLowerCase();
+    f.replace(range.start, range.end, replacement, config: e.config);
     f.setMode(e, .normal);
   }
 
   static void upperCase(Editor e, FileBuffer f, Range r) {
-    int start = f.indexFromPosition(r.start);
-    int end = f.indexFromPosition(r.end);
-    String replacement = f.text.substring(start, end).toUpperCase();
-    f.replace(e, start, end, replacement);
+    final Range range = r.norm;
+    String replacement = f.text.substring(range.start, range.end).toUpperCase();
+    f.replace(range.start, range.end, replacement, config: e.config);
     f.setMode(e, .normal);
   }
 }

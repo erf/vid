@@ -1,9 +1,9 @@
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer_io.dart';
+import 'package:vid/file_buffer/file_buffer_nav.dart';
 
 import '../actions/motions.dart';
 import '../file_buffer/file_buffer.dart';
-import '../position.dart';
 import 'motion.dart';
 
 class FindNextCharMotion extends Motion {
@@ -12,14 +12,16 @@ class FindNextCharMotion extends Motion {
   final String? c;
 
   @override
-  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
+  int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
-    final matchPos = Motions.regexNext(
+    int matchPos = Motions.regexNext(
       f,
-      p,
+      offset,
       RegExp(RegExp.escape(f.edit.findStr!)),
     );
-    if (inclusive && op) matchPos.c++;
+    if (inclusive && op) {
+      matchPos = f.nextGrapheme(matchPos);
+    }
     return matchPos;
   }
 }

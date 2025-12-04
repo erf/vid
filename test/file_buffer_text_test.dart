@@ -2,31 +2,17 @@ import 'package:test/test.dart';
 import 'package:vid/actions/normal.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
-import 'package:vid/file_buffer/file_buffer_index.dart';
-import 'package:vid/file_buffer/file_buffer_lines.dart';
+import 'package:vid/file_buffer/file_buffer_nav.dart';
 import 'package:vid/file_buffer/file_buffer_text.dart';
-import 'package:vid/position.dart';
 import 'package:vid/range.dart';
 import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
-  test('getPositionFromIndex', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
-    final f = e.file;
-    f.text = 'abc\ndef\n';
-    f.splitLines(e);
-    expect(f.positionFromIndex(0), Position(c: 0, l: 0));
-    expect(f.positionFromIndex(2), Position(c: 2, l: 0));
-    expect(f.positionFromIndex(4), Position(c: 0, l: 1));
-    expect(f.positionFromIndex(6), Position(c: 2, l: 1));
-  });
-
   test('replaceAt', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.splitLines(e);
-    f.replaceAt(e, Position(c: 0, l: 0), 'X');
+    f.replaceAt(0, 'X', config: e.config);
     expect(f.text, 'Xbc\ndef\n');
     final op = f.undoList.last;
     expect(op.prevText, 'a');
@@ -38,8 +24,8 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.splitLines(e);
-    f.deleteRange(e, Range(Position(c: 0, l: 0), Position(c: 1, l: 1)));
+    // Range from start (0) to 'd' at offset 5 (exclusive end)
+    f.deleteRange(Range(0, 5), config: e.config);
     expect(f.text, 'ef\n');
     final op = f.undoList.last;
     expect(op.prevText, 'abc\nd');
@@ -51,8 +37,8 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.splitLines(e);
-    f.insertAt(e, Position(c: 0, l: 1), 'X');
+    // Insert at start of 'def' line (offset 4)
+    f.insertAt(4, 'X', config: e.config);
     expect(f.text, 'abc\nXdef\n');
     final op = f.undoList.last;
     expect(op.prevText, '');
@@ -64,8 +50,8 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n';
-    f.splitLines(e);
-    f.deleteAt(e, Position(c: 0, l: 1));
+    // Delete at start of 'def' line (offset 4)
+    f.deleteAt(4, config: e.config);
     expect(f.text, 'abc\nef\n');
     final op = f.undoList.last;
     expect(op.prevText, 'd');
@@ -77,10 +63,10 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
-    f.splitLines(e);
-    f.deleteAt(e, Position(c: 0, l: 2));
-    f.deleteAt(e, Position(c: 0, l: 2));
-    f.deleteAt(e, Position(c: 0, l: 2));
+    // 'ghi' line starts at offset 8
+    f.deleteAt(8); // delete 'g'
+    f.deleteAt(8); // delete 'h'
+    f.deleteAt(8); // delete 'i'
     expect(f.text, 'abc\ndef\n\n');
   });
 
@@ -88,8 +74,8 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ab🪼de\n';
-    f.splitLines(e);
-    f.deleteAt(e, Position(c: 2, l: 0));
+    // 'ab' is 2 bytes, then emoji at offset 2
+    f.deleteAt(2);
     expect(f.text, 'abde\n');
   });
 
@@ -97,8 +83,8 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'ab🪼de\n';
-    f.splitLines(e);
-    f.replaceAt(e, Position(c: 2, l: 0), 'X');
+    // 'ab' is 2 bytes, then emoji at offset 2
+    f.replaceAt(2, 'X');
     expect(f.text, 'abXde\n');
   });
 
@@ -106,11 +92,12 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     e.file = FileBuffer(text: 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
     final f = e.file;
-    f.splitLines(e);
-    f.deleteRange(e, Range(Position(c: 0, l: 0), Position(c: 0, l: 1)));
-    f.deleteAt(e, Position(c: 0, l: 0));
-    f.deleteAt(e, Position(c: 0, l: 0));
-    f.replaceAt(e, Position(c: 0, l: 0), 'X');
+    // Delete range from 0 to start of second line content ('d')
+    // 'abc\n' is 4 bytes, so offset 4 is 'd'
+    f.deleteRange(Range(0, 4), config: e.config); // removes 'abc\n'
+    f.deleteAt(0, config: e.config); // removes 'd'
+    f.deleteAt(0, config: e.config); // removes emoji (👩‍👩‍👦‍👦)
+    f.replaceAt(0, 'X', config: e.config); // replaces 'f'
     expect(f.text, 'X\nghi\n');
     Normal.undo(e, f);
     expect(f.text, 'f\nghi\n');
@@ -126,7 +113,6 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n123\n';
-    f.splitLines(e);
     e.input('dw');
     expect(f.text, 'world\n123\n');
     e.input('u');
@@ -145,21 +131,20 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'a\n';
-    f.splitLines(e);
-    f.cursor = Position(c: 1, l: 0);
+    f.cursor = 0; // at 'a' - normal mode cursor can't be on newline
     e.input('xu');
     expect(f.text, 'a\n');
-    expect(f.cursor, Position(c: 1, l: 0));
+    expect(f.cursor, 0);
   });
 
   test('delete newline at end of file', () {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'abc\ndef\n\n';
-    f.splitLines(e);
-    f.cursor = Position(c: 0, l: 2);
+    // Empty line starts at offset 8
+    f.cursor = 8;
     e.input('dd');
     expect(f.text, 'abc\ndef\n');
-    expect(f.cursor, Position(c: 0, l: 1));
+    expect(f.lineNumber(f.cursor), 1);
   });
 }

@@ -5,78 +5,90 @@ import 'package:vid/editor.dart';
 
 import '../characters_render.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_index.dart';
-import '../position.dart';
+import '../file_buffer/file_buffer_nav.dart';
 import '../regex.dart';
 import '../string_ext.dart';
 import '../utils.dart';
 
 class Motions {
-  static Position moveLine(Editor e, FileBuffer f, Position p, int nextLine) {
-    int curlen = f.lines[p.l].text.characters.renderLength(
-      p.c,
+  /// Move to a different line, maintaining approximate visual column position
+  static int moveLine(Editor e, FileBuffer f, int offset, int targetLineNum) {
+    // Get current visual column position
+    int lineStartOff = f.lineStart(offset);
+    String beforeCursor = f.text.substring(lineStartOff, offset);
+    int curVisualCol = beforeCursor.characters.renderLength(
+      beforeCursor.characters.length,
       e.config.tabWidth,
     );
+
+    // Get target line
+    int targetLineStart = f.offsetOfLine(targetLineNum);
+    int targetLineEnd = f.lineEnd(targetLineStart);
+    String targetLineText = f.text.substring(targetLineStart, targetLineEnd);
+
+    // Find position in target line with similar visual column
     int nextlen = 0;
-    Characters chars = f.lines[nextLine].text.characters.takeWhile((c) {
+    Characters chars = targetLineText.characters.takeWhile((c) {
       nextlen += c.charWidth(e.config.tabWidth);
-      return nextlen <= curlen;
+      return nextlen <= curVisualCol;
     });
-    int char = clamp(chars.length, 0, f.lines[nextLine].charLen - 1);
-    return Position(l: nextLine, c: char);
+
+    // Clamp to valid position in target line
+    int targetCharLen = targetLineText.characters.length;
+    int charIndex = clamp(chars.length, 0, max(0, targetCharLen - 1));
+
+    // Convert char index to byte offset
+    return targetLineStart +
+        targetLineText.characters.take(charIndex).string.length;
   }
 
-  // find the first match after the cursor position
-  static Position regexNext(
+  /// Find the first match after the given byte offset
+  static int regexNext(
     FileBuffer f,
-    Position p,
+    int offset,
     RegExp pattern, {
     int skip = 0,
   }) {
-    int start = f.indexFromPosition(p);
-    final matches = pattern.allMatches(f.text, start + skip);
-    if (matches.isEmpty) return p;
+    final matches = pattern.allMatches(f.text, offset + skip);
+    if (matches.isEmpty) return offset;
     final m = matches.firstWhere(
-      (ma) => ma.start > start,
+      (ma) => ma.start > offset,
       orElse: () => matches.first,
     );
-    return f.positionFromIndex(m.start == start ? m.end : m.start);
+    return m.start == offset ? m.end : m.start;
   }
 
-  // find the first match before the cursor position
-  static Position regexPrev(FileBuffer f, Position p, RegExp pattern) {
-    final int start = f.indexFromPosition(p);
-    final matches = pattern.allMatches(f.text.substring(0, start));
-    if (matches.isEmpty) return p;
-    return f.positionFromIndex(matches.last.start);
+  /// Find the first match before the given byte offset
+  static int regexPrev(FileBuffer f, int offset, RegExp pattern) {
+    final matches = pattern.allMatches(f.text.substring(0, offset));
+    if (matches.isEmpty) return offset;
+    return matches.last.start;
   }
 
-  static Position matchCursorWord(
+  /// Find next/prev occurrence of the word under cursor
+  static int matchCursorWord(
     FileBuffer f,
-    Position p, {
+    int offset, {
     required bool forward,
   }) {
-    // find word on cursor
-    int start = f.indexFromPosition(p);
+    // Find word on cursor
     final matches = Regex.word.allMatches(f.text);
-    if (matches.isEmpty) return p;
+    if (matches.isEmpty) return offset;
     Match? match = matches.firstWhere(
-      (m) => start < m.end,
+      (m) => offset < m.end,
       orElse: () => matches.first,
     );
-    // we are not on the word
-    if (start < match.start || start >= match.end) {
-      return f.positionFromIndex(match.start);
+    // We are not on the word
+    if (offset < match.start || offset >= match.end) {
+      return match.start;
     }
-    // we are on the word and we want to find the next same word
+    // We are on the word and we want to find the next same word
     final wordToMatch = f.text.substring(match.start, match.end);
     final pattern = RegExp(RegExp.escape(wordToMatch));
-    // find the next same word
+    // Find the next same word
     final int index = forward
         ? f.text.indexOf(pattern, match.end)
         : f.text.lastIndexOf(pattern, max(0, match.start - 1));
-    return index == -1
-        ? f.positionFromIndex(match.start)
-        : f.positionFromIndex(index);
+    return index == -1 ? match.start : index;
   }
 }

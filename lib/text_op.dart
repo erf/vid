@@ -1,10 +1,8 @@
-import 'position.dart';
-
 class TextOp {
   final String newText;
   final String prevText;
   final int start;
-  final Position cursor;
+  final int cursor; // cursor byte offset before the operation
 
   const TextOp({
     required this.newText,

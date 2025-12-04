@@ -2,21 +2,14 @@ import 'package:vid/editor.dart';
 import 'package:vid/motions/motion.dart';
 
 import '../file_buffer/file_buffer.dart';
-import '../position.dart';
+import '../file_buffer/file_buffer_nav.dart';
 
 class CharPrevMotion extends Motion {
   const CharPrevMotion();
 
   @override
-  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
-    int c = p.c - 1;
-    if (c >= 0) {
-      return Position(l: p.l, c: c);
-    }
-    int l = p.l - 1;
-    if (l < 0) {
-      return p;
-    }
-    return Position(l: l, c: f.lines[l].charLen - 1);
+  int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
+    if (offset <= 0) return 0;
+    return f.prevGrapheme(offset);
   }
 }

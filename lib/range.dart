@@ -1,18 +1,13 @@
-import 'position.dart';
-
-// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#range
+// Range of byte offsets in the text
 class Range {
-  final Position start;
-  final Position end;
+  final int start;
+  final int end;
 
   const Range(this.start, this.end);
 
   // make sure start is before end
   Range get norm {
-    if (start.l < end.l) {
-      return this;
-    }
-    if (start.l == end.l && start.c <= end.c) {
+    if (start <= end) {
       return this;
     }
     return Range(end, start);

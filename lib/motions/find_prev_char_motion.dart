@@ -3,7 +3,6 @@ import 'package:vid/file_buffer/file_buffer_io.dart';
 
 import '../actions/motions.dart';
 import '../file_buffer/file_buffer.dart';
-import '../position.dart';
 import 'motion.dart';
 
 class FindPrevCharMotion extends Motion {
@@ -12,8 +11,8 @@ class FindPrevCharMotion extends Motion {
   final String? c;
 
   @override
-  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
+  int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
     f.edit.findStr = c ?? f.edit.findStr ?? f.readNextChar();
-    return Motions.regexPrev(f, p, RegExp(RegExp.escape(f.edit.findStr!)));
+    return Motions.regexPrev(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
   }
 }

@@ -1,8 +1,6 @@
 import 'package:vid/editor.dart';
 
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_index.dart';
-import '../position.dart';
 import '../regex.dart';
 import 'motion.dart';
 
@@ -11,14 +9,13 @@ class WordEndPrevMotion extends Motion {
   const WordEndPrevMotion();
 
   @override
-  Position run(Editor e, FileBuffer f, Position p, {bool op = false}) {
-    final int start = f.indexFromPosition(p);
+  int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
     final matches = Regex.word.allMatches(f.text);
-    if (matches.isEmpty) return p;
+    if (matches.isEmpty) return offset;
     final match = matches.lastWhere(
-      (m) => start > m.end,
+      (m) => offset > m.end,
       orElse: () => matches.last,
     );
-    return f.positionFromIndex(match.end - 1);
+    return match.end - 1;
   }
 }

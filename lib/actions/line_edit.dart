@@ -1,10 +1,9 @@
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_io.dart';
-import '../file_buffer/file_buffer_lines.dart';
 import '../file_buffer/file_buffer_mode.dart';
+import '../file_buffer/file_buffer_nav.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../file_buffer/file_buffer_utils.dart';
 import 'normal.dart';
@@ -103,8 +102,9 @@ class LineEdit {
       if (match == null) {
         break;
       }
-      f.replace(e, match.start, match.end, replacement);
-      f.cursor = f.positionFromIndex(match.start);
+      f.replace(match.start, match.end, replacement, config: e.config);
+      f.cursor = match.start;
+      f.clampCursor();
       if (!global) {
         break;
       }
@@ -113,19 +113,16 @@ class LineEdit {
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.setWrapMode(.none);
-    f.splitLines(e);
+    e.showMessage(.info('Wrap mode disabled in byte-offset mode'));
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.setWrapMode(.char);
-    f.splitLines(e);
+    e.showMessage(.info('Wrap mode disabled in byte-offset mode'));
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.setWrapMode(.word);
-    f.splitLines(e);
+    e.showMessage(.info('Wrap mode disabled in byte-offset mode'));
   }
 }

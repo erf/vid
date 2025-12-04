@@ -1,44 +1,59 @@
 import 'dart:math';
 
-import '../config.dart';
 import '../edit.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_io.dart';
-import '../file_buffer/file_buffer_lines.dart';
 import '../file_buffer/file_buffer_mode.dart';
+import '../file_buffer/file_buffer_nav.dart';
 import '../file_buffer/file_buffer_text.dart';
-import '../file_buffer/file_buffer_view.dart';
-import '../line.dart';
-import '../position.dart';
 import '../regex.dart';
 import '../text_op.dart';
 
 class Normal {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
-    f.cursor.l += e.terminal.height ~/ 2;
-    f.cursor.l = min(f.cursor.l, f.lines.length - 1);
+    int cursorLine = f.lineNumber(f.cursor);
+    int targetLine = cursorLine + e.terminal.height ~/ 2;
+    targetLine = min(targetLine, f.totalLines - 1);
+    f.cursor = f.offsetOfLine(targetLine);
   }
 
   static void moveUpHalfPage(Editor e, FileBuffer f) {
-    f.cursor.l -= e.terminal.height ~/ 2;
-    f.cursor.l = max(f.cursor.l, 0);
+    int cursorLine = f.lineNumber(f.cursor);
+    int targetLine = cursorLine - e.terminal.height ~/ 2;
+    targetLine = max(targetLine, 0);
+    f.cursor = f.offsetOfLine(targetLine);
   }
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
     final String buffer = f.yankBuffer!;
-    final Line line = f.lines[f.cursor.l];
     f.edit.linewise = f.prevEdit?.linewise ?? false;
+
     if (f.edit.linewise) {
-      f.insertAt(e, Position(l: f.cursor.l, c: line.charLen), buffer);
-      f.cursor = Position(l: f.cursor.l + 1, c: 0);
-    } else if (line.text == ' ') {
-      f.insertAt(e, Position(l: f.cursor.l, c: 0), buffer);
+      // Paste after current line - insert after the newline at end of line
+      int lineEndOffset = f.lineEnd(f.cursor);
+      // Insert after the newline (at start of next line position)
+      int insertPos = lineEndOffset + 1;
+      if (insertPos > f.text.length) insertPos = f.text.length;
+      f.insertAt(insertPos, buffer, config: e.config);
+      // Move cursor to start of pasted content
+      f.cursor = insertPos;
+      f.clampCursor();
     } else {
-      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c + 1), buffer);
+      // Check if line is empty (only has trailing space/newline)
+      String lineText = f.lineText(f.cursor);
+      if (lineText.isEmpty || lineText == ' ') {
+        f.insertAt(f.lineStart(f.cursor), buffer, config: e.config);
+      } else {
+        // Paste after cursor
+        int insertPos = f.nextGrapheme(f.cursor);
+        f.insertAt(insertPos, buffer, config: e.config);
+        // Move cursor to end of pasted content (last char, not past it)
+        f.cursor = insertPos + buffer.length - 1;
+        f.clampCursor();
+      }
     }
   }
 
@@ -46,10 +61,13 @@ class Normal {
     if (f.yankBuffer == null) return;
     final String buffer = f.yankBuffer!;
     if (f.prevEdit?.linewise ?? false) {
-      f.insertAt(e, Position(l: f.cursor.l, c: 0), buffer);
-      f.cursor = Position(l: f.cursor.l, c: 0);
+      // Paste before current line
+      int lineStartOffset = f.lineStart(f.cursor);
+      f.insertAt(lineStartOffset, buffer, config: e.config);
+      f.cursor = lineStartOffset;
     } else {
-      f.insertAt(e, Position(l: f.cursor.l, c: f.cursor.c), buffer);
+      // Paste at cursor position
+      f.insertAt(f.cursor, buffer, config: e.config);
     }
   }
 
@@ -76,16 +94,21 @@ class Normal {
 
   static void appendCharNext(Editor e, FileBuffer f) {
     f.setMode(e, .insert);
-    f.cursor.c = min(f.cursor.c + 1, f.lines[f.cursor.l].charLen - 1);
+    // Move cursor right by one grapheme, but don't go past line end
+    int nextPos = f.nextGrapheme(f.cursor);
+    int lineEndPos = f.lineEnd(f.cursor);
+    f.cursor = min(nextPos, lineEndPos);
   }
 
   static void joinLines(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
-      if (f.cursor.l >= f.lines.length - 1) {
+      int lineEndOffset = f.lineEnd(f.cursor);
+      // Check if there's a line below to join
+      if (lineEndOffset >= f.text.length - 1) {
         return;
       }
-      int eol = f.lines[f.cursor.l].charLen - 1;
-      f.deleteAt(e, Position(l: f.cursor.l, c: eol));
+      // Delete the newline at end of current line
+      f.deleteAt(lineEndOffset, config: e.config);
     }
   }
 
@@ -93,8 +116,8 @@ class Normal {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       TextOp? op = f.undo();
       if (op != null) {
-        f.splitLines(e);
         f.cursor = op.cursor;
+        f.clampCursor();
       }
     }
     f.edit = Edit();
@@ -104,8 +127,8 @@ class Normal {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       TextOp? op = f.redo();
       if (op != null) {
-        f.splitLines(e);
         f.cursor = op.cursor;
+        f.clampCursor();
       }
     }
     f.edit = Edit();
@@ -128,22 +151,27 @@ class Normal {
   }
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {
-    final p = f.cursor;
-    final i = f.indexFromPosition(p);
-    final line = f.lines[p.l];
-    final start = line.start;
-    final matches = Regex.number.allMatches(line.text);
+    int lineStartOffset = f.lineStart(f.cursor);
+    String lineText = f.lineText(f.cursor);
+    int cursorInLine = f.cursor - lineStartOffset;
+
+    final matches = Regex.number.allMatches(lineText);
     if (matches.isEmpty) return;
+
     final m = matches.firstWhere(
-      (m) => i < (m.end + start),
+      (m) => cursorInLine < m.end,
       orElse: () => matches.last,
     );
-    if (i >= (m.end + start)) return;
+    if (cursorInLine >= m.end) return;
+
     final s = m.group(1)!;
     final num = int.parse(s);
     final numstr = (num + count).toString();
-    f.replace(e, start + m.start, start + m.end, numstr);
-    f.cursor = f.positionFromIndex(start + m.start + numstr.length - 1);
+
+    int matchStart = lineStartOffset + m.start;
+    int matchEnd = lineStartOffset + m.end;
+    f.replace(matchStart, matchEnd, numstr, config: e.config);
+    f.cursor = matchStart + numstr.length - 1;
   }
 
   static void increase(Editor e, FileBuffer f) {
@@ -155,13 +183,11 @@ class Normal {
   }
 
   static void toggleWrap(Editor e, FileBuffer f) {
-    int wrapModeCurr = e.config.wrapMode.index;
-    int wrapModeNext = (wrapModeCurr + 1) % 3;
-    e.setWrapMode(WrapMode.values[wrapModeNext]);
-    f.splitLines(e);
+    // Word wrap is disabled in byte-offset mode for now
+    e.showMessage(.info('Wrap mode toggling disabled'));
   }
 
   static void centerView(Editor e, FileBuffer f) {
-    f.centerView(e.terminal);
+    f.centerViewport(e.terminal);
   }
 }

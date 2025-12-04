@@ -1,22 +1,19 @@
 import 'package:vid/config.dart';
 
-import '../editor.dart';
-import '../position.dart';
 import '../range.dart';
 import '../text_op.dart';
 import 'file_buffer.dart';
-import 'file_buffer_index.dart';
-import 'file_buffer_lines.dart';
+import 'file_buffer_nav.dart';
 
 // text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {
-  // replace text in the buffer, add undo operation and recreate lines
+  // replace text in the buffer, add undo operation
   void replace(
-    Editor e,
     int start,
     int end,
     String newText, {
     bool undo = true,
+    Config? config,
   }) {
     assert(start <= end);
     final bool isDeleteOrReplace = start != end;
@@ -42,21 +39,18 @@ extension FileBufferText on FileBuffer {
     }
 
     // add undo operation
-    if (undo) {
+    if (undo && config != null) {
       addUndo(
         start: start,
         end: end,
         newText: newText,
-        cursor: cursor,
-        config: e.config,
+        cursorOffset: cursor,
+        config: config,
       );
     }
 
-    // replace text and create lines
+    // replace text
     text = text.replaceRange(start, end, newText);
-
-    // we need to recreate the lines, because the text has changed
-    splitLines(e);
   }
 
   // add an undo operation
@@ -64,7 +58,7 @@ extension FileBufferText on FileBuffer {
     required int start,
     required int end,
     required String newText,
-    required Position cursor,
+    required int cursorOffset,
     required Config config,
   }) {
     // text operation
@@ -72,15 +66,15 @@ extension FileBufferText on FileBuffer {
       newText: newText,
       prevText: text.substring(start, end),
       start: start,
-      cursor: Position.from(cursor),
+      cursor: cursorOffset,
     );
 
     undoList.add(textOp);
 
     // limit undo operations
     if (undoList.length > config.maxNumUndo) {
-      int end = undoList.length - config.maxNumUndo;
-      undoList.removeRange(0, end);
+      int removeEnd = undoList.length - config.maxNumUndo;
+      undoList.removeRange(0, removeEnd);
     }
 
     // clear redo list
@@ -93,34 +87,33 @@ extension FileBufferText on FileBuffer {
     }
   }
 
-  void replaceRange(Editor e, Range range, String newText) {
-    final int start = indexFromPosition(range.start);
-    final int end = indexFromPosition(range.end);
-    replace(e, start, end, newText);
+  void replaceRange(Range range, String newText, {Config? config}) {
+    final Range r = range.norm;
+    replace(r.start, r.end, newText, config: config);
   }
 
-  void deleteRange(Editor e, Range range) {
-    replaceRange(e, range, '');
+  void deleteRange(Range range, {Config? config}) {
+    replaceRange(range, '', config: config);
   }
 
-  void insertAt(Editor e, Position pos, String str, [bool undo = true]) {
-    final int start = indexFromPosition(pos);
-    replace(e, start, start, str, undo: undo);
+  void insertAt(int offset, String str, {bool undo = true, Config? config}) {
+    replace(offset, offset, str, undo: undo, config: config);
   }
 
-  void replaceAt(Editor e, Position pos, String str) {
-    replaceRange(e, Range(pos, Position(l: pos.l, c: pos.c + 1)), str);
+  void replaceAt(int offset, String str, {Config? config}) {
+    // Replace one grapheme at offset
+    int nextOffset = nextGrapheme(offset);
+    replace(offset, nextOffset, str, config: config);
   }
 
-  void deleteAt(Editor e, Position pos) {
-    replaceAt(e, pos, '');
+  void deleteAt(int offset, {Config? config}) {
+    int nextOffset = nextGrapheme(offset);
+    replace(offset, nextOffset, '', config: config);
   }
 
   void yankRange(Range range) {
     final Range r = range.norm;
-    final int start = indexFromPosition(r.start);
-    final int end = indexFromPosition(r.end);
-    yankBuffer = text.substring(start, end);
+    yankBuffer = text.substring(r.start, r.end);
   }
 
   TextOp? undo() {

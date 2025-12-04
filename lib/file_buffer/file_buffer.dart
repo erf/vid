@@ -1,7 +1,5 @@
 import '../edit.dart';
-import '../line.dart';
 import '../modes.dart';
-import '../position.dart';
 import '../text_op.dart';
 
 // all things related to the file buffer
@@ -18,14 +16,11 @@ class FileBuffer {
   // the absolute path to the file
   String? absolutePath;
 
-  // the lines of the file with metadata, built by createLines() on text changes
-  List<Line> lines = [];
+  // the cursor position (byte offset, always at grapheme cluster boundary)
+  int cursor = 0;
 
-  // the cursor position (0 based, in grapheme cluster space)
-  Position cursor = Position();
-
-  // the view offset (0 based, in grapheme cluster space)
-  Position view = Position();
+  // the viewport position (byte offset of first visible character)
+  int viewport = 0;
 
   // the current mode
   Mode mode = .normal;

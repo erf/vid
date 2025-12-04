@@ -1,8 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vid/actions/line_edit.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/file_buffer/file_buffer_lines.dart';
-import 'package:vid/position.dart';
 import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
@@ -10,7 +8,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
-    f.cursor = Position(l: 0, c: 0);
+    f.cursor = 0;
     LineEdit.substitute(e, f, ['s/l//']);
     expect(f.text, equals('helo world\n'));
   });
@@ -19,7 +17,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
-    f.cursor = Position(l: 0, c: 0);
+    f.cursor = 0;
     LineEdit.substitute(e, f, ['s/world/friend/']);
     expect(f.text, equals('hello friend\n'));
   });
@@ -28,7 +26,7 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'this is fun fun fun\n';
-    f.cursor = Position(l: 0, c: 0);
+    f.cursor = 0;
     LineEdit.substitute(e, f, ['s/fun/cool/g']);
     expect(f.text, equals('this is cool cool cool\n'));
   });
@@ -37,9 +35,8 @@ void main() {
     final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
     final f = e.file;
     f.text = 'hello world\n';
-    f.splitLines(e);
-    f.cursor = Position(l: 0, c: 0);
+    f.cursor = 0;
     e.input('/world\n');
-    expect(f.cursor, equals(Position(l: 0, c: 6)));
+    expect(f.cursor, 6); // 'world' starts at byte offset 6
   });
 }

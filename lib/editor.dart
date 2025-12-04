@@ -16,16 +16,12 @@ import 'edit.dart';
 import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer/file_buffer.dart';
-import 'file_buffer/file_buffer_index.dart';
 import 'file_buffer/file_buffer_io.dart';
-import 'file_buffer/file_buffer_lines.dart';
-import 'file_buffer/file_buffer_view.dart';
-import 'line.dart';
+import 'file_buffer/file_buffer_nav.dart';
 import 'map_match.dart';
 import 'message.dart';
 import 'modes.dart';
 import 'motions/motion.dart';
-import 'position.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
@@ -60,7 +56,6 @@ class Editor {
     file = result.value!;
     file.parseCliArgs(args);
     initTerminal(path);
-    file.splitLines(this);
 
     extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
     extensions?.notifyInit();
@@ -75,7 +70,6 @@ class Editor {
     }
     file = result.value!;
     terminal.write(Esc.setWindowTitle(path));
-    file.splitLines(this);
     extensions?.notifyFileOpen(file);
     draw();
     return result;
@@ -108,9 +102,6 @@ class Editor {
   }
 
   void onResize(ProcessSignal signal) {
-    int byteIndex = file.indexFromPosition(file.cursor);
-    file.splitLines(this);
-    file.cursor = file.positionFromIndex(byteIndex);
     showMessage(.info('${terminal.width}x${terminal.height}'));
     draw();
   }
@@ -123,12 +114,18 @@ class Editor {
     renderBuffer.clear();
     renderBuffer.write(Esc.homeAndEraseDown);
     file.clampCursor();
-    Position cursor = file.cursor;
-    int cursorpos = file.lines[cursor.l].text.ch.renderLength(
-      cursor.c,
+
+    // Calculate cursor render position (column width on screen)
+    String lineTextToCursor = file.text.substring(
+      file.lineStart(file.cursor),
+      file.cursor,
+    );
+    int cursorRenderCol = lineTextToCursor.ch.renderLength(
+      lineTextToCursor.characters.length,
       config.tabWidth,
     );
-    file.clampView(terminal, cursorpos);
+
+    file.clampViewport(terminal, cursorRenderCol);
 
     renderBuffer.writeAll(createRenderLines(), Keys.newline);
 
@@ -138,7 +135,7 @@ class Editor {
         drawLineEdit();
       default:
         drawStatus();
-        drawCursor(cursorpos);
+        drawCursor(cursorRenderCol);
     }
     terminal.write(renderBuffer);
   }
@@ -146,46 +143,51 @@ class Editor {
   List<String> createRenderLines() {
     renderLines.clear();
 
-    List<Line> lines = file.lines;
-    Position view = file.view;
-    int lineStart = view.l;
-    int lineEnd = view.l + terminal.height - 1;
+    int viewportLine = file.lineNumber(file.viewport);
+    int viewportCol =
+        0; // Horizontal scrolling - currently 0, could be extended
+    int numLines = terminal.height - 1;
+    int totalLines = file.totalLines;
 
-    for (int l = lineStart; l < lineEnd; l++) {
-      // if no more lines draw '~'
-      if (l > lines.length - 1) {
+    for (int lineIdx = 0; lineIdx < numLines; lineIdx++) {
+      int lineNum = viewportLine + lineIdx;
+
+      // If past end of file, draw '~'
+      if (lineNum >= totalLines) {
         renderLines.add('~');
         continue;
       }
-      // for empty lines draw empty line
-      if (lines[l].isEmpty) {
+
+      // Get the line text
+      int lineStartOffset = file.offsetOfLine(lineNum);
+      String lineText = file.lineText(lineStartOffset);
+
+      // Empty line
+      if (lineText.isEmpty) {
         renderLines.add('');
         continue;
       }
-      // add line
-      switch (config.wrapMode) {
-        case .none:
-          renderLines.add(
-            lines[l].text
-                .tabsToSpaces(config.tabWidth)
-                .ch
-                .renderLine(view.c, terminal.width, config.tabWidth)
-                .string,
-          );
-        case .char:
-        case .word:
-          renderLines.add(lines[l].text.tabsToSpaces(config.tabWidth));
-      }
+
+      // Render the line with proper tab handling and horizontal scrolling
+      renderLines.add(
+        lineText
+            .tabsToSpaces(config.tabWidth)
+            .ch
+            .renderLine(viewportCol, terminal.width, config.tabWidth)
+            .string,
+      );
     }
     return renderLines;
   }
 
-  void drawCursor(int cursorpos) {
-    final curpos = Position(
-      l: file.cursor.l - file.view.l + 1,
-      c: cursorpos - file.view.c + 1,
-    );
-    renderBuffer.write(Esc.cursorPosition(c: curpos.c, l: curpos.l));
+  void drawCursor(int cursorRenderCol) {
+    int cursorLine = file.lineNumber(file.cursor);
+    int viewportLine = file.lineNumber(file.viewport);
+
+    int screenRow = cursorLine - viewportLine + 1;
+    int screenCol = cursorRenderCol + 1; // 1-based
+
+    renderBuffer.write(Esc.cursorPosition(c: screenCol, l: screenRow));
   }
 
   // draw the command input line
@@ -206,7 +208,8 @@ class Editor {
     renderBuffer.write(Esc.invertColors);
     renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height));
 
-    Position cursor = file.cursor;
+    int cursorLine = file.lineNumber(file.cursor);
+    int cursorCol = file.columnInLine(file.cursor);
     String mode = statusModeLabel(file.mode);
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
@@ -217,7 +220,7 @@ class Editor {
       modified,
       wrap,
     ].where((s) => s.isNotEmpty).join(' ');
-    String right = ' ${cursor.l + 1}, ${cursor.c + 1} ';
+    String right = ' ${cursorLine + 1}, ${cursorCol + 1} ';
     int padLeft = terminal.width - left.length - 2;
     String status = ' $left ${right.padLeft(padLeft)}';
 
@@ -318,8 +321,8 @@ class Editor {
     Motion motion = edit.motion!;
     edit.linewise = motion.linewise;
     Function? op = edit.op;
-    Position start = file.cursor;
-    Position end = file.cursor;
+    int start = file.cursor;
+    int end = file.cursor;
     for (int i = 0; i < (edit.count ?? 1); i++) {
       end = motion.run(this, file, end, op: op != null);
     }
@@ -328,13 +331,15 @@ class Editor {
     } else {
       if (motion.linewise) {
         final r = Range(start, end).norm;
-        start = Position(l: r.start.l, c: 0);
-        end = Position(l: r.end.l, c: file.lines[r.end.l].charLen);
+        // Expand to full lines for linewise operations
+        start = file.lineStart(r.start);
+        end = file.lineEnd(r.end) + 1; // Include the newline
+        if (end > file.text.length) end = file.text.length;
       }
       op(this, file, Range(start, end).norm);
 
       if (motion.linewise) {
-        file.cursor = Position(l: start.l, c: 0);
+        file.cursor = file.lineStart(start);
         file.clampCursor();
       }
     }

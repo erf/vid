@@ -2,9 +2,8 @@ import 'dart:io';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_index.dart';
 import '../file_buffer/file_buffer_io.dart';
-import '../file_buffer/file_buffer_view.dart';
+import '../file_buffer/file_buffer_nav.dart';
 import 'extension.dart';
 
 /// Extension that remembers cursor positions for files
@@ -22,8 +21,9 @@ class CursorPositionExtension implements Extension {
   void onFileOpen(Editor editor, FileBuffer file) {
     int? cursorPosition = cursorPerFile[file.absolutePath];
     if (cursorPosition != null) {
-      file.cursor = file.positionFromIndex(cursorPosition);
-      file.centerView(editor.terminal);
+      file.cursor = cursorPosition;
+      file.clampCursor();
+      file.centerViewport(editor.terminal);
     }
   }
 
@@ -31,10 +31,10 @@ class CursorPositionExtension implements Extension {
   void onQuit(Editor editor) {
     FileBuffer file = editor.file;
     if (file.absolutePath != null) {
-      if (file.cursor.l == 0 && file.cursor.c == 0) {
+      if (file.cursor == 0) {
         cursorPerFile.remove(file.absolutePath!);
       } else {
-        cursorPerFile[file.absolutePath!] = file.indexFromPosition(file.cursor);
+        cursorPerFile[file.absolutePath!] = file.cursor;
       }
       saveCursorPositions(cursorPerFile);
     }

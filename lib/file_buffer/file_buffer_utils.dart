@@ -4,9 +4,7 @@ import '../actions/insert_actions.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../keys.dart';
-import '../position.dart';
 import 'file_buffer.dart';
-import 'file_buffer_index.dart';
 import 'file_buffer_text.dart';
 
 extension FileBufferUtils on FileBuffer {
@@ -23,8 +21,7 @@ extension FileBufferUtils on FileBuffer {
   // update cursor position. Add the whole string to the undo list at the end.
   void insertChunk(Editor e, String str) {
     final String buffer = str;
-    final Position cursor = Position.from(this.cursor);
-    final int start = indexFromPosition(cursor);
+    final int startOffset = cursor;
     while (str.isNotEmpty) {
       int nlPos = str.indexOf(Keys.newline);
       if (nlPos == -1) {
@@ -37,10 +34,10 @@ extension FileBufferUtils on FileBuffer {
       str = str.substring(nlPos + 1);
     }
     addUndo(
-      start: start,
-      end: start,
+      start: startOffset,
+      end: startOffset,
       newText: buffer,
-      cursor: cursor,
+      cursorOffset: startOffset,
       config: e.config,
     );
   }
