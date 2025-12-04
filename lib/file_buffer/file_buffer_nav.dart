@@ -93,10 +93,13 @@ extension FileBufferNav on FileBuffer {
   }
 
   /// Clamp viewport so cursor is visible
-  void clampViewport(TerminalBase term, int cursorRenderCol) {
-    int cursorLine = lineNumber(cursor);
-    int viewportLine = lineNumber(viewport);
-
+  /// Returns the (possibly clamped) viewportLine for reuse
+  int clampViewport(
+    TerminalBase term,
+    int cursorRenderCol,
+    int cursorLine,
+    int viewportLine,
+  ) {
     // Vertical: ensure cursor line is visible
     int maxViewLine = cursorLine;
     int minViewLine = cursorLine - term.height + 2;
@@ -106,6 +109,7 @@ extension FileBufferNav on FileBuffer {
     viewport = _offsetOfLine(math.max(0, viewportLine));
 
     // Note: horizontal scrolling is handled at render time based on cursorRenderCol
+    return viewportLine;
   }
 
   /// Center viewport on cursor

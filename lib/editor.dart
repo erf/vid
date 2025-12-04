@@ -114,6 +114,10 @@ class Editor {
     renderBuffer.write(Esc.homeAndEraseDown);
     file.clampCursor();
 
+    // Compute line numbers ONCE (avoid multiple O(n) scans)
+    int cursorLine = file.lineNumber(file.cursor);
+    int viewportLine = file.lineNumber(file.viewport);
+
     // Calculate cursor render position (column width on screen)
     String lineTextToCursor = file.text.substring(
       file.lineStart(file.cursor),
@@ -124,7 +128,12 @@ class Editor {
       config.tabWidth,
     );
 
-    file.clampViewport(terminal, cursorRenderCol);
+    viewportLine = file.clampViewport(
+      terminal,
+      cursorRenderCol,
+      cursorLine,
+      viewportLine,
+    );
 
     writeRenderLines();
 
@@ -133,8 +142,8 @@ class Editor {
       case .search:
         drawLineEdit();
       default:
-        drawStatus();
-        drawCursor(cursorRenderCol);
+        drawStatus(cursorLine);
+        drawCursor(cursorRenderCol, cursorLine, viewportLine);
     }
     terminal.write(renderBuffer);
   }
@@ -176,10 +185,7 @@ class Editor {
     }
   }
 
-  void drawCursor(int cursorRenderCol) {
-    int cursorLine = file.lineNumber(file.cursor);
-    int viewportLine = file.lineNumber(file.viewport);
-
+  void drawCursor(int cursorRenderCol, int cursorLine, int viewportLine) {
     int screenRow = cursorLine - viewportLine + 1;
     int screenCol = cursorRenderCol + 1; // 1-based
 
@@ -200,11 +206,10 @@ class Editor {
     renderBuffer.write(Esc.cursorPosition(c: cursor, l: terminal.height));
   }
 
-  void drawStatus() {
+  void drawStatus(int cursorLine) {
     renderBuffer.write(Esc.invertColors);
     renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height));
 
-    int cursorLine = file.lineNumber(file.cursor);
     int cursorCol = file.columnInLine(file.cursor);
     String mode = statusModeLabel(file.mode);
     String path = file.path ?? '[No Name]';
