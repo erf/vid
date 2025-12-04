@@ -143,39 +143,40 @@ class Editor {
   List<String> createRenderLines() {
     renderLines.clear();
 
-    int viewportLine = file.lineNumber(file.viewport);
-    int viewportCol =
-        0; // Horizontal scrolling - currently 0, could be extended
+    // Horizontal scrolling - currently 0, could be extended
+    int viewportCol = 0;
     int numLines = terminal.height - 1;
-    int totalLines = file.totalLines;
+    int offset = file.viewport; // Start from viewport offset directly
 
     for (int lineIdx = 0; lineIdx < numLines; lineIdx++) {
-      int lineNum = viewportLine + lineIdx;
-
-      // If past end of file, draw '~'
-      if (lineNum >= totalLines) {
+      // Past end of file - draw '~'
+      if (offset >= file.text.length) {
         renderLines.add('~');
         continue;
       }
 
-      // Get the line text
-      int lineStartOffset = file.offsetOfLine(lineNum);
-      String lineText = file.lineText(lineStartOffset);
+      // Find end of this line
+      int lineEnd = file.text.indexOf('\n', offset);
+      if (lineEnd == -1) lineEnd = file.text.length;
 
-      // Empty line
+      // Extract line text
+      String lineText = file.text.substring(offset, lineEnd);
+
+      // Render line (empty or with content)
       if (lineText.isEmpty) {
         renderLines.add('');
-        continue;
+      } else {
+        renderLines.add(
+          lineText
+              .tabsToSpaces(config.tabWidth)
+              .ch
+              .renderLine(viewportCol, terminal.width, config.tabWidth)
+              .string,
+        );
       }
 
-      // Render the line with proper tab handling and horizontal scrolling
-      renderLines.add(
-        lineText
-            .tabsToSpaces(config.tabWidth)
-            .ch
-            .renderLine(viewportCol, terminal.width, config.tabWidth)
-            .string,
-      );
+      // Move to next line (skip past the newline)
+      offset = lineEnd + 1;
     }
     return renderLines;
   }
