@@ -9,11 +9,10 @@ import 'file_buffer.dart';
 /// Navigation helpers for byte-offset based cursor/viewport operations
 extension FileBufferNav on FileBuffer {
   /// Find byte offset of line start (position after previous \n, or 0)
+  /// Uses cached line index for O(log n) lookup
   int lineStart(int offset) {
-    if (offset <= 0) return 0;
-    // Look backwards for \n
-    int pos = text.lastIndexOf('\n', offset - 1);
-    return pos == -1 ? 0 : pos + 1;
+    int lineNum = lineNumberFromOffset(offset);
+    return offsetFromLineNumber(lineNum);
   }
 
   /// Find byte offset of line end (the \n character, or text.length)
@@ -27,13 +26,9 @@ extension FileBufferNav on FileBuffer {
     return text.substring(lineStart(offset), lineEnd(offset));
   }
 
-  /// Count newlines before offset (0-based line number)
+  /// Get line number for offset - O(log n) using cached index
   int lineNumber(int offset) {
-    int count = 0;
-    for (int i = 0; i < offset && i < text.length; i++) {
-      if (text[i] == '\n') count++;
-    }
-    return count;
+    return lineNumberFromOffset(offset);
   }
 
   /// Get column position within line (in grapheme clusters, 0-based)
@@ -105,8 +100,8 @@ extension FileBufferNav on FileBuffer {
     int minViewLine = cursorLine - term.height + 2;
     viewportLine = viewportLine.clamp(minViewLine, maxViewLine);
 
-    // Update viewport to start of that line
-    viewport = _offsetOfLine(math.max(0, viewportLine));
+    // Update viewport to start of that line - O(1) lookup
+    viewport = offsetFromLineNumber(math.max(0, viewportLine));
 
     // Note: horizontal scrolling is handled at render time based on cursorRenderCol
     return viewportLine;
@@ -117,37 +112,9 @@ extension FileBufferNav on FileBuffer {
     int cursorLine = lineNumber(cursor);
     int targetLine = cursorLine - (term.height - 2) ~/ 2;
     targetLine = math.max(0, targetLine);
-    viewport = _offsetOfLine(targetLine);
+    viewport = offsetFromLineNumber(targetLine);
   }
 
-  /// Get byte offset of the start of line number n (0-based)
-  int _offsetOfLine(int lineNum) {
-    if (lineNum <= 0) return 0;
-    int count = 0;
-    for (int i = 0; i < text.length; i++) {
-      if (text[i] == '\n') {
-        count++;
-        if (count == lineNum) {
-          return i + 1;
-        }
-      }
-    }
-    return text.length;
-  }
-
-  /// Get byte offset of the start of line number n (0-based) - public version
-  int offsetOfLine(int lineNum) => _offsetOfLine(lineNum);
-
-  /// Total number of lines in the text
-  int get totalLines {
-    int count = 1;
-    for (int i = 0; i < text.length; i++) {
-      if (text[i] == '\n') count++;
-    }
-    // Don't count the final \n as creating an extra line
-    if (text.isNotEmpty && text[text.length - 1] == '\n') {
-      count--;
-    }
-    return math.max(1, count);
-  }
+  /// Get byte offset of the start of line number n (0-based) - O(1) lookup
+  int offsetOfLine(int lineNum) => offsetFromLineNumber(lineNum);
 }
