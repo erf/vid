@@ -49,8 +49,8 @@ extension FileBufferText on FileBuffer {
       );
     }
 
-    // replace text
-    text = text.replaceRange(start, end, newText);
+    // replace text with incremental line index update
+    updateText(start, end, newText);
   }
 
   // add an undo operation
@@ -119,7 +119,7 @@ extension FileBufferText on FileBuffer {
   TextOp? undo() {
     if (undoList.isEmpty) return null;
     TextOp op = undoList.removeLast();
-    text = text.replaceRange(op.start, op.endNew, op.prevText);
+    updateText(op.start, op.endNew, op.prevText);
     redoList.add(op);
     return op;
   }
@@ -127,7 +127,7 @@ extension FileBufferText on FileBuffer {
   TextOp? redo() {
     if (redoList.isEmpty) return null;
     TextOp op = redoList.removeLast();
-    text = text.replaceRange(op.start, op.endPrev, op.newText);
+    updateText(op.start, op.endPrev, op.newText);
     undoList.add(op);
     return op;
   }

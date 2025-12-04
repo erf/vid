@@ -68,13 +68,60 @@ class FileBuffer {
 
   // --- Methods ---
 
-  // build line index by scanning for newlines
+  // build line index by scanning for newlines - O(n)
   void _buildLineIndex() {
     _lineOffsets.clear();
     _lineOffsets.add(0); // line 0 starts at offset 0
     for (int i = 0; i < _text.length; i++) {
       if (_text[i] == '\n') {
         _lineOffsets.add(i + 1); // next line starts after the newline
+      }
+    }
+  }
+
+  // update text with incremental line index update - faster than full rebuild
+  void updateText(int start, int end, String newText) {
+    final String oldText = _text.substring(start, end);
+    final int delta = newText.length - oldText.length;
+
+    // count newlines removed and added
+    int newlinesRemoved = 0;
+    for (int i = 0; i < oldText.length; i++) {
+      if (oldText[i] == '\n') newlinesRemoved++;
+    }
+    int newlinesAdded = 0;
+    for (int i = 0; i < newText.length; i++) {
+      if (newText[i] == '\n') newlinesAdded++;
+    }
+
+    // update the text
+    _text = _text.replaceRange(start, end, newText);
+
+    // find which line the edit starts on
+    int startLine = lineNumberFromOffset(start);
+
+    // remove line offsets for deleted newlines
+    if (newlinesRemoved > 0) {
+      _lineOffsets.removeRange(startLine + 1, startLine + 1 + newlinesRemoved);
+    }
+
+    // insert line offsets for added newlines
+    if (newlinesAdded > 0) {
+      List<int> newOffsets = [];
+      int pos = start;
+      for (int i = 0; i < newText.length; i++) {
+        if (newText[i] == '\n') {
+          newOffsets.add(pos + i + 1);
+        }
+      }
+      _lineOffsets.insertAll(startLine + 1, newOffsets);
+    }
+
+    // shift all offsets after the edit point by delta
+    if (delta != 0) {
+      int firstLineToShift = startLine + 1 + newlinesAdded;
+      for (int i = firstLineToShift; i < _lineOffsets.length; i++) {
+        _lineOffsets[i] += delta;
       }
     }
   }
