@@ -8,22 +8,25 @@ import 'file_buffer.dart';
 
 /// Navigation helpers for byte-offset based cursor/viewport operations
 extension FileBufferNav on FileBuffer {
-  /// Find byte offset of line start (position after previous \n, or 0)
-  /// Uses cached line index for O(log n) lookup
+  /// Find byte offset of line start - O(log n) lookup
   int lineStart(int offset) {
+    if (lines.isEmpty) return 0;
     int lineNum = lineNumberFromOffset(offset);
-    return offsetFromLineNumber(lineNum);
+    return lines[lineNum].start;
   }
 
-  /// Find byte offset of line end (the \n character, or text.length)
+  /// Find byte offset of line end (the \n character, or text.length) - O(log n)
   int lineEnd(int offset) {
-    int pos = text.indexOf('\n', offset);
-    return pos == -1 ? text.length : pos;
+    if (lines.isEmpty) return text.length;
+    int lineNum = lineNumberFromOffset(offset);
+    return lines[lineNum].end;
   }
 
-  /// Get the text of the line containing offset (excluding \n)
+  /// Get the text of the line containing offset (excluding \n) - O(log n)
   String lineText(int offset) {
-    return text.substring(lineStart(offset), lineEnd(offset));
+    if (lines.isEmpty) return '';
+    int lineNum = lineNumberFromOffset(offset);
+    return text.substring(lines[lineNum].start, lines[lineNum].end);
   }
 
   /// Get line number for offset - O(log n) using cached index
@@ -65,11 +68,14 @@ extension FileBufferNav on FileBuffer {
     return lineText(offset).characters.length;
   }
 
-  /// Clamp cursor to valid position in text
+  /// Clamp cursor to valid position in text and update cursorLine
   /// Ensures cursor is at start of a grapheme cluster and not on a newline (in normal mode)
   void clampCursor() {
     // Clamp to text bounds
     cursor = cursor.clamp(0, math.max(0, text.length - 1));
+
+    // Update cursorLine
+    cursorLine = lineNumberFromOffset(cursor);
 
     // In insert mode, cursor can be on newline (inserting before it)
     if (mode == Mode.insert || mode == Mode.replace) {
@@ -79,7 +85,7 @@ extension FileBufferNav on FileBuffer {
     // Don't allow cursor on newline in normal mode - move to previous char
     // (Empty lines are ok - lineStart == lineEnd pointing to the newline)
     if (cursor > 0 && text[cursor] == '\n') {
-      int ls = lineStart(cursor);
+      int ls = lines[cursorLine].start;
       // If not an empty line, move to char before newline
       if (cursor > ls) {
         cursor = prevGrapheme(cursor);

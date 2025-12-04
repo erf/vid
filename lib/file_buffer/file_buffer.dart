@@ -1,4 +1,5 @@
 import '../edit.dart';
+import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
 
@@ -15,8 +16,8 @@ class FileBuffer {
   // the text of the file (use setter to rebuild line index)
   String _text;
 
-  // cached line start offsets: _lineOffsets[i] = byte offset where line i starts
-  final List<int> _lineOffsets = [];
+  // line metadata: lines[i] contains start/end offsets for line i
+  final List<LineInfo> lines = [];
 
   // the path to the file
   String? path;
@@ -26,6 +27,9 @@ class FileBuffer {
 
   // the cursor position (byte offset, always at grapheme cluster boundary)
   int cursor = 0;
+
+  // the line number the cursor is on (0-based)
+  int cursorLine = 0;
 
   // the viewport position (byte offset of first visible character)
   int viewport = 0;
@@ -61,7 +65,7 @@ class FileBuffer {
   }
 
   // total number of lines
-  int get totalLines => _lineOffsets.isNotEmpty ? _lineOffsets.length - 1 : 1;
+  int get totalLines => lines.length;
 
   // if the file has been modified (not saved)
   bool get modified => undoList.length != savepoint;
@@ -70,69 +74,41 @@ class FileBuffer {
 
   // build line index by scanning for newlines - O(n)
   void _buildLineIndex() {
-    _lineOffsets.clear();
-    _lineOffsets.add(0); // line 0 starts at offset 0
+    lines.clear();
+    int start = 0;
     for (int i = 0; i < _text.length; i++) {
       if (_text[i] == '\n') {
-        _lineOffsets.add(i + 1); // next line starts after the newline
+        lines.add(LineInfo(start, i));
+        start = i + 1;
       }
+    }
+    // Handle text without trailing newline (shouldn't happen, but be safe)
+    if (start < _text.length) {
+      lines.add(LineInfo(start, _text.length));
     }
   }
 
   // update text with incremental line index update - faster than full rebuild
   void updateText(int start, int end, String newText) {
-    final String oldText = _text.substring(start, end);
-    final int delta = newText.length - oldText.length;
-
-    // count newlines removed and added
-    int newlinesRemoved = 0;
-    for (int i = 0; i < oldText.length; i++) {
-      if (oldText[i] == '\n') newlinesRemoved++;
-    }
-    int newlinesAdded = 0;
-    for (int i = 0; i < newText.length; i++) {
-      if (newText[i] == '\n') newlinesAdded++;
-    }
-
     // update the text
     _text = _text.replaceRange(start, end, newText);
 
-    // find which line the edit starts on
-    int startLine = lineNumberFromOffset(start);
+    // For now, rebuild the full index for correctness
+    // TODO: optimize with incremental update
+    _buildLineIndex();
 
-    // remove line offsets for deleted newlines
-    if (newlinesRemoved > 0) {
-      _lineOffsets.removeRange(startLine + 1, startLine + 1 + newlinesRemoved);
-    }
-
-    // insert line offsets for added newlines
-    if (newlinesAdded > 0) {
-      List<int> newOffsets = [];
-      int pos = start;
-      for (int i = 0; i < newText.length; i++) {
-        if (newText[i] == '\n') {
-          newOffsets.add(pos + i + 1);
-        }
-      }
-      _lineOffsets.insertAll(startLine + 1, newOffsets);
-    }
-
-    // shift all offsets after the edit point by delta
-    if (delta != 0) {
-      int firstLineToShift = startLine + 1 + newlinesAdded;
-      for (int i = firstLineToShift; i < _lineOffsets.length; i++) {
-        _lineOffsets[i] += delta;
-      }
-    }
+    // update cursorLine
+    cursorLine = lineNumberFromOffset(cursor);
   }
 
   // get line number for offset using binary search - O(log n)
   int lineNumberFromOffset(int offset) {
+    if (lines.isEmpty) return 0;
     int low = 0;
-    int high = _lineOffsets.length - 1;
+    int high = lines.length - 1;
     while (low < high) {
       int mid = (low + high + 1) ~/ 2;
-      if (_lineOffsets[mid] <= offset) {
+      if (lines[mid].start <= offset) {
         low = mid;
       } else {
         high = mid - 1;
@@ -144,8 +120,8 @@ class FileBuffer {
   // get byte offset for line number - O(1)
   int offsetFromLineNumber(int lineNum) {
     if (lineNum < 0) return 0;
-    if (lineNum >= _lineOffsets.length) return _text.length;
-    return _lineOffsets[lineNum];
+    if (lineNum >= lines.length) return _text.length;
+    return lines[lineNum].start;
   }
 
   // set if the file has been modified
