@@ -31,7 +31,6 @@ class Editor {
   Config config;
   final TerminalBase terminal;
   final bool redraw;
-  final renderLines = <String>[];
   final renderBuffer = StringBuffer();
   var file = FileBuffer();
   Message? message;
@@ -127,7 +126,7 @@ class Editor {
 
     file.clampViewport(terminal, cursorRenderCol);
 
-    renderBuffer.writeAll(createRenderLines(), Keys.newline);
+    writeRenderLines();
 
     switch (file.mode) {
       case .command:
@@ -140,18 +139,19 @@ class Editor {
     terminal.write(renderBuffer);
   }
 
-  List<String> createRenderLines() {
-    renderLines.clear();
-
-    // Horizontal scrolling - currently 0, could be extended
-    int viewportCol = 0;
+  void writeRenderLines() {
+    int viewportCol =
+        0; // Horizontal scrolling - currently 0, could be extended
     int numLines = terminal.height - 1;
     int offset = file.viewport; // Start from viewport offset directly
 
     for (int lineIdx = 0; lineIdx < numLines; lineIdx++) {
+      // Add newline separator between lines (not before first)
+      if (lineIdx > 0) renderBuffer.write(Keys.newline);
+
       // Past end of file - draw '~'
       if (offset >= file.text.length) {
-        renderLines.add('~');
+        renderBuffer.write('~');
         continue;
       }
 
@@ -159,14 +159,10 @@ class Editor {
       int lineEnd = file.text.indexOf('\n', offset);
       if (lineEnd == -1) lineEnd = file.text.length;
 
-      // Extract line text
+      // Extract and render line text
       String lineText = file.text.substring(offset, lineEnd);
-
-      // Render line (empty or with content)
-      if (lineText.isEmpty) {
-        renderLines.add('');
-      } else {
-        renderLines.add(
+      if (lineText.isNotEmpty) {
+        renderBuffer.write(
           lineText
               .tabsToSpaces(config.tabWidth)
               .ch
@@ -178,7 +174,6 @@ class Editor {
       // Move to next line (skip past the newline)
       offset = lineEnd + 1;
     }
-    return renderLines;
   }
 
   void drawCursor(int cursorRenderCol) {
