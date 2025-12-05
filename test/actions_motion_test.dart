@@ -220,4 +220,36 @@ void main() {
     f.text = 'hello. test.\n';
     expect(FindPrevCharMotion(c: '.').run(e, f, 10), 5);
   });
+
+  test(
+    'motionWordPrev with many lines (tests limited search with fallback)',
+    () {
+      final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+      final f = e.file;
+      // Create text with many lines - word at start, then many empty-ish lines
+      final sb = StringBuffer();
+      sb.write('firstword\n');
+      for (int i = 0; i < 50; i++) {
+        sb.write('line $i with words here\n');
+      }
+      f.text = sb.toString();
+
+      // From end of file, should be able to navigate backwards
+      final lastLineStart = f.text.lastIndexOf('\n', f.text.length - 2) + 1;
+      final offset = lastLineStart + 5; // somewhere in last line
+
+      // Should find previous word on same line
+      final result = WordPrevMotion().run(e, f, offset);
+      expect(result < offset, true);
+
+      // Should eventually be able to reach the first word
+      var pos = f.text.length - 2;
+      for (int i = 0; i < 500 && pos > 0; i++) {
+        final newPos = WordPrevMotion().run(e, f, pos);
+        if (newPos == pos) break; // stuck
+        pos = newPos;
+      }
+      expect(pos, 0); // should reach "firstword" at offset 0
+    },
+  );
 }

@@ -59,10 +59,39 @@ class Motions {
   }
 
   /// Find the first match before the given byte offset
-  static int regexPrev(FileBuffer f, int offset, RegExp pattern) {
-    final matches = pattern.allMatches(f.text.substring(0, offset));
-    if (matches.isEmpty) return offset;
-    return matches.last.start;
+  /// Uses limited search scope for performance, falls back to full search
+  static int regexPrev(
+    FileBuffer f,
+    int offset,
+    RegExp pattern, {
+    int maxLines = 10,
+    int maxChars = 1000,
+  }) {
+    // Find a reasonable search boundary
+    int searchStart = offset;
+    int newlines = 0;
+    while (searchStart > 0 &&
+        newlines < maxLines &&
+        (offset - searchStart) < maxChars) {
+      searchStart--;
+      if (f.text[searchStart] == '\n') newlines++;
+    }
+
+    // Search in the limited range first
+    final searchText = f.text.substring(searchStart, offset);
+    final matches = pattern.allMatches(searchText);
+    if (matches.isNotEmpty) {
+      return searchStart + matches.last.start;
+    }
+
+    // Fall back to full search if no match in limited range
+    if (searchStart > 0) {
+      final fullMatches = pattern.allMatches(f.text.substring(0, offset));
+      if (fullMatches.isNotEmpty) {
+        return fullMatches.last.start;
+      }
+    }
+    return offset;
   }
 
   /// Find next/prev occurrence of the word under cursor
