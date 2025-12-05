@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
+import 'package:vid/keys.dart';
 
 import '../modes.dart';
 import '../terminal/terminal_base.dart';
@@ -86,7 +87,7 @@ extension FileBufferNav on FileBuffer {
 
     // Don't allow cursor on newline in normal mode - move to previous char
     // (Empty lines are ok - lineStart == lineEnd pointing to the newline)
-    if (cursor > 0 && text[cursor] == '\n') {
+    if (cursor > 0 && text[cursor] == Keys.newline) {
       int ls = lines[cursorLine].start;
       // If not an empty line, move to char before newline
       if (cursor > ls) {

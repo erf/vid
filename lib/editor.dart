@@ -229,7 +229,7 @@ class Editor {
       }
 
       // Find end of this line
-      int lineEnd = file.text.indexOf('\n', offset);
+      int lineEnd = file.text.indexOf(Keys.newline, offset);
       if (lineEnd == -1) lineEnd = file.text.length;
 
       // Extract line text

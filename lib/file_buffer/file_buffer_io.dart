@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:vid/keys.dart';
+
 import '../editor.dart';
 import '../error_or.dart';
 import '../esc.dart';
@@ -30,8 +32,8 @@ extension FileBufferIo on FileBuffer {
       try {
         String text = file.readAsStringSync();
         // add newline at end of file if missing
-        if (!text.endsWith('\n')) {
-          text += '\n';
+        if (!text.endsWith(Keys.newline)) {
+          text += Keys.newline;
         }
         return ErrorOr.value(
           FileBuffer(path: path, absolutePath: absolutePath, text: text),

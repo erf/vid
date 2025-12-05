@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:vid/keys.dart';
+
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../file_buffer/file_buffer_io.dart';
@@ -67,7 +69,7 @@ class CursorPositionExtension implements Extension {
     final file = File(cursorPositionsPath);
     final lines = cursorPositionsPerFile.entries
         .map((entry) => '${entry.key},${entry.value}')
-        .join('\n');
+        .join(Keys.newline);
     file.writeAsStringSync(lines);
   }
 }

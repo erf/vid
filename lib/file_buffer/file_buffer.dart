@@ -7,7 +7,7 @@ import '../text_op.dart';
 // all things related to the file buffer
 class FileBuffer {
   // create a new file buffer
-  FileBuffer({String text = '\n', this.path, this.absolutePath})
+  FileBuffer({String text = Keys.newline, this.path, this.absolutePath})
     : _text = text {
     _buildLineIndex();
   }

@@ -1,4 +1,5 @@
 import 'package:vid/config.dart';
+import 'package:vid/keys.dart';
 
 import '../range.dart';
 import '../text_op.dart';
@@ -33,8 +34,8 @@ extension FileBufferText on FileBuffer {
         return;
       }
       // insert newline at the end of the text, if it doesn't exist already
-      if (end >= len && !newText.endsWith('\n')) {
-        newText += '\n';
+      if (end >= len && !newText.endsWith(Keys.newline)) {
+        newText += Keys.newline;
       }
     }
 
