@@ -58,40 +58,17 @@ class Motions {
     return m.start == offset ? m.end : m.start;
   }
 
-  /// Find the first match before the given byte offset
-  /// Uses limited search scope for performance, falls back to full search
+  /// Find the first match before the given byte offset.
+  /// Searches back [maxChars] characters. Pass null for full search.
   static int regexPrev(
     FileBuffer f,
     int offset,
     RegExp pattern, {
-    int maxLines = 10,
-    int maxChars = 1000,
+    int? maxChars = 1000,
   }) {
-    // Find a reasonable search boundary
-    int searchStart = offset;
-    int newlines = 0;
-    while (searchStart > 0 &&
-        newlines < maxLines &&
-        (offset - searchStart) < maxChars) {
-      searchStart--;
-      if (f.text[searchStart] == '\n') newlines++;
-    }
-
-    // Search in the limited range first
-    final searchText = f.text.substring(searchStart, offset);
-    final matches = pattern.allMatches(searchText);
-    if (matches.isNotEmpty) {
-      return searchStart + matches.last.start;
-    }
-
-    // Fall back to full search if no match in limited range
-    if (searchStart > 0) {
-      final fullMatches = pattern.allMatches(f.text.substring(0, offset));
-      if (fullMatches.isNotEmpty) {
-        return fullMatches.last.start;
-      }
-    }
-    return offset;
+    final start = maxChars == null ? 0 : (offset - maxChars).clamp(0, offset);
+    final matches = pattern.allMatches(f.text.substring(start, offset));
+    return matches.isEmpty ? offset : start + matches.last.start;
   }
 
   /// Find next/prev occurrence of the word under cursor
