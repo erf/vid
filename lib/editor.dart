@@ -161,16 +161,14 @@ class Editor {
 
     var cursorInfo = writeRenderLines(viewportCol, cursorLine, cursorRenderCol);
 
-    // In wrap mode, cursor might be off-screen if wrapped lines fill the viewport
-    // Scroll down until cursor is visible
-    if (config.wrapMode != .none && !cursorInfo.found) {
-      while (!cursorInfo.found && viewportLine < cursorLine) {
-        viewportLine++;
-        file.viewport = file.offsetFromLineNumber(viewportLine);
-        renderBuffer.clear();
-        renderBuffer.write(Esc.homeAndEraseDown);
-        cursorInfo = writeRenderLines(viewportCol, cursorLine, cursorRenderCol);
-      }
+    // In wrap mode, scroll until cursor is visible
+    if (!cursorInfo.found) {
+      cursorInfo = _wrapScroll(
+        viewportCol,
+        viewportLine,
+        cursorLine,
+        cursorRenderCol,
+      );
     }
 
     switch (file.mode) {
@@ -187,6 +185,24 @@ class Editor {
         );
     }
     terminal.write(renderBuffer);
+  }
+
+  /// Scrolls viewport down until cursor is visible in wrap mode.
+  ({int screenRow, int wrapCol, bool found}) _wrapScroll(
+    int viewportCol,
+    int viewportLine,
+    int cursorLine,
+    int cursorRenderCol,
+  ) {
+    var result = (screenRow: 1, wrapCol: 0, found: false);
+    while (!result.found && viewportLine < cursorLine) {
+      viewportLine++;
+      file.viewport = file.offsetFromLineNumber(viewportLine);
+      renderBuffer.clear();
+      renderBuffer.write(Esc.homeAndEraseDown);
+      result = writeRenderLines(viewportCol, cursorLine, cursorRenderCol);
+    }
+    return result;
   }
 
   /// Renders lines to the buffer. Returns (cursorScreenRow, cursorWrapCol, cursorFound).
