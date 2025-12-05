@@ -1,5 +1,4 @@
 import 'package:vid/config.dart';
-import 'package:vid/keys.dart';
 
 import '../range.dart';
 import '../text_op.dart';
@@ -18,21 +17,13 @@ extension FileBufferText on FileBuffer {
   }) {
     assert(start <= end);
 
-    final len = text.length;
-    final isInsert = start == end;
+    // if insert mode and nothing to insert return
+    if (start == end && newText.isEmpty) return;
 
-    if (isInsert) {
-      if (newText.isEmpty) return;
-      // ensure trailing newline when inserting at end
-      if (end >= len && !newText.endsWith(Keys.newline)) {
-        newText += Keys.newline;
-      }
-    } else {
-      // protect the final newline unless preceded by a newline
-      if (end >= len && (start == 0 || text[start - 1] != Keys.newline)) {
-        end = len - 1;
-      }
-      if (start == end) return; // nothing left to delete
+    // protect final newline when deleting to end (unless preceded by newline)
+    final len = text.length;
+    if (end >= len && (start == 0 || text[start - 1] != '\n')) {
+      end = len - 1;
     }
 
     if (undo && config != null) {
