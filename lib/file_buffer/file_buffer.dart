@@ -1,4 +1,5 @@
 import '../edit.dart';
+import '../keys.dart';
 import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
@@ -76,11 +77,11 @@ class FileBuffer {
   void _buildLineIndex() {
     lines.clear();
     int start = 0;
-    for (int i = 0; i < _text.length; i++) {
-      if (_text[i] == '\n') {
-        lines.add(LineInfo(start, i));
-        start = i + 1;
-      }
+    int idx = _text.indexOf(Keys.newline);
+    while (idx != -1) {
+      lines.add(LineInfo(start, idx));
+      start = idx + 1;
+      idx = _text.indexOf(Keys.newline, start);
     }
     // Handle text without trailing newline (shouldn't happen, but be safe)
     if (start < _text.length) {
@@ -104,11 +105,11 @@ class FileBuffer {
     int scanFrom = (startLine > 0) ? lines[startLine - 1].end + 1 : 0;
 
     // Rebuild from scanFrom to end of text
-    for (int i = scanFrom; i < _text.length; i++) {
-      if (_text[i] == '\n') {
-        lines.add(LineInfo(scanFrom, i));
-        scanFrom = i + 1;
-      }
+    int idx = _text.indexOf(Keys.newline, scanFrom);
+    while (idx != -1) {
+      lines.add(LineInfo(scanFrom, idx));
+      scanFrom = idx + 1;
+      idx = _text.indexOf(Keys.newline, scanFrom);
     }
     // Handle text without trailing newline (shouldn't happen, but be safe)
     if (scanFrom < _text.length) {
