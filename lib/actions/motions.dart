@@ -5,7 +5,6 @@ import 'package:vid/editor.dart';
 
 import '../characters_render.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_nav.dart';
 import '../regex.dart';
 import '../string_ext.dart';
 import '../utils.dart';
@@ -14,16 +13,17 @@ class Motions {
   /// Move to a different line, maintaining approximate visual column position
   static int moveLine(Editor e, FileBuffer f, int offset, int targetLineNum) {
     // Get current visual column position
-    int lineStartOff = f.lineStart(offset);
+    int lineNum = f.lineNumberFromOffset(offset);
+    int lineStartOff = f.lines[lineNum].start;
     String beforeCursor = f.text.substring(lineStartOff, offset);
     int curVisualCol = beforeCursor.characters.renderLength(
       beforeCursor.characters.length,
       e.config.tabWidth,
     );
 
-    // Get target line
-    int targetLineStart = f.offsetOfLine(targetLineNum);
-    int targetLineEnd = f.lineEnd(targetLineStart);
+    // Get target line using direct array access
+    int targetLineStart = f.lines[targetLineNum].start;
+    int targetLineEnd = f.lines[targetLineNum].end;
     String targetLineText = f.text.substring(targetLineStart, targetLineEnd);
 
     // Find position in target line with similar visual column

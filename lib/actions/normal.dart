@@ -94,7 +94,7 @@ class Normal {
     f.setMode(e, .insert);
     // Move cursor right by one grapheme, but don't go past line end
     int nextPos = f.nextGrapheme(f.cursor);
-    int lineEndPos = f.lineEnd(f.cursor);
+    int lineEndPos = f.lines[f.cursorLine].end;
     f.cursor = min(nextPos, lineEndPos);
   }
 
@@ -149,8 +149,9 @@ class Normal {
   }
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {
-    int lineStartOffset = f.lineStart(f.cursor);
-    String lineText = f.lineText(f.cursor);
+    int lineNum = f.cursorLine;
+    int lineStartOffset = f.lines[lineNum].start;
+    String lineText = f.lineTextAt(lineNum);
     int cursorInLine = f.cursor - lineStartOffset;
 
     final matches = Regex.number.allMatches(lineText);

@@ -9,11 +9,12 @@ class LineEndMotion extends Motion {
 
   @override
   int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
-    int lineEndOff = f.lineEnd(offset);
+    int lineNum = f.lineNumberFromOffset(offset);
+    int lineEndOff = f.lines[lineNum].end;
     // For inclusive operator mode, include the newline
     if (inclusive && op) return lineEndOff;
     // Otherwise, go to last char before newline (or stay at lineStart if empty line)
-    if (lineEndOff > f.lineStart(offset)) {
+    if (lineEndOff > f.lines[lineNum].start) {
       return f.prevGrapheme(lineEndOff);
     }
     return offset;

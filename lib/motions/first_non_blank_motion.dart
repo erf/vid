@@ -10,8 +10,9 @@ class FirstNonBlankMotion extends Motion {
 
   @override
   int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
-    String lineText = f.lineText(offset);
-    int lineStart = f.lineStart(offset);
+    int lineNum = f.lineNumberFromOffset(offset);
+    int lineStart = f.lines[lineNum].start;
+    String lineText = f.lineTextAt(lineNum);
     final int firstNonBlank = lineText.indexOf(Regex.nonSpace);
     return firstNonBlank == -1 ? lineStart : lineStart + firstNonBlank;
   }

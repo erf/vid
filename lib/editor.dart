@@ -333,14 +333,16 @@ class Editor {
       if (motion.linewise) {
         final r = Range(start, end).norm;
         // Expand to full lines for linewise operations
-        start = file.lineStart(r.start);
-        end = file.lineEnd(r.end) + 1; // Include the newline
+        int startLineNum = file.lineNumberFromOffset(r.start);
+        int endLineNum = file.lineNumberFromOffset(r.end);
+        start = file.lines[startLineNum].start;
+        end = file.lines[endLineNum].end + 1; // Include the newline
         if (end > file.text.length) end = file.text.length;
       }
       op(this, file, Range(start, end).norm);
 
       if (motion.linewise) {
-        file.cursor = file.lineStart(start);
+        file.cursor = start; // start is already the line start
         file.clampCursor();
       }
     }
