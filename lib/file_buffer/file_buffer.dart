@@ -4,11 +4,16 @@ import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
 
-// all things related to the file buffer
+/// A file buffer that maintains text with a trailing newline invariant.
+///
+/// The [text] field always ends with a newline character. This invariant
+/// is enforced by [FileBufferIo.load] on file read and [FileBufferText.replace]
+/// on text modifications.
 class FileBuffer {
   // create a new file buffer
   FileBuffer({String text = Keys.newline, this.path, this.absolutePath})
     : _text = text {
+    assert(text.endsWith(Keys.newline), 'Text must end with newline');
     _buildLineIndex();
   }
 
@@ -61,6 +66,7 @@ class FileBuffer {
   String get text => _text;
 
   set text(String value) {
+    assert(value.endsWith(Keys.newline), 'Text must end with newline');
     _text = value;
     _buildLineIndex();
   }
