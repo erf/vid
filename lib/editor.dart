@@ -430,6 +430,7 @@ class Editor {
   void drawLineEdit() {
     final String lineEdit = file.edit.lineEdit;
 
+    renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height));
     if (file.mode == .search) {
       renderBuffer.write('/$lineEdit ');
     } else {
