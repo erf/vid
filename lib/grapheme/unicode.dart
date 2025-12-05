@@ -1,5 +1,4 @@
 import 'east_asian_width.dart';
-import 'emoji_data.dart';
 import 'emoji_sequence_trie.dart';
 import 'emoji_sequences.dart';
 
@@ -67,10 +66,6 @@ class Unicode {
 
   static bool isWide(int codePoint) {
     return eastAsianWidth.contains(codePoint);
-  }
-
-  static bool isEmoji(int codePoint) {
-    return emojiData.contains(codePoint);
   }
 
   static bool isEmojiSequence(List<int> codePoints) {

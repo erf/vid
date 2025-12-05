@@ -36,25 +36,6 @@ class EmojiSequenceTrie {
     }
     return current?.isEndOfSequence ?? false;
   }
-
-  // Find the longest matching sequence
-  List<int>? findLongestMatch(List<int> input) {
-    TrieNode? current = root;
-    List<int>? longestMatch;
-    final List<int> buffer = <int>[];
-
-    for (final int codePoint in input) {
-      current = current?.children[codePoint];
-      if (current == null) break;
-
-      buffer.add(codePoint);
-      if (current.isEndOfSequence) {
-        longestMatch = List.from(buffer);
-      }
-    }
-
-    return longestMatch;
-  }
 }
 
 final emojiSequenceTrie = EmojiSequenceTrie(emojiSequences);
