@@ -159,11 +159,19 @@ class Editor {
       viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
     }
 
-    final cursorInfo = writeRenderLines(
-      viewportCol,
-      cursorLine,
-      cursorRenderCol,
-    );
+    var cursorInfo = writeRenderLines(viewportCol, cursorLine, cursorRenderCol);
+
+    // In wrap mode, cursor might be off-screen if wrapped lines fill the viewport
+    // Scroll down until cursor is visible
+    if (config.wrapMode != .none && !cursorInfo.found) {
+      while (!cursorInfo.found && viewportLine < cursorLine) {
+        viewportLine++;
+        file.viewport = file.offsetFromLineNumber(viewportLine);
+        renderBuffer.clear();
+        renderBuffer.write(Esc.homeAndEraseDown);
+        cursorInfo = writeRenderLines(viewportCol, cursorLine, cursorRenderCol);
+      }
+    }
 
     switch (file.mode) {
       case .command:
@@ -181,8 +189,8 @@ class Editor {
     terminal.write(renderBuffer);
   }
 
-  /// Renders lines to the buffer. Returns (cursorScreenRow, cursorWrapCol).
-  ({int screenRow, int wrapCol}) writeRenderLines(
+  /// Renders lines to the buffer. Returns (cursorScreenRow, cursorWrapCol, cursorFound).
+  ({int screenRow, int wrapCol, bool found}) writeRenderLines(
     int viewportCol,
     int cursorLine,
     int cursorRenderCol,
@@ -192,6 +200,7 @@ class Editor {
     int screenRow = 0;
     int cursorScreenRow = 1;
     int cursorWrapCol = 0;
+    bool cursorFound = false;
     int currentFileLineNum = file.lineNumber(file.viewport);
 
     while (screenRow < numLines) {
@@ -230,6 +239,7 @@ class Editor {
       if (result.cursorScreenRow != null) {
         cursorScreenRow = result.cursorScreenRow!;
         cursorWrapCol = result.cursorWrapCol;
+        cursorFound = true;
       }
 
       // Move to next file line
@@ -237,7 +247,11 @@ class Editor {
       currentFileLineNum++;
     }
 
-    return (screenRow: cursorScreenRow, wrapCol: cursorWrapCol);
+    return (
+      screenRow: cursorScreenRow,
+      wrapCol: cursorWrapCol,
+      found: cursorFound,
+    );
   }
 
   /// Render line without wrapping (horizontal scroll)
