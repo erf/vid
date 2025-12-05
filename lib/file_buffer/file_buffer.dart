@@ -89,34 +89,10 @@ class FileBuffer {
     }
   }
 
-  // update text with incremental line index update - faster than full rebuild
-  // Only rebuilds line index from the edit point onwards
+  // update text and rebuild line index
   void updateText(int start, int end, String newText) {
-    // Find which line the edit starts on (before modifying text)
-    int startLine = lineNumberFromOffset(start);
-
-    // Update the text
     _text = _text.replaceRange(start, end, newText);
-
-    // Truncate lines array - keep lines before startLine
-    lines.length = startLine;
-
-    // Determine where to start scanning (after previous line's newline)
-    int scanFrom = (startLine > 0) ? lines[startLine - 1].end + 1 : 0;
-
-    // Rebuild from scanFrom to end of text
-    int idx = _text.indexOf(Keys.newline, scanFrom);
-    while (idx != -1) {
-      lines.add(LineInfo(scanFrom, idx));
-      scanFrom = idx + 1;
-      idx = _text.indexOf(Keys.newline, scanFrom);
-    }
-    // Handle text without trailing newline (shouldn't happen, but be safe)
-    if (scanFrom < _text.length) {
-      lines.add(LineInfo(scanFrom, _text.length));
-    }
-
-    // Update cursorLine
+    _buildLineIndex();
     cursorLine = lineNumberFromOffset(cursor);
   }
 
