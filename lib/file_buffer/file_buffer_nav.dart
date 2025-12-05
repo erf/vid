@@ -51,22 +51,18 @@ extension FileBufferNav on FileBuffer {
   /// Returns same offset if already at end of text
   int nextGrapheme(int offset) {
     if (offset >= text.length) return offset;
-    // Get the grapheme at current position and skip past it
-    String remaining = text.substring(offset);
-    if (remaining.isEmpty) return offset;
-    Characters chars = remaining.characters;
-    if (chars.isEmpty) return offset;
-    return offset + chars.first.length;
+    final range = CharacterRange.at(text, offset);
+    if (!range.moveNext()) return offset;
+    return offset + range.current.length;
   }
 
   /// Move to previous grapheme cluster, returns new byte offset
   /// Returns 0 if already at start
   int prevGrapheme(int offset) {
     if (offset <= 0) return 0;
-    String before = text.substring(0, offset);
-    Characters chars = before.characters;
-    if (chars.isEmpty) return 0;
-    return offset - chars.last.length;
+    final range = CharacterRange.at(text, offset);
+    if (!range.moveBack()) return 0;
+    return range.stringBeforeLength;
   }
 
   /// Get the length of the line in grapheme clusters (excluding \n)
