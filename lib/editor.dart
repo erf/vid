@@ -135,7 +135,14 @@ class Editor {
       viewportLine,
     );
 
-    writeRenderLines();
+    // Horizontal scrolling: ensure cursor is visible with margin
+    int viewportCol = 0;
+    if (cursorRenderCol >= terminal.width - config.scrollMargin) {
+      // Scroll so cursor stays scrollMargin from the right edge
+      viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
+    }
+
+    writeRenderLines(viewportCol);
 
     switch (file.mode) {
       case .command:
@@ -143,14 +150,12 @@ class Editor {
         drawLineEdit();
       default:
         drawStatus(cursorLine);
-        drawCursor(cursorRenderCol, cursorLine, viewportLine);
+        drawCursor(cursorRenderCol, cursorLine, viewportLine, viewportCol);
     }
     terminal.write(renderBuffer);
   }
 
-  void writeRenderLines() {
-    int viewportCol =
-        0; // Horizontal scrolling - currently 0, could be extended
+  void writeRenderLines(int viewportCol) {
     int numLines = terminal.height - 1;
     int offset = file.viewport; // Start from viewport offset directly
 
@@ -185,9 +190,17 @@ class Editor {
     }
   }
 
-  void drawCursor(int cursorRenderCol, int cursorLine, int viewportLine) {
+  void drawCursor(
+    int cursorRenderCol,
+    int cursorLine,
+    int viewportLine,
+    int viewportCol,
+  ) {
     int screenRow = cursorLine - viewportLine + 1;
-    int screenCol = cursorRenderCol + 1; // 1-based
+    int screenCol =
+        cursorRenderCol -
+        viewportCol +
+        1; // 1-based, adjusted for horizontal scroll
 
     renderBuffer.write(Esc.cursorPosition(c: screenCol, l: screenRow));
   }
