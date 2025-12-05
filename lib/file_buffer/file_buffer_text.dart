@@ -17,29 +17,24 @@ extension FileBufferText on FileBuffer {
     Config? config,
   }) {
     assert(start <= end);
-    final bool isDeleteOrReplace = start != end;
-    final int len = text.length;
-    if (isDeleteOrReplace) {
-      // don't delete the last newline, except when the prev char is a newline
-      if (end >= len && (start > 0 && text[start - 1] != '\n' || start == 0)) {
-        end = len - 1;
-      }
-      // no changes to the text
-      if (start == end) {
-        return;
-      }
-    } else {
-      // nothing to insert
-      if (newText.isEmpty) {
-        return;
-      }
-      // insert newline at the end of the text, if it doesn't exist already
+
+    final len = text.length;
+    final isInsert = start == end;
+
+    if (isInsert) {
+      if (newText.isEmpty) return;
+      // ensure trailing newline when inserting at end
       if (end >= len && !newText.endsWith(Keys.newline)) {
         newText += Keys.newline;
       }
+    } else {
+      // protect the final newline unless preceded by a newline
+      if (end >= len && (start == 0 || text[start - 1] != Keys.newline)) {
+        end = len - 1;
+      }
+      if (start == end) return; // nothing left to delete
     }
 
-    // add undo operation
     if (undo && config != null) {
       addUndo(
         start: start,
@@ -50,7 +45,6 @@ extension FileBufferText on FileBuffer {
       );
     }
 
-    // replace text with incremental line index update
     updateText(start, end, newText);
   }
 
