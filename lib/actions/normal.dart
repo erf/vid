@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../config.dart';
 import '../edit.dart';
 import '../editor.dart';
 import '../error_or.dart';
@@ -182,8 +183,19 @@ class Normal {
   }
 
   static void toggleWrap(Editor e, FileBuffer f) {
-    // Word wrap is disabled in byte-offset mode for now
-    e.showMessage(.info('Wrap mode toggling disabled'));
+    // Cycle through: none -> char -> word -> none
+    WrapMode next = switch (e.config.wrapMode) {
+      WrapMode.none => WrapMode.char,
+      WrapMode.char => WrapMode.word,
+      WrapMode.word => WrapMode.none,
+    };
+    e.setWrapMode(next);
+    String label = switch (next) {
+      WrapMode.none => 'off',
+      WrapMode.char => 'char',
+      WrapMode.word => 'word',
+    };
+    e.showMessage(.info('Wrap: $label'));
   }
 
   static void centerView(Editor e, FileBuffer f) {

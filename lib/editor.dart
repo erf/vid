@@ -135,14 +135,18 @@ class Editor {
       viewportLine,
     );
 
-    // Horizontal scrolling: ensure cursor is visible with margin
+    // Horizontal scrolling (disabled when word wrap is on)
     int viewportCol = 0;
-    if (cursorRenderCol >= terminal.width - config.scrollMargin) {
-      // Scroll so cursor stays scrollMargin from the right edge
+    if (config.wrapMode == WrapMode.none &&
+        cursorRenderCol >= terminal.width - config.scrollMargin) {
       viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
     }
 
-    writeRenderLines(viewportCol);
+    final cursorInfo = writeRenderLines(
+      viewportCol,
+      cursorLine,
+      cursorRenderCol,
+    );
 
     switch (file.mode) {
       case .command:
@@ -150,22 +154,35 @@ class Editor {
         drawLineEdit();
       default:
         drawStatus(cursorLine);
-        drawCursor(cursorRenderCol, cursorLine, viewportLine, viewportCol);
+        drawCursor(
+          cursorRenderCol,
+          cursorInfo.screenRow,
+          viewportCol,
+          cursorInfo.wrapCol,
+        );
     }
     terminal.write(renderBuffer);
   }
 
-  void writeRenderLines(int viewportCol) {
+  /// Renders lines to the buffer. Returns (cursorScreenRow, cursorWrapCol).
+  ({int screenRow, int wrapCol}) writeRenderLines(
+    int viewportCol,
+    int cursorLine,
+    int cursorRenderCol,
+  ) {
     int numLines = terminal.height - 1;
-    int offset = file.viewport; // Start from viewport offset directly
+    int offset = file.viewport;
+    int screenRow = 0;
+    int cursorScreenRow = 1;
+    int cursorWrapCol = 0;
+    int currentFileLineNum = file.lineNumber(file.viewport);
 
-    for (int lineIdx = 0; lineIdx < numLines; lineIdx++) {
-      // Add newline separator between lines (not before first)
-      if (lineIdx > 0) renderBuffer.write(Keys.newline);
-
+    while (screenRow < numLines) {
       // Past end of file - draw '~'
       if (offset >= file.text.length) {
+        if (screenRow > 0) renderBuffer.write(Keys.newline);
         renderBuffer.write('~');
+        screenRow++;
         continue;
       }
 
@@ -173,36 +190,221 @@ class Editor {
       int lineEnd = file.text.indexOf('\n', offset);
       if (lineEnd == -1) lineEnd = file.text.length;
 
-      // Extract and render line text
+      // Extract line text
       String lineText = file.text.substring(offset, lineEnd);
-      if (lineText.isNotEmpty) {
-        renderBuffer.write(
-          lineText
-              .tabsToSpaces(config.tabWidth)
-              .ch
-              .renderLine(viewportCol, terminal.width, config.tabWidth)
-              .string,
-        );
+      String rendered = lineText.tabsToSpaces(config.tabWidth);
+
+      // Render line based on wrap mode
+      final result = switch (config.wrapMode) {
+        WrapMode.none => _renderLineNoWrap(
+          rendered,
+          viewportCol,
+          screenRow,
+          currentFileLineNum == cursorLine,
+          cursorRenderCol,
+        ),
+        WrapMode.char => _renderLineCharWrap(
+          rendered,
+          screenRow,
+          numLines,
+          currentFileLineNum == cursorLine,
+          cursorRenderCol,
+        ),
+        WrapMode.word => _renderLineWordWrap(
+          rendered,
+          screenRow,
+          numLines,
+          currentFileLineNum == cursorLine,
+          cursorRenderCol,
+        ),
+      };
+
+      screenRow = result.screenRow;
+      if (result.cursorScreenRow != null) {
+        cursorScreenRow = result.cursorScreenRow!;
+        cursorWrapCol = result.cursorWrapCol;
       }
 
-      // Move to next line (skip past the newline)
+      // Move to next file line
       offset = lineEnd + 1;
+      currentFileLineNum++;
     }
+
+    return (screenRow: cursorScreenRow, wrapCol: cursorWrapCol);
+  }
+
+  /// Render line without wrapping (horizontal scroll)
+  ({int screenRow, int? cursorScreenRow, int cursorWrapCol}) _renderLineNoWrap(
+    String rendered,
+    int viewportCol,
+    int screenRow,
+    bool isCursorLine,
+    int cursorRenderCol,
+  ) {
+    if (screenRow > 0) renderBuffer.write(Keys.newline);
+    if (rendered.isNotEmpty) {
+      renderBuffer.write(
+        rendered.ch
+            .renderLine(viewportCol, terminal.width, config.tabWidth)
+            .string,
+      );
+    }
+    return (
+      screenRow: screenRow + 1,
+      cursorScreenRow: isCursorLine ? screenRow + 1 : null,
+      cursorWrapCol: 0,
+    );
+  }
+
+  /// Render line with character wrap (break at any character)
+  ({int screenRow, int? cursorScreenRow, int cursorWrapCol})
+  _renderLineCharWrap(
+    String rendered,
+    int screenRow,
+    int numLines,
+    bool isCursorLine,
+    int cursorRenderCol,
+  ) {
+    int? cursorScreenRow;
+    int cursorWrapCol = 0;
+    int wrapCol = 0;
+    bool firstWrap = true;
+    int lastScreenRow = screenRow;
+    int lastWrapCol = 0;
+
+    while (wrapCol < rendered.length || firstWrap) {
+      if (screenRow >= numLines) break;
+      if (screenRow > 0) renderBuffer.write(Keys.newline);
+
+      int chunkEnd = wrapCol + terminal.width;
+      if (chunkEnd > rendered.length) chunkEnd = rendered.length;
+
+      // Calculate cursor screen row
+      if (isCursorLine) {
+        if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
+          cursorScreenRow = screenRow + 1;
+          cursorWrapCol = wrapCol;
+        }
+        // Track last segment in case cursor is past end of line
+        lastScreenRow = screenRow + 1;
+        lastWrapCol = wrapCol;
+      }
+
+      // Take up to terminal.width characters
+      String chunk = rendered.ch.skip(wrapCol).take(terminal.width).string;
+      renderBuffer.write(chunk);
+
+      wrapCol += terminal.width;
+      screenRow++;
+      firstWrap = false;
+
+      if (rendered.isEmpty) break;
+    }
+
+    // If cursor line but cursorScreenRow not set, cursor is past end of line
+    if (isCursorLine && cursorScreenRow == null) {
+      cursorScreenRow = lastScreenRow;
+      cursorWrapCol = lastWrapCol;
+    }
+
+    return (
+      screenRow: screenRow,
+      cursorScreenRow: cursorScreenRow,
+      cursorWrapCol: cursorWrapCol,
+    );
+  }
+
+  /// Render line with word wrap (break at word boundaries)
+  ({int screenRow, int? cursorScreenRow, int cursorWrapCol})
+  _renderLineWordWrap(
+    String rendered,
+    int screenRow,
+    int numLines,
+    bool isCursorLine,
+    int cursorRenderCol,
+  ) {
+    int? cursorScreenRow;
+    int cursorWrapCol = 0;
+    int wrapCol = 0;
+    bool firstWrap = true;
+    int lastScreenRow = screenRow;
+    int lastWrapCol = 0;
+
+    while (wrapCol < rendered.length || firstWrap) {
+      if (screenRow >= numLines) break;
+      if (screenRow > 0) renderBuffer.write(Keys.newline);
+
+      // Find wrap point - try to break at word boundary
+      int chunkEnd = wrapCol + terminal.width;
+      if (chunkEnd < rendered.length) {
+        // Look for a break character within the line (search backwards)
+        int breakAt = chunkEnd;
+        for (int i = chunkEnd - 1; i > wrapCol; i--) {
+          if (config.breakat.contains(rendered[i])) {
+            breakAt = i + 1; // Include the break character
+            break;
+          }
+        }
+        // Only use word break if it's reasonable (not too far back)
+        if (breakAt > wrapCol + terminal.width ~/ 2) {
+          chunkEnd = breakAt;
+        }
+      } else {
+        chunkEnd = rendered.length;
+      }
+
+      // Calculate cursor screen row
+      if (isCursorLine) {
+        if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
+          cursorScreenRow = screenRow + 1;
+          cursorWrapCol = wrapCol;
+        }
+        // Track last segment in case cursor is past end of line
+        lastScreenRow = screenRow + 1;
+        lastWrapCol = wrapCol;
+      }
+
+      // Take the chunk
+      String chunk = rendered.substring(wrapCol, chunkEnd);
+      renderBuffer.write(chunk);
+
+      wrapCol = chunkEnd;
+      screenRow++;
+      firstWrap = false;
+
+      if (rendered.isEmpty) break;
+    }
+
+    // If cursor line but cursorScreenRow not set, cursor is past end of line
+    if (isCursorLine && cursorScreenRow == null) {
+      cursorScreenRow = lastScreenRow;
+      cursorWrapCol = lastWrapCol;
+    }
+
+    return (
+      screenRow: screenRow,
+      cursorScreenRow: cursorScreenRow,
+      cursorWrapCol: cursorWrapCol,
+    );
   }
 
   void drawCursor(
     int cursorRenderCol,
-    int cursorLine,
-    int viewportLine,
+    int cursorScreenRow,
     int viewportCol,
+    int cursorWrapCol,
   ) {
-    int screenRow = cursorLine - viewportLine + 1;
-    int screenCol =
-        cursorRenderCol -
-        viewportCol +
-        1; // 1-based, adjusted for horizontal scroll
+    int screenCol;
 
-    renderBuffer.write(Esc.cursorPosition(c: screenCol, l: screenRow));
+    if (config.wrapMode == WrapMode.none) {
+      // No wrap - adjust for horizontal scroll
+      screenCol = cursorRenderCol - viewportCol + 1;
+    } else {
+      // Wrap mode - adjust for wrap column offset
+      screenCol = cursorRenderCol - cursorWrapCol + 1;
+    }
+
+    renderBuffer.write(Esc.cursorPosition(c: screenCol, l: cursorScreenRow));
   }
 
   // draw the command input line
