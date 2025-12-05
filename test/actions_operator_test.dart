@@ -147,4 +147,14 @@ void main() {
     expect(f.cursor, 4);
     expect(f.text, 'abc\ndef\nghi\n');
   });
+
+  test('ggdG deletes all content', () {
+    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\n';
+    f.cursor = 4; // start somewhere in the middle
+    e.input('ggdG');
+    expect(f.text, '\n', reason: 'Should preserve trailing newline');
+    expect(f.cursor, 0);
+  });
 }
