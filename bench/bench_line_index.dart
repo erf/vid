@@ -4,27 +4,42 @@ import 'package:vid/line_info.dart';
 /// Benchmarks different approaches to building a line index from text.
 ///
 /// indexOf loop is consistently fastest. The speedup varies by content:
-/// - ASCII text: ~1.5x faster than char-by-char
-/// - Multi-byte UTF-8 (e.g. Japanese): potentially much larger gains
+/// - ASCII text: ~1.4x faster than char-by-char
+/// - Multi-byte UTF-8 (e.g. Japanese): ~40x faster than char-by-char
 void main() {
-  // Generate test text with ~31,000 lines (similar to JAPANESEBIBBLE.txt)
-  final text = _generateText(31000);
   const iterations = 100;
 
-  print(
-    'Benchmarking line index building with ${text.split('\n').length} lines',
-  );
+  // ASCII text benchmark
+  final asciiText = _generateAsciiText(31000);
+  print('=== ASCII text (${asciiText.split('\n').length} lines) ===');
   print('Running $iterations iterations each...\n');
+  benchmarkSplit(asciiText, iterations);
+  benchmarkCharByChar(asciiText, iterations);
+  benchmarkIndexOf(asciiText, iterations);
 
-  benchmarkSplit(text, iterations);
-  benchmarkCharByChar(text, iterations);
-  benchmarkIndexOf(text, iterations);
+  print('');
+
+  // Japanese text benchmark
+  final japaneseText = _generateJapaneseText(31000);
+  print('=== Japanese text (${japaneseText.split('\n').length} lines) ===');
+  print('Running $iterations iterations each...\n');
+  benchmarkSplit(japaneseText, iterations);
+  benchmarkCharByChar(japaneseText, iterations);
+  benchmarkIndexOf(japaneseText, iterations);
 }
 
-String _generateText(int lines) {
+String _generateAsciiText(int lines) {
   final sb = StringBuffer();
   for (int i = 0; i < lines; i++) {
     sb.write('This is line $i with some text content\n');
+  }
+  return sb.toString();
+}
+
+String _generateJapaneseText(int lines) {
+  final sb = StringBuffer();
+  for (int i = 0; i < lines; i++) {
+    sb.write('これは行番号$iです。日本語のテキストコンテンツ\n');
   }
   return sb.toString();
 }
