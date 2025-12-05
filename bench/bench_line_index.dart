@@ -16,6 +16,9 @@ void main() {
   benchmarkSplit(asciiText, iterations);
   benchmarkCharByChar(asciiText, iterations);
   benchmarkIndexOf(asciiText, iterations);
+  benchmarkIndexOfStartsOnly(asciiText, iterations);
+  benchmarkCodeUnits(asciiText, iterations);
+  benchmarkAllMatches(asciiText, iterations);
 
   print('');
 
@@ -26,6 +29,9 @@ void main() {
   benchmarkSplit(japaneseText, iterations);
   benchmarkCharByChar(japaneseText, iterations);
   benchmarkIndexOf(japaneseText, iterations);
+  benchmarkIndexOfStartsOnly(japaneseText, iterations);
+  benchmarkCodeUnits(japaneseText, iterations);
+  benchmarkAllMatches(japaneseText, iterations);
 }
 
 String _generateAsciiText(int lines) {
@@ -108,5 +114,69 @@ void benchmarkIndexOf(String text, int iterations) {
   stopwatch.stop();
   print(
     'indexOf loop: ${stopwatch.elapsedMilliseconds}ms (${lines.length} lines)',
+  );
+}
+
+/// Benchmark indexOf loop storing only line starts (no object allocation)
+void benchmarkIndexOfStartsOnly(String text, int iterations) {
+  final stopwatch = Stopwatch()..start();
+  late List<int> lineStarts;
+  for (int i = 0; i < iterations; i++) {
+    lineStarts = [0]; // first line always starts at 0
+    int idx = text.indexOf(Keys.newline);
+    while (idx != -1) {
+      lineStarts.add(idx + 1);
+      idx = text.indexOf(Keys.newline, idx + 1);
+    }
+  }
+  stopwatch.stop();
+  print(
+    'indexOf starts-only: ${stopwatch.elapsedMilliseconds}ms (${lineStarts.length} lines)',
+  );
+}
+
+/// Benchmark using codeUnits iteration
+void benchmarkCodeUnits(String text, int iterations) {
+  final stopwatch = Stopwatch()..start();
+  late List<LineInfo> lines;
+  const newlineCodeUnit = 10; // '\n'
+  for (int i = 0; i < iterations; i++) {
+    lines = [];
+    final units = text.codeUnits;
+    int start = 0;
+    for (int j = 0; j < units.length; j++) {
+      if (units[j] == newlineCodeUnit) {
+        lines.add(LineInfo(start, j));
+        start = j + 1;
+      }
+    }
+    if (start < text.length) {
+      lines.add(LineInfo(start, text.length));
+    }
+  }
+  stopwatch.stop();
+  print(
+    'codeUnits: ${stopwatch.elapsedMilliseconds}ms (${lines.length} lines)',
+  );
+}
+
+/// Benchmark using Pattern.allMatches
+void benchmarkAllMatches(String text, int iterations) {
+  final stopwatch = Stopwatch()..start();
+  late List<LineInfo> lines;
+  for (int i = 0; i < iterations; i++) {
+    lines = [];
+    int start = 0;
+    for (final match in Keys.newline.allMatches(text)) {
+      lines.add(LineInfo(start, match.start));
+      start = match.end;
+    }
+    if (start < text.length) {
+      lines.add(LineInfo(start, text.length));
+    }
+  }
+  stopwatch.stop();
+  print(
+    'allMatches: ${stopwatch.elapsedMilliseconds}ms (${lines.length} lines)',
   );
 }
