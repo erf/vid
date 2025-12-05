@@ -27,6 +27,23 @@ import 'regex.dart';
 import 'string_ext.dart';
 import 'terminal/terminal_base.dart';
 
+/// Parameters for rendering a line
+typedef RenderLineParams = ({
+  String rendered,
+  int screenRow,
+  int numLines,
+  int viewportCol,
+  bool isCursorLine,
+  int cursorRenderCol,
+});
+
+/// Result of rendering a line
+typedef RenderLineResult = ({
+  int screenRow,
+  int? cursorScreenRow,
+  int cursorWrapCol,
+});
+
 class Editor {
   Config config;
   final TerminalBase terminal;
@@ -195,28 +212,18 @@ class Editor {
       String rendered = lineText.tabsToSpaces(config.tabWidth);
 
       // Render line based on wrap mode
+      final params = (
+        rendered: rendered,
+        screenRow: screenRow,
+        numLines: numLines,
+        viewportCol: viewportCol,
+        isCursorLine: currentFileLineNum == cursorLine,
+        cursorRenderCol: cursorRenderCol,
+      );
       final result = switch (config.wrapMode) {
-        .none => _renderLineNoWrap(
-          rendered,
-          viewportCol,
-          screenRow,
-          currentFileLineNum == cursorLine,
-          cursorRenderCol,
-        ),
-        .char => _renderLineCharWrap(
-          rendered,
-          screenRow,
-          numLines,
-          currentFileLineNum == cursorLine,
-          cursorRenderCol,
-        ),
-        .word => _renderLineWordWrap(
-          rendered,
-          screenRow,
-          numLines,
-          currentFileLineNum == cursorLine,
-          cursorRenderCol,
-        ),
+        .none => _renderLineNoWrap(params),
+        .char => _renderLineCharWrap(params),
+        .word => _renderLineWordWrap(params),
       };
 
       screenRow = result.screenRow;
@@ -234,54 +241,42 @@ class Editor {
   }
 
   /// Render line without wrapping (horizontal scroll)
-  ({int screenRow, int? cursorScreenRow, int cursorWrapCol}) _renderLineNoWrap(
-    String rendered,
-    int viewportCol,
-    int screenRow,
-    bool isCursorLine,
-    int cursorRenderCol,
-  ) {
-    if (screenRow > 0) renderBuffer.write(Keys.newline);
-    if (rendered.isNotEmpty) {
+  RenderLineResult _renderLineNoWrap(RenderLineParams p) {
+    if (p.screenRow > 0) renderBuffer.write(Keys.newline);
+    if (p.rendered.isNotEmpty) {
       renderBuffer.write(
-        rendered.ch
-            .renderLine(viewportCol, terminal.width, config.tabWidth)
+        p.rendered.ch
+            .renderLine(p.viewportCol, terminal.width, config.tabWidth)
             .string,
       );
     }
     return (
-      screenRow: screenRow + 1,
-      cursorScreenRow: isCursorLine ? screenRow + 1 : null,
+      screenRow: p.screenRow + 1,
+      cursorScreenRow: p.isCursorLine ? p.screenRow + 1 : null,
       cursorWrapCol: 0,
     );
   }
 
   /// Render line with character wrap (break at any character)
-  ({int screenRow, int? cursorScreenRow, int cursorWrapCol})
-  _renderLineCharWrap(
-    String rendered,
-    int screenRow,
-    int numLines,
-    bool isCursorLine,
-    int cursorRenderCol,
-  ) {
+  RenderLineResult _renderLineCharWrap(RenderLineParams p) {
     int? cursorScreenRow;
     int cursorWrapCol = 0;
     int wrapCol = 0;
+    int screenRow = p.screenRow;
     bool firstWrap = true;
     int lastScreenRow = screenRow;
     int lastWrapCol = 0;
 
-    while (wrapCol < rendered.length || firstWrap) {
-      if (screenRow >= numLines) break;
+    while (wrapCol < p.rendered.length || firstWrap) {
+      if (screenRow >= p.numLines) break;
       if (screenRow > 0) renderBuffer.write(Keys.newline);
 
       int chunkEnd = wrapCol + terminal.width;
-      if (chunkEnd > rendered.length) chunkEnd = rendered.length;
+      if (chunkEnd > p.rendered.length) chunkEnd = p.rendered.length;
 
       // Calculate cursor screen row
-      if (isCursorLine) {
-        if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
+      if (p.isCursorLine) {
+        if (p.cursorRenderCol >= wrapCol && p.cursorRenderCol < chunkEnd) {
           cursorScreenRow = screenRow + 1;
           cursorWrapCol = wrapCol;
         }
@@ -291,18 +286,18 @@ class Editor {
       }
 
       // Take up to terminal.width characters
-      String chunk = rendered.ch.skip(wrapCol).take(terminal.width).string;
+      String chunk = p.rendered.ch.skip(wrapCol).take(terminal.width).string;
       renderBuffer.write(chunk);
 
       wrapCol += terminal.width;
       screenRow++;
       firstWrap = false;
 
-      if (rendered.isEmpty) break;
+      if (p.rendered.isEmpty) break;
     }
 
     // If cursor line but cursorScreenRow not set, cursor is past end of line
-    if (isCursorLine && cursorScreenRow == null) {
+    if (p.isCursorLine && cursorScreenRow == null) {
       cursorScreenRow = lastScreenRow;
       cursorWrapCol = lastWrapCol;
     }
@@ -315,32 +310,26 @@ class Editor {
   }
 
   /// Render line with word wrap (break at word boundaries)
-  ({int screenRow, int? cursorScreenRow, int cursorWrapCol})
-  _renderLineWordWrap(
-    String rendered,
-    int screenRow,
-    int numLines,
-    bool isCursorLine,
-    int cursorRenderCol,
-  ) {
+  RenderLineResult _renderLineWordWrap(RenderLineParams p) {
     int? cursorScreenRow;
     int cursorWrapCol = 0;
     int wrapCol = 0;
+    int screenRow = p.screenRow;
     bool firstWrap = true;
     int lastScreenRow = screenRow;
     int lastWrapCol = 0;
 
-    while (wrapCol < rendered.length || firstWrap) {
-      if (screenRow >= numLines) break;
+    while (wrapCol < p.rendered.length || firstWrap) {
+      if (screenRow >= p.numLines) break;
       if (screenRow > 0) renderBuffer.write(Keys.newline);
 
       // Find wrap point - try to break at word boundary
       int chunkEnd = wrapCol + terminal.width;
-      if (chunkEnd < rendered.length) {
+      if (chunkEnd < p.rendered.length) {
         // Look for a break character within the line (search backwards)
         int breakAt = chunkEnd;
         for (int i = chunkEnd - 1; i > wrapCol; i--) {
-          if (config.breakat.contains(rendered[i])) {
+          if (config.breakat.contains(p.rendered[i])) {
             breakAt = i + 1; // Include the break character
             break;
           }
@@ -350,12 +339,12 @@ class Editor {
           chunkEnd = breakAt;
         }
       } else {
-        chunkEnd = rendered.length;
+        chunkEnd = p.rendered.length;
       }
 
       // Calculate cursor screen row
-      if (isCursorLine) {
-        if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
+      if (p.isCursorLine) {
+        if (p.cursorRenderCol >= wrapCol && p.cursorRenderCol < chunkEnd) {
           cursorScreenRow = screenRow + 1;
           cursorWrapCol = wrapCol;
         }
@@ -365,18 +354,18 @@ class Editor {
       }
 
       // Take the chunk
-      String chunk = rendered.substring(wrapCol, chunkEnd);
+      String chunk = p.rendered.substring(wrapCol, chunkEnd);
       renderBuffer.write(chunk);
 
       wrapCol = chunkEnd;
       screenRow++;
       firstWrap = false;
 
-      if (rendered.isEmpty) break;
+      if (p.rendered.isEmpty) break;
     }
 
     // If cursor line but cursorScreenRow not set, cursor is past end of line
-    if (isCursorLine && cursorScreenRow == null) {
+    if (p.isCursorLine && cursorScreenRow == null) {
       cursorScreenRow = lastScreenRow;
       cursorWrapCol = lastWrapCol;
     }
