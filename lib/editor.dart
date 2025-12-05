@@ -137,7 +137,7 @@ class Editor {
 
     // Horizontal scrolling (disabled when word wrap is on)
     int viewportCol = 0;
-    if (config.wrapMode == WrapMode.none &&
+    if (config.wrapMode == .none &&
         cursorRenderCol >= terminal.width - config.scrollMargin) {
       viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
     }
@@ -196,21 +196,21 @@ class Editor {
 
       // Render line based on wrap mode
       final result = switch (config.wrapMode) {
-        WrapMode.none => _renderLineNoWrap(
+        .none => _renderLineNoWrap(
           rendered,
           viewportCol,
           screenRow,
           currentFileLineNum == cursorLine,
           cursorRenderCol,
         ),
-        WrapMode.char => _renderLineCharWrap(
+        .char => _renderLineCharWrap(
           rendered,
           screenRow,
           numLines,
           currentFileLineNum == cursorLine,
           cursorRenderCol,
         ),
-        WrapMode.word => _renderLineWordWrap(
+        .word => _renderLineWordWrap(
           rendered,
           screenRow,
           numLines,
@@ -396,7 +396,7 @@ class Editor {
   ) {
     int screenCol;
 
-    if (config.wrapMode == WrapMode.none) {
+    if (config.wrapMode == .none) {
       // No wrap - adjust for horizontal scroll
       screenCol = cursorRenderCol - viewportCol + 1;
     } else {

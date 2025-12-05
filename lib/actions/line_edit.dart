@@ -1,4 +1,3 @@
-import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
@@ -114,19 +113,19 @@ class LineEdit {
 
   static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.setWrapMode(WrapMode.none);
+    e.setWrapMode(.none);
     e.showMessage(.info('Wrap: off'));
   }
 
   static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.setWrapMode(WrapMode.char);
+    e.setWrapMode(.char);
     e.showMessage(.info('Wrap: char'));
   }
 
   static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.setWrapMode(WrapMode.word);
+    e.setWrapMode(.word);
     e.showMessage(.info('Wrap: word'));
   }
 }

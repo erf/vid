@@ -185,15 +185,16 @@ class Normal {
   static void toggleWrap(Editor e, FileBuffer f) {
     // Cycle through: none -> char -> word -> none
     WrapMode next = switch (e.config.wrapMode) {
-      WrapMode.none => WrapMode.char,
-      WrapMode.char => WrapMode.word,
-      WrapMode.word => WrapMode.none,
+      .none => .char,
+      .char => .word,
+      .word => .none,
     };
     e.setWrapMode(next);
+
     String label = switch (next) {
-      WrapMode.none => 'off',
-      WrapMode.char => 'char',
-      WrapMode.word => 'word',
+      .none => 'off',
+      .char => 'char',
+      .word => 'word',
     };
     e.showMessage(.info('Wrap: $label'));
   }
