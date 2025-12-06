@@ -113,7 +113,7 @@ class Normal {
         f.clampCursor();
       }
     }
-    f.edit = EditOperation();
+    f.edit.reset();
   }
 
   static void redo(Editor e, FileBuffer f) {
@@ -124,23 +124,21 @@ class Normal {
         f.clampCursor();
       }
     }
-    f.edit = EditOperation();
+    f.edit.reset();
   }
 
   static void repeat(Editor e, FileBuffer f) {
     if (f.prevEdit == null || !f.prevEdit!.canRepeatWithDot) {
       return;
     }
-    f.edit = f.prevEdit!;
-    e.commitEdit(f.edit);
+    e.commitEdit(f.prevEdit!);
   }
 
   static void repeatFindStr(Editor e, FileBuffer f) {
     if (f.prevEdit == null || !f.prevEdit!.canRepeatFind) {
       return;
     }
-    f.edit = f.prevEdit!;
-    e.commitEdit(f.edit);
+    e.commitEdit(f.prevEdit!);
   }
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {

@@ -62,10 +62,10 @@ class CountCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final EditOperation edit = f.edit;
+    final EditBuilder edit = f.edit;
     if (edit.count == null && count == 0) {
-      f.edit.motion = Motion(Motions.lineStart, linewise: true);
-      e.commitEdit(edit);
+      edit.motion = Motion(Motions.lineStart, linewise: true);
+      e.commitEdit(edit.build());
     } else {
       edit.count = (edit.count ?? 0) * 10 + count;
       e.showMessage(.info('count: ${edit.count}'));
@@ -85,7 +85,7 @@ class MotionCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.edit.motion = motion;
-    e.commitEdit(f.edit);
+    e.commitEdit(f.edit.build());
   }
 }
 
@@ -111,10 +111,10 @@ class OperatorPendingSameCommand extends OperatorCommand {
   void execute(Editor e, FileBuffer f, String s) {
     if (f.edit.op == func) {
       f.edit.motion = Motion(Motions.linewise, linewise: true);
-      e.commitEdit(f.edit);
+      e.commitEdit(f.edit.build());
     } else {
       f.setMode(e, .normal);
-      f.edit = EditOperation();
+      f.edit.reset();
     }
   }
 }
@@ -126,7 +126,7 @@ class OperatorEscapeCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.setMode(e, .normal);
-    f.edit = EditOperation();
+    f.edit.reset();
   }
 }
 

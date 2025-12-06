@@ -1,35 +1,64 @@
 import 'actions/operators.dart';
 import 'motions/motion.dart';
 
-/// Operasjon som kan committes og gjentas (dot/semicolon command)
-class EditOperation {
-  EditOperation();
-
-  /// Factory for å bevare count ved alias
-  factory EditOperation.withCount(int? count) {
-    return EditOperation()..count = count;
-  }
-
+/// Akkumulerer input for å bygge en EditOperation
+class EditBuilder {
   OperatorFunction? op;
   Motion? motion;
   int? count;
   String? findStr;
+
+  /// Midlertidig linewise-verdi satt av commitEdit for operatorer
   bool linewise = false;
 
-  /// Kan committes (har en motion å utføre)
-  bool get canCommit => motion != null;
+  void reset() {
+    op = null;
+    motion = null;
+    count = null;
+    findStr = null;
+    linewise = false;
+  }
 
-  /// Kan repeteres med dot (.) - operator + motion
-  bool get canRepeatWithDot => op != null;
-
-  /// Kan repeteres med semicolon (;) - find/search
-  bool get canRepeatFind => findStr != null;
-
-  /// Skal lagres i prevEdit for repeat
-  bool get shouldSave => canRepeatWithDot || canRepeatFind;
+  /// Bygg EditOperation
+  EditOperation build() {
+    return EditOperation(
+      op: op,
+      motion: motion!,
+      count: count ?? 1,
+      findStr: findStr,
+    );
+  }
 }
 
-/// Input state - midlertidig akkumulering under kommando-matching
+/// Immutabel operasjon som kan gjentas
+class EditOperation {
+  final OperatorFunction? op;
+  final Motion motion;
+  final int count;
+  final String? findStr;
+
+  bool get linewise => motion.linewise;
+  bool get canRepeatWithDot => op != null;
+  bool get canRepeatFind => findStr != null;
+
+  const EditOperation({
+    this.op,
+    required this.motion,
+    this.count = 1,
+    this.findStr,
+  });
+
+  EditOperation copyWith({String? findStr}) {
+    return EditOperation(
+      op: op,
+      motion: motion,
+      count: count,
+      findStr: findStr ?? this.findStr,
+    );
+  }
+}
+
+/// Input state - key matching og line edit
 class InputState {
   String cmdKey = '';
   String lineEdit = '';

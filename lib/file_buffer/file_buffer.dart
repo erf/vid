@@ -9,7 +9,7 @@ import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
 
-export '../edit.dart' show EditOperation, InputState, YankBuffer;
+export '../edit.dart' show EditBuilder, EditOperation, InputState, YankBuffer;
 
 /// A file buffer that maintains text with a trailing newline invariant.
 ///
@@ -50,8 +50,8 @@ class FileBuffer {
   // the current mode
   Mode mode = .normal;
 
-  // the current edit action
-  EditOperation edit = EditOperation();
+  // the current edit builder (akkumulerer input)
+  EditBuilder edit = EditBuilder();
 
   // input state for command matching
   InputState input = InputState();

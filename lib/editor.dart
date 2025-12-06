@@ -505,7 +505,9 @@ class Editor {
   }
 
   void alias(String str) {
-    file.edit = EditOperation.withCount(file.edit.count);
+    int? count = file.edit.count;
+    file.edit.reset();
+    file.edit.count = count;
     file.input.resetCmdKey();
     input(str);
   }
@@ -538,7 +540,7 @@ class Editor {
     switch (keyBindings[file.mode]!.match(input.cmdKey)) {
       case (KeyMatch.none, _):
         file.setMode(this, .normal);
-        file.edit = EditOperation();
+        file.edit.reset();
         file.input.resetCmdKey();
       case (KeyMatch.partial, _):
         // wait for more input
@@ -551,15 +553,14 @@ class Editor {
 
   // execute operator on motion range count times
   void commitEdit(EditOperation edit) {
-    if (edit.motion == null) {
-      throw StateError('Cannot commit edit without motion');
-    }
-    Motion motion = edit.motion!;
-    edit.linewise = motion.linewise;
+    Motion motion = edit.motion;
+    file.edit.linewise = motion.linewise;
+    // Copy findStr from edit to builder for motions that need it (like find char)
+    file.edit.findStr = edit.findStr;
     OperatorFunction? op = edit.op;
     int start = file.cursor;
     int end = file.cursor;
-    for (int i = 0; i < (edit.count ?? 1); i++) {
+    for (int i = 0; i < edit.count; i++) {
       end = motion.run(this, file, end, op: op != null);
     }
     if (op == null) {
@@ -581,10 +582,11 @@ class Editor {
         file.clampCursor();
       }
     }
-    if (edit.shouldSave) {
-      file.prevEdit = file.edit;
+    // Save for repeat (motion may have updated findStr on builder)
+    if (edit.canRepeatWithDot || file.edit.findStr != null) {
+      file.prevEdit = edit.copyWith(findStr: file.edit.findStr);
     }
-    file.edit = EditOperation();
+    file.edit.reset();
   }
 
   void setWrapMode(WrapMode wrapMode) {
