@@ -3,7 +3,6 @@ import '../actions/operators.dart';
 import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_mode.dart';
 import '../modes.dart';
 import '../motions/motion.dart';
 

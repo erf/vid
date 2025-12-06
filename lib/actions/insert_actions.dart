@@ -2,9 +2,6 @@ import 'dart:math';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_mode.dart';
-import '../file_buffer/file_buffer_nav.dart';
-import '../file_buffer/file_buffer_text.dart';
 import '../keys.dart';
 
 class InsertActions {

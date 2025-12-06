@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:characters/characters.dart';
 import 'package:vid/keys.dart';
 
+import '../editor.dart';
+import '../esc.dart';
 import '../modes.dart';
 import '../terminal/terminal_base.dart';
 import 'file_buffer.dart';
@@ -126,4 +128,20 @@ extension FileBufferNav on FileBuffer {
 
   /// Get byte offset of the start of line number n (0-based) - O(1) lookup
   int offsetOfLine(int lineNum) => offsetFromLineNumber(lineNum);
+
+  /// Set editor mode and update cursor style
+  void setMode(Editor e, Mode mode) {
+    if (e.file.mode == mode) {
+      return;
+    }
+    switch (mode) {
+      case .normal:
+        e.terminal.write(Esc.cursorStyleBlock);
+      case .insert:
+        e.terminal.write(Esc.cursorStyleLine);
+      default:
+        break;
+    }
+    this.mode = mode;
+  }
 }

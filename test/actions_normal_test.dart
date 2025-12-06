@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/file_buffer/file_buffer_nav.dart';
+import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/terminal/test_terminal.dart';
 
 void main() {

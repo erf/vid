@@ -1,3 +1,8 @@
+// Barrel file - exports all file_buffer extensions
+export 'file_buffer_io.dart';
+export 'file_buffer_nav.dart';
+export 'file_buffer_text.dart';
+
 import '../edit.dart';
 import '../keys.dart';
 import '../line_info.dart';

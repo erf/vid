@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:characters/characters.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
-import 'package:vid/file_buffer/file_buffer_mode.dart';
 import 'package:vid/keys.dart';
 
 import 'bindings.dart';
@@ -16,8 +15,6 @@ import 'edit.dart';
 import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer/file_buffer.dart';
-import 'file_buffer/file_buffer_io.dart';
-import 'file_buffer/file_buffer_nav.dart';
 import 'map_match.dart';
 import 'message.dart';
 import 'modes.dart';

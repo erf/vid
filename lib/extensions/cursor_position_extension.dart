@@ -4,8 +4,6 @@ import 'package:vid/keys.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_io.dart';
-import '../file_buffer/file_buffer_nav.dart';
 import 'extension.dart';
 
 /// Extension that remembers cursor positions for files

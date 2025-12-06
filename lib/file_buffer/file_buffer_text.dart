@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:vid/config.dart';
 
+import '../editor.dart';
+import '../error_or.dart';
 import '../range.dart';
 import '../text_op.dart';
 import 'file_buffer.dart';
@@ -116,5 +120,32 @@ extension FileBufferText on FileBuffer {
     updateText(op.start, op.endPrev, op.newText);
     undoList.add(op);
     return op;
+  }
+
+  // Insert file contents at cursor position
+  ErrorOr<bool> insertFile(Editor e, String path) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      return ErrorOr.error('File not found: \'$path\'');
+    }
+    insertChunk(e, file.readAsStringSync());
+    return ErrorOr.value(true);
+  }
+
+  // Insert a chunk of text at cursor position.
+  // Batches the entire insert as a single undo operation.
+  void insertChunk(Editor e, String str) {
+    final int startOffset = cursor;
+    // Insert entire string at once
+    insertAt(cursor, str, undo: false, config: e.config);
+    cursor += str.length;
+    // Add single undo entry for the whole chunk
+    addUndo(
+      start: startOffset,
+      end: startOffset,
+      newText: str,
+      cursorOffset: startOffset,
+      config: e.config,
+    );
   }
 }

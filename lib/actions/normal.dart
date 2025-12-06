@@ -5,10 +5,6 @@ import '../edit.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_io.dart';
-import '../file_buffer/file_buffer_mode.dart';
-import '../file_buffer/file_buffer_nav.dart';
-import '../file_buffer/file_buffer_text.dart';
 import '../regex.dart';
 import '../text_op.dart';
 

@@ -1,7 +1,5 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_mode.dart';
-import '../file_buffer/file_buffer_text.dart';
 
 class ReplaceActions {
   /// Replace character under cursor and return to normal mode.

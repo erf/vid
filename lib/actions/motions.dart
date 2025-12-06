@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:characters/characters.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/file_buffer/file_buffer_io.dart';
-import 'package:vid/file_buffer/file_buffer_nav.dart';
 
 import '../characters_render.dart';
 import '../file_buffer/file_buffer.dart';

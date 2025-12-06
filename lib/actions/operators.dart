@@ -1,8 +1,5 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../file_buffer/file_buffer_mode.dart';
-import '../file_buffer/file_buffer_nav.dart';
-import '../file_buffer/file_buffer_text.dart';
 import '../range.dart';
 
 typedef OperatorFunction = void Function(Editor e, FileBuffer f, Range range);

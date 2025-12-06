@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:vid/config.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
-import 'package:vid/file_buffer/file_buffer_text.dart';
 
 /// Benchmarks editing operations on a large file.
 ///
