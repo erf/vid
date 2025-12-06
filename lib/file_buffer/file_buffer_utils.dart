@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import '../actions/insert_actions.dart';
 import '../editor.dart';
 import '../error_or.dart';
-import '../keys.dart';
 import 'file_buffer.dart';
 import 'file_buffer_text.dart';
 
@@ -17,26 +15,18 @@ extension FileBufferUtils on FileBuffer {
     return ErrorOr.value(true);
   }
 
-  // Insert a chunk of non-special chars - line by line in order to correctly
-  // update cursor position. Add the whole string to the undo list at the end.
+  // Insert a chunk of text at cursor position.
+  // Batches the entire insert as a single undo operation.
   void insertChunk(Editor e, String str) {
-    final String buffer = str;
     final int startOffset = cursor;
-    while (str.isNotEmpty) {
-      int nlPos = str.indexOf(Keys.newline);
-      if (nlPos == -1) {
-        InsertActions.defaultInsert(e, this, str, undo: false);
-        break;
-      }
-      String line = str.substring(0, nlPos);
-      InsertActions.defaultInsert(e, this, line, undo: false);
-      InsertActions.enter(e, this, undo: false);
-      str = str.substring(nlPos + 1);
-    }
+    // Insert entire string at once
+    insertAt(cursor, str, undo: false, config: e.config);
+    cursor += str.length;
+    // Add single undo entry for the whole chunk
     addUndo(
       start: startOffset,
       end: startOffset,
-      newText: buffer,
+      newText: str,
       cursorOffset: startOffset,
       config: e.config,
     );

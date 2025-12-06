@@ -1,3 +1,4 @@
+import '../bindings.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
@@ -6,8 +7,56 @@ import '../file_buffer/file_buffer_mode.dart';
 import '../file_buffer/file_buffer_nav.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../file_buffer/file_buffer_utils.dart';
+import '../motions/search_next_motion.dart';
+import '../regex.dart';
 import 'normal.dart';
 
+/// Input actions for line edit mode (command line and search).
+class LineEditInput {
+  /// Delete last character in line edit buffer, or exit if empty.
+  static void backspace(Editor e, FileBuffer f) {
+    final String lineEdit = f.edit.lineEdit;
+    if (lineEdit.isEmpty) {
+      f.setMode(e, .normal);
+    } else {
+      f.edit.lineEdit = lineEdit.substring(0, lineEdit.length - 1);
+    }
+  }
+
+  /// Add character to line edit buffer.
+  static void input(Editor e, FileBuffer f, String s) {
+    f.edit.lineEdit += s;
+  }
+
+  /// Execute the command in line edit buffer.
+  static void executeCommand(Editor e, FileBuffer f) {
+    final String command = f.edit.lineEdit;
+    List<String> args = command.split(' ');
+    String cmd = args.isNotEmpty ? args.first : command;
+    if (lineEditCommands.containsKey(cmd)) {
+      lineEditCommands[cmd]!(e, f, args);
+      f.edit.lineEdit = '';
+      return;
+    }
+    if (command.startsWith(Regex.substitute)) {
+      LineEdit.substitute(e, f, [command]);
+      return;
+    }
+    f.edit.lineEdit = '';
+    f.setMode(e, .normal);
+    e.showMessage(.error('Unknown command: \'$command\''));
+  }
+
+  /// Execute search with the pattern in line edit buffer.
+  static void executeSearch(Editor e, FileBuffer f) {
+    f.setMode(e, .normal);
+    f.edit.motion = SearchNextMotion();
+    f.edit.findStr = f.edit.lineEdit;
+    e.commitEdit(f.edit);
+  }
+}
+
+/// Command handlers for :commands (executed after Enter).
 class LineEdit {
   static void noop(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);

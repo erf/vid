@@ -19,25 +19,17 @@ import 'package:vid/motions/word_end_motion.dart';
 import 'package:vid/motions/word_end_prev_motion.dart';
 import 'package:vid/motions/word_prev_motion.dart';
 
+import 'actions/insert_actions.dart';
 import 'actions/line_edit.dart';
 import 'actions/normal.dart';
 import 'actions/operators.dart';
+import 'actions/replace_actions.dart';
 import 'commands/command.dart';
 import 'commands/count_command.dart';
-import 'commands/insert_backspace_command.dart';
-import 'commands/insert_default_command.dart';
-import 'commands/insert_enter_command.dart';
-import 'commands/insert_escape_command.dart';
-import 'commands/line_edit_delete_command.dart';
-import 'commands/line_edit_enter_command.dart';
-import 'commands/line_edit_input_command.dart';
-import 'commands/line_edit_search_command.dart';
 import 'commands/motion_command.dart';
-import 'commands/normal_command.dart';
 import 'commands/operator_command.dart';
 import 'commands/operator_escape_command.dart';
 import 'commands/operator_pending_same_command.dart';
-import 'commands/replace_default_command.dart';
 import 'keys.dart';
 import 'modes.dart';
 import 'motions/file_start_motion.dart';
@@ -48,11 +40,11 @@ import 'motions/word_cap_prev_motion.dart';
 import 'motions/word_next_motion.dart';
 
 const normalCommands = <String, Command>{
-  'q': NormalCommand(Normal.quit),
+  'q': ActionCommand(Normal.quit),
   'S': AliasCommand('^C'),
-  's': NormalCommand(Normal.save),
+  's': ActionCommand(Normal.save),
   'i': ModeCommand(.insert),
-  'a': NormalCommand(Normal.appendCharNext),
+  'a': ActionCommand(Normal.appendCharNext),
   'A': AliasCommand('\$a'),
   'I': AliasCommand('^i'),
   'o': AliasCommand('A\n'),
@@ -60,33 +52,35 @@ const normalCommands = <String, Command>{
   'r': ModeCommand(.replace),
   'D': AliasCommand('d\$'),
   'x': AliasCommand('dl'),
-  'p': NormalCommand(Normal.pasteAfter),
-  'P': NormalCommand(Normal.pasteBefore),
-  Keys.ctrlD: NormalCommand(Normal.moveDownHalfPage),
-  Keys.ctrlU: NormalCommand(Normal.moveUpHalfPage),
-  'J': NormalCommand(Normal.joinLines),
+  'p': ActionCommand(Normal.pasteAfter),
+  'P': ActionCommand(Normal.pasteBefore),
+  Keys.ctrlD: ActionCommand(Normal.moveDownHalfPage),
+  Keys.ctrlU: ActionCommand(Normal.moveUpHalfPage),
+  'J': ActionCommand(Normal.joinLines),
   'C': AliasCommand('c\$'),
-  'u': NormalCommand(Normal.undo),
-  'U': NormalCommand(Normal.redo),
-  '.': NormalCommand(Normal.repeat),
-  ';': NormalCommand(Normal.repeatFindStr),
-  'n': NormalCommand(Normal.repeatFindStr),
-  Keys.ctrlA: NormalCommand(Normal.increase),
-  Keys.ctrlX: NormalCommand(Normal.decrease),
+  'u': ActionCommand(Normal.undo),
+  'U': ActionCommand(Normal.redo),
+  '.': ActionCommand(Normal.repeat),
+  ';': ActionCommand(Normal.repeatFindStr),
+  'n': ActionCommand(Normal.repeatFindStr),
+  Keys.ctrlA: ActionCommand(Normal.increase),
+  Keys.ctrlX: ActionCommand(Normal.decrease),
   ':': ModeCommand(.command),
   '/': ModeCommand(.search),
-  Keys.ctrlW: NormalCommand(Normal.toggleWrap),
-  'zz': NormalCommand(Normal.centerView),
+  Keys.ctrlW: ActionCommand(Normal.toggleWrap),
+  'zz': ActionCommand(Normal.centerView),
 };
 
 const insertCommands = <String, Command>{
-  Keys.backspace: InsertBackspaceCommand(),
-  Keys.newline: InsertEnterCommand(),
-  Keys.escape: InsertEscapeCommand(),
-  '[*]': InsertDefaultCommand(),
+  Keys.backspace: ActionCommand(InsertActions.backspace),
+  Keys.newline: ActionCommand(InsertActions.enter),
+  Keys.escape: ActionCommand(InsertActions.escape),
+  '[*]': InputCommand(InsertActions.insert),
 };
 
-const replaceCommands = <String, Command>{'[*]': ReplaceDefaultCommand()};
+const replaceCommands = <String, Command>{
+  '[*]': InputCommand(ReplaceActions.replace),
+};
 
 const countCommands = <String, Command>{
   '0': CountCommand(0),
@@ -165,16 +159,16 @@ const lineEditCommands = <String, Function>{
 
 const lineEditInputCommands = <String, Command>{
   Keys.escape: ModeCommand(.normal),
-  Keys.backspace: LineEditDeleteCommand(),
-  Keys.newline: LineEditEnterCommand(),
-  '[*]': LineEditInputCommand(),
+  Keys.backspace: ActionCommand(LineEditInput.backspace),
+  Keys.newline: ActionCommand(LineEditInput.executeCommand),
+  '[*]': InputCommand(LineEditInput.input),
 };
 
 const lineEditSearchCommands = <String, Command>{
   Keys.escape: ModeCommand(.normal),
-  Keys.backspace: LineEditDeleteCommand(),
-  Keys.newline: LineEditSearchCommand(),
-  '[*]': LineEditInputCommand(),
+  Keys.backspace: ActionCommand(LineEditInput.backspace),
+  Keys.newline: ActionCommand(LineEditInput.executeSearch),
+  '[*]': InputCommand(LineEditInput.input),
 };
 
 const keyBindings = <Mode, Map<String, Command>>{
