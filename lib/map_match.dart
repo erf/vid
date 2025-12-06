@@ -1,15 +1,26 @@
 enum KeyMatch { none, partial, match }
 
-/// Check if [input] is a key in [map] or if it's the start of a key
-(KeyMatch, T?) matchKeys<T>(Map<String, T> map, String input) {
+/// Bindings for a mode, with an optional fallback command for unmatched keys.
+class ModeBindings<T> {
+  final Map<String, T> bindings;
+  final T? fallback;
+
+  const ModeBindings(this.bindings, {this.fallback});
+}
+
+/// Check if [input] is a key in [modeBindings] or if it's the start of a key.
+/// Falls back to [modeBindings.fallback] if no match is found.
+(KeyMatch, T?) matchKeys<T>(ModeBindings<T> modeBindings, String input) {
+  final map = modeBindings.bindings;
+
   // is input a key in map?
   if (map.containsKey(input)) {
     return (.match, map[input]);
   }
 
-  // check if we matches special characters
-  if (map.containsKey('[*]')) {
-    return (.match, map['[*]']);
+  // check if we have a fallback command
+  if (modeBindings.fallback != null) {
+    return (.match, modeBindings.fallback);
   }
 
   // check if input is the start of a key in map
@@ -19,6 +30,6 @@ enum KeyMatch { none, partial, match }
     }
   }
 
-  // if partialKey is not empty, we have a partial match
+  // no match found
   return (.none, null);
 }

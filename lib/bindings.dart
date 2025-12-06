@@ -31,6 +31,7 @@ import 'commands/operator_command.dart';
 import 'commands/operator_escape_command.dart';
 import 'commands/operator_pending_same_command.dart';
 import 'keys.dart';
+import 'map_match.dart';
 import 'modes.dart';
 import 'motions/file_start_motion.dart';
 import 'motions/find_till_next_char_motion.dart';
@@ -71,16 +72,15 @@ const normalCommands = <String, Command>{
   'zz': ActionCommand(Normal.centerView),
 };
 
-const insertCommands = <String, Command>{
+const insertBindings = <String, Command>{
   Keys.backspace: ActionCommand(InsertActions.backspace),
   Keys.newline: ActionCommand(InsertActions.enter),
   Keys.escape: ActionCommand(InsertActions.escape),
-  '[*]': InputCommand(InsertActions.insert),
 };
+const insertFallback = InputCommand(InsertActions.insert);
 
-const replaceCommands = <String, Command>{
-  '[*]': InputCommand(ReplaceActions.replace),
-};
+const replaceBindings = <String, Command>{};
+const replaceFallback = InputCommand(ReplaceActions.replace);
 
 const countCommands = <String, Command>{
   '0': CountCommand(0),
@@ -157,35 +157,41 @@ const lineEditCommands = <String, Function>{
   'wordwrap': LineEdit.setWordWrap,
 };
 
-const lineEditInputCommands = <String, Command>{
+const lineEditInputBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
   Keys.backspace: ActionCommand(LineEditInput.backspace),
   Keys.newline: ActionCommand(LineEditInput.executeCommand),
-  '[*]': InputCommand(LineEditInput.input),
 };
+const lineEditInputFallback = InputCommand(LineEditInput.input);
 
-const lineEditSearchCommands = <String, Command>{
+const lineEditSearchBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
   Keys.backspace: ActionCommand(LineEditInput.backspace),
   Keys.newline: ActionCommand(LineEditInput.executeSearch),
-  '[*]': InputCommand(LineEditInput.input),
 };
+const lineEditSearchFallback = InputCommand(LineEditInput.input);
 
-const keyBindings = <Mode, Map<String, Command>>{
-  .normal: {
+final keyBindings = <Mode, ModeBindings<Command>>{
+  .normal: ModeBindings({
     ...countCommands,
     ...normalCommands,
     ...motionCommands,
     ...operatorCommands,
-  },
-  .operatorPending: {
+  }),
+  .operatorPending: ModeBindings({
     Keys.escape: OperatorEscapeCommand(),
     ...countCommands,
     ...motionCommands,
     ...operatorPendingSameCommands,
-  },
-  .insert: insertCommands,
-  .replace: replaceCommands,
-  .command: lineEditInputCommands,
-  .search: lineEditSearchCommands,
+  }),
+  .insert: ModeBindings(insertBindings, fallback: insertFallback),
+  .replace: ModeBindings(replaceBindings, fallback: replaceFallback),
+  .command: ModeBindings(
+    lineEditInputBindings,
+    fallback: lineEditInputFallback,
+  ),
+  .search: ModeBindings(
+    lineEditSearchBindings,
+    fallback: lineEditSearchFallback,
+  ),
 };
