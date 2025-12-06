@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
+import 'package:vid/actions/motions.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/motions/find_next_char_motion.dart';
-import 'package:vid/motions/find_prev_char_motion.dart';
 import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
@@ -13,9 +12,12 @@ void main() {
     // Looking for 'a' from offset 0 -> next 'a' is at offset 3
     // Looking for 'b' from offset 0 -> 'b' is at offset 1
     // Looking for 'c' from offset 0 -> 'c' is at offset 2
-    expect(FindNextCharMotion(c: 'a').run(e, f, 0), 3);
-    expect(FindNextCharMotion(c: 'b').run(e, f, 0), 1);
-    expect(FindNextCharMotion(c: 'c').run(e, f, 0), 2);
+    f.edit.findStr = 'a';
+    expect(Motions.findNextChar(e, f, 0), 3);
+    f.edit.findStr = 'b';
+    expect(Motions.findNextChar(e, f, 0), 1);
+    f.edit.findStr = 'c';
+    expect(Motions.findNextChar(e, f, 0), 2);
   });
 
   test('motionFindPrevChar', () {
@@ -26,9 +28,12 @@ void main() {
     // Looking for 'a' from offset 2 -> 'a' is at offset 0
     // Looking for 'b' from offset 2 -> 'b' is at offset 1
     // Looking for 'c' from offset 2 -> 'c' is at offset 2 (itself)
-    expect(FindPrevCharMotion(c: 'a').run(e, f, 2), 0);
-    expect(FindPrevCharMotion(c: 'b').run(e, f, 2), 1);
-    expect(FindPrevCharMotion(c: 'c').run(e, f, 2), 2);
+    f.edit.findStr = 'a';
+    expect(Motions.findPrevChar(e, f, 2), 0);
+    f.edit.findStr = 'b';
+    expect(Motions.findPrevChar(e, f, 2), 1);
+    f.edit.findStr = 'c';
+    expect(Motions.findPrevChar(e, f, 2), 2);
   });
 
   test('till with delete operator', () {

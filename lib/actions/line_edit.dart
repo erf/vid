@@ -7,8 +7,9 @@ import '../file_buffer/file_buffer_mode.dart';
 import '../file_buffer/file_buffer_nav.dart';
 import '../file_buffer/file_buffer_text.dart';
 import '../file_buffer/file_buffer_utils.dart';
-import '../motions/search_next_motion.dart';
+import '../motions/motion.dart';
 import '../regex.dart';
+import 'motions.dart';
 import 'normal.dart';
 
 /// Input actions for line edit mode (command line and search).
@@ -50,7 +51,7 @@ class LineEditInput {
   /// Execute search with the pattern in line edit buffer.
   static void executeSearch(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
-    f.edit.motion = SearchNextMotion();
+    f.edit.motion = FnMotion(Motions.searchNext);
     f.edit.findStr = f.edit.lineEdit;
     e.commitEdit(f.edit);
   }

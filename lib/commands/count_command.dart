@@ -1,8 +1,8 @@
-import 'package:vid/motions/line_start_motion.dart';
-
+import '../actions/motions.dart';
 import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../motions/motion.dart';
 import 'command.dart';
 
 class CountCommand extends Command {
@@ -14,7 +14,7 @@ class CountCommand extends Command {
   void execute(Editor e, FileBuffer f, String s) {
     final Edit edit = f.edit;
     if (edit.count == null && count == 0) {
-      f.edit.motion = LineStartMotion();
+      f.edit.motion = FnMotion(Motions.lineStart, linewise: true);
       e.commitEdit(edit);
     } else {
       edit.count = (edit.count ?? 0) * 10 + count;
