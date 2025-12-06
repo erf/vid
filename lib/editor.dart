@@ -15,7 +15,6 @@ import 'edit.dart';
 import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer/file_buffer.dart';
-import 'map_match.dart';
 import 'message.dart';
 import 'modes.dart';
 import 'motions/motion.dart';
@@ -535,14 +534,14 @@ class Editor {
     edit.cmdKey += char;
 
     // check if we match or partial match a key
-    switch (matchKeys(keyBindings[file.mode]!, edit.cmdKey)) {
-      case (.none, _):
+    switch (keyBindings[file.mode]!.match(edit.cmdKey)) {
+      case (KeyMatch.none, _):
         file.setMode(this, .normal);
         file.edit = Edit();
-      case (.partial, _):
+      case (KeyMatch.partial, _):
         // wait for more input
         return;
-      case (.match, Command command):
+      case (KeyMatch.match, Command command):
         command.execute(this, file, char);
         edit.cmdKey = '';
     }
