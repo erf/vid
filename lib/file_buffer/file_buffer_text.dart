@@ -68,12 +68,8 @@ extension FileBufferText on FileBuffer {
 
     // clear redo list
     redoList.clear();
-
-    // yank
-    bool isDeleteOrReplace = start != end;
-    if (isDeleteOrReplace) {
-      yankBuffer = textOp.prevText;
-    }
+    // Note: yankBuffer is set explicitly by operators (delete/yank) with linewise info,
+    // so we don't auto-yank here anymore.
   }
 
   void replaceRange(Range range, String newText, {Config? config}) {
@@ -100,9 +96,9 @@ extension FileBufferText on FileBuffer {
     replace(offset, nextOffset, '', config: config);
   }
 
-  void yankRange(Range range) {
+  void yankRange(Range range, {bool linewise = false}) {
     final Range r = range.norm;
-    yankBuffer = text.substring(r.start, r.end);
+    yankBuffer = YankBuffer(text.substring(r.start, r.end), linewise: linewise);
   }
 
   TextOp? undo() {

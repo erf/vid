@@ -8,10 +8,10 @@ import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/keys.dart';
 
 import 'bindings.dart';
+import 'actions/operators.dart';
 import 'characters_render.dart';
 import 'commands/command.dart';
 import 'config.dart';
-import 'edit.dart';
 import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer/file_buffer.dart';
@@ -424,7 +424,7 @@ class Editor {
 
   // draw the command input line
   void drawLineEdit() {
-    final String lineEdit = file.edit.lineEdit;
+    final String lineEdit = file.input.lineEdit;
 
     renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height));
     if (file.mode == .search) {
@@ -505,7 +505,8 @@ class Editor {
   }
 
   void alias(String str) {
-    file.edit = Edit.withCount(file.edit.count);
+    file.edit = EditOperation.withCount(file.edit.count);
+    file.input.resetCmdKey();
     input(str);
   }
 
@@ -528,31 +529,34 @@ class Editor {
 
   // match input against key bindings for executing commands
   void handleInput(String char) {
-    Edit edit = file.edit;
+    InputState input = file.input;
 
     // append char to input
-    edit.cmdKey += char;
+    input.cmdKey += char;
 
     // check if we match or partial match a key
-    switch (keyBindings[file.mode]!.match(edit.cmdKey)) {
+    switch (keyBindings[file.mode]!.match(input.cmdKey)) {
       case (KeyMatch.none, _):
         file.setMode(this, .normal);
-        file.edit = Edit();
+        file.edit = EditOperation();
+        file.input.resetCmdKey();
       case (KeyMatch.partial, _):
         // wait for more input
         return;
       case (KeyMatch.match, Command command):
         command.execute(this, file, char);
-        edit.cmdKey = '';
+        input.resetCmdKey();
     }
   }
 
   // execute operator on motion range count times
-  void commitEdit(Edit edit) {
-    assert(edit.motion != null);
+  void commitEdit(EditOperation edit) {
+    if (edit.motion == null) {
+      throw StateError('Cannot commit edit without motion');
+    }
     Motion motion = edit.motion!;
     edit.linewise = motion.linewise;
-    Function? op = edit.op;
+    OperatorFunction? op = edit.op;
     int start = file.cursor;
     int end = file.cursor;
     for (int i = 0; i < (edit.count ?? 1); i++) {
@@ -577,10 +581,10 @@ class Editor {
         file.clampCursor();
       }
     }
-    if (op != null || edit.findStr != null) {
+    if (edit.shouldSave) {
       file.prevEdit = file.edit;
     }
-    file.edit = Edit();
+    file.edit = EditOperation();
   }
 
   void setWrapMode(WrapMode wrapMode) {

@@ -74,7 +74,8 @@ void main() {
     // 'def' line starts at 4, 'e' at offset 5
     f.cursor = 5;
     e.input('yy');
-    expect(f.yankBuffer, 'def\n');
+    expect(f.yankBuffer?.text, 'def\n');
+    expect(f.yankBuffer?.linewise, true);
     e.input('P');
     expect(f.text, 'abc\ndef\ndef\nghi\n');
     expect(f.lineNumber(f.cursor), 1);
@@ -88,7 +89,8 @@ void main() {
     // 'def' starts at offset 4
     f.cursor = 4;
     e.input('yw');
-    expect(f.yankBuffer, 'def ');
+    expect(f.yankBuffer?.text, 'def ');
+    expect(f.yankBuffer?.linewise, false);
     e.input('P');
     expect(f.text, 'abc def def ghi\n');
   });

@@ -115,7 +115,8 @@ Nature's serenade, timeless and free.
     final f = e.file;
     e.input('iabc\x1b');
     expect(f.text, 'abc\n');
-    expect(f.prevEdit!.cmdKey, 'abc');
+    // TODO: When insert repeat is implemented, this should track inserted text
+    // expect(f.prevEdit!.insertedText, 'abc');
     expect(f.cursor, 3);
   }, skip: true);
 

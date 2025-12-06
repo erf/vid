@@ -12,15 +12,18 @@ class Operators {
 
   static void delete(Editor e, FileBuffer f, Range r) {
     final Range range = r.norm;
-    f.deleteRange(range, config: e.config);
+    // Yank before deleting, with linewise info
+    f.yankRange(range, linewise: f.edit.linewise);
+    // Use undo: false to skip auto-yank in replace (we already yanked with linewise)
+    f.replace(range.start, range.end, '', config: e.config);
     f.cursor = range.start;
     f.clampCursor();
     f.setMode(e, .normal);
   }
 
   static void yank(Editor e, FileBuffer f, Range r) {
-    f.yankRange(r);
-    e.terminal.copyToClipboard(f.yankBuffer!);
+    f.yankRange(r, linewise: f.edit.linewise);
+    e.terminal.copyToClipboard(f.yankBuffer!.text);
     f.setMode(e, .normal);
   }
 

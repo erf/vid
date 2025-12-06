@@ -28,7 +28,7 @@ void main() {
     final op = f.undoList.last;
     expect(op.prevText, 'abc\nd');
     expect(op.start, 0);
-    expect(f.yankBuffer, 'abc\nd');
+    // Note: deleteRange does not auto-yank anymore - operators handle yank explicitly
   });
 
   test('insertAt', () {

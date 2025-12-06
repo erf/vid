@@ -1,6 +1,5 @@
 import '../actions/motions.dart';
 import '../actions/operators.dart';
-import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../modes.dart';
@@ -63,7 +62,7 @@ class CountCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final Edit edit = f.edit;
+    final EditOperation edit = f.edit;
     if (edit.count == null && count == 0) {
       f.edit.motion = Motion(Motions.lineStart, linewise: true);
       e.commitEdit(edit);
@@ -115,7 +114,7 @@ class OperatorPendingSameCommand extends OperatorCommand {
       e.commitEdit(f.edit);
     } else {
       f.setMode(e, .normal);
-      f.edit = Edit();
+      f.edit = EditOperation();
     }
   }
 }
@@ -127,7 +126,7 @@ class OperatorEscapeCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.setMode(e, .normal);
-    f.edit = Edit();
+    f.edit = EditOperation();
   }
 }
 
@@ -139,9 +138,9 @@ class LineEditCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    final String command = f.edit.lineEdit;
+    final String command = f.input.lineEdit;
     List<String> args = command.split(' ');
     action(e, f, args);
-    f.edit.lineEdit = '';
+    f.input.lineEdit = '';
   }
 }

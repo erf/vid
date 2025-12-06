@@ -9,7 +9,7 @@ void main() {
     f.text = 'abc\n';
     f.cursor = 0;
     e.input('Æ');
-    expect(f.edit.cmdKey, '');
+    expect(f.input.cmdKey, '');
     expect(f.cursor, 0);
     expect(f.text, 'abc\n');
   });
@@ -20,7 +20,7 @@ void main() {
     f.text = 'abc\n';
     f.cursor = 0;
     e.input('dÆ');
-    expect(f.edit.cmdKey, '');
+    expect(f.input.cmdKey, '');
     expect(f.cursor, 0);
     expect(f.text, 'abc\n');
   });
@@ -32,8 +32,10 @@ void main() {
     f.cursor = 0;
     e.input('dw');
     expect(f.text, '\n');
-    expect(f.edit.cmdKey, '');
-    expect(f.prevEdit!.cmdKey, '');
+    expect(f.input.cmdKey, '');
+    // prevEdit no longer stores cmdKey - it only stores operation data
+    expect(f.prevEdit, isNotNull);
+    expect(f.prevEdit!.op, isNotNull);
   });
 
   test('make sure prev motion is correct in normal mode', () {
@@ -42,6 +44,6 @@ void main() {
     f.text = 'abc\n';
     f.cursor = 0;
     e.input('w');
-    expect(f.edit.cmdKey, '');
+    expect(f.input.cmdKey, '');
   });
 }

@@ -9,6 +9,8 @@ import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
 
+export '../edit.dart' show EditOperation, InputState, YankBuffer;
+
 /// A file buffer that maintains text with a trailing newline invariant.
 ///
 /// The [text] field always ends with a newline character. This invariant
@@ -49,13 +51,16 @@ class FileBuffer {
   Mode mode = .normal;
 
   // the current edit action
-  Edit edit = Edit();
+  EditOperation edit = EditOperation();
 
-  // the previous edit operation
-  Edit? prevEdit;
+  // input state for command matching
+  InputState input = InputState();
 
-  // the yanked text
-  String? yankBuffer;
+  // the previous edit operation (for repeat)
+  EditOperation? prevEdit;
+
+  // the yanked text with linewise info
+  YankBuffer? yankBuffer;
 
   // list of undo operations
   List<TextOp> undoList = [];

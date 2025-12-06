@@ -11,22 +11,22 @@ import 'normal.dart';
 class LineEditInput {
   /// Delete last character in line edit buffer, or exit if empty.
   static void backspace(Editor e, FileBuffer f) {
-    final String lineEdit = f.edit.lineEdit;
+    final String lineEdit = f.input.lineEdit;
     if (lineEdit.isEmpty) {
       f.setMode(e, .normal);
     } else {
-      f.edit.lineEdit = lineEdit.substring(0, lineEdit.length - 1);
+      f.input.lineEdit = lineEdit.substring(0, lineEdit.length - 1);
     }
   }
 
   /// Add character to line edit buffer.
   static void input(Editor e, FileBuffer f, String s) {
-    f.edit.lineEdit += s;
+    f.input.lineEdit += s;
   }
 
   /// Execute the command in line edit buffer.
   static void executeCommand(Editor e, FileBuffer f) {
-    final String command = f.edit.lineEdit;
+    final String command = f.input.lineEdit;
     List<String> args = command.split(' ');
     String cmd = args.isNotEmpty ? args.first : command;
     if (lineEditCommands.containsKey(cmd)) {
@@ -35,10 +35,10 @@ class LineEditInput {
     }
     if (command.startsWith(Regex.substitute)) {
       LineEdit.substitute(e, f, [command]);
-      f.edit.lineEdit = '';
+      f.input.lineEdit = '';
       return;
     }
-    f.edit.lineEdit = '';
+    f.input.lineEdit = '';
     f.setMode(e, .normal);
     e.showMessage(.error('Unknown command: \'$command\''));
   }
@@ -47,7 +47,7 @@ class LineEditInput {
   static void executeSearch(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
     f.edit.motion = Motion(Motions.searchNext);
-    f.edit.findStr = f.edit.lineEdit;
+    f.edit.findStr = f.input.lineEdit;
     e.commitEdit(f.edit);
   }
 }

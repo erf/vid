@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import '../config.dart';
-import '../edit.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
@@ -23,16 +22,15 @@ class Normal {
 
   static void pasteAfter(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    final String buffer = f.yankBuffer!;
-    f.edit.linewise = f.prevEdit?.linewise ?? false;
+    final YankBuffer yank = f.yankBuffer!;
 
-    if (f.edit.linewise) {
+    if (yank.linewise) {
       // Paste after current line - insert after the newline at end of line
       int lineEndOffset = f.lineEnd(f.cursor);
       // Insert after the newline (at start of next line position)
       int insertPos = lineEndOffset + 1;
       if (insertPos > f.text.length) insertPos = f.text.length;
-      f.insertAt(insertPos, buffer, config: e.config);
+      f.insertAt(insertPos, yank.text, config: e.config);
       // Move cursor to start of pasted content
       f.cursor = insertPos;
       f.clampCursor();
@@ -40,13 +38,13 @@ class Normal {
       // Check if line is empty (only has trailing space/newline)
       String lineText = f.lineText(f.cursor);
       if (lineText.isEmpty || lineText == ' ') {
-        f.insertAt(f.lineStart(f.cursor), buffer, config: e.config);
+        f.insertAt(f.lineStart(f.cursor), yank.text, config: e.config);
       } else {
         // Paste after cursor
         int insertPos = f.nextGrapheme(f.cursor);
-        f.insertAt(insertPos, buffer, config: e.config);
+        f.insertAt(insertPos, yank.text, config: e.config);
         // Move cursor to end of pasted content (last char, not past it)
-        f.cursor = insertPos + buffer.length - 1;
+        f.cursor = insertPos + yank.text.length - 1;
         f.clampCursor();
       }
     }
@@ -54,15 +52,15 @@ class Normal {
 
   static void pasteBefore(Editor e, FileBuffer f) {
     if (f.yankBuffer == null) return;
-    final String buffer = f.yankBuffer!;
-    if (f.prevEdit?.linewise ?? false) {
+    final YankBuffer yank = f.yankBuffer!;
+    if (yank.linewise) {
       // Paste before current line
       int lineStartOffset = f.lineStart(f.cursor);
-      f.insertAt(lineStartOffset, buffer, config: e.config);
+      f.insertAt(lineStartOffset, yank.text, config: e.config);
       f.cursor = lineStartOffset;
     } else {
       // Paste at cursor position
-      f.insertAt(f.cursor, buffer, config: e.config);
+      f.insertAt(f.cursor, yank.text, config: e.config);
     }
   }
 
@@ -115,7 +113,7 @@ class Normal {
         f.clampCursor();
       }
     }
-    f.edit = Edit();
+    f.edit = EditOperation();
   }
 
   static void redo(Editor e, FileBuffer f) {
@@ -126,11 +124,11 @@ class Normal {
         f.clampCursor();
       }
     }
-    f.edit = Edit();
+    f.edit = EditOperation();
   }
 
   static void repeat(Editor e, FileBuffer f) {
-    if (f.prevEdit == null || f.prevEdit?.op == null) {
+    if (f.prevEdit == null || !f.prevEdit!.canRepeatWithDot) {
       return;
     }
     f.edit = f.prevEdit!;
@@ -138,7 +136,7 @@ class Normal {
   }
 
   static void repeatFindStr(Editor e, FileBuffer f) {
-    if (f.prevEdit == null || f.prevEdit?.findStr == null) {
+    if (f.prevEdit == null || !f.prevEdit!.canRepeatFind) {
       return;
     }
     f.edit = f.prevEdit!;
