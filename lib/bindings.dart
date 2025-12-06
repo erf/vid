@@ -1,6 +1,3 @@
-import 'package:vid/commands/alias_command.dart';
-import 'package:vid/commands/mode_command.dart';
-
 import 'actions/insert_actions.dart';
 import 'actions/line_edit.dart';
 import 'actions/motions.dart';
@@ -8,11 +5,6 @@ import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
 import 'commands/command.dart';
-import 'commands/count_command.dart';
-import 'commands/motion_command.dart';
-import 'commands/operator_command.dart';
-import 'commands/operator_escape_command.dart';
-import 'commands/operator_pending_same_command.dart';
 import 'keys.dart';
 import 'map_match.dart';
 import 'modes.dart';

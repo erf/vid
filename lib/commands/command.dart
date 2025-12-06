@@ -1,5 +1,11 @@
+import '../actions/motions.dart';
+import '../actions/operators.dart';
+import '../edit.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../file_buffer/file_buffer_mode.dart';
+import '../modes.dart';
+import '../motions/motion.dart';
 
 abstract class Command {
   const Command();
@@ -27,4 +33,101 @@ class InputCommand extends Command {
 
   @override
   void execute(Editor e, FileBuffer f, String s) => action(e, f, s);
+}
+
+/// Command that re-executes a sequence of keys.
+class AliasCommand extends Command {
+  final String alias;
+
+  const AliasCommand(this.alias);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) => e.alias(alias);
+}
+
+/// Command that switches to a different mode.
+class ModeCommand extends Command {
+  final Mode mode;
+
+  const ModeCommand(this.mode);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) => f.setMode(e, mode);
+}
+
+/// Command that handles count prefix (0-9).
+/// '0' without a count moves to line start, otherwise accumulates digits.
+class CountCommand extends Command {
+  final int count;
+
+  const CountCommand(this.count);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) {
+    final Edit edit = f.edit;
+    if (edit.count == null && count == 0) {
+      f.edit.motion = FnMotion(Motions.lineStart, linewise: true);
+      e.commitEdit(edit);
+    } else {
+      edit.count = (edit.count ?? 0) * 10 + count;
+      e.showMessage(.info('count: ${edit.count}'));
+    }
+  }
+}
+
+/// Command that executes a motion.
+class MotionCommand extends Command {
+  final Motion motion;
+
+  const MotionCommand(this.motion);
+
+  MotionCommand.fn(MotionFn fn, {bool inclusive = false, bool linewise = false})
+    : motion = FnMotion(fn, inclusive: inclusive, linewise: linewise);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) {
+    f.edit.motion = motion;
+    e.commitEdit(f.edit);
+  }
+}
+
+/// Command that starts an operator (d, c, y, etc.).
+class OperatorCommand extends Command {
+  final OperatorFunction func;
+
+  const OperatorCommand(this.func);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) {
+    f.setMode(e, .operatorPending);
+    f.edit.op = func;
+  }
+}
+
+/// Command that handles repeated operator (dd, yy, cc).
+/// Applies the operator to the current line.
+class OperatorPendingSameCommand extends OperatorCommand {
+  const OperatorPendingSameCommand(super.func);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) {
+    if (f.edit.op == func) {
+      f.edit.motion = FnMotion(Motions.linewise, linewise: true);
+      e.commitEdit(f.edit);
+    } else {
+      f.setMode(e, .normal);
+      f.edit = Edit();
+    }
+  }
+}
+
+/// Command that cancels operator-pending mode.
+class OperatorEscapeCommand extends Command {
+  const OperatorEscapeCommand();
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) {
+    f.setMode(e, .normal);
+    f.edit = Edit();
+  }
 }
