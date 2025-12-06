@@ -106,24 +106,24 @@ const operatorPendingSameCommands = <String, Command>{
   'y': OperatorPendingSameCommand(Operators.yank),
 };
 
-const lineEditCommands = <String, Function>{
-  '': LineEdit.noop,
-  'q': LineEdit.quit,
-  'quit': LineEdit.quit,
-  'q!': LineEdit.forceQuit,
-  'quit!': LineEdit.forceQuit,
-  'o': LineEdit.open,
-  'open': LineEdit.open,
-  'r': LineEdit.read,
-  'read': LineEdit.read,
-  'w': LineEdit.write,
-  'write': LineEdit.write,
-  'wq': LineEdit.writeAndQuit,
-  'x': LineEdit.writeAndQuit,
-  'exit': LineEdit.writeAndQuit,
-  'nowrap': LineEdit.setNoWrap,
-  'charwrap': LineEdit.setCharWrap,
-  'wordwrap': LineEdit.setWordWrap,
+const lineEditCommands = <String, LineEditCommand>{
+  '': LineEditCommand(LineEdit.noop),
+  'q': LineEditCommand(LineEdit.quit),
+  'quit': LineEditCommand(LineEdit.quit),
+  'q!': LineEditCommand(LineEdit.forceQuit),
+  'quit!': LineEditCommand(LineEdit.forceQuit),
+  'o': LineEditCommand(LineEdit.open),
+  'open': LineEditCommand(LineEdit.open),
+  'r': LineEditCommand(LineEdit.read),
+  'read': LineEditCommand(LineEdit.read),
+  'w': LineEditCommand(LineEdit.write),
+  'write': LineEditCommand(LineEdit.write),
+  'wq': LineEditCommand(LineEdit.writeAndQuit),
+  'x': LineEditCommand(LineEdit.writeAndQuit),
+  'exit': LineEditCommand(LineEdit.writeAndQuit),
+  'nowrap': LineEditCommand(LineEdit.setNoWrap),
+  'charwrap': LineEditCommand(LineEdit.setCharWrap),
+  'wordwrap': LineEditCommand(LineEdit.setWordWrap),
 };
 
 const lineEditInputBindings = <String, Command>{

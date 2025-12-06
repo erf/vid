@@ -7,7 +7,6 @@ import '../error_or.dart';
 import '../range.dart';
 import '../text_op.dart';
 import 'file_buffer.dart';
-import 'file_buffer_nav.dart';
 
 // text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {

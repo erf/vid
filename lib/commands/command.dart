@@ -130,3 +130,18 @@ class OperatorEscapeCommand extends Command {
     f.edit = Edit();
   }
 }
+
+/// Command that executes a line edit command with parsed arguments.
+class LineEditCommand extends Command {
+  final void Function(Editor, FileBuffer, List<String>) action;
+
+  const LineEditCommand(this.action);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) {
+    final String command = f.edit.lineEdit;
+    List<String> args = command.split(' ');
+    action(e, f, args);
+    f.edit.lineEdit = '';
+  }
+}

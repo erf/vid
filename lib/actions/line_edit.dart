@@ -30,12 +30,12 @@ class LineEditInput {
     List<String> args = command.split(' ');
     String cmd = args.isNotEmpty ? args.first : command;
     if (lineEditCommands.containsKey(cmd)) {
-      lineEditCommands[cmd]!(e, f, args);
-      f.edit.lineEdit = '';
+      lineEditCommands[cmd]!.execute(e, f, '');
       return;
     }
     if (command.startsWith(Regex.substitute)) {
       LineEdit.substitute(e, f, [command]);
+      f.edit.lineEdit = '';
       return;
     }
     f.edit.lineEdit = '';

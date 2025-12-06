@@ -7,7 +7,6 @@ import '../editor.dart';
 import '../error_or.dart';
 import '../esc.dart';
 import 'file_buffer.dart';
-import 'file_buffer_nav.dart';
 
 extension FileBufferIo on FileBuffer {
   // load file from disk or create new file, return file name
