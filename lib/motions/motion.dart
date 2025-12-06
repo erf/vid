@@ -10,23 +10,15 @@ import '../file_buffer/file_buffer.dart';
 /// Returns the new byte offset
 typedef MotionFn = int Function(Editor e, FileBuffer f, int offset, {bool op});
 
-abstract class Motion {
-  const Motion({this.inclusive = false, this.linewise = false});
+/// A motion defined by a function.
+class Motion {
+  const Motion(this.fn, {this.inclusive = false, this.linewise = false});
 
+  final MotionFn fn;
   final bool inclusive;
   final bool linewise;
 
   /// Run the motion from the given byte offset, return the new byte offset
-  int run(Editor e, FileBuffer f, int offset, {bool op = false});
-}
-
-/// A motion defined by a function instead of a class.
-class FnMotion extends Motion {
-  const FnMotion(this.fn, {super.inclusive, super.linewise});
-
-  final MotionFn fn;
-
-  @override
   int run(Editor e, FileBuffer f, int offset, {bool op = false}) {
     return fn(e, f, offset, op: op);
   }

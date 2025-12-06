@@ -65,7 +65,7 @@ class CountCommand extends Command {
   void execute(Editor e, FileBuffer f, String s) {
     final Edit edit = f.edit;
     if (edit.count == null && count == 0) {
-      f.edit.motion = FnMotion(Motions.lineStart, linewise: true);
+      f.edit.motion = Motion(Motions.lineStart, linewise: true);
       e.commitEdit(edit);
     } else {
       edit.count = (edit.count ?? 0) * 10 + count;
@@ -81,7 +81,7 @@ class MotionCommand extends Command {
   const MotionCommand(this.motion);
 
   MotionCommand.fn(MotionFn fn, {bool inclusive = false, bool linewise = false})
-    : motion = FnMotion(fn, inclusive: inclusive, linewise: linewise);
+    : motion = Motion(fn, inclusive: inclusive, linewise: linewise);
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
@@ -111,7 +111,7 @@ class OperatorPendingSameCommand extends OperatorCommand {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     if (f.edit.op == func) {
-      f.edit.motion = FnMotion(Motions.linewise, linewise: true);
+      f.edit.motion = Motion(Motions.linewise, linewise: true);
       e.commitEdit(f.edit);
     } else {
       f.setMode(e, .normal);

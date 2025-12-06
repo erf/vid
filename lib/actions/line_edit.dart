@@ -46,7 +46,7 @@ class LineEditInput {
   /// Execute search with the pattern in line edit buffer.
   static void executeSearch(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
-    f.edit.motion = FnMotion(Motions.searchNext);
+    f.edit.motion = Motion(Motions.searchNext);
     f.edit.findStr = f.edit.lineEdit;
     e.commitEdit(f.edit);
   }
