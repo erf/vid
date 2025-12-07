@@ -7,44 +7,30 @@ import 'emoji_sequences.dart';
 class Unicode {
   // Get the rendered width of a single character
   static int charWidth(String str, {required int tabWidth}) {
-    // if the string is empty, return 0
     if (str.isEmpty) return 0;
 
-    final List<int> codeUnits = str.codeUnits.toList();
-
-    if (codeUnits.length == 1) {
-      final int firstCodeUnit = codeUnits.first;
-      // if a tab return the config tab width
-      if (firstCodeUnit == 0x0009) {
-        return tabWidth;
-      }
-      // control characters
-      if (firstCodeUnit <= 0x001F || firstCodeUnit == 0x007F) {
-        return 0;
-      }
-
-      // ASCII fast path
-      if (firstCodeUnit <= 0x007F) {
-        return 1;
-      }
+    // Fast path: single code unit (covers ASCII + Latin-1)
+    // Avoids ALL list allocations for the common case (~80%+ of real text)
+    if (str.length == 1) {
+      final int c = str.codeUnitAt(0);
+      if (c == 0x0009) return tabWidth; // tab
+      if (c <= 0x001F || c == 0x007F) return 0; // control chars
+      if (c <= 0x007F) return 1; // ASCII
     }
 
     // TODO handle zero width
     // https://wcwidth.readthedocs.io/en/latest/specs.html#width-of-0
 
-    // is text presentation (VS15)
-    const int textPresentation = 0xFE0E;
-    if (codeUnits.contains(textPresentation)) {
-      return 1;
+    // Check for variation selectors without creating a list
+    // VS15 (text) = U+FE0E, VS16 (emoji) = U+FE0F
+    for (int i = 0; i < str.length; i++) {
+      final c = str.codeUnitAt(i);
+      if (c == 0xFE0E) return 1; // text presentation
+      if (c == 0xFE0F) return 2; // emoji presentation
     }
 
-    // is emoji presentation (VS16)
-    const int emojiPresentation = 0xFE0F;
-    if (codeUnits.contains(emojiPresentation)) {
-      return 2;
-    }
-    final List<int> codePoints = str.runes.toList();
-    final int firstCodePoint = codePoints.first;
+    // Get first code point for east asian width check (no list allocation)
+    final int firstCodePoint = str.runes.first;
 
     // east asian width wide or fullwidth
     if (isWide(firstCodePoint)) {
@@ -56,8 +42,8 @@ class Unicode {
     //   return 2;
     // }
 
-    // emoji-sequences
-    if (isEmojiSequenceTrie(codePoints)) {
+    // emoji-sequences - only create list when needed for trie lookup
+    if (isEmojiSequenceTrie(str.runes.toList())) {
       return 2;
     }
 
