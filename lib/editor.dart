@@ -9,7 +9,6 @@ import 'package:vid/keys.dart';
 
 import 'actions/operators.dart';
 import 'bindings.dart';
-import 'characters_render.dart';
 import 'commands/command.dart';
 import 'config.dart';
 import 'error_or.dart';
@@ -136,10 +135,7 @@ class Editor {
       file.lines[cursorLine].start,
       file.cursor,
     );
-    int cursorRenderCol = lineTextToCursor.ch.renderLength(
-      lineTextToCursor.characters.length,
-      config.tabWidth,
-    );
+    int cursorRenderCol = lineTextToCursor.renderLength(config.tabWidth);
 
     viewportLine = file.clampViewport(
       terminal,
@@ -270,11 +266,7 @@ class Editor {
   RenderLineResult _renderLineNoWrap(RenderLineParams p) {
     if (p.screenRow > 0) renderBuffer.write(Keys.newline);
     if (p.rendered.isNotEmpty) {
-      renderBuffer.write(
-        p.rendered.ch
-            .renderLine(p.viewportCol, terminal.width, config.tabWidth)
-            .string,
-      );
+      renderBuffer.write(p.rendered.renderLine(p.viewportCol, terminal.width));
     }
     return (
       screenRow: p.screenRow + 1,

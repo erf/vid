@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:characters/characters.dart';
 import 'package:vid/editor.dart';
 
-import '../characters_render.dart';
 import '../file_buffer/file_buffer.dart';
 import '../regex.dart';
 import '../string_ext.dart';
@@ -21,10 +20,7 @@ class Motions {
     // Get current visual column position
     int lineStartOff = f.lines[currentLine].start;
     String beforeCursor = f.text.substring(lineStartOff, offset);
-    int curVisualCol = beforeCursor.characters.renderLength(
-      beforeCursor.characters.length,
-      e.config.tabWidth,
-    );
+    int curVisualCol = beforeCursor.renderLength(e.config.tabWidth);
 
     // Get target line using direct array access
     int targetLineStart = f.lines[targetLine].start;

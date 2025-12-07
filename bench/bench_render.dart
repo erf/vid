@@ -3,7 +3,6 @@
 // Tests: renderLength, renderLineStart, renderLineEnd, columnInLine
 
 import 'package:characters/characters.dart';
-import 'package:vid/characters_render.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/grapheme/unicode.dart';
 import 'package:vid/string_ext.dart';
@@ -17,7 +16,7 @@ void main() {
   // Build a large ASCII file (like typical source code)
   final asciiFile = List.generate(
     10000,
-    (i) => 'Line $i: ' + 'x' * 80,
+    (i) => 'Line $i: ${'x' * 80}',
   ).join('\n');
   final fileBuffer = FileBuffer(text: asciiFile, path: 'test.txt');
 
@@ -87,13 +86,13 @@ void benchmarkRenderLength(String line, String label, int iterations) {
 
   // Warm up
   for (int i = 0; i < 100; i++) {
-    chars.renderLength(count, tabWidth);
+    line.renderLength(tabWidth);
   }
 
   // With fast path (current implementation)
   final swFast = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    chars.renderLength(count, tabWidth);
+    line.renderLength(tabWidth);
   }
   swFast.stop();
 
@@ -112,26 +111,25 @@ void benchmarkRenderLength(String line, String label, int iterations) {
 }
 
 void benchmarkRenderLineStart(String line, String label, int iterations) {
-  final chars = line.characters;
   final start = line.length ~/ 2; // scroll to middle
   const tabWidth = 4;
 
   // Warm up
   for (int i = 0; i < 100; i++) {
-    chars.renderLineStart(start, tabWidth);
+    line.renderLineStart(start);
   }
 
   // With fast path
   final swFast = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    chars.renderLineStart(start, tabWidth);
+    line.renderLineStart(start);
   }
   swFast.stop();
 
   // Simulate old implementation
   final swOld = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    _renderLineStartOld(chars, start, tabWidth);
+    _renderLineStartOld(line.characters, start, tabWidth);
   }
   swOld.stop();
 
@@ -143,26 +141,25 @@ void benchmarkRenderLineStart(String line, String label, int iterations) {
 }
 
 void benchmarkRenderLineEnd(String line, String label, int iterations) {
-  final chars = line.characters;
   const width = 80; // typical terminal width
   const tabWidth = 4;
 
   // Warm up
   for (int i = 0; i < 100; i++) {
-    chars.renderLineEnd(width, tabWidth);
+    line.renderLineEnd(width);
   }
 
   // With fast path
   final swFast = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    chars.renderLineEnd(width, tabWidth);
+    line.renderLineEnd(width);
   }
   swFast.stop();
 
   // Simulate old implementation
   final swOld = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    _renderLineEndOld(chars, width, tabWidth);
+    _renderLineEndOld(line.characters, width, tabWidth);
   }
   swOld.stop();
 
@@ -206,27 +203,26 @@ void benchmarkColumnInLine(
 }
 
 void benchmarkFullRender(String line, String label, int iterations) {
-  final chars = line.characters;
   const start = 10;
   const width = 80;
   const tabWidth = 4;
 
   // Warm up
   for (int i = 0; i < 100; i++) {
-    chars.renderLine(start, width, tabWidth);
+    line.renderLine(start, width);
   }
 
   // With fast path
   final swFast = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    chars.renderLine(start, width, tabWidth);
+    line.renderLine(start, width);
   }
   swFast.stop();
 
   // Simulate old implementation
   final swOld = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    _renderLineOld(chars, start, width, tabWidth);
+    _renderLineOld(line.characters, start, width, tabWidth);
   }
   swOld.stop();
 
