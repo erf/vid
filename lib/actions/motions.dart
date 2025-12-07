@@ -64,16 +64,28 @@ class Motions {
   }
 
   /// Find the first match before the given byte offset.
-  /// Searches back [maxChars] characters. Pass null for full search.
+  /// Searches back in chunks of [chunkSize] until a match is found or start of file.
   static int regexPrev(
     FileBuffer f,
     int offset,
     RegExp pattern, {
-    int? maxChars = 1000,
+    int chunkSize = 1000,
   }) {
-    final start = maxChars == null ? 0 : (offset - maxChars).clamp(0, offset);
-    final matches = pattern.allMatches(f.text.substring(start, offset));
-    return matches.isEmpty ? offset : start + matches.last.start;
+    int searchStart = max(0, offset - chunkSize);
+
+    while (true) {
+      final matches = pattern.allMatches(f.text, searchStart);
+      Match? lastMatch;
+      for (final m in matches) {
+        if (m.start >= offset) break;
+        lastMatch = m;
+      }
+      if (lastMatch != null) return lastMatch.start;
+
+      // No match found - expand search or give up
+      if (searchStart == 0) return offset;
+      searchStart = max(0, searchStart - chunkSize);
+    }
   }
 
   /// Find next/prev occurrence of the word under cursor
@@ -81,30 +93,39 @@ class Motions {
     FileBuffer f,
     int offset, {
     required bool forward,
+    int chunkSize = 1000,
   }) {
-    // Find word on cursor - start search from beginning of current line
-    final lineStart = f.lines[f.lineNumber(offset)].start;
-    final matches = Regex.word.allMatches(f.text, lineStart);
-    Match? match;
-    for (final m in matches) {
-      if (offset < m.end) {
-        match = m;
-        break;
+    // Find word containing cursor - search backwards in chunks
+    int searchStart = max(0, offset - chunkSize);
+
+    while (true) {
+      final matches = Regex.word.allMatches(f.text, searchStart);
+      Match? match;
+      for (final m in matches) {
+        if (offset < m.end) {
+          match = m;
+          break;
+        }
       }
+
+      if (match != null) {
+        // We are not on the word
+        if (offset < match.start || offset >= match.end) {
+          return match.start;
+        }
+        // We are on the word - find the next/prev same word
+        final wordToMatch = f.text.substring(match.start, match.end);
+        final pattern = RegExp(RegExp.escape(wordToMatch));
+        final int index = forward
+            ? f.text.indexOf(pattern, match.end)
+            : f.text.lastIndexOf(pattern, max(0, match.start - 1));
+        return index == -1 ? match.start : index;
+      }
+
+      // No match found - expand search or give up
+      if (searchStart == 0) return offset;
+      searchStart = max(0, searchStart - chunkSize);
     }
-    if (match == null) return offset;
-    // We are not on the word
-    if (offset < match.start || offset >= match.end) {
-      return match.start;
-    }
-    // We are on the word and we want to find the next same word
-    final wordToMatch = f.text.substring(match.start, match.end);
-    final pattern = RegExp(RegExp.escape(wordToMatch));
-    // Find the next same word
-    final int index = forward
-        ? f.text.indexOf(pattern, match.end)
-        : f.text.lastIndexOf(pattern, max(0, match.start - 1));
-    return index == -1 ? match.start : index;
   }
 
   // ===== Motion functions =====
@@ -198,14 +219,23 @@ class Motions {
     FileBuffer f,
     int offset, {
     bool op = false,
+    int chunkSize = 1000,
   }) {
-    final matches = Regex.word.allMatches(f.text);
-    if (matches.isEmpty) return offset;
-    final match = matches.lastWhere(
-      (m) => offset > m.end,
-      orElse: () => matches.last,
-    );
-    return match.end - 1;
+    int searchStart = max(0, offset - chunkSize);
+
+    while (true) {
+      final matches = Regex.word.allMatches(f.text, searchStart);
+      Match? lastMatch;
+      for (final m in matches) {
+        if (m.end >= offset) break;
+        lastMatch = m;
+      }
+      if (lastMatch != null) return lastMatch.end - 1;
+
+      // No match found - expand search or give up
+      if (searchStart == 0) return offset;
+      searchStart = max(0, searchStart - chunkSize);
+    }
   }
 
   /// Move to next WORD (W)

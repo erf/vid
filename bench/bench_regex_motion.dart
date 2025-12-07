@@ -8,30 +8,58 @@ void main() {
 
   // Generate test text with ~10,000 lines
   final text = _generateText(10000);
-  final lines = _buildLineIndex(text);
-  print('Text: ${text.length} bytes, ${lines.length} lines\n');
+  print('Text: ${text.length} bytes\n');
+
+  final middleOffset = text.length ~/ 2;
 
   // Test matchCursorWord (* and # motions)
   print('=== matchCursorWord (* and # motions) ===');
 
-  // Position on the word "number" at start of file
   final startWordPos = text.indexOf('number');
   print('\nAt START (on word "number"):');
   benchmarkMatchCursorWordOld(text, startWordPos, iterations);
-  benchmarkMatchCursorWordNew(text, lines, startWordPos, iterations);
+  benchmarkMatchCursorWordNew(text, startWordPos, iterations);
 
-  // Position on word near middle of file
-  final middleOffset = text.length ~/ 2;
   final middleWordPos = text.indexOf('number', middleOffset);
   print('\nAt MIDDLE (on word "number"):');
   benchmarkMatchCursorWordOld(text, middleWordPos, iterations);
-  benchmarkMatchCursorWordNew(text, lines, middleWordPos, iterations);
+  benchmarkMatchCursorWordNew(text, middleWordPos, iterations);
 
-  // Position on word near end of file
   final endWordPos = text.lastIndexOf('number');
   print('\nAt END (on word "number"):');
   benchmarkMatchCursorWordOld(text, endWordPos, iterations);
-  benchmarkMatchCursorWordNew(text, lines, endWordPos, iterations);
+  benchmarkMatchCursorWordNew(text, endWordPos, iterations);
+
+  // Test wordEndPrev (ge motion)
+  print('\n=== wordEndPrev (ge motion) ===');
+
+  print('\nAt START:');
+  benchmarkWordEndPrevOld(text, 50, iterations);
+  benchmarkWordEndPrevNew(text, 50, iterations);
+
+  print('\nAt MIDDLE:');
+  benchmarkWordEndPrevOld(text, middleOffset, iterations);
+  benchmarkWordEndPrevNew(text, middleOffset, iterations);
+
+  print('\nAt END:');
+  final endOffset = text.length - 10;
+  benchmarkWordEndPrevOld(text, endOffset, iterations);
+  benchmarkWordEndPrevNew(text, endOffset, iterations);
+
+  // Test regexPrev (b, B, etc.)
+  print('\n=== regexPrev (b motion) ===');
+
+  print('\nAt START:');
+  benchmarkRegexPrevOld(text, 50, iterations);
+  benchmarkRegexPrevNew(text, 50, iterations);
+
+  print('\nAt MIDDLE:');
+  benchmarkRegexPrevOld(text, middleOffset, iterations);
+  benchmarkRegexPrevNew(text, middleOffset, iterations);
+
+  print('\nAt END:');
+  benchmarkRegexPrevOld(text, endOffset, iterations);
+  benchmarkRegexPrevNew(text, endOffset, iterations);
 }
 
 String _generateText(int lines) {
@@ -42,30 +70,8 @@ String _generateText(int lines) {
   return sb.toString();
 }
 
-/// Simple line index for benchmark
-List<int> _buildLineIndex(String text) {
-  final lines = <int>[0];
-  for (int i = 0; i < text.length; i++) {
-    if (text[i] == '\n') lines.add(i + 1);
-  }
-  return lines;
-}
+// === matchCursorWord ===
 
-int _lineNumber(List<int> lines, int offset) {
-  int low = 0;
-  int high = lines.length - 1;
-  while (low < high) {
-    int mid = (low + high + 1) ~/ 2;
-    if (lines[mid] <= offset) {
-      low = mid;
-    } else {
-      high = mid - 1;
-    }
-  }
-  return low;
-}
-
-/// Old implementation: allMatches from offset 0
 int matchCursorWordOld(String text, int offset, {required bool forward}) {
   final matches = Regex.word.allMatches(text);
   if (matches.isEmpty) return offset;
@@ -84,32 +90,39 @@ int matchCursorWordOld(String text, int offset, {required bool forward}) {
   return index == -1 ? match.start : index;
 }
 
-/// New implementation: allMatches from line start
 int matchCursorWordNew(
   String text,
-  List<int> lines,
   int offset, {
   required bool forward,
+  int chunkSize = 1000,
 }) {
-  final lineStart = lines[_lineNumber(lines, offset)];
-  final matches = Regex.word.allMatches(text, lineStart);
-  Match? match;
-  for (final m in matches) {
-    if (offset < m.end) {
-      match = m;
-      break;
+  int searchStart = max(0, offset - chunkSize);
+
+  while (true) {
+    final matches = Regex.word.allMatches(text, searchStart);
+    Match? match;
+    for (final m in matches) {
+      if (offset < m.end) {
+        match = m;
+        break;
+      }
     }
+
+    if (match != null) {
+      if (offset < match.start || offset >= match.end) {
+        return match.start;
+      }
+      final wordToMatch = text.substring(match.start, match.end);
+      final pattern = RegExp(RegExp.escape(wordToMatch));
+      final int index = forward
+          ? text.indexOf(pattern, match.end)
+          : text.lastIndexOf(pattern, max(0, match.start - 1));
+      return index == -1 ? match.start : index;
+    }
+
+    if (searchStart == 0) return offset;
+    searchStart = max(0, searchStart - chunkSize);
   }
-  if (match == null) return offset;
-  if (offset < match.start || offset >= match.end) {
-    return match.start;
-  }
-  final wordToMatch = text.substring(match.start, match.end);
-  final pattern = RegExp(RegExp.escape(wordToMatch));
-  final int index = forward
-      ? text.indexOf(pattern, match.end)
-      : text.lastIndexOf(pattern, max(0, match.start - 1));
-  return index == -1 ? match.start : index;
 }
 
 void benchmarkMatchCursorWordOld(String text, int offset, int iterations) {
@@ -119,24 +132,114 @@ void benchmarkMatchCursorWordOld(String text, int offset, int iterations) {
     result = matchCursorWordOld(text, offset, forward: true);
   }
   stopwatch.stop();
-  print(
-    'old (from 0):         ${stopwatch.elapsedMilliseconds}ms (result: $result)',
-  );
+  print('old (from 0):   ${stopwatch.elapsedMilliseconds}ms (result: $result)');
 }
 
-void benchmarkMatchCursorWordNew(
-  String text,
-  List<int> lines,
-  int offset,
-  int iterations,
-) {
+void benchmarkMatchCursorWordNew(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
   int result = 0;
   for (int i = 0; i < iterations; i++) {
-    result = matchCursorWordNew(text, lines, offset, forward: true);
+    result = matchCursorWordNew(text, offset, forward: true);
   }
   stopwatch.stop();
-  print(
-    'new (from lineStart): ${stopwatch.elapsedMilliseconds}ms (result: $result)',
+  print('new (chunked):  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
+}
+
+// === wordEndPrev ===
+
+int wordEndPrevOld(String text, int offset) {
+  final matches = Regex.word.allMatches(text);
+  if (matches.isEmpty) return offset;
+  final match = matches.lastWhere(
+    (m) => offset > m.end,
+    orElse: () => matches.last,
   );
+  return match.end - 1;
+}
+
+int wordEndPrevNew(String text, int offset, {int chunkSize = 1000}) {
+  int searchStart = max(0, offset - chunkSize);
+
+  while (true) {
+    final matches = Regex.word.allMatches(text, searchStart);
+    Match? lastMatch;
+    for (final m in matches) {
+      if (m.end >= offset) break;
+      lastMatch = m;
+    }
+    if (lastMatch != null) return lastMatch.end - 1;
+
+    if (searchStart == 0) return offset;
+    searchStart = max(0, searchStart - chunkSize);
+  }
+}
+
+void benchmarkWordEndPrevOld(String text, int offset, int iterations) {
+  final stopwatch = Stopwatch()..start();
+  int result = 0;
+  for (int i = 0; i < iterations; i++) {
+    result = wordEndPrevOld(text, offset);
+  }
+  stopwatch.stop();
+  print('old (from 0):   ${stopwatch.elapsedMilliseconds}ms (result: $result)');
+}
+
+void benchmarkWordEndPrevNew(String text, int offset, int iterations) {
+  final stopwatch = Stopwatch()..start();
+  int result = 0;
+  for (int i = 0; i < iterations; i++) {
+    result = wordEndPrevNew(text, offset);
+  }
+  stopwatch.stop();
+  print('new (chunked):  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
+}
+
+// === regexPrev ===
+
+int regexPrevOld(String text, int offset, RegExp pattern) {
+  final matches = pattern.allMatches(text.substring(0, offset));
+  if (matches.isEmpty) return offset;
+  return matches.last.start;
+}
+
+int regexPrevNew(
+  String text,
+  int offset,
+  RegExp pattern, {
+  int chunkSize = 1000,
+}) {
+  int searchStart = max(0, offset - chunkSize);
+
+  while (true) {
+    final matches = pattern.allMatches(text, searchStart);
+    Match? lastMatch;
+    for (final m in matches) {
+      if (m.start >= offset) break;
+      lastMatch = m;
+    }
+    if (lastMatch != null) return lastMatch.start;
+
+    if (searchStart == 0) return offset;
+    searchStart = max(0, searchStart - chunkSize);
+  }
+}
+
+void benchmarkRegexPrevOld(String text, int offset, int iterations) {
+  final stopwatch = Stopwatch()..start();
+  int result = 0;
+  for (int i = 0; i < iterations; i++) {
+    result = regexPrevOld(text, offset, Regex.word);
+  }
+  stopwatch.stop();
+  print('old (substr):   ${stopwatch.elapsedMilliseconds}ms (result: $result)');
+}
+
+void benchmarkRegexPrevNew(String text, int offset, int iterations) {
+  final stopwatch = Stopwatch()..start();
+  int result = 0;
+  for (int i = 0; i < iterations; i++) {
+    result = regexPrevNew(text, offset, Regex.word);
+  }
+  stopwatch.stop();
+  print('new (chunked):  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
 }
