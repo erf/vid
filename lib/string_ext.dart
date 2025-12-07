@@ -25,54 +25,56 @@ extension StringExt on String {
   }
 
   /// Get the visible portion of this string for the given viewport.
-  /// [start] is the horizontal scroll offset (render width to skip).
-  /// [width] is the viewport width (max render width to show).
+  /// [scrollOffset] is the number of columns to skip (horizontal scroll).
+  /// [viewportWidth] is the maximum columns to display.
   /// Assumes tabs are already converted to spaces.
-  String renderLine(int start, int width) {
-    return renderLineStart(start).renderLineEnd(width);
+  String renderLine(int scrollOffset, int viewportWidth) {
+    return renderLineStart(scrollOffset).renderLineEnd(viewportWidth);
   }
 
-  /// Skip characters until [start] render width is reached.
+  /// Skip characters until [scrollOffset] render width is reached.
   /// Returns the remaining string for display.
   /// If a double-width char is split, a space is prepended.
-  String renderLineStart(int start) {
+  String renderLineStart(int scrollOffset) {
+    if (scrollOffset <= 0) return this;
+
     // Fast path: for simple ASCII, render width == string length
     if (Unicode.isSimpleAscii(this)) {
-      if (start >= length) return '';
-      return substring(start);
+      return scrollOffset >= length ? '' : substring(scrollOffset);
     }
 
-    int total = 0;
-    bool space = false;
-    final line = characters.skipWhile((char) {
-      int charWidth = char.charWidth();
-      total += charWidth;
-      // add a space to the beginning of the line if the first character is a
-      // double width character and start is 1 then
-      if (charWidth == 2) {
-        if (total - 1 == start) {
-          space = true;
-        }
-        return total - 1 <= start;
+    int col = 0;
+    int skipCount = 0;
+    bool needSpace = false;
+
+    for (final char in characters) {
+      final w = char.charWidth();
+      if (col + w > scrollOffset) {
+        // This char crosses the scroll boundary
+        needSpace = (col < scrollOffset); // Split if char starts before offset
+        break;
       }
-      return total <= start;
-    });
-    return space ? ' ${line.string}' : line.string;
+      col += w;
+      skipCount++;
+    }
+
+    final remaining = characters.skip(skipCount + (needSpace ? 1 : 0)).string;
+    return needSpace ? ' $remaining' : remaining;
   }
 
-  /// Take characters until [width] render width is reached.
+  /// Take characters until [viewportWidth] render width is reached.
   /// Returns the visible portion of the string.
-  String renderLineEnd(int width) {
+  String renderLineEnd(int viewportWidth) {
     // Fast path: for simple ASCII, render width == string length
     if (Unicode.isSimpleAscii(this)) {
-      if (width >= length) return this;
-      return substring(0, width);
+      if (viewportWidth >= length) return this;
+      return substring(0, viewportWidth);
     }
 
     int total = 0;
     return characters.takeWhile((char) {
       total += char.charWidth();
-      return total <= width;
+      return total <= viewportWidth;
     }).string;
   }
 }
