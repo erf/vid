@@ -121,9 +121,6 @@ extension FileBufferNav on FileBuffer {
     viewport = offsetFromLineNumber(targetLine);
   }
 
-  /// Get byte offset of the start of line number n (0-based) - O(1) lookup
-  int offsetOfLine(int lineNum) => offsetFromLineNumber(lineNum);
-
   /// Set editor mode and update cursor style
   void setMode(Editor e, Mode mode) {
     if (e.file.mode == mode) {

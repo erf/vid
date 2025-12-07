@@ -1,8 +1,4 @@
 // Barrel file - exports all file_buffer extensions
-export 'file_buffer_io.dart';
-export 'file_buffer_nav.dart';
-export 'file_buffer_text.dart';
-
 import '../edit.dart';
 import '../keys.dart';
 import '../line_info.dart';
@@ -10,6 +6,9 @@ import '../modes.dart';
 import '../text_op.dart';
 
 export '../edit.dart' show EditBuilder, EditOperation, InputState, YankBuffer;
+export 'file_buffer_io.dart';
+export 'file_buffer_nav.dart';
+export 'file_buffer_text.dart';
 
 /// A file buffer that maintains text with a trailing newline invariant.
 ///

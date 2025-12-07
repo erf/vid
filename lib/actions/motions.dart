@@ -225,7 +225,7 @@ class Motions {
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
-    int lineStartOff = f.offsetOfLine(targetLine);
+    int lineStartOff = f.offsetFromLineNumber(targetLine);
     return firstNonBlank(e, f, lineStartOff, op: op);
   }
 
@@ -235,7 +235,7 @@ class Motions {
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
-    int lineStartOff = f.offsetOfLine(targetLine);
+    int lineStartOff = f.offsetFromLineNumber(targetLine);
     return firstNonBlank(e, f, lineStartOff, op: op);
   }
 
