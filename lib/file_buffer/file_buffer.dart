@@ -104,10 +104,24 @@ class FileBuffer {
     }
   }
 
-  // update text and rebuild line index
+  // update text and partially rebuild line index from edit point
   void updateText(int start, int end, String newText) {
+    // Find line containing start offset before modifying text
+    final startLine = lineNumber(start);
+
     _text = _text.replaceRange(start, end, newText);
-    _buildLineIndex();
+
+    // Truncate lines list and rebuild only from edit point
+    lines.length = startLine;
+    int scanFrom = (startLine > 0) ? lines[startLine - 1].end + 1 : 0;
+
+    int idx = _text.indexOf(Keys.newline, scanFrom);
+    while (idx != -1) {
+      lines.add(LineInfo(scanFrom, idx));
+      scanFrom = idx + 1;
+      idx = _text.indexOf(Keys.newline, scanFrom);
+    }
+
     cursorLine = lineNumber(cursor);
   }
 
