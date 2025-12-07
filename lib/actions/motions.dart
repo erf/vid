@@ -11,10 +11,15 @@ import '../utils.dart';
 
 class Motions {
   /// Move to a different line, maintaining approximate visual column position
-  static int moveLine(Editor e, FileBuffer f, int offset, int targetLineNum) {
+  static int _moveLine(
+    Editor e,
+    FileBuffer f,
+    int offset,
+    int currentLine,
+    int targetLine,
+  ) {
     // Get current visual column position
-    int lineNum = f.lineNumber(offset);
-    int lineStartOff = f.lines[lineNum].start;
+    int lineStartOff = f.lines[currentLine].start;
     String beforeCursor = f.text.substring(lineStartOff, offset);
     int curVisualCol = beforeCursor.characters.renderLength(
       beforeCursor.characters.length,
@@ -22,8 +27,8 @@ class Motions {
     );
 
     // Get target line using direct array access
-    int targetLineStart = f.lines[targetLineNum].start;
-    int targetLineEnd = f.lines[targetLineNum].end;
+    int targetLineStart = f.lines[targetLine].start;
+    int targetLineEnd = f.lines[targetLine].end;
     String targetLineText = f.text.substring(targetLineStart, targetLineEnd);
 
     // Find position in target line with similar visual column
@@ -118,14 +123,14 @@ class Motions {
     int currentLine = f.lineNumber(offset);
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
-    return moveLine(e, f, offset, currentLine + 1);
+    return _moveLine(e, f, offset, currentLine, currentLine + 1);
   }
 
   /// Move to previous line (k) - linewise, inclusive
   static int lineUp(Editor e, FileBuffer f, int offset, {bool op = false}) {
     int currentLine = f.lineNumber(offset);
     if (currentLine == 0) return offset;
-    return moveLine(e, f, offset, currentLine - 1);
+    return _moveLine(e, f, offset, currentLine, currentLine - 1);
   }
 
   /// Move to start of line (0)
