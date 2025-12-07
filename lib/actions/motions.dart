@@ -82,13 +82,17 @@ class Motions {
     int offset, {
     required bool forward,
   }) {
-    // Find word on cursor
-    final matches = Regex.word.allMatches(f.text);
-    if (matches.isEmpty) return offset;
-    Match? match = matches.firstWhere(
-      (m) => offset < m.end,
-      orElse: () => matches.first,
-    );
+    // Find word on cursor - start search from beginning of current line
+    final lineStart = f.lines[f.lineNumber(offset)].start;
+    final matches = Regex.word.allMatches(f.text, lineStart);
+    Match? match;
+    for (final m in matches) {
+      if (offset < m.end) {
+        match = m;
+        break;
+      }
+    }
+    if (match == null) return offset;
     // We are not on the word
     if (offset < match.start || offset >= match.end) {
       return match.start;

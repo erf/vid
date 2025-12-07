@@ -1,48 +1,37 @@
+import 'dart:math';
+
 import 'package:vid/regex.dart';
 
 /// Benchmarks regex motion approaches.
-///
-/// Current implementation uses allMatches() which scans entire remaining text.
-/// We can use firstMatch() for forward motions.
-/// For backward motions, we may need to limit scope or use different approach.
 void main() {
   const iterations = 1000;
 
   // Generate test text with ~10,000 lines
   final text = _generateText(10000);
-  print('Text: ${text.length} bytes\n');
+  final lines = _buildLineIndex(text);
+  print('Text: ${text.length} bytes, ${lines.length} lines\n');
 
-  // Test regexNext at different positions
-  print('=== regexNext (forward word motion) ===');
+  // Test matchCursorWord (* and # motions)
+  print('=== matchCursorWord (* and # motions) ===');
 
-  print('\nAt START:');
-  benchmarkRegexNextAllMatches(text, 0, iterations);
-  benchmarkRegexNextFirstMatch(text, 0, iterations);
+  // Position on the word "number" at start of file
+  final startWordPos = text.indexOf('number');
+  print('\nAt START (on word "number"):');
+  benchmarkMatchCursorWordOld(text, startWordPos, iterations);
+  benchmarkMatchCursorWordNew(text, lines, startWordPos, iterations);
 
-  print('\nAt MIDDLE:');
+  // Position on word near middle of file
   final middleOffset = text.length ~/ 2;
-  benchmarkRegexNextAllMatches(text, middleOffset, iterations);
-  benchmarkRegexNextFirstMatch(text, middleOffset, iterations);
+  final middleWordPos = text.indexOf('number', middleOffset);
+  print('\nAt MIDDLE (on word "number"):');
+  benchmarkMatchCursorWordOld(text, middleWordPos, iterations);
+  benchmarkMatchCursorWordNew(text, lines, middleWordPos, iterations);
 
-  print('\nAt END (near):');
-  final endOffset = text.length - 100;
-  benchmarkRegexNextAllMatches(text, endOffset, iterations);
-  benchmarkRegexNextFirstMatch(text, endOffset, iterations);
-
-  // Test regexPrev at different positions
-  print('\n=== regexPrev (backward word motion) ===');
-
-  print('\nAt END:');
-  benchmarkRegexPrevAllMatches(text, text.length - 1, iterations);
-  benchmarkRegexPrevLimited(text, text.length - 1, iterations);
-
-  print('\nAt MIDDLE:');
-  benchmarkRegexPrevAllMatches(text, middleOffset, iterations);
-  benchmarkRegexPrevLimited(text, middleOffset, iterations);
-
-  print('\nAt START (near):');
-  benchmarkRegexPrevAllMatches(text, 100, iterations);
-  benchmarkRegexPrevLimited(text, 100, iterations);
+  // Position on word near end of file
+  final endWordPos = text.lastIndexOf('number');
+  print('\nAt END (on word "number"):');
+  benchmarkMatchCursorWordOld(text, endWordPos, iterations);
+  benchmarkMatchCursorWordNew(text, lines, endWordPos, iterations);
 }
 
 String _generateText(int lines) {
@@ -53,108 +42,101 @@ String _generateText(int lines) {
   return sb.toString();
 }
 
-/// Current implementation: allMatches from offset to EOF
-int regexNextAllMatches(
-  String text,
-  int offset,
-  RegExp pattern, {
-  int skip = 0,
-}) {
-  final matches = pattern.allMatches(text, offset + skip);
-  if (matches.isEmpty) return offset;
-  final m = matches.firstWhere(
-    (ma) => ma.start > offset,
-    orElse: () => matches.first,
-  );
-  return m.start == offset ? m.end : m.start;
+/// Simple line index for benchmark
+List<int> _buildLineIndex(String text) {
+  final lines = <int>[0];
+  for (int i = 0; i < text.length; i++) {
+    if (text[i] == '\n') lines.add(i + 1);
+  }
+  return lines;
 }
 
-/// Optimized: use iterator to find first match after offset
-int regexNextFirstMatch(
-  String text,
-  int offset,
-  RegExp pattern, {
-  int skip = 0,
-}) {
-  // Use iterator to lazily find first match that starts AFTER offset
-  final matches = pattern.allMatches(text, offset + skip);
-  Match? first;
-  for (final m in matches) {
-    first ??= m;
-    if (m.start > offset) {
-      return m.start;
+int _lineNumber(List<int> lines, int offset) {
+  int low = 0;
+  int high = lines.length - 1;
+  while (low < high) {
+    int mid = (low + high + 1) ~/ 2;
+    if (lines[mid] <= offset) {
+      low = mid;
+    } else {
+      high = mid - 1;
     }
   }
-  // No match after offset, return end of first match (or offset if no matches)
-  if (first == null) return offset;
-  return first.start == offset ? first.end : first.start;
+  return low;
 }
 
-/// Current implementation: allMatches on substring, take last
-int regexPrevAllMatches(String text, int offset, RegExp pattern) {
-  final matches = pattern.allMatches(text.substring(0, offset));
+/// Old implementation: allMatches from offset 0
+int matchCursorWordOld(String text, int offset, {required bool forward}) {
+  final matches = Regex.word.allMatches(text);
   if (matches.isEmpty) return offset;
-  return matches.last.start;
+  Match? match = matches.firstWhere(
+    (m) => offset < m.end,
+    orElse: () => matches.first,
+  );
+  if (offset < match.start || offset >= match.end) {
+    return match.start;
+  }
+  final wordToMatch = text.substring(match.start, match.end);
+  final pattern = RegExp(RegExp.escape(wordToMatch));
+  final int index = forward
+      ? text.indexOf(pattern, match.end)
+      : text.lastIndexOf(pattern, max(0, match.start - 1));
+  return index == -1 ? match.start : index;
 }
 
-/// Alternative: limit search scope to nearby lines
-int regexPrevLimited(String text, int offset, RegExp pattern) {
-  // Find a reasonable search boundary - go back ~5 lines or 500 chars
-  int searchStart = offset;
-  int newlines = 0;
-  while (searchStart > 0 && newlines < 5 && (offset - searchStart) < 500) {
-    searchStart--;
-    if (text[searchStart] == '\n') newlines++;
+/// New implementation: allMatches from line start
+int matchCursorWordNew(
+  String text,
+  List<int> lines,
+  int offset, {
+  required bool forward,
+}) {
+  final lineStart = lines[_lineNumber(lines, offset)];
+  final matches = Regex.word.allMatches(text, lineStart);
+  Match? match;
+  for (final m in matches) {
+    if (offset < m.end) {
+      match = m;
+      break;
+    }
   }
-
-  // Search only in the limited range
-  final searchText = text.substring(searchStart, offset);
-  final matches = pattern.allMatches(searchText);
-  if (matches.isEmpty) {
-    // Fall back to full search if no match in limited range
-    final fullMatches = pattern.allMatches(text.substring(0, offset));
-    if (fullMatches.isEmpty) return offset;
-    return fullMatches.last.start;
+  if (match == null) return offset;
+  if (offset < match.start || offset >= match.end) {
+    return match.start;
   }
-  return searchStart + matches.last.start;
+  final wordToMatch = text.substring(match.start, match.end);
+  final pattern = RegExp(RegExp.escape(wordToMatch));
+  final int index = forward
+      ? text.indexOf(pattern, match.end)
+      : text.lastIndexOf(pattern, max(0, match.start - 1));
+  return index == -1 ? match.start : index;
 }
 
-void benchmarkRegexNextAllMatches(String text, int offset, int iterations) {
+void benchmarkMatchCursorWordOld(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
   int result = 0;
   for (int i = 0; i < iterations; i++) {
-    result = regexNextAllMatches(text, offset, Regex.word);
+    result = matchCursorWordOld(text, offset, forward: true);
   }
   stopwatch.stop();
-  print('allMatches:  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
+  print(
+    'old (from 0):         ${stopwatch.elapsedMilliseconds}ms (result: $result)',
+  );
 }
 
-void benchmarkRegexNextFirstMatch(String text, int offset, int iterations) {
+void benchmarkMatchCursorWordNew(
+  String text,
+  List<int> lines,
+  int offset,
+  int iterations,
+) {
   final stopwatch = Stopwatch()..start();
   int result = 0;
   for (int i = 0; i < iterations; i++) {
-    result = regexNextFirstMatch(text, offset, Regex.word);
+    result = matchCursorWordNew(text, lines, offset, forward: true);
   }
   stopwatch.stop();
-  print('firstMatch:  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
-}
-
-void benchmarkRegexPrevAllMatches(String text, int offset, int iterations) {
-  final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
-    result = regexPrevAllMatches(text, offset, Regex.word);
-  }
-  stopwatch.stop();
-  print('allMatches:  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
-}
-
-void benchmarkRegexPrevLimited(String text, int offset, int iterations) {
-  final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
-    result = regexPrevLimited(text, offset, Regex.word);
-  }
-  stopwatch.stop();
-  print('limited:     ${stopwatch.elapsedMilliseconds}ms (result: $result)');
+  print(
+    'new (from lineStart): ${stopwatch.elapsedMilliseconds}ms (result: $result)',
+  );
 }
