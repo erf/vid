@@ -108,11 +108,11 @@ class FileBuffer {
   void updateText(int start, int end, String newText) {
     _text = _text.replaceRange(start, end, newText);
     _buildLineIndex();
-    cursorLine = lineNumberFromOffset(cursor);
+    cursorLine = lineNumber(cursor);
   }
 
   // get line number for offset using binary search - O(log n)
-  int lineNumberFromOffset(int offset) {
+  int lineNumber(int offset) {
     if (lines.isEmpty) return 0;
     int low = 0;
     int high = lines.length - 1;
@@ -128,7 +128,7 @@ class FileBuffer {
   }
 
   // get byte offset for line number - O(1)
-  int offsetFromLineNumber(int lineNum) {
+  int lineOffset(int lineNum) {
     if (lineNum < 0) return 0;
     if (lineNum >= lines.length) return _text.length;
     return lines[lineNum].start;

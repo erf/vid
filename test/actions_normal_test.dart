@@ -83,7 +83,7 @@ void main() {
     f.cursor = 0;
     e.input('G');
     // G goes to last line, which is 'ghi\n' starting at offset 8
-    expect(f.lineNumberFromOffset(f.cursor), 2); // 0-indexed line 2
+    expect(f.lineNumber(f.cursor), 2); // 0-indexed line 2
   });
 
   test('cursorLineBottomOrCount 2G', () {
@@ -93,7 +93,7 @@ void main() {
     f.cursor = 0;
     e.input('2G');
     // 2G goes to line 2 (1-indexed), which is 'def' at offset 4
-    expect(f.lineNumberFromOffset(f.cursor), 1); // 0-indexed line 1
+    expect(f.lineNumber(f.cursor), 1); // 0-indexed line 1
   });
 
   test('cursorLineTopOrCount gg', () {
@@ -113,7 +113,7 @@ void main() {
     f.cursor = 8; // 'ghi' line
     e.input('2gg');
     // 2gg goes to line 2 (1-indexed), which is 'def' at offset 4
-    expect(f.lineNumberFromOffset(f.cursor), 1);
+    expect(f.lineNumber(f.cursor), 1);
   });
 
   test('repeat dw.', () {
@@ -150,7 +150,7 @@ void main() {
     e.input('ddjp');
     expect(f.text, '\ndef\nabc\n\nghi\n');
     // cursor should be on pasted line 'abc'
-    expect(f.lineNumberFromOffset(f.cursor), 2);
+    expect(f.lineNumber(f.cursor), 2);
   });
 
   test('joining lines', () {
@@ -280,7 +280,7 @@ void main() {
     f.cursor = 0;
     e.input('Dj.j');
     expect(f.text, '\n\nghi\njkl\n');
-    expect(f.lineNumberFromOffset(f.cursor), 2);
+    expect(f.lineNumber(f.cursor), 2);
   });
 
   test('go down one line with j', () {
@@ -289,7 +289,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 0;
     e.input('j');
-    expect(f.lineNumberFromOffset(f.cursor), 1);
+    expect(f.lineNumber(f.cursor), 1);
   });
 
   test('go up one line with k', () {
@@ -298,7 +298,7 @@ void main() {
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 8; // 'ghi' line
     e.input('k');
-    expect(f.lineNumberFromOffset(f.cursor), 1);
+    expect(f.lineNumber(f.cursor), 1);
   });
 
   test('x with count', () {

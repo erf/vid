@@ -13,7 +13,7 @@ class Motions {
   /// Move to a different line, maintaining approximate visual column position
   static int moveLine(Editor e, FileBuffer f, int offset, int targetLineNum) {
     // Get current visual column position
-    int lineNum = f.lineNumberFromOffset(offset);
+    int lineNum = f.lineNumber(offset);
     int lineStartOff = f.lines[lineNum].start;
     String beforeCursor = f.text.substring(lineStartOff, offset);
     int curVisualCol = beforeCursor.characters.renderLength(
@@ -115,7 +115,7 @@ class Motions {
 
   /// Move to next line (j) - linewise, inclusive
   static int lineDown(Editor e, FileBuffer f, int offset, {bool op = false}) {
-    int currentLine = f.lineNumberFromOffset(offset);
+    int currentLine = f.lineNumber(offset);
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
     return moveLine(e, f, offset, currentLine + 1);
@@ -123,7 +123,7 @@ class Motions {
 
   /// Move to previous line (k) - linewise, inclusive
   static int lineUp(Editor e, FileBuffer f, int offset, {bool op = false}) {
-    int currentLine = f.lineNumberFromOffset(offset);
+    int currentLine = f.lineNumber(offset);
     if (currentLine == 0) return offset;
     return moveLine(e, f, offset, currentLine - 1);
   }
@@ -135,7 +135,7 @@ class Motions {
 
   /// Move to end of line ($) - inclusive
   static int lineEnd(Editor e, FileBuffer f, int offset, {bool op = false}) {
-    int lineNum = f.lineNumberFromOffset(offset);
+    int lineNum = f.lineNumber(offset);
     int lineEndOff = f.lines[lineNum].end;
     // For inclusive operator mode, include the newline
     if (op) return lineEndOff;
@@ -153,7 +153,7 @@ class Motions {
     int offset, {
     bool op = false,
   }) {
-    int lineNum = f.lineNumberFromOffset(offset);
+    int lineNum = f.lineNumber(offset);
     int lineStartOff = f.lines[lineNum].start;
     String lineText = f.lineTextAt(lineNum);
     final int firstNonBlankIdx = lineText.indexOf(Regex.nonSpace);
@@ -225,7 +225,7 @@ class Motions {
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
-    int lineStartOff = f.offsetFromLineNumber(targetLine);
+    int lineStartOff = f.lineOffset(targetLine);
     return firstNonBlank(e, f, lineStartOff, op: op);
   }
 
@@ -235,7 +235,7 @@ class Motions {
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
-    int lineStartOff = f.offsetFromLineNumber(targetLine);
+    int lineStartOff = f.lineOffset(targetLine);
     return firstNonBlank(e, f, lineStartOff, op: op);
   }
 
@@ -357,7 +357,7 @@ class Motions {
 
   /// Linewise motion for same-line operators (dd, yy, cc)
   static int linewise(Editor e, FileBuffer f, int offset, {bool op = true}) {
-    int lineNum = f.lineNumberFromOffset(offset);
+    int lineNum = f.lineNumber(offset);
     int lineEndOff = f.lines[lineNum].end;
     int lineStartOff = f.lines[lineNum].start;
 

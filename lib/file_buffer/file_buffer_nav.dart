@@ -20,21 +20,21 @@ extension FileBufferNav on FileBuffer {
   /// Find byte offset of line start - O(log n) lookup
   int lineStart(int offset) {
     if (lines.isEmpty) return 0;
-    int lineNum = lineNumberFromOffset(offset);
+    int lineNum = lineNumber(offset);
     return lines[lineNum].start;
   }
 
   /// Find byte offset of line end (the \n character, or text.length) - O(log n)
   int lineEnd(int offset) {
     if (lines.isEmpty) return text.length;
-    int lineNum = lineNumberFromOffset(offset);
+    int lineNum = lineNumber(offset);
     return lines[lineNum].end;
   }
 
   /// Get the text of the line containing offset (excluding \n) - O(log n)
   String lineText(int offset) {
     if (lines.isEmpty) return '';
-    int lineNum = lineNumberFromOffset(offset);
+    int lineNum = lineNumber(offset);
     return lineTextAt(lineNum);
   }
 
@@ -75,7 +75,7 @@ extension FileBufferNav on FileBuffer {
     cursor = cursor.clamp(0, math.max(0, text.length - 1));
 
     // Update cursorLine
-    cursorLine = lineNumberFromOffset(cursor);
+    cursorLine = lineNumber(cursor);
 
     // In insert mode, cursor can be on newline (inserting before it)
     if (mode == Mode.insert || mode == Mode.replace) {
@@ -107,7 +107,7 @@ extension FileBufferNav on FileBuffer {
     viewportLine = viewportLine.clamp(minViewLine, maxViewLine);
 
     // Update viewport to start of that line - O(1) lookup
-    viewport = offsetFromLineNumber(math.max(0, viewportLine));
+    viewport = lineOffset(math.max(0, viewportLine));
 
     // Note: horizontal scrolling is handled at render time based on cursorRenderCol
     return viewportLine;
@@ -115,10 +115,10 @@ extension FileBufferNav on FileBuffer {
 
   /// Center viewport on cursor
   void centerViewport(TerminalBase term) {
-    int cursorLine = lineNumberFromOffset(cursor);
+    int cursorLine = lineNumber(cursor);
     int targetLine = cursorLine - (term.height - 2) ~/ 2;
     targetLine = math.max(0, targetLine);
-    viewport = offsetFromLineNumber(targetLine);
+    viewport = lineOffset(targetLine);
   }
 
   /// Set editor mode and update cursor style

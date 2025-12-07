@@ -57,7 +57,7 @@ extension FileBufferIo on FileBuffer {
       final lineNo = args.last.substring(1);
       if (lineNo.isNotEmpty) {
         int targetLine = (int.tryParse(lineNo) ?? 1) - 1;
-        cursor = offsetFromLineNumber(targetLine);
+        cursor = lineOffset(targetLine);
       } else {
         cursor = 0;
       }

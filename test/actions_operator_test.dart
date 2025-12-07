@@ -45,11 +45,11 @@ void main() {
     f.cursor = 5;
     e.input('dd');
     expect(f.text, 'abc\nghi\n');
-    expect(f.lineNumberFromOffset(f.cursor), 1);
+    expect(f.lineNumber(f.cursor), 1);
     expect(f.columnInLine(f.cursor), 0);
     e.input('p');
     expect(f.text, 'abc\nghi\ndef\n');
-    expect(f.lineNumberFromOffset(f.cursor), 2);
+    expect(f.lineNumber(f.cursor), 2);
     e.input('kP');
     expect(f.text, 'abc\ndef\nghi\ndef\n');
   });
@@ -62,7 +62,7 @@ void main() {
     f.cursor = 5;
     e.input('cc');
     expect(f.text, 'abc\nghi\n');
-    expect(f.lineNumberFromOffset(f.cursor), 1);
+    expect(f.lineNumber(f.cursor), 1);
     expect(f.columnInLine(f.cursor), 0);
     expect(f.mode, Mode.insert);
   });
@@ -78,7 +78,7 @@ void main() {
     expect(f.yankBuffer?.linewise, true);
     e.input('P');
     expect(f.text, 'abc\ndef\ndef\nghi\n');
-    expect(f.lineNumberFromOffset(f.cursor), 1);
+    expect(f.lineNumber(f.cursor), 1);
     expect(f.columnInLine(f.cursor), 0);
   });
 

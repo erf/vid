@@ -47,7 +47,7 @@ void main() {
     int line2Col2 = 14 + 2; // 16 = 'i' in 'ghijkl'
     int result = Motions.lineUp(e, f, line2Col2);
     // Should land on line 1 (the emoji line)
-    expect(f.lineNumberFromOffset(result), 1);
+    expect(f.lineNumber(result), 1);
   });
 
   test('motion.lineDown', () {
@@ -68,7 +68,7 @@ void main() {
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
     // From line 0 col 2 -> line 1 (should land on appropriate grapheme)
     int result = Motions.lineDown(e, f, 2);
-    expect(f.lineNumberFromOffset(result), 1);
+    expect(f.lineNumber(result), 1);
   });
 
   test('motionFileStart', () {

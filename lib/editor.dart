@@ -129,7 +129,7 @@ class Editor {
 
     // Use cached cursorLine (updated by clampCursor), compute viewportLine
     int cursorLine = file.cursorLine;
-    int viewportLine = file.lineNumberFromOffset(file.viewport);
+    int viewportLine = file.lineNumber(file.viewport);
 
     // Calculate cursor render position (column width on screen)
     String lineTextToCursor = file.text.substring(
@@ -193,7 +193,7 @@ class Editor {
     var result = (screenRow: 1, wrapCol: 0, found: false);
     while (!result.found && viewportLine < cursorLine) {
       viewportLine++;
-      file.viewport = file.offsetFromLineNumber(viewportLine);
+      file.viewport = file.lineOffset(viewportLine);
       renderBuffer.clear();
       renderBuffer.write(Esc.homeAndEraseDown);
       result = writeRenderLines(viewportCol, cursorLine, cursorRenderCol);
@@ -213,7 +213,7 @@ class Editor {
     int cursorScreenRow = 1;
     int cursorWrapCol = 0;
     bool cursorFound = false;
-    int currentFileLineNum = file.lineNumberFromOffset(file.viewport);
+    int currentFileLineNum = file.lineNumber(file.viewport);
 
     while (screenRow < numLines) {
       // Past end of file - draw '~'
@@ -569,8 +569,8 @@ class Editor {
       if (motion.linewise) {
         final r = Range(start, end).norm;
         // Expand to full lines for linewise operations
-        int startLineNum = file.lineNumberFromOffset(r.start);
-        int endLineNum = file.lineNumberFromOffset(r.end);
+        int startLineNum = file.lineNumber(r.start);
+        int endLineNum = file.lineNumber(r.end);
         start = file.lines[startLineNum].start;
         end = file.lines[endLineNum].end + 1; // Include the newline
         if (end > file.text.length) end = file.text.length;
