@@ -11,7 +11,7 @@ import '../utils.dart';
 
 class Motions {
   /// Move to a different line, maintaining approximate visual column position
-  static int _moveLine(
+  static int _moveToLineKeepColumn(
     Editor e,
     FileBuffer f,
     int offset,
@@ -123,14 +123,14 @@ class Motions {
     int currentLine = f.lineNumber(offset);
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
-    return _moveLine(e, f, offset, currentLine, currentLine + 1);
+    return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine + 1);
   }
 
   /// Move to previous line (k) - linewise, inclusive
   static int lineUp(Editor e, FileBuffer f, int offset, {bool op = false}) {
     int currentLine = f.lineNumber(offset);
     if (currentLine == 0) return offset;
-    return _moveLine(e, f, offset, currentLine, currentLine - 1);
+    return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine - 1);
   }
 
   /// Move to start of line (0)
