@@ -38,11 +38,6 @@ extension FileBufferNav on FileBuffer {
     return lineTextAt(lineNum);
   }
 
-  /// Get line number for offset - O(log n) using cached index
-  int lineNumber(int offset) {
-    return lineNumberFromOffset(offset);
-  }
-
   /// Get column position within line (in grapheme clusters, 0-based)
   int columnInLine(int offset) {
     int start = lineStart(offset);
@@ -120,7 +115,7 @@ extension FileBufferNav on FileBuffer {
 
   /// Center viewport on cursor
   void centerViewport(TerminalBase term) {
-    int cursorLine = lineNumber(cursor);
+    int cursorLine = lineNumberFromOffset(cursor);
     int targetLine = cursorLine - (term.height - 2) ~/ 2;
     targetLine = math.max(0, targetLine);
     viewport = offsetFromLineNumber(targetLine);

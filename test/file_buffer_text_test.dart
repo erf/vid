@@ -143,6 +143,6 @@ void main() {
     f.cursor = 8;
     e.input('dd');
     expect(f.text, 'abc\ndef\n');
-    expect(f.lineNumber(f.cursor), 1);
+    expect(f.lineNumberFromOffset(f.cursor), 1);
   });
 }

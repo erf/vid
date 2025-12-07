@@ -115,7 +115,7 @@ class Motions {
 
   /// Move to next line (j) - linewise, inclusive
   static int lineDown(Editor e, FileBuffer f, int offset, {bool op = false}) {
-    int currentLine = f.lineNumber(offset);
+    int currentLine = f.lineNumberFromOffset(offset);
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
     return moveLine(e, f, offset, currentLine + 1);
@@ -123,7 +123,7 @@ class Motions {
 
   /// Move to previous line (k) - linewise, inclusive
   static int lineUp(Editor e, FileBuffer f, int offset, {bool op = false}) {
-    int currentLine = f.lineNumber(offset);
+    int currentLine = f.lineNumberFromOffset(offset);
     if (currentLine == 0) return offset;
     return moveLine(e, f, offset, currentLine - 1);
   }

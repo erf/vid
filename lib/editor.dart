@@ -7,8 +7,8 @@ import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/keys.dart';
 
-import 'bindings.dart';
 import 'actions/operators.dart';
+import 'bindings.dart';
 import 'characters_render.dart';
 import 'commands/command.dart';
 import 'config.dart';
@@ -129,7 +129,7 @@ class Editor {
 
     // Use cached cursorLine (updated by clampCursor), compute viewportLine
     int cursorLine = file.cursorLine;
-    int viewportLine = file.lineNumber(file.viewport);
+    int viewportLine = file.lineNumberFromOffset(file.viewport);
 
     // Calculate cursor render position (column width on screen)
     String lineTextToCursor = file.text.substring(
@@ -213,7 +213,7 @@ class Editor {
     int cursorScreenRow = 1;
     int cursorWrapCol = 0;
     bool cursorFound = false;
-    int currentFileLineNum = file.lineNumber(file.viewport);
+    int currentFileLineNum = file.lineNumberFromOffset(file.viewport);
 
     while (screenRow < numLines) {
       // Past end of file - draw '~'
@@ -538,14 +538,14 @@ class Editor {
 
     // check if we match or partial match a key
     switch (keyBindings[file.mode]!.match(input.cmdKey)) {
-      case (KeyMatch.none, _):
+      case (.none, _):
         file.setMode(this, .normal);
         file.edit.reset();
         file.input.resetCmdKey();
-      case (KeyMatch.partial, _):
+      case (.partial, _):
         // wait for more input
         return;
-      case (KeyMatch.match, Command command):
+      case (.match, Command command):
         command.execute(this, file, char);
         input.resetCmdKey();
     }
