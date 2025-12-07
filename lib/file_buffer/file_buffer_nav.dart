@@ -42,6 +42,16 @@ extension FileBufferNav on FileBuffer {
   int columnInLine(int offset) {
     int start = lineStart(offset);
     if (offset <= start) return 0;
+    // Fast path: for simple ASCII, column == byte offset difference
+    final len = offset - start;
+    bool isAscii = true;
+    for (int i = start; i < offset; i++) {
+      if (text.codeUnitAt(i) < 0x20 || text.codeUnitAt(i) > 0x7E) {
+        isAscii = false;
+        break;
+      }
+    }
+    if (isAscii) return len;
     return text.substring(start, offset).characters.length;
   }
 

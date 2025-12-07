@@ -65,4 +65,15 @@ class Unicode {
   static bool isEmojiSequenceTrie(List<int> codePoints) {
     return emojiSequenceTrie.matches(codePoints);
   }
+
+  /// Returns true if string contains only printable ASCII (0x20-0x7E).
+  /// This excludes control chars, tabs, newlines, and any extended unicode.
+  /// For such strings: render width == grapheme count == string length.
+  static bool isSimpleAscii(String str) {
+    for (int i = 0; i < str.length; i++) {
+      final c = str.codeUnitAt(i);
+      if (c < 0x20 || c > 0x7E) return false;
+    }
+    return true;
+  }
 }
