@@ -73,11 +73,6 @@ extension FileBufferNav on FileBuffer {
     return range.stringBeforeLength;
   }
 
-  /// Get the length of the line in grapheme clusters (excluding \n)
-  int lineCharLen(int offset) {
-    return lineText(offset).characters.length;
-  }
-
   /// Clamp cursor to valid position in text.
   /// Ensures cursor is at start of a grapheme cluster and not on a newline (in normal mode)
   void clampCursor() {
