@@ -40,9 +40,6 @@ class FileBuffer {
   // the cursor position (byte offset, always at grapheme cluster boundary)
   int cursor = 0;
 
-  // the line number the cursor is on (0-based)
-  int cursorLine = 0;
-
   // the viewport position (byte offset of first visible character)
   int viewport = 0;
 
@@ -121,8 +118,6 @@ class FileBuffer {
       scanFrom = idx + 1;
       idx = _text.indexOf(Keys.newline, scanFrom);
     }
-
-    cursorLine = lineNumber(cursor);
   }
 
   // get line number for offset using binary search - O(log n)

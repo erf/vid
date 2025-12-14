@@ -78,14 +78,11 @@ extension FileBufferNav on FileBuffer {
     return lineText(offset).characters.length;
   }
 
-  /// Clamp cursor to valid position in text and update cursorLine
+  /// Clamp cursor to valid position in text.
   /// Ensures cursor is at start of a grapheme cluster and not on a newline (in normal mode)
   void clampCursor() {
     // Clamp to text bounds
     cursor = cursor.clamp(0, math.max(0, text.length - 1));
-
-    // Update cursorLine
-    cursorLine = lineNumber(cursor);
 
     // In insert mode, cursor can be on newline (inserting before it)
     if (mode == Mode.insert || mode == Mode.replace) {
@@ -95,7 +92,7 @@ extension FileBufferNav on FileBuffer {
     // Don't allow cursor on newline in normal mode - move to previous char
     // (Empty lines are ok - lineStart == lineEnd pointing to the newline)
     if (cursor > 0 && text[cursor] == Keys.newline) {
-      int ls = lines[cursorLine].start;
+      int ls = lines[lineNumber(cursor)].start;
       // If not an empty line, move to char before newline
       if (cursor > ls) {
         cursor = prevGrapheme(cursor);
@@ -125,8 +122,7 @@ extension FileBufferNav on FileBuffer {
 
   /// Center viewport on cursor
   void centerViewport(TerminalBase term) {
-    int cursorLine = lineNumber(cursor);
-    int targetLine = cursorLine - (term.height - 2) ~/ 2;
+    int targetLine = lineNumber(cursor) - (term.height - 2) ~/ 2;
     targetLine = math.max(0, targetLine);
     viewport = lineOffset(targetLine);
   }

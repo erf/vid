@@ -126,8 +126,8 @@ class Editor {
     renderBuffer.write(Esc.homeAndEraseDown);
     file.clampCursor();
 
-    // Use cached cursorLine (updated by clampCursor), compute viewportLine
-    int cursorLine = file.cursorLine;
+    // Compute cursorLine and viewportLine from byte offsets
+    int cursorLine = file.lineNumber(file.cursor);
     int viewportLine = file.lineNumber(file.viewport);
 
     // Calculate cursor render position (column width on screen)

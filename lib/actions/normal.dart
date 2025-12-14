@@ -9,13 +9,13 @@ import '../text_op.dart';
 
 class Normal {
   static void moveDownHalfPage(Editor e, FileBuffer f) {
-    int targetLine = f.cursorLine + e.terminal.height ~/ 2;
+    int targetLine = f.lineNumber(f.cursor) + e.terminal.height ~/ 2;
     targetLine = min(targetLine, f.totalLines - 1);
     f.cursor = f.lineOffset(targetLine);
   }
 
   static void moveUpHalfPage(Editor e, FileBuffer f) {
-    int targetLine = f.cursorLine - e.terminal.height ~/ 2;
+    int targetLine = f.lineNumber(f.cursor) - e.terminal.height ~/ 2;
     targetLine = max(targetLine, 0);
     f.cursor = f.lineOffset(targetLine);
   }
@@ -89,7 +89,7 @@ class Normal {
     f.setMode(e, .insert);
     // Move cursor right by one grapheme, but don't go past line end
     int nextPos = f.nextGrapheme(f.cursor);
-    int lineEndPos = f.lines[f.cursorLine].end;
+    int lineEndPos = f.lines[f.lineNumber(f.cursor)].end;
     f.cursor = min(nextPos, lineEndPos);
   }
 
@@ -142,7 +142,7 @@ class Normal {
   }
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {
-    int lineNum = f.cursorLine;
+    int lineNum = f.lineNumber(f.cursor);
     int lineStartOffset = f.lines[lineNum].start;
     String lineText = f.lineTextAt(lineNum);
     int cursorInLine = f.cursor - lineStartOffset;
