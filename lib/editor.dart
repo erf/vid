@@ -95,11 +95,9 @@ class Editor {
   void initTerminal(String? path) {
     terminal.rawMode = true;
 
-    // Detect terminal theme before setting up input listener
     final detectedTheme = ThemeDetector.detectSync();
     config = config.copyWith(syntaxTheme: detectedTheme);
     _highlighter.theme = detectedTheme;
-    //showMessage(.info('${detectedTheme.name} theme'));
 
     terminal.write(Esc.enableMode2027);
     terminal.write(Esc.enableAltBuffer);
@@ -130,6 +128,18 @@ class Editor {
     config = config.copyWith(syntaxHighlighting: !config.syntaxHighlighting);
     final status = config.syntaxHighlighting ? 'enabled' : 'disabled';
     showMessage(.info('Syntax highlighting $status'));
+    draw();
+  }
+
+  /// Cycle through available themes.
+  void cycleTheme() {
+    const themes = [Theme.dark, Theme.light, Theme.mono];
+    final currentIndex = themes.indexOf(config.syntaxTheme);
+    final nextIndex = (currentIndex + 1) % themes.length;
+    final nextTheme = themes[nextIndex];
+    config = config.copyWith(syntaxTheme: nextTheme);
+    _highlighter.theme = nextTheme;
+    showMessage(.info('Theme: ${nextTheme.name}'));
     draw();
   }
 

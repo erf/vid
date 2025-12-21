@@ -198,4 +198,8 @@ class Normal {
   static void toggleSyntax(Editor e, FileBuffer f) {
     e.toggleSyntax();
   }
+
+  static void cycleTheme(Editor e, FileBuffer f) {
+    e.cycleTheme();
+  }
 }

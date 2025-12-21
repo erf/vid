@@ -73,6 +73,7 @@ const normalCommands = <String, Command>{
   Keys.ctrlW: ActionCommand(Normal.toggleWrap),
   'zz': ActionCommand(Normal.centerView),
   'zh': ActionCommand(Normal.toggleSyntax),
+  'zt': ActionCommand(Normal.cycleTheme),
 };
 
 const insertBindings = <String, Command>{
