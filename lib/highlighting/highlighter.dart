@@ -8,11 +8,8 @@ class Highlighter {
   Theme theme;
   final _dartTokenizer = DartTokenizer();
 
-  /// Cached tokens for the current visible range.
+  /// Tokens for the current visible range.
   List<Token> _tokens = [];
-  int _tokenizedStart = 0;
-  int _tokenizedEnd = 0;
-  String? _tokenizedPath;
 
   Highlighter({this.theme = Theme.dark});
 
@@ -30,8 +27,7 @@ class Highlighter {
 
   /// Tokenize a range of the document.
   ///
-  /// Call this once before rendering visible lines. Tokens are cached
-  /// and reused for applying styles to individual lines.
+  /// Call this once before rendering visible lines.
   void tokenizeRange(
     String text,
     int startByte,
@@ -41,13 +37,6 @@ class Highlighter {
     final language = detectLanguage(filePath);
     if (language == null) {
       _tokens = [];
-      return;
-    }
-
-    // Check cache - avoid re-tokenizing if range hasn't changed much
-    if (filePath == _tokenizedPath &&
-        startByte >= _tokenizedStart &&
-        endByte <= _tokenizedEnd) {
       return;
     }
 
@@ -61,17 +50,6 @@ class Highlighter {
       endByte,
       initialState: state,
     );
-    _tokenizedStart = startByte;
-    _tokenizedEnd = endByte;
-    _tokenizedPath = filePath;
-  }
-
-  /// Clear the token cache.
-  void invalidateCache() {
-    _tokens = [];
-    _tokenizedStart = 0;
-    _tokenizedEnd = 0;
-    _tokenizedPath = null;
   }
 
   /// Apply syntax highlighting to a line.
