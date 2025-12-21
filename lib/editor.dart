@@ -175,6 +175,22 @@ class Editor {
       viewportLine,
     );
 
+    // Tokenize visible range for syntax highlighting (done once before rendering)
+    if (config.syntaxHighlighting) {
+      // Tokenize from viewport to well past cursor to handle scroll adjustments
+      final startByte = file.lineOffset(viewportLine);
+      final endLine = cursorLine + terminal.height;
+      final endByte = endLine < file.lines.length
+          ? file.lines[endLine].end
+          : file.text.length;
+      _highlighter.tokenizeRange(
+        file.text,
+        startByte,
+        endByte,
+        file.absolutePath,
+      );
+    }
+
     // Horizontal scrolling (disabled when word wrap is on)
     int viewportCol = 0;
     if (config.wrapMode == .none &&
@@ -241,21 +257,6 @@ class Editor {
     int cursorWrapCol = 0;
     bool cursorFound = false;
     int currentFileLineNum = file.lineNumber(file.viewport);
-
-    // Tokenize visible range for syntax highlighting
-    if (config.syntaxHighlighting) {
-      // Estimate end of visible range (approximate, may extend beyond)
-      final visibleEndLine = currentFileLineNum + numLines;
-      final endByte = visibleEndLine < file.lines.length
-          ? file.lines[visibleEndLine].end
-          : file.text.length;
-      _highlighter.tokenizeRange(
-        file.text,
-        file.viewport,
-        endByte,
-        file.absolutePath,
-      );
-    }
 
     while (screenRow < numLines) {
       // Past end of file - draw '~'
