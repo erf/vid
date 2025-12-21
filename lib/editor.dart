@@ -298,11 +298,13 @@ class Editor {
     if (p.rendered.isNotEmpty) {
       final visible = p.rendered.renderLine(p.viewportCol, terminal.width);
       if (config.syntaxHighlighting) {
-        final styled = _highlighter.styleSubstring(
-          p.rendered,
+        final byteOffset = p.rendered.characters
+            .take(p.viewportCol)
+            .string
+            .length;
+        final styled = _highlighter.style(
           visible,
-          p.viewportCol,
-          p.lineStartByte,
+          p.lineStartByte + byteOffset,
         );
         renderBuffer.write(styled);
       } else {
@@ -349,12 +351,8 @@ class Editor {
 
       // Apply syntax highlighting to chunk
       if (config.syntaxHighlighting) {
-        final styled = _highlighter.styleSubstring(
-          p.rendered,
-          chunk,
-          wrapCol,
-          p.lineStartByte,
-        );
+        final byteOffset = p.rendered.characters.take(wrapCol).string.length;
+        final styled = _highlighter.style(chunk, p.lineStartByte + byteOffset);
         renderBuffer.write(styled);
       } else {
         renderBuffer.write(chunk);
@@ -429,12 +427,8 @@ class Editor {
 
       // Apply syntax highlighting to chunk
       if (config.syntaxHighlighting) {
-        final styled = _highlighter.styleSubstring(
-          p.rendered,
-          chunk,
-          wrapCol,
-          p.lineStartByte,
-        );
+        final byteOffset = p.rendered.characters.take(wrapCol).string.length;
+        final styled = _highlighter.style(chunk, p.lineStartByte + byteOffset);
         renderBuffer.write(styled);
       } else {
         renderBuffer.write(chunk);

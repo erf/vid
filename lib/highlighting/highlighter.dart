@@ -7,8 +7,6 @@ export 'token.dart' show Token, TokenType, Theme, SyntaxColors;
 class Highlighter {
   Theme theme;
   final _dartTokenizer = DartTokenizer();
-
-  /// Tokens for the current visible range.
   List<Token> _tokens = [];
 
   Highlighter({this.theme = Theme.dark});
@@ -22,156 +20,65 @@ class Highlighter {
     return ext == 'dart' ? 'dart' : null;
   }
 
-  /// Check if highlighting is available for a file.
-  bool canHighlight(String? path) => detectLanguage(path) != null;
-
   /// Tokenize a range of the document.
-  ///
-  /// Call this once before rendering visible lines.
-  void tokenizeRange(
-    String text,
-    int startByte,
-    int endByte,
-    String? filePath,
-  ) {
-    final language = detectLanguage(filePath);
-    if (language == null) {
+  void tokenizeRange(String text, int startByte, int endByte, String? filePath) {
+    if (detectLanguage(filePath) == null) {
       _tokens = [];
       return;
     }
 
-    // Find multiline state before visible range
     final state = _dartTokenizer.findMultilineState(text, startByte);
-
-    // Tokenize the visible range
-    _tokens = _dartTokenizer.tokenize(
-      text,
-      startByte,
-      endByte,
-      initialState: state,
-    );
+    _tokens = _dartTokenizer.tokenize(text, startByte, endByte, initialState: state);
   }
 
-  /// Apply syntax highlighting to a line.
+  /// Apply styling to a visible substring.
   ///
-  /// [lineText] is the text of the line (after tab expansion).
-  /// [lineStartByte] is the byte offset where this line starts in the document.
-  /// [lineEndByte] is the byte offset where this line ends.
-  ///
-  /// Returns the styled text with ANSI codes.
-  String styleLine(String lineText, int lineStartByte, int lineEndByte) {
-    if (_tokens.isEmpty || lineText.isEmpty) return lineText;
+  /// [text] is the visible text to style.
+  /// [textStartByte] is the byte offset where this text starts in the document.
+  String style(String text, int textStartByte) {
+    if (_tokens.isEmpty || text.isEmpty) return text;
 
-    // Find tokens that overlap this line
+    final textEndByte = textStartByte + text.length;
+
+    // Find tokens that overlap this text
     final overlapping = <Token>[];
     for (final token in _tokens) {
-      if (token.start >= lineEndByte) break; // Past this line
-      if (token.overlaps(lineStartByte, lineEndByte)) {
+      if (token.start >= textEndByte) break;
+      if (token.overlaps(textStartByte, textEndByte)) {
         overlapping.add(token);
       }
     }
 
-    if (overlapping.isEmpty) return lineText;
+    if (overlapping.isEmpty) return text;
 
     // Build styled output
     final buffer = StringBuffer();
-    var pos = 0; // Position in lineText
+    var pos = 0;
 
     for (final token in overlapping) {
-      // Calculate token's position relative to line
-      final tokenStartInLine = token.start <= lineStartByte
-          ? 0
-          : token.start - lineStartByte;
-      final tokenEndInLine = token.end >= lineEndByte
-          ? lineText.length
-          : token.end - lineStartByte;
+      final tokenStart = token.start <= textStartByte ? 0 : token.start - textStartByte;
+      final tokenEnd = token.end >= textEndByte ? text.length : token.end - textStartByte;
 
       // Add unstyled text before token
-      if (tokenStartInLine > pos) {
-        buffer.write(lineText.substring(pos, tokenStartInLine));
-      }
-
-      // Add styled token (skip plain tokens)
-      if (token.type != TokenType.plain) {
-        buffer.write(theme.colorFor(token.type));
-        buffer.write(lineText.substring(tokenStartInLine, tokenEndInLine));
-        buffer.write(SyntaxColors.reset);
-      } else {
-        buffer.write(lineText.substring(tokenStartInLine, tokenEndInLine));
-      }
-
-      pos = tokenEndInLine;
-    }
-
-    // Add remaining unstyled text
-    if (pos < lineText.length) {
-      buffer.write(lineText.substring(pos));
-    }
-
-    return buffer.toString();
-  }
-
-  /// Apply styling to a substring of a line (for horizontal scroll or wrap).
-  ///
-  /// [lineText] is the full line text.
-  /// [substring] is the visible portion.
-  /// [substringStartInLine] is where the substring starts in lineText.
-  /// [lineStartByte] is the byte offset of the line in the document.
-  String styleSubstring(
-    String lineText,
-    String substring,
-    int substringStartInLine,
-    int lineStartByte,
-  ) {
-    if (_tokens.isEmpty || substring.isEmpty) return substring;
-
-    final substringStartByte = lineStartByte + substringStartInLine;
-    final substringEndByte = substringStartByte + substring.length;
-
-    // Find tokens that overlap this substring
-    final overlapping = <Token>[];
-    for (final token in _tokens) {
-      if (token.start >= substringEndByte) break;
-      if (token.overlaps(substringStartByte, substringEndByte)) {
-        overlapping.add(token);
-      }
-    }
-
-    if (overlapping.isEmpty) return substring;
-
-    // Build styled output
-    final buffer = StringBuffer();
-    var pos = 0; // Position in substring
-
-    for (final token in overlapping) {
-      // Calculate token's position relative to substring
-      final tokenStartInSub = token.start <= substringStartByte
-          ? 0
-          : token.start - substringStartByte;
-      final tokenEndInSub = token.end >= substringEndByte
-          ? substring.length
-          : token.end - substringStartByte;
-
-      // Add unstyled text before token
-      if (tokenStartInSub > pos) {
-        buffer.write(substring.substring(pos, tokenStartInSub));
+      if (tokenStart > pos) {
+        buffer.write(text.substring(pos, tokenStart));
       }
 
       // Add styled token
       if (token.type != TokenType.plain) {
         buffer.write(theme.colorFor(token.type));
-        buffer.write(substring.substring(tokenStartInSub, tokenEndInSub));
+        buffer.write(text.substring(tokenStart, tokenEnd));
         buffer.write(SyntaxColors.reset);
       } else {
-        buffer.write(substring.substring(tokenStartInSub, tokenEndInSub));
+        buffer.write(text.substring(tokenStart, tokenEnd));
       }
 
-      pos = tokenEndInSub;
+      pos = tokenEnd;
     }
 
     // Add remaining unstyled text
-    if (pos < substring.length) {
-      buffer.write(substring.substring(pos));
+    if (pos < text.length) {
+      buffer.write(text.substring(pos));
     }
 
     return buffer.toString();
