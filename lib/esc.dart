@@ -83,4 +83,7 @@ class Esc {
 
   // copy to clipboard
   static String copyToClipboard(String text) => '$e]52;c;$text$bell';
+
+  // OSC 11: query background color
+  static const String queryBackgroundColor = '$e]11;?$e\\';
 }

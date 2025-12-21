@@ -18,6 +18,7 @@ import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
 import 'motions/motion.dart';
+import 'terminal/theme_detect.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
@@ -93,6 +94,13 @@ class Editor {
 
   void initTerminal(String? path) {
     terminal.rawMode = true;
+
+    // Detect terminal theme before setting up input listener
+    final detectedTheme = ThemeDetector.detectSync();
+    config = config.copyWith(syntaxTheme: detectedTheme);
+    _highlighter.theme = detectedTheme;
+    //showMessage(.info('${detectedTheme.name} theme'));
+
     terminal.write(Esc.enableMode2027);
     terminal.write(Esc.enableAltBuffer);
     terminal.write(Esc.disableAlternateScrollMode);
