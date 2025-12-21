@@ -10,7 +10,8 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - Properly render and edit emojis and wide characters
 - Unlimited undo and redo
 - Multiple text wrap modes: no-wrap, character-wrap, word-wrap
-- Remember last cursor position per file
+- Syntax highlighting for Dart (toggle with `zh`)
+- Extensions (remember last cursor position)
 
 ## Technical Details 🛠️
 
@@ -19,8 +20,6 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 ## Non-goals ❌
 
-- Syntax highlighting
-- Plugins
 - 100% vim compatibility
 - Window manager (just use terminal tabs/splits)
 

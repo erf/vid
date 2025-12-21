@@ -72,6 +72,7 @@ const normalCommands = <String, Command>{
   '/': ModeCommand(.search),
   Keys.ctrlW: ActionCommand(Normal.toggleWrap),
   'zz': ActionCommand(Normal.centerView),
+  'zh': ActionCommand(Normal.toggleSyntax),
 };
 
 const insertBindings = <String, Command>{

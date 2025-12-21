@@ -194,4 +194,8 @@ class Normal {
   static void centerView(Editor e, FileBuffer f) {
     f.centerViewport(e.terminal);
   }
+
+  static void toggleSyntax(Editor e, FileBuffer f) {
+    e.toggleSyntax();
+  }
 }

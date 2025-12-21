@@ -1,3 +1,5 @@
+import 'highlighting/highlighter.dart';
+
 enum WrapMode { none, char, word }
 
 class Config {
@@ -9,6 +11,12 @@ class Config {
   final WrapMode wrapMode;
   final String breakat;
 
+  /// Whether syntax highlighting is enabled.
+  final bool syntaxHighlighting;
+
+  /// The theme to use for syntax highlighting.
+  final Theme syntaxTheme;
+
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
   const Config({
@@ -19,6 +27,8 @@ class Config {
     this.wrapSymbols = const ['', '|↵', '↵'],
     this.wrapMode = WrapMode.none,
     this.breakat = ' !@*-+;:,./?',
+    this.syntaxHighlighting = true,
+    this.syntaxTheme = Theme.dark,
   });
 
   Config copyWith({
@@ -29,6 +39,8 @@ class Config {
     List<String>? wrapSymbols,
     WrapMode? wrapMode,
     String? breakat,
+    bool? syntaxHighlighting,
+    Theme? syntaxTheme,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -38,6 +50,8 @@ class Config {
       wrapSymbols: wrapSymbols ?? this.wrapSymbols,
       wrapMode: wrapMode ?? this.wrapMode,
       breakat: breakat ?? this.breakat,
+      syntaxHighlighting: syntaxHighlighting ?? this.syntaxHighlighting,
+      syntaxTheme: syntaxTheme ?? this.syntaxTheme,
     );
   }
 }

@@ -14,6 +14,7 @@ import 'config.dart';
 import 'error_or.dart';
 import 'esc.dart';
 import 'file_buffer/file_buffer.dart';
+import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
 import 'motions/motion.dart';
@@ -25,6 +26,8 @@ import 'terminal/terminal_base.dart';
 /// Parameters for rendering a line
 typedef RenderLineParams = ({
   String rendered,
+  int lineStartByte,
+  int lineEndByte,
   int screenRow,
   int numLines,
   int viewportCol,
@@ -50,13 +53,15 @@ class Editor {
   String? logPath;
   File? logFile;
   ExtensionRegistry? extensions;
+  late final Highlighter _highlighter;
 
   Editor({
     required this.terminal,
     this.redraw = true,
     this.config = const Config(),
-  });
-
+  }) {
+    _highlighter = Highlighter(theme: config.syntaxTheme);
+  }
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
     final result = FileBufferIo.load(path ?? '', createIfNotExists: true);
@@ -110,6 +115,14 @@ class Editor {
 
     terminal.rawMode = false;
     exit(0);
+  }
+
+  /// Toggle syntax highlighting on/off.
+  void toggleSyntax() {
+    config = config.copyWith(syntaxHighlighting: !config.syntaxHighlighting);
+    final status = config.syntaxHighlighting ? 'enabled' : 'disabled';
+    showMessage(.info('Syntax highlighting $status'));
+    draw();
   }
 
   void onResize(ProcessSignal signal) {
@@ -211,6 +224,21 @@ class Editor {
     bool cursorFound = false;
     int currentFileLineNum = file.lineNumber(file.viewport);
 
+    // Tokenize visible range for syntax highlighting
+    if (config.syntaxHighlighting) {
+      // Estimate end of visible range (approximate, may extend beyond)
+      final visibleEndLine = currentFileLineNum + numLines;
+      final endByte = visibleEndLine < file.lines.length
+          ? file.lines[visibleEndLine].end
+          : file.text.length;
+      _highlighter.tokenizeRange(
+        file.text,
+        file.viewport,
+        endByte,
+        file.absolutePath,
+      );
+    }
+
     while (screenRow < numLines) {
       // Past end of file - draw '~'
       if (offset >= file.text.length) {
@@ -231,6 +259,8 @@ class Editor {
       // Render line based on wrap mode
       final params = (
         rendered: rendered,
+        lineStartByte: offset,
+        lineEndByte: lineEnd,
         screenRow: screenRow,
         numLines: numLines,
         viewportCol: viewportCol,
@@ -266,7 +296,18 @@ class Editor {
   RenderLineResult _renderLineNoWrap(RenderLineParams p) {
     if (p.screenRow > 0) renderBuffer.write(Keys.newline);
     if (p.rendered.isNotEmpty) {
-      renderBuffer.write(p.rendered.renderLine(p.viewportCol, terminal.width));
+      final visible = p.rendered.renderLine(p.viewportCol, terminal.width);
+      if (config.syntaxHighlighting) {
+        final styled = _highlighter.styleSubstring(
+          p.rendered,
+          visible,
+          p.viewportCol,
+          p.lineStartByte,
+        );
+        renderBuffer.write(styled);
+      } else {
+        renderBuffer.write(visible);
+      }
     }
     return (
       screenRow: p.screenRow + 1,
@@ -305,7 +346,19 @@ class Editor {
 
       // Take up to terminal.width characters
       String chunk = p.rendered.ch.skip(wrapCol).take(terminal.width).string;
-      renderBuffer.write(chunk);
+
+      // Apply syntax highlighting to chunk
+      if (config.syntaxHighlighting) {
+        final styled = _highlighter.styleSubstring(
+          p.rendered,
+          chunk,
+          wrapCol,
+          p.lineStartByte,
+        );
+        renderBuffer.write(styled);
+      } else {
+        renderBuffer.write(chunk);
+      }
 
       wrapCol += terminal.width;
       screenRow++;
@@ -373,7 +426,19 @@ class Editor {
 
       // Take the chunk
       String chunk = p.rendered.substring(wrapCol, chunkEnd);
-      renderBuffer.write(chunk);
+
+      // Apply syntax highlighting to chunk
+      if (config.syntaxHighlighting) {
+        final styled = _highlighter.styleSubstring(
+          p.rendered,
+          chunk,
+          wrapCol,
+          p.lineStartByte,
+        );
+        renderBuffer.write(styled);
+      } else {
+        renderBuffer.write(chunk);
+      }
 
       wrapCol = chunkEnd;
       screenRow++;
