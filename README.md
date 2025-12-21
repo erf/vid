@@ -1,27 +1,22 @@
 # vid
 
-A minimal vim-like text editor for modern terminals written in [Dart](https://dart.dev/overview)
+A minimal vim-like text editor for modern terminals written in [Dart](https://dart.dev)
 
 > Made for myself for fun and learning and not meant to replace your current editor
 
 ## Features ✨
 
-- Basic vim motions and operators with minimal command mode
-- Properly render and edit emojis and wide characters
-- Unlimited undo and redo
-- Multiple text wrap modes: no-wrap, character-wrap, word-wrap
-- Syntax highlighting for Dart and Markdown (toggle with `zh`, cycle themes with `zt`)
-- Extensions (remember last cursor position)
+- basic vim motions, operators and a minimal command mode
+- render and edit emojis and wide characters
+- unlimited undo (u) and redo (U)
+- text wrap modes: no-wrap, character-wrap, word-wrap (ctrl-w)
+- syntax highlighting (Dart, Markdown) (zh, zt)
+- remember previous cursor position
 
 ## Technical Details 🛠️
 
-- Written in Dart using the [characters](https://pub.dev/packages/characters) package for handling grapheme clusters
-- Built for modern terminals that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) like [Ghostty](https://github.com/ghostty-org/ghostty) and [WezTerm](https://github.com/wez/wezterm)
-
-## Non-goals ❌
-
-- 100% vim compatibility
-- Window manager (just use terminal tabs/splits)
+- written in [Dart](https://dart.dev) using only the [characters](https://pub.dev/packages/characters) package for handling grapheme clusters
+- built for modern terminals like [Ghostty](https://github.com/ghostty-org/ghostty) that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) 
 
 ## Keyboard Shortcuts
 
