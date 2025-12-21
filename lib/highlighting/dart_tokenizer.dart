@@ -72,6 +72,27 @@ class DartTokenizer {
 
   static const _literals = {'true', 'false', 'null'};
 
+  // Built-in types (lowercase)
+  static const _builtinTypes = {
+    'int',
+    'double',
+    'num',
+    'bool',
+    'String',
+    'List',
+    'Map',
+    'Set',
+    'Object',
+    'Iterable',
+    'Future',
+    'Stream',
+    'Never',
+    'Null',
+    'Symbol',
+    'Type',
+    'Record',
+  };
+
   static final _rawDoubleString = RegExp(r'r"[^"]*"');
   static final _rawSingleString = RegExp(r"r'[^']*'");
   static final _doubleString = RegExp(r'"(?:[^"\\]|\\.)*"');
@@ -303,7 +324,7 @@ class DartTokenizer {
         type = TokenType.keyword;
       } else if (_literals.contains(word)) {
         type = TokenType.literal;
-      } else if (_typePattern.hasMatch(word)) {
+      } else if (_builtinTypes.contains(word) || _typePattern.hasMatch(word)) {
         type = TokenType.type;
       } else {
         type = TokenType.plain;
