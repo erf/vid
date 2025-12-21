@@ -1,9 +1,12 @@
 import 'token.dart';
+import 'tokenizer.dart';
+
+export 'tokenizer.dart' show MultilineState;
 
 /// Regex-based tokenizer for Dart source code.
 ///
 /// Produces tokens with absolute byte positions for a given text range.
-class DartTokenizer {
+class DartTokenizer extends Tokenizer {
   static const _keywords = {
     'abstract',
     'as',
@@ -103,13 +106,7 @@ class DartTokenizer {
   static final _identifier = RegExp(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b');
   static final _typePattern = RegExp(r'^[A-Z][a-zA-Z0-9_]*$');
 
-  /// Tokenize a range of text, returning tokens with absolute byte positions.
-  ///
-  /// [text] is the full document text.
-  /// [startByte] and [endByte] define the range to tokenize.
-  /// [initialState] indicates if we start inside a multiline construct.
-  ///
-  /// Returns list of tokens sorted by start position.
+  @override
   List<Token> tokenize(
     String text,
     int startByte,
@@ -135,7 +132,7 @@ class DartTokenizer {
 
     while (pos < endByte) {
       // Skip whitespace
-      if (_isWhitespace(text, pos)) {
+      if (isWhitespace(text, pos)) {
         pos++;
         continue;
       }
@@ -153,27 +150,28 @@ class DartTokenizer {
     return tokens;
   }
 
-  /// Scan backwards from [startByte] to find if we're inside a multiline construct.
+  @override
+  @override
   MultilineState? findMultilineState(String text, int startByte) {
     // Look for unclosed /* or """ or ''' before startByte
     var pos = 0;
     MultilineState? state;
 
     while (pos < startByte) {
-      if (_isWhitespace(text, pos)) {
+      if (isWhitespace(text, pos)) {
         pos++;
         continue;
       }
 
       // Line comment - skip to end of line
-      if (_matchesAt(text, pos, '//')) {
+      if (matchesAt(text, pos, '//')) {
         final nlPos = text.indexOf('\n', pos);
         pos = nlPos == -1 ? startByte : nlPos + 1;
         continue;
       }
 
       // Block comment
-      if (_matchesAt(text, pos, '/*')) {
+      if (matchesAt(text, pos, '/*')) {
         final endPos = text.indexOf('*/', pos + 2);
         if (endPos == -1 || endPos >= startByte) {
           state = MultilineState.blockComment;
@@ -186,7 +184,7 @@ class DartTokenizer {
       }
 
       // Triple-quoted strings
-      if (_matchesAt(text, pos, 'r"""') || _matchesAt(text, pos, "r'''")) {
+      if (matchesAt(text, pos, 'r"""') || matchesAt(text, pos, "r'''")) {
         final delim = text.substring(pos + 1, pos + 4);
         final searchStart = pos + 4;
         final endPos = text.indexOf(delim, searchStart);
@@ -200,7 +198,7 @@ class DartTokenizer {
         continue;
       }
 
-      if (_matchesAt(text, pos, '"""') || _matchesAt(text, pos, "'''")) {
+      if (matchesAt(text, pos, '"""') || matchesAt(text, pos, "'''")) {
         final delim = text.substring(pos, pos + 3);
         final searchStart = pos + 3;
         final endPos = _findStringEnd(text, searchStart, delim, false);
@@ -244,14 +242,14 @@ class DartTokenizer {
 
   _TokenMatch? _matchToken(String text, int pos, int endByte) {
     // Line comment
-    if (_matchesAt(text, pos, '//')) {
+    if (matchesAt(text, pos, '//')) {
       var end = text.indexOf('\n', pos);
       if (end == -1 || end > endByte) end = endByte;
       return _TokenMatch(Token(TokenType.lineComment, pos, end), end, null);
     }
 
     // Block comment
-    if (_matchesAt(text, pos, '/*')) {
+    if (matchesAt(text, pos, '/*')) {
       final endIdx = text.indexOf('*/', pos + 2);
       if (endIdx == -1) {
         // Unclosed - goes to end of range
@@ -266,18 +264,18 @@ class DartTokenizer {
     }
 
     // Raw triple-quoted strings
-    if (_matchesAt(text, pos, 'r"""')) {
+    if (matchesAt(text, pos, 'r"""')) {
       return _matchTripleString(text, pos, endByte, '"""', raw: true);
     }
-    if (_matchesAt(text, pos, "r'''")) {
+    if (matchesAt(text, pos, "r'''")) {
       return _matchTripleString(text, pos, endByte, "'''", raw: true);
     }
 
     // Triple-quoted strings
-    if (_matchesAt(text, pos, '"""')) {
+    if (matchesAt(text, pos, '"""')) {
       return _matchTripleString(text, pos, endByte, '"""', raw: false);
     }
-    if (_matchesAt(text, pos, "'''")) {
+    if (matchesAt(text, pos, "'''")) {
       return _matchTripleString(text, pos, endByte, "'''", raw: false);
     }
 
@@ -398,29 +396,6 @@ class DartTokenizer {
     }
     return -1;
   }
-
-  bool _matchesAt(String text, int pos, String pattern) {
-    if (pos + pattern.length > text.length) return false;
-    return text.substring(pos, pos + pattern.length) == pattern;
-  }
-
-  bool _isWhitespace(String text, int pos) {
-    if (pos >= text.length) return false;
-    final c = text.codeUnitAt(pos);
-    return c == 0x20 || c == 0x09 || c == 0x0A || c == 0x0D;
-  }
-}
-
-/// State for tracking position inside a multiline construct.
-class MultilineState {
-  final String? delimiter; // '"""', "'''", or null for block comment
-  final bool isRaw;
-
-  const MultilineState(this.delimiter, {this.isRaw = false});
-
-  bool get isComment => delimiter == null;
-
-  static const blockComment = MultilineState(null);
 }
 
 class _TokenMatch {

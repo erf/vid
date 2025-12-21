@@ -1,4 +1,5 @@
 import 'dart_tokenizer.dart';
+import 'markdown_tokenizer.dart';
 import 'token.dart';
 
 export 'token.dart' show Token, TokenType, Theme, SyntaxColors;
@@ -7,6 +8,7 @@ export 'token.dart' show Token, TokenType, Theme, SyntaxColors;
 class Highlighter {
   Theme theme;
   final _dartTokenizer = DartTokenizer();
+  final _markdownTokenizer = MarkdownTokenizer();
   List<Token> _tokens = [];
 
   Highlighter({this.theme = Theme.dark});
@@ -17,18 +19,48 @@ class Highlighter {
     final dot = path.lastIndexOf('.');
     if (dot == -1) return null;
     final ext = path.substring(dot + 1).toLowerCase();
-    return ext == 'dart' ? 'dart' : null;
+    switch (ext) {
+      case 'dart':
+        return 'dart';
+      case 'md':
+      case 'markdown':
+        return 'markdown';
+      default:
+        return null;
+    }
   }
 
   /// Tokenize a range of the document.
-  void tokenizeRange(String text, int startByte, int endByte, String? filePath) {
-    if (detectLanguage(filePath) == null) {
+  void tokenizeRange(
+    String text,
+    int startByte,
+    int endByte,
+    String? filePath,
+  ) {
+    final lang = detectLanguage(filePath);
+    if (lang == null) {
       _tokens = [];
       return;
     }
 
-    final state = _dartTokenizer.findMultilineState(text, startByte);
-    _tokens = _dartTokenizer.tokenize(text, startByte, endByte, initialState: state);
+    switch (lang) {
+      case 'dart':
+        final state = _dartTokenizer.findMultilineState(text, startByte);
+        _tokens = _dartTokenizer.tokenize(
+          text,
+          startByte,
+          endByte,
+          initialState: state,
+        );
+      case 'markdown':
+        final state = _markdownTokenizer.findMultilineState(text, startByte);
+        _tokens = _markdownTokenizer.tokenize(
+          text,
+          startByte,
+          endByte,
+          initialState: state,
+        );
+    }
   }
 
   /// Apply styling to a visible substring.
@@ -56,8 +88,12 @@ class Highlighter {
     var pos = 0;
 
     for (final token in overlapping) {
-      final tokenStart = token.start <= textStartByte ? 0 : token.start - textStartByte;
-      final tokenEnd = token.end >= textEndByte ? text.length : token.end - textStartByte;
+      final tokenStart = token.start <= textStartByte
+          ? 0
+          : token.start - textStartByte;
+      final tokenEnd = token.end >= textEndByte
+          ? text.length
+          : token.end - textStartByte;
 
       // Add unstyled text before token
       if (tokenStart > pos) {
