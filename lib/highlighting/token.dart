@@ -33,14 +33,6 @@ class Token {
 class SyntaxColors {
   static const String _e = '\x1B';
   static const String reset = '$_e[0m';
-
-  static const String keyword = '$_e[38;5;69m'; // Blue
-  static const String string = '$_e[38;5;71m'; // Green
-  static const String comment = '$_e[38;5;243m'; // Gray
-  static const String number = '$_e[38;5;173m'; // Orange
-  static const String literal = '$_e[38;5;141m'; // Purple
-  static const String type = '$_e[38;5;80m'; // Cyan
-  static const String plain = reset;
 }
 
 /// A theme defines colors for each token type.
@@ -52,28 +44,33 @@ class Theme {
 
   String colorFor(TokenType type) => _colors[type] ?? SyntaxColors.reset;
 
-  static const Theme dark = Theme('dark', {
-    TokenType.keyword: SyntaxColors.keyword,
-    TokenType.lineComment: SyntaxColors.comment,
-    TokenType.blockComment: SyntaxColors.comment,
-    TokenType.string: SyntaxColors.string,
-    TokenType.number: SyntaxColors.number,
-    TokenType.literal: SyntaxColors.literal,
-    TokenType.type: SyntaxColors.type,
-    TokenType.plain: SyntaxColors.plain,
-  });
+  static const String _e = '\x1B';
 
-  static const Theme light = Theme('light', {
-    TokenType.keyword: '\x1B[38;5;27m',
-    TokenType.lineComment: '\x1B[38;5;245m',
-    TokenType.blockComment: '\x1B[38;5;245m',
-    TokenType.string: '\x1B[38;5;28m',
-    TokenType.number: '\x1B[38;5;166m',
-    TokenType.literal: '\x1B[38;5;129m',
-    TokenType.type: '\x1B[38;5;30m',
+  // Rosé Pine Dawn (dark mode) - https://rosepinetheme.com/palette/
+  static const Theme dark = Theme('rosepine-dawn', {
+    TokenType.keyword: '$_e[38;2;40;105;131m', // Pine #286983
+    TokenType.lineComment: '$_e[38;2;152;147;165m', // Muted #9893a5
+    TokenType.blockComment: '$_e[38;2;152;147;165m', // Muted #9893a5
+    TokenType.string: '$_e[38;2;234;157;52m', // Gold #ea9d34
+    TokenType.number: '$_e[38;2;215;130;126m', // Rose #d7827e
+    TokenType.literal: '$_e[38;2;180;99;122m', // Love #b4637a
+    TokenType.type: '$_e[38;2;86;148;159m', // Foam #56949f
     TokenType.plain: SyntaxColors.reset,
   });
 
+  // Rosé Pine (light mode) - https://rosepinetheme.com/palette/
+  static const Theme light = Theme('rosepine', {
+    TokenType.keyword: '$_e[38;2;49;116;143m', // Pine #31748f
+    TokenType.lineComment: '$_e[38;2;110;106;134m', // Muted #6e6a86
+    TokenType.blockComment: '$_e[38;2;110;106;134m', // Muted #6e6a86
+    TokenType.string: '$_e[38;2;246;193;119m', // Gold #f6c177
+    TokenType.number: '$_e[38;2;235;188;186m', // Rose #ebbcba
+    TokenType.literal: '$_e[38;2;235;111;146m', // Love #eb6f92
+    TokenType.type: '$_e[38;2;156;207;216m', // Foam #9ccfd8
+    TokenType.plain: SyntaxColors.reset,
+  });
+
+  // Monochrome theme using text attributes
   static const Theme mono = Theme('mono', {
     TokenType.keyword: '\x1B[1m',
     TokenType.lineComment: '\x1B[2m',
