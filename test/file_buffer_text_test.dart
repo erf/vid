@@ -1,13 +1,16 @@
+import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/actions/normal.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/range.dart';
-import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('replaceAt', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.replaceAt(0, 'X', config: e.config);
@@ -19,7 +22,10 @@ void main() {
   });
 
   test('deleteRange', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // Range from start (0) to 'd' at offset 5 (exclusive end)
@@ -32,7 +38,10 @@ void main() {
   });
 
   test('insertAt', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // Insert at start of 'def' line (offset 4)
@@ -45,7 +54,10 @@ void main() {
   });
 
   test('deleteAt', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // Delete at start of 'def' line (offset 4)
@@ -58,7 +70,10 @@ void main() {
   });
 
   test('deleteAt last on line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'ghi' line starts at offset 8
@@ -69,7 +84,10 @@ void main() {
   });
 
   test('deleteAt with emoji', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'ab🪼de\n';
     // 'ab' is 2 bytes, then emoji at offset 2
@@ -78,7 +96,10 @@ void main() {
   });
 
   test('replaceAt with emoji', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'ab🪼de\n';
     // 'ab' is 2 bytes, then emoji at offset 2
@@ -87,7 +108,10 @@ void main() {
   });
 
   test('multiple undo', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     e.file = FileBuffer(text: 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
     final f = e.file;
     // Delete range from 0 to start of second line content ('d')
@@ -108,7 +132,10 @@ void main() {
   });
 
   test('redo', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'hello world\n123\n';
     e.input('dw');
@@ -126,7 +153,10 @@ void main() {
   });
 
   test('delete last newline undo should not create extra newline', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'a\n';
     f.cursor = 0; // at 'a' - normal mode cursor can't be on newline
@@ -136,7 +166,10 @@ void main() {
   });
 
   test('delete newline at end of file', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n\n';
     // Empty line starts at offset 8

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:vid/keys.dart';
+import 'package:termio/termio.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';

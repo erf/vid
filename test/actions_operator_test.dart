@@ -1,12 +1,15 @@
+import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/modes.dart';
-import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('dd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 0;
@@ -16,7 +19,10 @@ void main() {
   });
 
   test('dk', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'def' line starts at 4, 'e' at offset 5
@@ -27,7 +33,10 @@ void main() {
   });
 
   test('dj', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'abc' line, 'b' at offset 1
@@ -38,7 +47,10 @@ void main() {
   });
 
   test('dd p kP', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'def' line starts at 4, 'e' at offset 5
@@ -55,7 +67,10 @@ void main() {
   });
 
   test('cc', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'def' line starts at 4, 'e' at offset 5
@@ -68,7 +83,10 @@ void main() {
   });
 
   test('yyP', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'def' line starts at 4, 'e' at offset 5
@@ -83,7 +101,10 @@ void main() {
   });
 
   test('ywP', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def ghi\n';
     // 'def' starts at offset 4
@@ -96,7 +117,10 @@ void main() {
   });
 
   test('ddjp', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     e.input('ddjp');
@@ -104,7 +128,10 @@ void main() {
   });
 
   test('ddjpxp', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     e.input('ddjp');
@@ -114,7 +141,10 @@ void main() {
   });
 
   test('gu should lowercase', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'ABC\n';
     e.input('gue');
@@ -122,7 +152,10 @@ void main() {
   });
 
   test('gU should uppercase', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n';
     e.input('gUe');
@@ -130,7 +163,10 @@ void main() {
   });
 
   test('dd at eof', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'ghi' line starts at offset 8
@@ -140,7 +176,10 @@ void main() {
   });
 
   test('dd with space', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n\ndef\nghi\n';
     // empty line at offset 4
@@ -151,7 +190,10 @@ void main() {
   });
 
   test('ggdG deletes all content', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 4; // start somewhere in the middle

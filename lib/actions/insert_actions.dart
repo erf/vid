@@ -1,8 +1,9 @@
 import 'dart:math';
 
+import 'package:termio/termio.dart';
+
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../keys.dart';
 
 class InsertActions {
   /// Insert character(s) at cursor position.

@@ -1,11 +1,14 @@
+import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/actions/motions.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('motionCharNext', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // Test moving from offset 0 (char 'a')
@@ -17,7 +20,10 @@ void main() {
   });
 
   test('motionCharPrev', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     expect(Motions.charPrev(e, f, 0), 0); // at start, stay
@@ -27,7 +33,10 @@ void main() {
   });
 
   test('motion.lineUp', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // From line 0, stay at line 0
@@ -39,7 +48,10 @@ void main() {
   });
 
   test('motion.lineUp with emojis', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
     // Line 0: 'abcdef\n' (0-6), Line 1: '😎😍👽\n' (7-13), Line 2: 'ghijkl\n' (14-20)
@@ -51,7 +63,10 @@ void main() {
   });
 
   test('motion.lineDown', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // From line 0, go to line 1
@@ -63,7 +78,10 @@ void main() {
   });
 
   test('motion.lineDown with emojis', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abcdef\n😎😍👽\nghijkl\n';
     // From line 0 col 2 -> line 1 (should land on appropriate grapheme)
@@ -72,7 +90,10 @@ void main() {
   });
 
   test('motionFileStart', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     expect(Motions.fileStart(e, f, 0), 0);
@@ -82,7 +103,10 @@ void main() {
   });
 
   test('motionFileEnd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // Should go to start of last line
@@ -93,7 +117,10 @@ void main() {
   });
 
   test('motionWordNext', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
     expect(Motions.wordNext(e, f, 0), 4); // abc -> def
@@ -104,7 +131,10 @@ void main() {
   });
 
   test('motionWordCapNext', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc,def ghi\n';
     // WORD skips punctuation
@@ -112,7 +142,10 @@ void main() {
   });
 
   test('motionWordEnd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
     expect(Motions.wordEnd(e, f, 0), 2); // abc -> c
@@ -123,7 +156,10 @@ void main() {
   });
 
   test('motionWordPrev', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
     expect(Motions.wordPrev(e, f, 0), 0); // at start, stay
@@ -135,7 +171,10 @@ void main() {
   });
 
   test('motionWordCapPrev', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def, ghi\n';
     // WORD skips punctuation when going backwards
@@ -143,7 +182,10 @@ void main() {
   });
 
   test('motionWordEndPrev', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
     // Going backwards to end of previous word
@@ -151,7 +193,10 @@ void main() {
   });
 
   test('motionFindWordOnCursorNext', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
     // Find next occurrence of word under cursor
@@ -160,14 +205,20 @@ void main() {
   });
 
   test('motionFindWordOnCursorPrev', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
     expect(Motions.sameWordPrev(e, f, 13), 7); // fint -> fint
   });
 
   test('motionFirstNoneBlank', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = '  abc\n';
     // Should go to first non-blank character
@@ -179,7 +230,10 @@ void main() {
   });
 
   test('motionLineEnd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def\nghi jkl\n';
     // Should go to last character of line (before \n)
@@ -190,7 +244,10 @@ void main() {
   });
 
   test('FindNextCharMotion with dot', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'test.\n';
     f.edit.findStr = '.';
@@ -198,7 +255,10 @@ void main() {
   });
 
   test('FindPrevCharMotion with dot', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'hello. test.\n';
     f.edit.findStr = '.';
@@ -208,7 +268,10 @@ void main() {
   test(
     'motionWordPrev with many lines (tests limited search with fallback)',
     () {
-      final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
       final f = e.file;
       // Create text with many lines - word at start, then many empty-ish lines
       final sb = StringBuffer();

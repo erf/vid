@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:vid/keys.dart';
+import 'package:termio/termio.dart';
 
 import '../editor.dart';
 import '../error_or.dart';
-import '../esc.dart';
 import 'file_buffer.dart';
 
 extension FileBufferIo on FileBuffer {
@@ -76,7 +75,7 @@ extension FileBufferIo on FileBuffer {
       return ErrorOr.error('Error saving file: \'$path\'');
     }
     setSavepoint();
-    e.terminal.write(Esc.setWindowTitle(path));
+    e.terminal.write(Ansi.setTitle('vid $path'));
     return ErrorOr.value(true);
   }
 

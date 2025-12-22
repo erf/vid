@@ -1,11 +1,14 @@
+import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
-import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('move cursor by word 3 times', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     f.cursor = 0;
@@ -14,7 +17,10 @@ void main() {
   });
 
   test('delete word 3 times', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def ghi jkl\n';
     f.cursor = 0;
@@ -24,7 +30,10 @@ void main() {
   });
 
   test('2dj', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\njkl\n';
     f.cursor = 0;
@@ -34,7 +43,10 @@ void main() {
   });
 
   test('10w', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
     f.cursor = 0;
@@ -45,7 +57,10 @@ void main() {
   });
 
   test('0 (beginning of line)', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc def ghi jkl mno pqr stu vwx yz æøå the end\n';
     f.cursor = 41; // somewhere in middle
@@ -54,7 +69,10 @@ void main() {
   });
 
   test('3dd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'xxx\nabc yo\ndef\nghi\njkl\n';
     // 'abc yo' line starts at offset 4, 'b' at offset 5
@@ -65,7 +83,10 @@ void main() {
   });
 
   test('3dd with line under longer than above', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'xxx\nabc\ndef ghi\n\ntest\n';
     // 'abc' line starts at offset 4, 'b' at offset 5
@@ -76,7 +97,10 @@ void main() {
   });
 
   test('2dd with cursor at first line at eof', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // Original test: Position(c: 4, l: 0) - column 4 on line 0, clamped to end of 'abc'

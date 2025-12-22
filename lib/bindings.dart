@@ -1,3 +1,5 @@
+import 'package:termio/termio.dart';
+
 import 'actions/insert_actions.dart';
 import 'actions/line_edit.dart';
 import 'actions/motions.dart';
@@ -5,7 +7,6 @@ import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
 import 'commands/command.dart';
-import 'keys.dart';
 import 'modes.dart';
 
 enum KeyMatch { none, partial, match }

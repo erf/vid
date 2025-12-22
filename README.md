@@ -15,7 +15,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 ## Technical Details 🛠️
 
-- written in [Dart](https://dart.dev) using only the [characters](https://pub.dev/packages/characters) package for handling grapheme clusters
+- written in [Dart](https://dart.dev) using only my own [termio](https://pub.dev/packages/termio) package and the [characters](https://pub.dev/packages/characters) package for handling grapheme clusters
 - built for modern terminals like [Ghostty](https://github.com/ghostty-org/ghostty) that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) 
 
 ## Keyboard Shortcuts

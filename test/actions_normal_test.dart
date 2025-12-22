@@ -1,11 +1,14 @@
+import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
-import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('actionDeleteLineEnd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'abc\ndef\nghi\n' - line 1 ('def') starts at offset 4, 'e' is at offset 5
@@ -16,7 +19,10 @@ void main() {
   });
 
   test('actionChangeLineEnd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = 5; // at space after 'hello'
@@ -25,7 +31,10 @@ void main() {
   });
 
   test('actionDeleteCharNext', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'def' line starts at offset 4, 'e' is at offset 5
@@ -36,7 +45,10 @@ void main() {
   });
 
   test('actionDeleteCharNext delete newline', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // 'abc\n' - newline is at offset 3
@@ -47,7 +59,10 @@ void main() {
   });
 
   test('actionInsertLineStart', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // 'def' line starts at offset 4, 'f' is at offset 6
@@ -58,7 +73,10 @@ void main() {
   });
 
   test('actionAppendLineEnd', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.cursor = 0;
@@ -67,7 +85,10 @@ void main() {
   });
 
   test('actionAppendCharNext', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // 'abc' ends at offset 2 ('c'), newline at 3
@@ -77,7 +98,10 @@ void main() {
   });
 
   test('cursorLineBottomOrCount G', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 0;
@@ -87,7 +111,10 @@ void main() {
   });
 
   test('cursorLineBottomOrCount 2G', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 0;
@@ -97,7 +124,10 @@ void main() {
   });
 
   test('cursorLineTopOrCount gg', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // Start at 'ghi' line (offset 8)
@@ -107,7 +137,10 @@ void main() {
   });
 
   test('cursorLineTopOrCount 2gg', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 8; // 'ghi' line
@@ -117,7 +150,10 @@ void main() {
   });
 
   test('repeat dw.', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     e.input('dw.');
@@ -125,7 +161,10 @@ void main() {
   });
 
   test('repeat twice dw..', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\njkl\n';
     e.input('dw..');
@@ -133,7 +172,10 @@ void main() {
   });
 
   test('repeat find fc;;', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc abc abc abc\n';
     f.cursor = 0;
@@ -143,7 +185,10 @@ void main() {
   });
 
   test('delete line, move down and paste', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n\ndef\n\nghi\n';
     f.cursor = 0;
@@ -154,7 +199,10 @@ void main() {
   });
 
   test('joining lines', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.cursor = 0;
@@ -164,7 +212,10 @@ void main() {
   });
 
   test('joining lines with empty line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n\ndef\n';
     f.cursor = 0;
@@ -174,7 +225,10 @@ void main() {
   });
 
   test('increase next number', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc 123 def\n';
     e.input('\u0001');
@@ -183,7 +237,10 @@ void main() {
   });
 
   test('increase negative number', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc -123 def\n';
     e.input('\u0001');
@@ -192,7 +249,10 @@ void main() {
   });
 
   test('decrease next number', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc 123 def\n';
     e.input('\u0018');
@@ -201,7 +261,10 @@ void main() {
   });
 
   test('decrease negative number', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc -123 def\n';
     e.input('\u0018');
@@ -210,7 +273,10 @@ void main() {
   });
 
   test('deleteCharNext if cursor is at start of line on second line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     f.cursor = 4; // start of 'def'
@@ -220,7 +286,10 @@ void main() {
   });
 
   test('don\'t delete newline at end of file (and create extra newline)', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n';
     f.cursor = 2; // at 'c' (last char before newline)
@@ -230,7 +299,10 @@ void main() {
   });
 
   test('don\'t crash when deleting newline at end of file', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'a\n';
     f.cursor = 0; // at 'a' (only char before newline)
@@ -240,7 +312,10 @@ void main() {
   });
 
   test('delete first char', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'a\n';
     f.cursor = 0;
@@ -250,7 +325,10 @@ void main() {
   });
 
   test('yank text and paste it at eol', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n';
     f.cursor = 0;
@@ -261,7 +339,10 @@ void main() {
   });
 
   test('deleteCharNext at end of file', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // 'def' starts at offset 4, 'f' is at offset 6
@@ -274,7 +355,10 @@ void main() {
   });
 
   test('delete to eol, move down, repeat and move down', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\njkl\n';
     f.cursor = 0;
@@ -284,7 +368,10 @@ void main() {
   });
 
   test('go down one line with j', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 0;
@@ -293,7 +380,10 @@ void main() {
   });
 
   test('go up one line with k', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     f.cursor = 8; // 'ghi' line
@@ -302,7 +392,10 @@ void main() {
   });
 
   test('x with count', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abcdef\n';
     f.cursor = 0;

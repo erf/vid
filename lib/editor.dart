@@ -3,26 +3,23 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:characters/characters.dart';
+import 'package:termio/termio.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
-import 'package:vid/keys.dart';
 
 import 'actions/operators.dart';
 import 'bindings.dart';
 import 'commands/command.dart';
 import 'config.dart';
 import 'error_or.dart';
-import 'esc.dart';
 import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
 import 'motions/motion.dart';
-import 'terminal/theme_detect.dart';
 import 'range.dart';
 import 'regex.dart';
 import 'string_ext.dart';
-import 'terminal/terminal_base.dart';
 
 /// Parameters for rendering a line
 typedef RenderLineParams = ({
@@ -86,7 +83,7 @@ class Editor {
       return result;
     }
     file = result.value!;
-    terminal.write(Esc.setWindowTitle(path));
+    terminal.write(Ansi.setTitle('vid $path'));
     extensions?.notifyFileOpen(file);
     draw();
     return result;
@@ -96,28 +93,31 @@ class Editor {
     terminal.rawMode = true;
 
     final detectedTheme = ThemeDetector.detectSync();
-    config = config.copyWith(syntaxTheme: detectedTheme);
-    _highlighter.theme = detectedTheme;
+    if (detectedTheme != null) {
+      final theme = detectedTheme.name == 'light' ? Theme.light : Theme.dark;
+      config = config.copyWith(syntaxTheme: theme);
+      _highlighter.theme = theme;
+    }
 
-    terminal.write(Esc.enableMode2027);
-    terminal.write(Esc.enableAltBuffer);
-    terminal.write(Esc.disableAlternateScrollMode);
-    terminal.write(Esc.cursorStyleBlock);
-    terminal.write(Esc.pushWindowTitle);
-    terminal.write(Esc.setWindowTitle(path ?? '[No Name]'));
+    terminal.write(Ansi.graphemeCluster(true));
+    terminal.write(Ansi.altBuffer(true));
+    terminal.write(Ansi.alternateScroll(false));
+    terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
+    terminal.write(Ansi.pushTitle());
+    terminal.write(Ansi.setTitle('vid ${path ?? '[No Name]'}'));
 
     terminal.input.listen(onInput);
     terminal.resize.listen(onResize);
-    terminal.sigint.listen(onSigint);
+    terminal.interrupt.listen(onSigint);
   }
 
   void quit() {
     extensions?.notifyQuit();
 
-    terminal.write(Esc.popWindowTitle);
-    terminal.write(Esc.textStylesReset);
-    terminal.write(Esc.cursorStyleReset);
-    terminal.write(Esc.disableAltBuffer);
+    terminal.write(Ansi.popTitle());
+    terminal.write(Ansi.reset());
+    terminal.write(Ansi.cursorReset());
+    terminal.write(Ansi.altBuffer(false));
 
     terminal.rawMode = false;
     exit(0);
@@ -149,12 +149,12 @@ class Editor {
   }
 
   void onSigint(ProcessSignal event) {
-    input(Esc.e);
+    input(Ansi.e);
   }
 
   void draw() {
     renderBuffer.clear();
-    renderBuffer.write(Esc.homeAndEraseDown);
+    renderBuffer.write(Ansi.clearScreen());
     file.clampCursor();
 
     // Compute cursorLine and viewportLine from byte offsets
@@ -238,7 +238,7 @@ class Editor {
       viewportLine++;
       file.viewport = file.lineOffset(viewportLine);
       renderBuffer.clear();
-      renderBuffer.write(Esc.homeAndEraseDown);
+      renderBuffer.write(Ansi.clearScreen());
       result = writeRenderLines(viewportCol, cursorLine, cursorRenderCol);
     }
     return result;
@@ -489,27 +489,27 @@ class Editor {
       screenCol = cursorRenderCol - cursorWrapCol + 1;
     }
 
-    renderBuffer.write(Esc.cursorPosition(c: screenCol, l: cursorScreenRow));
+    renderBuffer.write(Ansi.cursor(x: screenCol, y: cursorScreenRow));
   }
 
   // draw the command input line
   void drawLineEdit() {
     final String lineEdit = file.input.lineEdit;
 
-    renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height));
+    renderBuffer.write(Ansi.cursor(x: 1, y: terminal.height));
     if (file.mode == .search) {
       renderBuffer.write('/$lineEdit ');
     } else {
       renderBuffer.write(':$lineEdit ');
     }
     int cursor = lineEdit.length + 2;
-    renderBuffer.write(Esc.cursorStyleLine);
-    renderBuffer.write(Esc.cursorPosition(c: cursor, l: terminal.height));
+    renderBuffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
+    renderBuffer.write(Ansi.cursor(x: cursor, y: terminal.height));
   }
 
   void drawStatus(int cursorLine) {
-    renderBuffer.write(Esc.invertColors);
-    renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height));
+    renderBuffer.write(Ansi.inverse(true));
+    renderBuffer.write(Ansi.cursor(x: 1, y: terminal.height));
 
     int cursorCol = file.columnInLine(file.cursor);
     String mode = statusModeLabel(file.mode);
@@ -535,16 +535,16 @@ class Editor {
     // draw message
     if (message != null) {
       if (message!.type == .error) {
-        renderBuffer.write(Esc.redColor);
+        renderBuffer.write(Ansi.fg(Color.red));
       } else {
-        renderBuffer.write(Esc.greenColor);
+        renderBuffer.write(Ansi.fg(Color.green));
       }
-      renderBuffer.write(Esc.cursorPosition(c: 1, l: terminal.height - 1));
+      renderBuffer.write(Ansi.cursor(x: 1, y: terminal.height - 1));
       renderBuffer.write(' ${message!.text} ');
-      renderBuffer.write(Esc.textStylesReset);
+      renderBuffer.write(Ansi.reset());
     }
 
-    renderBuffer.write(Esc.reverseColors);
+    renderBuffer.write(Ansi.inverse(false));
   }
 
   String statusModeLabel(Mode mode) {

@@ -1,6 +1,7 @@
 // Barrel file - exports all file_buffer extensions
+import 'package:termio/termio.dart';
+
 import '../edit.dart';
-import '../keys.dart';
 import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';

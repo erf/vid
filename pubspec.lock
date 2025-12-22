@@ -313,6 +313,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.2"
+  termio:
+    dependency: "direct main"
+    description:
+      name: termio
+      sha256: "55627e9b80d56b03cd81e29da13cd08f491dda5ba01d2c5ed9f4049d732f8b47"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   test:
     dependency: "direct dev"
     description:

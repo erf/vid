@@ -1,12 +1,15 @@
+import 'package:termio/termio.dart';
+import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/keys.dart';
 import 'package:vid/modes.dart';
-import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('defaultInsert', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n';
     f.cursor = 1; // after 'a'
@@ -16,7 +19,10 @@ void main() {
   });
 
   test('insertActionEscape', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n';
     f.cursor = 0;
@@ -25,7 +31,10 @@ void main() {
   });
 
   test('insertActionEnter', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abcdef\n';
     f.cursor = 3; // after 'abc'
@@ -35,7 +44,10 @@ void main() {
   });
 
   test('insertActionBackspace', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\nghi\n';
     // 'abc\ndef\nghi\n' - offset 4 is start of 'def' line
@@ -46,7 +58,10 @@ void main() {
   });
 
   test('insert I should start at first non-empty line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = '  abc\n';
     f.cursor = 5; // at 'c'
@@ -55,7 +70,10 @@ void main() {
   });
 
   test('insert chunk of text', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = '\n';
     f.mode = Mode.insert;
@@ -80,7 +98,10 @@ Nature's serenade, timeless and free.
   });
 
   test('insert chunk of text in middle of a line', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abcd\n';
     f.cursor = 2; // after 'ab'
@@ -90,7 +111,10 @@ Nature's serenade, timeless and free.
   });
 
   test('insert chunk of text in middle of a line already in insert mode', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.mode = Mode.insert;
     f.text = 'abcd\n';
@@ -101,7 +125,10 @@ Nature's serenade, timeless and free.
   });
 
   test('insert backspace at eol should not move back extra char', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\n';
     f.cursor = 3; // at end of 'abc' before newline
@@ -111,7 +138,10 @@ Nature's serenade, timeless and free.
   });
 
   test('TODO insert multiple chars as one insert action', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     e.input('iabc\x1b');
     expect(f.text, 'abc\n');
@@ -123,7 +153,10 @@ Nature's serenade, timeless and free.
   test('insert in empty file with redraw should not scramble text', () {
     // Regression test: clampCursor was moving cursor off newline even in insert mode,
     // causing text to be inserted at wrong position after draw()
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: true);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: true,
+    );
     final f = e.file;
     // Start with empty file (just newline)
     expect(f.text, '\n');

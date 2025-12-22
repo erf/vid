@@ -1,11 +1,14 @@
+import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/actions/motions.dart';
 import 'package:vid/editor.dart';
-import 'package:vid/terminal/test_terminal.dart';
 
 void main() {
   test('motionFindNextChar', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abca\ndef\n';
     // 'abca\ndef\n' - cursor at 0
@@ -21,7 +24,10 @@ void main() {
   });
 
   test('motionFindPrevChar', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'abc\ndef\n';
     // 'abc\ndef\n' - cursor at offset 2 (char 'c')
@@ -37,7 +43,10 @@ void main() {
   });
 
   test('till with delete operator', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'this is a test\n';
     f.cursor = 0;
@@ -47,7 +56,10 @@ void main() {
   });
 
   test('find with delete operator', () {
-    final e = Editor(terminal: TestTerminal(80, 24), redraw: false);
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
     final f = e.file;
     f.text = 'this is a test\n';
     f.cursor = 0;

@@ -1,3 +1,5 @@
+import 'package:termio/termio.dart';
+
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../range.dart';
@@ -23,7 +25,7 @@ class Operators {
 
   static void yank(Editor e, FileBuffer f, Range r) {
     f.yankRange(r, linewise: f.edit.linewise);
-    e.terminal.copyToClipboard(f.yankBuffer!.text);
+    e.terminal.write(Ansi.copyToClipboard(f.yankBuffer!.text));
     f.setMode(e, .normal);
   }
 

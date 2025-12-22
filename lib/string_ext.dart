@@ -1,5 +1,5 @@
 import 'package:characters/characters.dart';
-import 'package:vid/keys.dart';
+import 'package:termio/termio.dart';
 
 import 'grapheme/unicode.dart';
 

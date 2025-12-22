@@ -1,4 +1,4 @@
-import 'package:vid/keys.dart';
+import 'package:termio/termio.dart';
 import 'package:vid/line_info.dart';
 
 /// Benchmarks different approaches to building a line index from text.

@@ -1,12 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
-import 'package:vid/keys.dart';
+import 'package:termio/termio.dart';
 
 import '../editor.dart';
-import '../esc.dart';
 import '../modes.dart';
-import '../terminal/terminal_base.dart';
 import 'file_buffer.dart';
 
 /// Navigation helpers for byte-offset based cursor/viewport operations
@@ -129,9 +127,9 @@ extension FileBufferNav on FileBuffer {
     }
     switch (mode) {
       case .normal:
-        e.terminal.write(Esc.cursorStyleBlock);
+        e.terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
       case .insert:
-        e.terminal.write(Esc.cursorStyleLine);
+        e.terminal.write(Ansi.cursorStyle(CursorStyle.steadyBar));
       default:
         break;
     }

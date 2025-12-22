@@ -1,4 +1,4 @@
-import 'package:vid/keys.dart';
+import 'package:termio/termio.dart';
 import 'package:vid/line_info.dart';
 
 /// Benchmarks partial vs full rebuild approaches for updateText.
