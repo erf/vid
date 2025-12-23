@@ -8,23 +8,53 @@ import 'modes.dart';
 import 'string_ext.dart';
 
 /// Parameters for rendering a line
-typedef RenderLineParams = ({
-  String rendered,
-  int lineStartByte,
-  int lineEndByte,
-  int screenRow,
-  int numLines,
-  int viewportCol,
-  bool isCursorLine,
-  int cursorRenderCol,
-});
+class RenderLineParams {
+  final String rendered;
+  final int lineStartByte;
+  final int lineEndByte;
+  final int screenRow;
+  final int numLines;
+  final int viewportCol;
+  final bool isCursorLine;
+  final int cursorRenderCol;
+
+  RenderLineParams({
+    required this.rendered,
+    required this.lineStartByte,
+    required this.lineEndByte,
+    required this.screenRow,
+    required this.numLines,
+    required this.viewportCol,
+    required this.isCursorLine,
+    required this.cursorRenderCol,
+  });
+}
 
 /// Result of rendering a line
-typedef RenderLineResult = ({
-  int screenRow,
-  int? cursorScreenRow,
-  int cursorWrapCol,
-});
+class RenderLineResult {
+  final int screenRow;
+  final int? cursorScreenRow;
+  final int cursorWrapCol;
+
+  RenderLineResult({
+    required this.screenRow,
+    this.cursorScreenRow,
+    required this.cursorWrapCol,
+  });
+}
+
+/// Result of rendering all visible lines
+class RenderResult {
+  final int cursorScreenRow;
+  final int cursorWrapCol;
+  final bool found;
+
+  RenderResult({
+    required this.cursorScreenRow,
+    required this.cursorWrapCol,
+    required this.found,
+  });
+}
 
 class Renderer {
   final buffer = StringBuffer();
@@ -84,7 +114,7 @@ class Renderer {
       viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
     }
 
-    var cursorInfo = writeRenderLines(
+    var cursorInfo = _writeRenderLines(
       file: file,
       config: config,
       viewportCol: viewportCol,
@@ -105,22 +135,22 @@ class Renderer {
     }
 
     if (file.mode case Mode.command || Mode.search) {
-      drawLineEdit(file);
+      _drawLineEdit(file);
     } else {
-      drawStatus(file, config, cursorLine, message);
-      drawCursor(
+      _drawStatus(file, config, cursorLine, message);
+      _drawCursor(
         config,
         cursorRenderCol,
-        cursorInfo.screenRow,
+        cursorInfo.cursorScreenRow,
         viewportCol,
-        cursorInfo.wrapCol,
+        cursorInfo.cursorWrapCol,
       );
     }
     terminal.write(buffer);
   }
 
   /// Scrolls viewport down until cursor is visible in wrap mode.
-  ({int screenRow, int wrapCol, bool found}) _wrapScroll({
+  RenderResult _wrapScroll({
     required FileBuffer file,
     required Config config,
     required int viewportCol,
@@ -128,13 +158,17 @@ class Renderer {
     required int cursorLine,
     required int cursorRenderCol,
   }) {
-    var result = (screenRow: 1, wrapCol: 0, found: false);
+    var result = RenderResult(
+      cursorScreenRow: 1,
+      cursorWrapCol: 0,
+      found: false,
+    );
     while (!result.found && viewportLine < cursorLine) {
       viewportLine++;
       file.viewport = file.lineOffset(viewportLine);
       buffer.clear();
       buffer.write(Ansi.clearScreen());
-      result = writeRenderLines(
+      result = _writeRenderLines(
         file: file,
         config: config,
         viewportCol: viewportCol,
@@ -146,7 +180,7 @@ class Renderer {
   }
 
   /// Renders lines to the buffer. Returns (cursorScreenRow, cursorWrapCol, cursorFound).
-  ({int screenRow, int wrapCol, bool found}) writeRenderLines({
+  RenderResult _writeRenderLines({
     required FileBuffer file,
     required Config config,
     required int viewportCol,
@@ -179,7 +213,7 @@ class Renderer {
       String rendered = lineText.tabsToSpaces(config.tabWidth);
 
       // Render line based on wrap mode
-      final params = (
+      final params = RenderLineParams(
         rendered: rendered,
         lineStartByte: offset,
         lineEndByte: lineEnd,
@@ -207,9 +241,9 @@ class Renderer {
       currentFileLineNum++;
     }
 
-    return (
-      screenRow: cursorScreenRow,
-      wrapCol: cursorWrapCol,
+    return RenderResult(
+      cursorScreenRow: cursorScreenRow,
+      cursorWrapCol: cursorWrapCol,
       found: cursorFound,
     );
   }
@@ -230,7 +264,7 @@ class Renderer {
         buffer.write(visible);
       }
     }
-    return (
+    return RenderLineResult(
       screenRow: p.screenRow + 1,
       cursorScreenRow: p.isCursorLine ? p.screenRow + 1 : null,
       cursorWrapCol: 0,
@@ -290,7 +324,7 @@ class Renderer {
       cursorWrapCol = lastWrapCol;
     }
 
-    return (
+    return RenderLineResult(
       screenRow: screenRow,
       cursorScreenRow: cursorScreenRow,
       cursorWrapCol: cursorWrapCol,
@@ -366,14 +400,14 @@ class Renderer {
       cursorWrapCol = lastWrapCol;
     }
 
-    return (
+    return RenderLineResult(
       screenRow: screenRow,
       cursorScreenRow: cursorScreenRow,
       cursorWrapCol: cursorWrapCol,
     );
   }
 
-  void drawCursor(
+  void _drawCursor(
     Config config,
     int cursorRenderCol,
     int cursorScreenRow,
@@ -394,7 +428,7 @@ class Renderer {
   }
 
   // draw the command input line
-  void drawLineEdit(FileBuffer file) {
+  void _drawLineEdit(FileBuffer file) {
     final String lineEdit = file.input.lineEdit;
 
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
@@ -408,7 +442,7 @@ class Renderer {
     buffer.write(Ansi.cursor(x: cursor, y: terminal.height));
   }
 
-  void drawStatus(
+  void _drawStatus(
     FileBuffer file,
     Config config,
     int cursorLine,
@@ -418,7 +452,7 @@ class Renderer {
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
 
     int cursorCol = file.columnInLine(file.cursor);
-    String mode = statusModeLabel(file.mode);
+    String mode = file.mode.label;
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String wrap = config.wrapSymbol;
@@ -451,16 +485,5 @@ class Renderer {
     }
 
     buffer.write(Ansi.inverse(false));
-  }
-
-  String statusModeLabel(Mode mode) {
-    return switch (mode) {
-      Mode.normal => 'NOR',
-      Mode.operatorPending => 'PEN',
-      Mode.insert => 'INS',
-      Mode.replace => 'REP',
-      Mode.command => 'CMD',
-      Mode.search => 'SRC',
-    };
   }
 }
