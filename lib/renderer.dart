@@ -27,23 +27,20 @@ typedef RenderLineResult = ({
 });
 
 class Renderer {
+  final buffer = StringBuffer();
+
   final TerminalBase terminal;
-  final StringBuffer renderBuffer;
   final Highlighter highlighter;
 
-  Renderer({
-    required this.terminal,
-    required this.renderBuffer,
-    required this.highlighter,
-  });
+  Renderer({required this.terminal, required this.highlighter});
 
   void draw({
     required FileBuffer file,
     required Config config,
     Message? message,
   }) {
-    renderBuffer.clear();
-    renderBuffer.write(Ansi.clearScreen());
+    buffer.clear();
+    buffer.write(Ansi.clearScreen());
     file.clampCursor();
 
     // Compute cursorLine and viewportLine from byte offsets
@@ -107,21 +104,19 @@ class Renderer {
       );
     }
 
-    switch (file.mode) {
-      case Mode.command:
-      case Mode.search:
-        drawLineEdit(file);
-      default:
-        drawStatus(file, config, cursorLine, message);
-        drawCursor(
-          config,
-          cursorRenderCol,
-          cursorInfo.screenRow,
-          viewportCol,
-          cursorInfo.wrapCol,
-        );
+    if (file.mode case Mode.command || Mode.search) {
+      drawLineEdit(file);
+    } else {
+      drawStatus(file, config, cursorLine, message);
+      drawCursor(
+        config,
+        cursorRenderCol,
+        cursorInfo.screenRow,
+        viewportCol,
+        cursorInfo.wrapCol,
+      );
     }
-    terminal.write(renderBuffer);
+    terminal.write(buffer);
   }
 
   /// Scrolls viewport down until cursor is visible in wrap mode.
@@ -137,8 +132,8 @@ class Renderer {
     while (!result.found && viewportLine < cursorLine) {
       viewportLine++;
       file.viewport = file.lineOffset(viewportLine);
-      renderBuffer.clear();
-      renderBuffer.write(Ansi.clearScreen());
+      buffer.clear();
+      buffer.write(Ansi.clearScreen());
       result = writeRenderLines(
         file: file,
         config: config,
@@ -169,8 +164,8 @@ class Renderer {
     while (screenRow < numLines) {
       // Past end of file - draw '~'
       if (offset >= file.text.length) {
-        if (screenRow > 0) renderBuffer.write(Keys.newline);
-        renderBuffer.write('~');
+        if (screenRow > 0) buffer.write(Keys.newline);
+        buffer.write('~');
         screenRow++;
         continue;
       }
@@ -221,7 +216,7 @@ class Renderer {
 
   /// Render line without wrapping (horizontal scroll)
   RenderLineResult _renderLineNoWrap(RenderLineParams p, Config config) {
-    if (p.screenRow > 0) renderBuffer.write(Keys.newline);
+    if (p.screenRow > 0) buffer.write(Keys.newline);
     if (p.rendered.isNotEmpty) {
       final visible = p.rendered.renderLine(p.viewportCol, terminal.width);
       if (config.syntaxHighlighting) {
@@ -230,9 +225,9 @@ class Renderer {
             .string
             .length;
         final styled = highlighter.style(visible, p.lineStartByte + byteOffset);
-        renderBuffer.write(styled);
+        buffer.write(styled);
       } else {
-        renderBuffer.write(visible);
+        buffer.write(visible);
       }
     }
     return (
@@ -254,7 +249,7 @@ class Renderer {
 
     while (wrapCol < p.rendered.length || firstWrap) {
       if (screenRow >= p.numLines) break;
-      if (screenRow > 0) renderBuffer.write(Keys.newline);
+      if (screenRow > 0) buffer.write(Keys.newline);
 
       int chunkEnd = wrapCol + terminal.width;
       if (chunkEnd > p.rendered.length) chunkEnd = p.rendered.length;
@@ -277,9 +272,9 @@ class Renderer {
       if (config.syntaxHighlighting) {
         final byteOffset = p.rendered.characters.take(wrapCol).string.length;
         final styled = highlighter.style(chunk, p.lineStartByte + byteOffset);
-        renderBuffer.write(styled);
+        buffer.write(styled);
       } else {
-        renderBuffer.write(chunk);
+        buffer.write(chunk);
       }
 
       wrapCol += terminal.width;
@@ -314,7 +309,7 @@ class Renderer {
 
     while (wrapCol < p.rendered.length || firstWrap) {
       if (screenRow >= p.numLines) break;
-      if (screenRow > 0) renderBuffer.write(Keys.newline);
+      if (screenRow > 0) buffer.write(Keys.newline);
 
       // Find wrap point - try to break at word boundary
       int chunkEnd = wrapCol + terminal.width;
@@ -353,9 +348,9 @@ class Renderer {
       if (config.syntaxHighlighting) {
         final byteOffset = p.rendered.characters.take(wrapCol).string.length;
         final styled = highlighter.style(chunk, p.lineStartByte + byteOffset);
-        renderBuffer.write(styled);
+        buffer.write(styled);
       } else {
-        renderBuffer.write(chunk);
+        buffer.write(chunk);
       }
 
       wrapCol = chunkEnd;
@@ -395,22 +390,22 @@ class Renderer {
       screenCol = cursorRenderCol - cursorWrapCol + 1;
     }
 
-    renderBuffer.write(Ansi.cursor(x: screenCol, y: cursorScreenRow));
+    buffer.write(Ansi.cursor(x: screenCol, y: cursorScreenRow));
   }
 
   // draw the command input line
   void drawLineEdit(FileBuffer file) {
     final String lineEdit = file.input.lineEdit;
 
-    renderBuffer.write(Ansi.cursor(x: 1, y: terminal.height));
+    buffer.write(Ansi.cursor(x: 1, y: terminal.height));
     if (file.mode == Mode.search) {
-      renderBuffer.write('/$lineEdit ');
+      buffer.write('/$lineEdit ');
     } else {
-      renderBuffer.write(':$lineEdit ');
+      buffer.write(':$lineEdit ');
     }
     int cursor = lineEdit.length + 2;
-    renderBuffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
-    renderBuffer.write(Ansi.cursor(x: cursor, y: terminal.height));
+    buffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
+    buffer.write(Ansi.cursor(x: cursor, y: terminal.height));
   }
 
   void drawStatus(
@@ -419,8 +414,8 @@ class Renderer {
     int cursorLine,
     Message? message,
   ) {
-    renderBuffer.write(Ansi.inverse(true));
-    renderBuffer.write(Ansi.cursor(x: 1, y: terminal.height));
+    buffer.write(Ansi.inverse(true));
+    buffer.write(Ansi.cursor(x: 1, y: terminal.height));
 
     int cursorCol = file.columnInLine(file.cursor);
     String mode = statusModeLabel(file.mode);
@@ -438,24 +433,24 @@ class Renderer {
     String status = ' $left ${right.padLeft(padLeft)}';
 
     if (status.length <= terminal.width - 1) {
-      renderBuffer.write(status);
+      buffer.write(status);
     } else {
-      renderBuffer.write(status.substring(0, terminal.width));
+      buffer.write(status.substring(0, terminal.width));
     }
 
     // draw message
     if (message != null) {
       if (message.type == MessageType.error) {
-        renderBuffer.write(Ansi.fg(Color.red));
+        buffer.write(Ansi.fg(Color.red));
       } else {
-        renderBuffer.write(Ansi.fg(Color.green));
+        buffer.write(Ansi.fg(Color.green));
       }
-      renderBuffer.write(Ansi.cursor(x: 1, y: terminal.height - 1));
-      renderBuffer.write(' ${message.text} ');
-      renderBuffer.write(Ansi.reset());
+      buffer.write(Ansi.cursor(x: 1, y: terminal.height - 1));
+      buffer.write(' ${message.text} ');
+      buffer.write(Ansi.reset());
     }
 
-    renderBuffer.write(Ansi.inverse(false));
+    buffer.write(Ansi.inverse(false));
   }
 
   String statusModeLabel(Mode mode) {

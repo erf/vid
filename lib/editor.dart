@@ -24,7 +24,6 @@ class Editor {
   Config config;
   final TerminalBase terminal;
   final bool redraw;
-  final renderBuffer = StringBuffer();
   var file = FileBuffer();
   Message? message;
   Timer? messageTimer;
@@ -40,11 +39,7 @@ class Editor {
     this.config = const Config(),
   }) {
     _highlighter = Highlighter(theme: config.syntaxTheme);
-    renderer = Renderer(
-      terminal: terminal,
-      renderBuffer: renderBuffer,
-      highlighter: _highlighter,
-    );
+    renderer = Renderer(terminal: terminal, highlighter: _highlighter);
   }
   void init(List<String> args) {
     String? path = args.isNotEmpty ? args[0] : null;
