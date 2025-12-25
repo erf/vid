@@ -1,4 +1,5 @@
 import 'dart_tokenizer.dart';
+import 'json_tokenizer.dart';
 import 'markdown_tokenizer.dart';
 import 'token.dart';
 import 'yaml_tokenizer.dart';
@@ -9,6 +10,7 @@ export 'token.dart' show Token, TokenType, Theme, SyntaxColors;
 class Highlighter {
   Theme theme;
   final _dartTokenizer = DartTokenizer();
+  final _jsonTokenizer = JsonTokenizer();
   final _markdownTokenizer = MarkdownTokenizer();
   final _yamlTokenizer = YamlTokenizer();
   List<Token> _tokens = [];
@@ -30,6 +32,8 @@ class Highlighter {
       case 'yaml':
       case 'yml':
         return 'yaml';
+      case 'json':
+        return 'json';
       default:
         return null;
     }
@@ -68,6 +72,14 @@ class Highlighter {
       case 'yaml':
         final state = _yamlTokenizer.findMultilineState(text, startByte);
         _tokens = _yamlTokenizer.tokenize(
+          text,
+          startByte,
+          endByte,
+          initialState: state,
+        );
+      case 'json':
+        final state = _jsonTokenizer.findMultilineState(text, startByte);
+        _tokens = _jsonTokenizer.tokenize(
           text,
           startByte,
           endByte,
