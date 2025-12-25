@@ -10,7 +10,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - render and edit emojis and wide characters
 - unlimited undo (u) and redo (U)
 - text wrap modes: no-wrap, character-wrap, word-wrap (ctrl-w)
-- syntax highlighting (Dart, Yaml, Markdown) (zh, zt)
+- syntax highlighting (Dart, Yaml, Markdown, JSON) (zh, zt)
 - remember previous cursor position
 
 ## Technical Details 🛠️
