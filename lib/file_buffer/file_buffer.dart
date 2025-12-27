@@ -47,7 +47,7 @@ class FileBuffer {
   // the current mode
   Mode mode = .normal;
 
-  // the current edit builder (akkumulerer input)
+  // the current edit builder (accumulates input)
   EditBuilder edit = EditBuilder();
 
   // input state for command matching

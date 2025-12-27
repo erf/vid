@@ -1,14 +1,14 @@
 import 'actions/operators.dart';
 import 'motions/motion.dart';
 
-/// Akkumulerer input for å bygge en EditOperation
+/// Accumulates input to build an EditOperation
 class EditBuilder {
   OperatorFunction? op;
   Motion? motion;
   int? count;
   String? findStr;
 
-  /// Midlertidig linewise-verdi satt av commitEdit for operatorer
+  /// Temporary linewise value set by commitEdit for operators
   bool linewise = false;
 
   void reset() {
@@ -19,7 +19,7 @@ class EditBuilder {
     linewise = false;
   }
 
-  /// Bygg EditOperation
+  /// Build EditOperation
   EditOperation build() {
     return EditOperation(
       op: op,
@@ -30,7 +30,7 @@ class EditBuilder {
   }
 }
 
-/// Immutabel operasjon som kan gjentas
+/// Immutable operation that can be repeated
 class EditOperation {
   final OperatorFunction? op;
   final Motion motion;
@@ -58,7 +58,7 @@ class EditOperation {
   }
 }
 
-/// Input state - key matching og line edit
+/// Input state - key matching and line edit
 class InputState {
   String cmdKey = '';
   String lineEdit = '';
@@ -66,7 +66,7 @@ class InputState {
   void resetCmdKey() => cmdKey = '';
 }
 
-/// Yank buffer med linewise-informasjon
+/// Yank buffer with linewise information
 class YankBuffer {
   final String text;
   final bool linewise;
