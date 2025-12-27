@@ -4,7 +4,7 @@ import 'languages/markdown_tokenizer.dart';
 import 'languages/yaml_tokenizer.dart';
 import 'token.dart';
 
-export 'token.dart' show Token, TokenType, Theme, SyntaxColors;
+export 'token.dart' show Token, TokenType, Theme;
 
 /// Main syntax highlighter that tokenizes text and applies styling.
 class Highlighter {
@@ -15,7 +15,7 @@ class Highlighter {
   final _yamlTokenizer = YamlTokenizer();
   List<Token> _tokens = [];
 
-  Highlighter({this.theme = Theme.dark});
+  Highlighter({Theme? theme}) : theme = theme ?? Theme.dark;
 
   /// Detect language from file extension.
   String? detectLanguage(String? path) {
@@ -88,7 +88,7 @@ class Highlighter {
       if (token.type != TokenType.plain) {
         buffer.write(theme.colorFor(token.type));
         buffer.write(text.substring(tokenStart, tokenEnd));
-        buffer.write(SyntaxColors.reset);
+        buffer.write(Theme.reset);
       } else {
         buffer.write(text.substring(tokenStart, tokenEnd));
       }

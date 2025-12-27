@@ -33,12 +33,9 @@ class Editor {
   late final Highlighter _highlighter;
   late final Renderer renderer;
 
-  Editor({
-    required this.terminal,
-    this.redraw = true,
-    this.config = const Config(),
-  }) {
-    _highlighter = Highlighter(theme: config.syntaxTheme);
+  Editor({required this.terminal, this.redraw = true, Config? config})
+    : config = config ?? Config() {
+    _highlighter = Highlighter(theme: this.config.syntaxTheme);
     renderer = Renderer(terminal: terminal, highlighter: _highlighter);
   }
   void init(List<String> args) {
@@ -112,7 +109,7 @@ class Editor {
   }
 
   void cycleTheme() {
-    const themes = [Theme.dark, Theme.light, Theme.mono];
+    final themes = [Theme.dark, Theme.light, Theme.mono];
     final currentIndex = themes.indexOf(config.syntaxTheme);
     final nextIndex = (currentIndex + 1) % themes.length;
     final nextTheme = themes[nextIndex];

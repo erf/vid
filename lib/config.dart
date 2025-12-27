@@ -19,7 +19,7 @@ class Config {
 
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
-  const Config({
+  Config({
     this.messageTime = 3000,
     this.tabWidth = 4,
     this.maxNumUndo = 100,
@@ -28,8 +28,8 @@ class Config {
     this.wrapMode = WrapMode.none,
     this.breakat = ' !@*-+;:,./?',
     this.syntaxHighlighting = true,
-    this.syntaxTheme = Theme.dark,
-  });
+    Theme? syntaxTheme,
+  }) : syntaxTheme = syntaxTheme ?? Theme.dark;
 
   Config copyWith({
     int? messageTime,

@@ -1,3 +1,5 @@
+import 'package:termio/termio.dart';
+
 /// Token types for syntax highlighting.
 enum TokenType {
   keyword,
@@ -29,12 +31,6 @@ class Token {
   String toString() => 'Token($type, $start-$end)';
 }
 
-/// ANSI escape code helpers for terminal styling.
-class SyntaxColors {
-  static const String _e = '\x1B';
-  static const String reset = '$_e[0m';
-}
-
 /// A theme defines colors for each token type.
 class Theme {
   final String name;
@@ -42,43 +38,46 @@ class Theme {
 
   const Theme(this.name, this._colors);
 
-  String colorFor(TokenType type) => _colors[type] ?? SyntaxColors.reset;
+  String colorFor(TokenType type) => _colors[type] ?? Ansi.reset();
 
-  static const String _e = '\x1B';
+  /// ANSI reset code for clearing styles.
+  static final String reset = Ansi.reset();
+
+  static final String _reset = Ansi.reset();
 
   // Rosé Pine Dawn (dark mode) - https://rosepinetheme.com/palette/
-  static const Theme dark = Theme('rosepine-dawn', {
-    TokenType.keyword: '$_e[38;2;40;105;131m', // Pine #286983
-    TokenType.lineComment: '$_e[38;2;152;147;165m', // Muted #9893a5
-    TokenType.blockComment: '$_e[38;2;152;147;165m', // Muted #9893a5
-    TokenType.string: '$_e[38;2;234;157;52m', // Gold #ea9d34
-    TokenType.number: '$_e[38;2;215;130;126m', // Rose #d7827e
-    TokenType.literal: '$_e[38;2;180;99;122m', // Love #b4637a
-    TokenType.type: '$_e[38;2;86;148;159m', // Foam #56949f
-    TokenType.plain: SyntaxColors.reset,
+  static final Theme dark = Theme('rosepine-dawn', {
+    TokenType.keyword: Ansi.fgRgb(40, 105, 131), // Pine #286983
+    TokenType.lineComment: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
+    TokenType.blockComment: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
+    TokenType.string: Ansi.fgRgb(234, 157, 52), // Gold #ea9d34
+    TokenType.number: Ansi.fgRgb(215, 130, 126), // Rose #d7827e
+    TokenType.literal: Ansi.fgRgb(180, 99, 122), // Love #b4637a
+    TokenType.type: Ansi.fgRgb(86, 148, 159), // Foam #56949f
+    TokenType.plain: _reset,
   });
 
   // Rosé Pine (light mode) - https://rosepinetheme.com/palette/
-  static const Theme light = Theme('rosepine', {
-    TokenType.keyword: '$_e[38;2;49;116;143m', // Pine #31748f
-    TokenType.lineComment: '$_e[38;2;110;106;134m', // Muted #6e6a86
-    TokenType.blockComment: '$_e[38;2;110;106;134m', // Muted #6e6a86
-    TokenType.string: '$_e[38;2;246;193;119m', // Gold #f6c177
-    TokenType.number: '$_e[38;2;235;188;186m', // Rose #ebbcba
-    TokenType.literal: '$_e[38;2;235;111;146m', // Love #eb6f92
-    TokenType.type: '$_e[38;2;156;207;216m', // Foam #9ccfd8
-    TokenType.plain: SyntaxColors.reset,
+  static final Theme light = Theme('rosepine', {
+    TokenType.keyword: Ansi.fgRgb(49, 116, 143), // Pine #31748f
+    TokenType.lineComment: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
+    TokenType.blockComment: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
+    TokenType.string: Ansi.fgRgb(246, 193, 119), // Gold #f6c177
+    TokenType.number: Ansi.fgRgb(235, 188, 186), // Rose #ebbcba
+    TokenType.literal: Ansi.fgRgb(235, 111, 146), // Love #eb6f92
+    TokenType.type: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
+    TokenType.plain: _reset,
   });
 
   // Monochrome theme using text attributes
-  static const Theme mono = Theme('mono', {
-    TokenType.keyword: '\x1B[1m',
-    TokenType.lineComment: '\x1B[2m',
-    TokenType.blockComment: '\x1B[2m',
-    TokenType.string: '\x1B[3m',
+  static final Theme mono = Theme('mono', {
+    TokenType.keyword: Ansi.bold(),
+    TokenType.lineComment: Ansi.dim(),
+    TokenType.blockComment: Ansi.dim(),
+    TokenType.string: Ansi.italic(),
     TokenType.number: '',
-    TokenType.literal: '\x1B[1m',
-    TokenType.type: '\x1B[4m',
-    TokenType.plain: SyntaxColors.reset,
+    TokenType.literal: Ansi.bold(),
+    TokenType.type: Ansi.underline(),
+    TokenType.plain: _reset,
   });
 }
