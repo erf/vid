@@ -1,5 +1,5 @@
-import 'token.dart';
-import 'tokenizer.dart';
+import '../token.dart';
+import '../tokenizer.dart';
 
 /// Regex-based tokenizer for Markdown files.
 ///
@@ -25,39 +25,34 @@ class MarkdownTokenizer extends Tokenizer {
   static final _listItem = RegExp(r'(\s*[-*+]|\s*\d+\.)\s');
 
   @override
-  List<Token> tokenize(
-    String text,
-    int startByte,
-    int endByte, {
-    MultilineState? initialState,
-  }) {
+  List<Token> tokenize(String text, int start, int end) {
     final tokens = <Token>[];
-    var pos = startByte;
-    var state = initialState;
+    var pos = start;
+    var state = findMultiline(text, start);
 
     // If starting inside a fenced code block, find its end
     if (state != null && !state.isComment) {
-      final endPos = _findCodeFenceEnd(text, pos, endByte, state.delimiter!);
+      final endPos = _findCodeFenceEnd(text, pos, end, state.delimiter!);
       tokens.add(Token(TokenType.blockComment, pos, endPos));
       pos = endPos;
-      if (endPos < endByte && _consumedFence(text, endPos, state.delimiter!)) {
+      if (endPos < end && _consumedFence(text, endPos, state.delimiter!)) {
         state = null;
       }
     }
 
-    while (pos < endByte) {
+    while (pos < end) {
       // Check for code fence at start of line
       if (isLineStart(text, pos)) {
         final fenceMatch = _codeFence.matchAsPrefix(text, pos);
         if (fenceMatch != null) {
           final fence = fenceMatch.group(1)!;
-          final lineEnd = findLineEnd(text, pos, endByte);
+          final lineEnd = findLineEnd(text, pos, end);
           // Find the closing fence
-          final closePos = _findCodeFenceEnd(text, lineEnd + 1, endByte, fence);
+          final closePos = _findCodeFenceEnd(text, lineEnd + 1, end, fence);
           tokens.add(Token(TokenType.blockComment, pos, closePos));
           pos = closePos;
-          if (closePos >= endByte || !_consumedFence(text, closePos, fence)) {
-            state = MultilineState(fence);
+          if (closePos >= end || !_consumedFence(text, closePos, fence)) {
+            state = Multiline(fence);
           } else {
             state = null;
           }
@@ -67,7 +62,7 @@ class MarkdownTokenizer extends Tokenizer {
         // Headers - highlight the whole line
         final headerMatch = _header.matchAsPrefix(text, pos);
         if (headerMatch != null) {
-          final lineEnd = findLineEnd(text, pos, endByte);
+          final lineEnd = findLineEnd(text, pos, end);
           tokens.add(Token(TokenType.keyword, pos, lineEnd));
           pos = lineEnd;
           continue;
@@ -76,7 +71,7 @@ class MarkdownTokenizer extends Tokenizer {
         // Blockquote - highlight the whole line with muted color
         final quoteMatch = _blockquote.matchAsPrefix(text, pos);
         if (quoteMatch != null) {
-          final lineEnd = findLineEnd(text, pos, endByte);
+          final lineEnd = findLineEnd(text, pos, end);
           tokens.add(Token(TokenType.lineComment, pos, lineEnd));
           pos = lineEnd;
           continue;
@@ -130,9 +125,9 @@ class MarkdownTokenizer extends Tokenizer {
   }
 
   @override
-  MultilineState? findMultilineState(String text, int startByte) {
+  Multiline? findMultiline(String text, int startByte) {
     var pos = 0;
-    MultilineState? state;
+    Multiline? state;
 
     while (pos < startByte) {
       // Only check for code fences at line start
@@ -146,7 +141,7 @@ class MarkdownTokenizer extends Tokenizer {
           // Look for closing fence
           final closePos = _findCodeFenceEndSimple(text, searchStart, fence);
           if (closePos == -1 || closePos >= startByte) {
-            state = MultilineState(fence);
+            state = Multiline(fence);
             pos = searchStart;
           } else {
             pos = closePos;

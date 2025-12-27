@@ -1,5 +1,5 @@
-import 'token.dart';
-import 'tokenizer.dart';
+import '../token.dart';
+import '../tokenizer.dart';
 
 /// Regex-based tokenizer for JSON files.
 ///
@@ -15,16 +15,11 @@ class JsonTokenizer extends Tokenizer {
   static final _keyLookahead = RegExp(r'"(?:[^"\\]|\\.)*"\s*:');
 
   @override
-  List<Token> tokenize(
-    String text,
-    int startByte,
-    int endByte, {
-    MultilineState? initialState,
-  }) {
+  List<Token> tokenize(String text, int start, int end) {
     final tokens = <Token>[];
-    var pos = startByte;
+    var pos = start;
 
-    while (pos < endByte) {
+    while (pos < end) {
       // Skip whitespace
       if (isWhitespace(text, pos)) {
         pos++;
@@ -91,7 +86,7 @@ class JsonTokenizer extends Tokenizer {
   }
 
   @override
-  MultilineState? findMultilineState(String text, int startByte) {
+  Multiline? findMultiline(String text, int startByte) {
     // JSON doesn't have multiline constructs that span across tokenization
     // boundaries (strings must be on a single line in standard JSON).
     return null;

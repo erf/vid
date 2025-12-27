@@ -1,7 +1,7 @@
-import 'token.dart';
-import 'tokenizer.dart';
+import '../token.dart';
+import '../tokenizer.dart';
 
-export 'tokenizer.dart' show MultilineState;
+export '../tokenizer.dart' show Multiline;
 
 /// Regex-based tokenizer for Dart source code.
 ///
@@ -107,37 +107,32 @@ class DartTokenizer extends Tokenizer {
   static final _typePattern = RegExp(r'^[A-Z][a-zA-Z0-9_]*$');
 
   @override
-  List<Token> tokenize(
-    String text,
-    int startByte,
-    int endByte, {
-    MultilineState? initialState,
-  }) {
+  List<Token> tokenize(String text, int start, int end) {
     final tokens = <Token>[];
-    var pos = startByte;
-    var state = initialState;
+    var pos = start;
+    var state = findMultiline(text, start);
 
     // If starting inside a multiline construct, find its end
     if (state != null) {
-      final endPos = _findMultilineEnd(text, pos, endByte, state);
+      final endPos = _findMultilineEnd(text, pos, end, state);
       final tokenType = state.isComment
           ? TokenType.blockComment
           : TokenType.string;
       tokens.add(Token(tokenType, pos, endPos));
       pos = endPos;
-      if (endPos < endByte && _consumedDelimiter(text, endPos, state)) {
+      if (endPos < end && _consumedDelimiter(text, endPos, state)) {
         state = null;
       }
     }
 
-    while (pos < endByte) {
+    while (pos < end) {
       // Skip whitespace
       if (isWhitespace(text, pos)) {
         pos++;
         continue;
       }
 
-      final result = _matchToken(text, pos, endByte);
+      final result = _matchToken(text, pos, end);
       if (result != null) {
         tokens.add(result.token);
         pos = result.nextPos;
@@ -152,10 +147,10 @@ class DartTokenizer extends Tokenizer {
 
   @override
   @override
-  MultilineState? findMultilineState(String text, int startByte) {
+  Multiline? findMultiline(String text, int startByte) {
     // Look for unclosed /* or """ or ''' before startByte
     var pos = 0;
-    MultilineState? state;
+    Multiline? state;
 
     while (pos < startByte) {
       if (isWhitespace(text, pos)) {
@@ -174,7 +169,7 @@ class DartTokenizer extends Tokenizer {
       if (matchesAt(text, pos, '/*')) {
         final endPos = text.indexOf('*/', pos + 2);
         if (endPos == -1 || endPos >= startByte) {
-          state = MultilineState.blockComment;
+          state = Multiline.blockComment;
           pos += 2;
         } else {
           pos = endPos + 2;
@@ -189,7 +184,7 @@ class DartTokenizer extends Tokenizer {
         final searchStart = pos + 4;
         final endPos = text.indexOf(delim, searchStart);
         if (endPos == -1 || endPos >= startByte) {
-          state = MultilineState(delim, isRaw: true);
+          state = Multiline(delim, isRaw: true);
           pos = searchStart;
         } else {
           pos = endPos + 3;
@@ -203,7 +198,7 @@ class DartTokenizer extends Tokenizer {
         final searchStart = pos + 3;
         final endPos = _findStringEnd(text, searchStart, delim, false);
         if (endPos == -1 || endPos >= startByte) {
-          state = MultilineState(delim, isRaw: false);
+          state = Multiline(delim, isRaw: false);
           pos = searchStart;
         } else {
           pos = endPos + 3;
@@ -256,7 +251,7 @@ class DartTokenizer extends Tokenizer {
         return _TokenMatch(
           Token(TokenType.blockComment, pos, endByte),
           endByte,
-          MultilineState.blockComment,
+          Multiline.blockComment,
         );
       }
       final end = endIdx + 2;
@@ -349,7 +344,7 @@ class DartTokenizer extends Tokenizer {
       return _TokenMatch(
         Token(TokenType.string, start, endByte),
         endByte,
-        MultilineState(delim, isRaw: raw),
+        Multiline(delim, isRaw: raw),
       );
     }
 
@@ -357,12 +352,7 @@ class DartTokenizer extends Tokenizer {
     return _TokenMatch(Token(TokenType.string, start, end), end, null);
   }
 
-  int _findMultilineEnd(
-    String text,
-    int pos,
-    int endByte,
-    MultilineState state,
-  ) {
+  int _findMultilineEnd(String text, int pos, int endByte, Multiline state) {
     if (state.isComment) {
       final idx = text.indexOf('*/', pos);
       if (idx == -1) return endByte;
@@ -374,7 +364,7 @@ class DartTokenizer extends Tokenizer {
     }
   }
 
-  bool _consumedDelimiter(String text, int pos, MultilineState state) {
+  bool _consumedDelimiter(String text, int pos, Multiline state) {
     if (state.isComment) {
       return pos >= 2 && text.substring(pos - 2, pos) == '*/';
     } else {
@@ -401,7 +391,7 @@ class DartTokenizer extends Tokenizer {
 class _TokenMatch {
   final Token token;
   final int nextPos;
-  final MultilineState? state;
+  final Multiline? state;
 
   _TokenMatch(this.token, this.nextPos, this.state);
 }

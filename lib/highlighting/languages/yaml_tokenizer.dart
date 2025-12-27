@@ -1,5 +1,5 @@
-import 'token.dart';
-import 'tokenizer.dart';
+import '../token.dart';
+import '../tokenizer.dart';
 
 /// Regex-based tokenizer for YAML files.
 ///
@@ -32,20 +32,15 @@ class YamlTokenizer extends Tokenizer {
   static final _directive = RegExp(r'%[A-Z]+\s.*');
 
   @override
-  List<Token> tokenize(
-    String text,
-    int startByte,
-    int endByte, {
-    MultilineState? initialState,
-  }) {
+  List<Token> tokenize(String text, int start, int end) {
     final tokens = <Token>[];
-    var pos = startByte;
+    var pos = start;
 
     // Note: YAML block scalars are complex (indentation-based).
     // For simplicity, we don't track multiline state for block scalars.
     // They will be highlighted line-by-line as plain text after the indicator.
 
-    while (pos < endByte) {
+    while (pos < end) {
       // Skip whitespace
       if (isWhitespace(text, pos)) {
         pos++;
@@ -56,9 +51,9 @@ class YamlTokenizer extends Tokenizer {
       if (text[pos] == '#') {
         final match = _lineComment.matchAsPrefix(text, pos);
         if (match != null) {
-          final end = match.end > endByte ? endByte : match.end;
-          tokens.add(Token(TokenType.lineComment, pos, end));
-          pos = end;
+          final endPos = match.end > end ? end : match.end;
+          tokens.add(Token(TokenType.lineComment, pos, endPos));
+          pos = endPos;
           continue;
         }
       }
@@ -67,9 +62,9 @@ class YamlTokenizer extends Tokenizer {
       if (isLineStart(text, pos) && text[pos] == '%') {
         final match = _directive.matchAsPrefix(text, pos);
         if (match != null) {
-          final end = match.end > endByte ? endByte : match.end;
-          tokens.add(Token(TokenType.keyword, pos, end));
-          pos = end;
+          final endPos = match.end > end ? end : match.end;
+          tokens.add(Token(TokenType.keyword, pos, endPos));
+          pos = endPos;
           continue;
         }
       }
@@ -166,7 +161,7 @@ class YamlTokenizer extends Tokenizer {
   }
 
   @override
-  MultilineState? findMultilineState(String text, int startByte) {
+  Multiline? findMultiline(String text, int startByte) {
     // YAML block scalars use indentation to determine boundaries,
     // which is complex to track. For now, we don't track multiline state.
     // Each line is tokenized independently.

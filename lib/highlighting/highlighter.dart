@@ -1,8 +1,8 @@
-import 'dart_tokenizer.dart';
-import 'json_tokenizer.dart';
-import 'markdown_tokenizer.dart';
+import 'languages/dart_tokenizer.dart';
+import 'languages/json_tokenizer.dart';
+import 'languages/markdown_tokenizer.dart';
+import 'languages/yaml_tokenizer.dart';
 import 'token.dart';
-import 'yaml_tokenizer.dart';
 
 export 'token.dart' show Token, TokenType, Theme, SyntaxColors;
 
@@ -23,85 +23,46 @@ class Highlighter {
     final dot = path.lastIndexOf('.');
     if (dot == -1) return null;
     final ext = path.substring(dot + 1).toLowerCase();
-    switch (ext) {
-      case 'dart':
-        return 'dart';
-      case 'md':
-      case 'markdown':
-        return 'markdown';
-      case 'yaml':
-      case 'yml':
-        return 'yaml';
-      case 'json':
-        return 'json';
-      default:
-        return null;
-    }
+    return switch (ext) {
+      'dart' => 'dart',
+      'md' || 'markdown' => 'markdown',
+      'yaml' || 'yml' => 'yaml',
+      'json' => 'json',
+      _ => null,
+    };
   }
 
   /// Tokenize a range of the document.
-  void tokenizeRange(
-    String text,
-    int startByte,
-    int endByte,
-    String? filePath,
-  ) {
-    final lang = detectLanguage(filePath);
+  void tokenizeRange(String text, int start, int end, String? path) {
+    final lang = detectLanguage(path);
     if (lang == null) {
       _tokens = [];
       return;
     }
 
-    switch (lang) {
-      case 'dart':
-        final state = _dartTokenizer.findMultilineState(text, startByte);
-        _tokens = _dartTokenizer.tokenize(
-          text,
-          startByte,
-          endByte,
-          initialState: state,
-        );
-      case 'markdown':
-        final state = _markdownTokenizer.findMultilineState(text, startByte);
-        _tokens = _markdownTokenizer.tokenize(
-          text,
-          startByte,
-          endByte,
-          initialState: state,
-        );
-      case 'yaml':
-        final state = _yamlTokenizer.findMultilineState(text, startByte);
-        _tokens = _yamlTokenizer.tokenize(
-          text,
-          startByte,
-          endByte,
-          initialState: state,
-        );
-      case 'json':
-        final state = _jsonTokenizer.findMultilineState(text, startByte);
-        _tokens = _jsonTokenizer.tokenize(
-          text,
-          startByte,
-          endByte,
-          initialState: state,
-        );
-    }
+    _tokens = switch (lang) {
+      'dart' => _dartTokenizer.tokenize(text, start, end),
+      'markdown' => _markdownTokenizer.tokenize(text, start, end),
+      'yaml' => _yamlTokenizer.tokenize(text, start, end),
+      'json' => _jsonTokenizer.tokenize(text, start, end),
+      _ => [],
+    };
   }
 
   /// Apply styling to a visible substring.
   ///
   /// [text] is the visible text to style.
-  /// [textStartByte] is the byte offset where this text starts in the document.
-  String style(String text, int textStartByte) {
+  /// [start] is the byte offset where this text starts in the document.
+  String style(String text, int start) {
     if (_tokens.isEmpty || text.isEmpty) return text;
 
-    final textEndByte = textStartByte + text.length;
+    final textEndByte = start + text.length;
 
     // Find tokens that overlap this text
     final overlapping = <Token>[];
     for (final token in _tokens) {
       if (token.start >= textEndByte) break;
-      if (token.overlaps(textStartByte, textEndByte)) {
+      if (token.overlaps(start, textEndByte)) {
         overlapping.add(token);
       }
     }
@@ -113,12 +74,10 @@ class Highlighter {
     var pos = 0;
 
     for (final token in overlapping) {
-      final tokenStart = token.start <= textStartByte
-          ? 0
-          : token.start - textStartByte;
+      final tokenStart = token.start <= start ? 0 : token.start - start;
       final tokenEnd = token.end >= textEndByte
           ? text.length
-          : token.end - textStartByte;
+          : token.end - start;
 
       // Add unstyled text before token
       if (tokenStart > pos) {
