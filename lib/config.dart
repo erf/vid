@@ -15,11 +15,11 @@ class Config {
   final bool syntaxHighlighting;
 
   /// The theme to use for syntax highlighting.
-  final Theme syntaxTheme;
+  final ThemeType syntaxTheme;
 
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
-  Config({
+  const Config({
     this.messageTime = 3000,
     this.tabWidth = 4,
     this.maxNumUndo = 100,
@@ -28,8 +28,8 @@ class Config {
     this.wrapMode = WrapMode.none,
     this.breakat = ' !@*-+;:,./?',
     this.syntaxHighlighting = true,
-    Theme? syntaxTheme,
-  }) : syntaxTheme = syntaxTheme ?? Theme.dark;
+    this.syntaxTheme = ThemeType.dark,
+  });
 
   Config copyWith({
     int? messageTime,
@@ -40,7 +40,7 @@ class Config {
     WrapMode? wrapMode,
     String? breakat,
     bool? syntaxHighlighting,
-    Theme? syntaxTheme,
+    ThemeType? syntaxTheme,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,

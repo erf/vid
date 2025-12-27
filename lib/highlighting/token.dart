@@ -12,6 +12,20 @@ enum TokenType {
   plain,
 }
 
+/// Available syntax highlighting themes.
+enum ThemeType {
+  dark,
+  light,
+  mono;
+
+  /// Get the [Theme] instance for this type.
+  Theme get theme => switch (this) {
+    ThemeType.dark => Theme._dark,
+    ThemeType.light => Theme._light,
+    ThemeType.mono => Theme._mono,
+  };
+}
+
 /// A token representing a span of text with absolute byte positions.
 class Token {
   final TokenType type;
@@ -36,7 +50,7 @@ class Theme {
   final String name;
   final Map<TokenType, String> _colors;
 
-  const Theme(this.name, this._colors);
+  const Theme._(this.name, this._colors);
 
   String colorFor(TokenType type) => _colors[type] ?? Ansi.reset();
 
@@ -46,7 +60,7 @@ class Theme {
   static final String _reset = Ansi.reset();
 
   // Rosé Pine Dawn (dark mode) - https://rosepinetheme.com/palette/
-  static final Theme dark = Theme('rosepine-dawn', {
+  static final Theme _dark = Theme._('rosepine-dawn', {
     TokenType.keyword: Ansi.fgRgb(40, 105, 131), // Pine #286983
     TokenType.lineComment: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
     TokenType.blockComment: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
@@ -58,7 +72,7 @@ class Theme {
   });
 
   // Rosé Pine (light mode) - https://rosepinetheme.com/palette/
-  static final Theme light = Theme('rosepine', {
+  static final Theme _light = Theme._('rosepine', {
     TokenType.keyword: Ansi.fgRgb(49, 116, 143), // Pine #31748f
     TokenType.lineComment: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
     TokenType.blockComment: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
@@ -70,7 +84,7 @@ class Theme {
   });
 
   // Monochrome theme using text attributes
-  static final Theme mono = Theme('mono', {
+  static final Theme _mono = Theme._('mono', {
     TokenType.keyword: Ansi.bold(),
     TokenType.lineComment: Ansi.dim(),
     TokenType.blockComment: Ansi.dim(),

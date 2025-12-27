@@ -33,9 +33,12 @@ class Editor {
   late final Highlighter _highlighter;
   late final Renderer renderer;
 
-  Editor({required this.terminal, this.redraw = true, Config? config})
-    : config = config ?? Config() {
-    _highlighter = Highlighter(theme: this.config.syntaxTheme);
+  Editor({
+    required this.terminal,
+    this.redraw = true,
+    this.config = const Config(),
+  }) {
+    _highlighter = Highlighter(themeType: config.syntaxTheme);
     renderer = Renderer(terminal: terminal, highlighter: _highlighter);
   }
   void init(List<String> args) {
@@ -72,9 +75,11 @@ class Editor {
 
     final detectedTheme = ThemeDetector.detectSync();
     if (detectedTheme != null) {
-      final theme = detectedTheme.name == 'light' ? Theme.light : Theme.dark;
-      config = config.copyWith(syntaxTheme: theme);
-      _highlighter.theme = theme;
+      final themeType = detectedTheme.name == 'light'
+          ? ThemeType.light
+          : ThemeType.dark;
+      config = config.copyWith(syntaxTheme: themeType);
+      _highlighter.themeType = themeType;
     }
 
     terminal.write(Ansi.graphemeCluster(true));
@@ -109,13 +114,11 @@ class Editor {
   }
 
   void cycleTheme() {
-    final themes = [Theme.dark, Theme.light, Theme.mono];
-    final currentIndex = themes.indexOf(config.syntaxTheme);
-    final nextIndex = (currentIndex + 1) % themes.length;
-    final nextTheme = themes[nextIndex];
+    final nextTheme = ThemeType
+        .values[(config.syntaxTheme.index + 1) % ThemeType.values.length];
     config = config.copyWith(syntaxTheme: nextTheme);
-    _highlighter.theme = nextTheme;
-    showMessage(.info('Theme: ${nextTheme.name}'));
+    _highlighter.themeType = nextTheme;
+    showMessage(.info('Theme: ${nextTheme.theme.name}'));
     draw();
   }
 
