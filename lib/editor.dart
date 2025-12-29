@@ -203,7 +203,7 @@ class Editor {
   void _clampCursorToViewport() {
     final viewportLine = file.lineNumber(file.viewport);
     final cursorLine = file.lineNumber(file.cursor);
-    final visibleLines = terminal.height - 2; // Account for status line
+    final visibleLines = terminal.height - 1; // Account for status line
 
     if (cursorLine < viewportLine) {
       // Cursor above viewport - move to first visible line
