@@ -232,6 +232,11 @@ class Editor {
 
   /// Handle scroll wheel via mouse event
   void _handleMouseScroll(MouseEvent mouse) {
+    final visibleLines = terminal.height - 1;
+
+    // Don't scroll if all content fits in viewport
+    if (file.totalLines <= visibleLines) return;
+
     const scrollLines = 3;
     final currentLine = file.lineNumber(file.viewport);
     final delta = mouse.scrollDirection == ScrollDirection.up
