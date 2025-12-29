@@ -7,32 +7,7 @@ import 'message.dart';
 import 'modes.dart';
 import 'string_ext.dart';
 
-/// Parameters for rendering a line
-class RenderLineParams {
-  final String rendered;
-  final int lineNum;
-  final int lineStartByte;
-  final int lineEndByte;
-  final int screenRow;
-  final int numLines;
-  final int viewportCol;
-  final bool isCursorLine;
-  final int cursorRenderCol;
-
-  RenderLineParams({
-    required this.rendered,
-    required this.lineNum,
-    required this.lineStartByte,
-    required this.lineEndByte,
-    required this.screenRow,
-    required this.numLines,
-    required this.viewportCol,
-    required this.isCursorLine,
-    required this.cursorRenderCol,
-  });
-}
-
-/// Result of rendering a line
+/// Result of layout pass for a line
 class RenderLineResult {
   final int screenRow;
   final int? cursorScreenRow;
@@ -49,13 +24,8 @@ class RenderLineResult {
 class RenderResult {
   final int cursorScreenRow;
   final int cursorWrapCol;
-  final bool found;
 
-  RenderResult({
-    required this.cursorScreenRow,
-    required this.cursorWrapCol,
-    required this.found,
-  });
+  RenderResult({required this.cursorScreenRow, required this.cursorWrapCol});
 }
 
 /// Info about what logical position a screen row maps to
@@ -93,8 +63,6 @@ class Renderer {
     required Config config,
     Message? message,
   }) {
-    buffer.clear();
-    buffer.write(Ansi.clearScreen());
     file.clampCursor();
 
     // Compute cursorLine and viewportLine from byte offsets
@@ -115,11 +83,27 @@ class Renderer {
       viewportLine,
     );
 
-    // Tokenize visible range for syntax highlighting (done once before rendering)
+    // Horizontal scrolling (disabled when word wrap is on)
+    int viewportCol = 0;
+    if (config.wrapMode == .none &&
+        cursorRenderCol >= terminal.width - config.scrollMargin) {
+      viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
+    }
+
+    // Pass 1: Calculate layout and find cursor position
+    // This may adjust viewport if cursor is not visible (wrap mode)
+    final layout = _calculateLayout(
+      file: file,
+      config: config,
+      viewportCol: viewportCol,
+      cursorLine: cursorLine,
+      cursorRenderCol: cursorRenderCol,
+    );
+
+    // Tokenize visible range for syntax highlighting
     if (config.syntaxHighlighting) {
-      // Tokenize from viewport to well past cursor to handle scroll adjustments
-      final startByte = file.lineOffset(viewportLine);
-      final endLine = cursorLine + terminal.height;
+      final startByte = file.viewport;
+      final endLine = file.lineNumber(file.viewport) + terminal.height;
       final endByte = endLine < file.lines.length
           ? file.lines[endLine].end
           : file.text.length;
@@ -131,32 +115,10 @@ class Renderer {
       );
     }
 
-    // Horizontal scrolling (disabled when word wrap is on)
-    int viewportCol = 0;
-    if (config.wrapMode == .none &&
-        cursorRenderCol >= terminal.width - config.scrollMargin) {
-      viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
-    }
-
-    var cursorInfo = _writeRenderLines(
-      file: file,
-      config: config,
-      viewportCol: viewportCol,
-      cursorLine: cursorLine,
-      cursorRenderCol: cursorRenderCol,
-    );
-
-    // In wrap mode, scroll until cursor is visible
-    if (!cursorInfo.found) {
-      cursorInfo = _wrapScroll(
-        file: file,
-        config: config,
-        viewportCol: viewportCol,
-        viewportLine: viewportLine,
-        cursorLine: cursorLine,
-        cursorRenderCol: cursorRenderCol,
-      );
-    }
+    // Pass 2: Render using the calculated layout
+    buffer.clear();
+    buffer.write(Ansi.clearScreen());
+    _renderLines(file: file, config: config, viewportCol: viewportCol);
 
     if (file.mode case Mode.command || Mode.search) {
       _drawLineEdit(file);
@@ -165,46 +127,18 @@ class Renderer {
       _drawCursor(
         config,
         cursorRenderCol,
-        cursorInfo.cursorScreenRow,
+        layout.cursorScreenRow,
         viewportCol,
-        cursorInfo.cursorWrapCol,
+        layout.cursorWrapCol,
       );
     }
     terminal.write(buffer);
   }
 
-  /// Scrolls viewport down until cursor is visible in wrap mode.
-  RenderResult _wrapScroll({
-    required FileBuffer file,
-    required Config config,
-    required int viewportCol,
-    required int viewportLine,
-    required int cursorLine,
-    required int cursorRenderCol,
-  }) {
-    var result = RenderResult(
-      cursorScreenRow: 1,
-      cursorWrapCol: 0,
-      found: false,
-    );
-    while (!result.found && viewportLine < cursorLine) {
-      viewportLine++;
-      file.viewport = file.lineOffset(viewportLine);
-      buffer.clear();
-      buffer.write(Ansi.clearScreen());
-      result = _writeRenderLines(
-        file: file,
-        config: config,
-        viewportCol: viewportCol,
-        cursorLine: cursorLine,
-        cursorRenderCol: cursorRenderCol,
-      );
-    }
-    return result;
-  }
-
-  /// Renders lines to the buffer. Returns (cursorScreenRow, cursorWrapCol, cursorFound).
-  RenderResult _writeRenderLines({
+  /// Pass 1: Calculate screen layout without rendering.
+  /// Builds screenRowMap and finds cursor position.
+  /// Adjusts file.viewport if cursor would be off-screen in wrap mode.
+  RenderResult _calculateLayout({
     required FileBuffer file,
     required Config config,
     required int viewportCol,
@@ -212,22 +146,57 @@ class Renderer {
     required int cursorRenderCol,
   }) {
     int numLines = terminal.height - 1;
+
+    // Try layout from current viewport
+    var result = _layoutLines(
+      file: file,
+      config: config,
+      viewportCol: viewportCol,
+      cursorLine: cursorLine,
+      cursorRenderCol: cursorRenderCol,
+      numLines: numLines,
+    );
+
+    // In wrap mode, if cursor not found, scroll viewport down until visible
+    if (result == null && config.wrapMode != WrapMode.none) {
+      int viewportLine = file.lineNumber(file.viewport);
+      while (result == null && viewportLine < cursorLine) {
+        viewportLine++;
+        file.viewport = file.lineOffset(viewportLine);
+        result = _layoutLines(
+          file: file,
+          config: config,
+          viewportCol: viewportCol,
+          cursorLine: cursorLine,
+          cursorRenderCol: cursorRenderCol,
+          numLines: numLines,
+        );
+      }
+    }
+
+    return result ?? RenderResult(cursorScreenRow: 1, cursorWrapCol: 0);
+  }
+
+  /// Calculate layout for visible lines. Returns cursor info if found, null otherwise.
+  RenderResult? _layoutLines({
+    required FileBuffer file,
+    required Config config,
+    required int viewportCol,
+    required int cursorLine,
+    required int cursorRenderCol,
+    required int numLines,
+  }) {
     int offset = file.viewport;
     int screenRow = 0;
-    int cursorScreenRow = 1;
+    int? cursorScreenRow;
     int cursorWrapCol = 0;
-    bool cursorFound = false;
     int currentFileLineNum = file.lineNumber(file.viewport);
 
-    // Clear screen row map for fresh population
     screenRowMap.clear();
 
     while (screenRow < numLines) {
-      // Past end of file - draw '~'
+      // Past end of file
       if (offset >= file.text.length) {
-        if (screenRow > 0) buffer.write(Keys.newline);
-        buffer.write('~');
-        // Add empty entry for ~ lines (no valid position)
         screenRowMap.add(
           ScreenRowInfo(
             lineNum: -1,
@@ -243,124 +212,320 @@ class Renderer {
       int lineEnd = file.text.indexOf(Keys.newline, offset);
       if (lineEnd == -1) lineEnd = file.text.length;
 
+      // Extract line text and convert tabs
+      String lineText = file.text.substring(offset, lineEnd);
+      String rendered = lineText.tabsToSpaces(config.tabWidth);
+
+      final isCursorLine = currentFileLineNum == cursorLine;
+
+      // Layout line based on wrap mode
+      final result = switch (config.wrapMode) {
+        WrapMode.none => _layoutLineNoWrap(
+          lineNum: currentFileLineNum,
+          lineStartByte: offset,
+          viewportCol: viewportCol,
+          screenRow: screenRow,
+          numLines: numLines,
+          isCursorLine: isCursorLine,
+          cursorRenderCol: cursorRenderCol,
+        ),
+        WrapMode.char => _layoutLineCharWrap(
+          rendered: rendered,
+          lineNum: currentFileLineNum,
+          lineStartByte: offset,
+          screenRow: screenRow,
+          numLines: numLines,
+          isCursorLine: isCursorLine,
+          cursorRenderCol: cursorRenderCol,
+        ),
+        WrapMode.word => _layoutLineWordWrap(
+          rendered: rendered,
+          lineNum: currentFileLineNum,
+          lineStartByte: offset,
+          screenRow: screenRow,
+          numLines: numLines,
+          isCursorLine: isCursorLine,
+          cursorRenderCol: cursorRenderCol,
+          breakat: config.breakat,
+        ),
+      };
+
+      screenRow = result.screenRow;
+      if (result.cursorScreenRow != null) {
+        cursorScreenRow = result.cursorScreenRow;
+        cursorWrapCol = result.cursorWrapCol;
+      }
+
+      offset = lineEnd + 1;
+      currentFileLineNum++;
+    }
+
+    if (cursorScreenRow == null) return null;
+    return RenderResult(
+      cursorScreenRow: cursorScreenRow,
+      cursorWrapCol: cursorWrapCol,
+    );
+  }
+
+  /// Layout a line without wrapping
+  RenderLineResult _layoutLineNoWrap({
+    required int lineNum,
+    required int lineStartByte,
+    required int viewportCol,
+    required int screenRow,
+    required int numLines,
+    required bool isCursorLine,
+    required int cursorRenderCol,
+  }) {
+    screenRowMap.add(
+      ScreenRowInfo(
+        lineNum: lineNum,
+        wrapCol: viewportCol,
+        lineStartByte: lineStartByte,
+      ),
+    );
+    return RenderLineResult(
+      screenRow: screenRow + 1,
+      cursorScreenRow: isCursorLine ? screenRow + 1 : null,
+      cursorWrapCol: 0,
+    );
+  }
+
+  /// Layout a line with character wrap
+  RenderLineResult _layoutLineCharWrap({
+    required String rendered,
+    required int lineNum,
+    required int lineStartByte,
+    required int screenRow,
+    required int numLines,
+    required bool isCursorLine,
+    required int cursorRenderCol,
+  }) {
+    int? cursorScreenRow;
+    int cursorWrapCol = 0;
+    int wrapCol = 0;
+    bool firstWrap = true;
+    int lastScreenRow = screenRow;
+    int lastWrapCol = 0;
+
+    while (wrapCol < rendered.length || firstWrap) {
+      if (screenRow >= numLines) break;
+
+      screenRowMap.add(
+        ScreenRowInfo(
+          lineNum: lineNum,
+          wrapCol: wrapCol,
+          lineStartByte: lineStartByte,
+        ),
+      );
+
+      int chunkEnd = wrapCol + terminal.width;
+      if (chunkEnd > rendered.length) chunkEnd = rendered.length;
+
+      if (isCursorLine) {
+        if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
+          cursorScreenRow = screenRow + 1;
+          cursorWrapCol = wrapCol;
+        }
+        lastScreenRow = screenRow + 1;
+        lastWrapCol = wrapCol;
+      }
+
+      wrapCol += terminal.width;
+      screenRow++;
+      firstWrap = false;
+
+      if (rendered.isEmpty) break;
+    }
+
+    if (isCursorLine && cursorScreenRow == null) {
+      cursorScreenRow = lastScreenRow;
+      cursorWrapCol = lastWrapCol;
+    }
+
+    return RenderLineResult(
+      screenRow: screenRow,
+      cursorScreenRow: cursorScreenRow,
+      cursorWrapCol: cursorWrapCol,
+    );
+  }
+
+  /// Layout a line with word wrap
+  RenderLineResult _layoutLineWordWrap({
+    required String rendered,
+    required int lineNum,
+    required int lineStartByte,
+    required int screenRow,
+    required int numLines,
+    required bool isCursorLine,
+    required int cursorRenderCol,
+    required String breakat,
+  }) {
+    int? cursorScreenRow;
+    int cursorWrapCol = 0;
+    int wrapCol = 0;
+    bool firstWrap = true;
+    int lastScreenRow = screenRow;
+    int lastWrapCol = 0;
+
+    while (wrapCol < rendered.length || firstWrap) {
+      if (screenRow >= numLines) break;
+
+      screenRowMap.add(
+        ScreenRowInfo(
+          lineNum: lineNum,
+          wrapCol: wrapCol,
+          lineStartByte: lineStartByte,
+        ),
+      );
+
+      // Find wrap point - try to break at word boundary
+      int chunkEnd = wrapCol + terminal.width;
+      if (chunkEnd < rendered.length) {
+        int breakAt = chunkEnd;
+        for (int i = chunkEnd - 1; i > wrapCol; i--) {
+          if (breakat.contains(rendered[i])) {
+            breakAt = i + 1;
+            break;
+          }
+        }
+        if (breakAt > wrapCol + terminal.width ~/ 2) {
+          chunkEnd = breakAt;
+        }
+      } else {
+        chunkEnd = rendered.length;
+      }
+
+      if (isCursorLine) {
+        if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
+          cursorScreenRow = screenRow + 1;
+          cursorWrapCol = wrapCol;
+        }
+        lastScreenRow = screenRow + 1;
+        lastWrapCol = wrapCol;
+      }
+
+      wrapCol = chunkEnd;
+      screenRow++;
+      firstWrap = false;
+
+      if (rendered.isEmpty) break;
+    }
+
+    if (isCursorLine && cursorScreenRow == null) {
+      cursorScreenRow = lastScreenRow;
+      cursorWrapCol = lastWrapCol;
+    }
+
+    return RenderLineResult(
+      screenRow: screenRow,
+      cursorScreenRow: cursorScreenRow,
+      cursorWrapCol: cursorWrapCol,
+    );
+  }
+
+  /// Pass 2: Render lines to buffer using pre-calculated screenRowMap
+  void _renderLines({
+    required FileBuffer file,
+    required Config config,
+    required int viewportCol,
+  }) {
+    int numLines = terminal.height - 1;
+    int offset = file.viewport;
+    int screenRow = 0;
+
+    while (screenRow < numLines) {
+      // Past end of file - draw '~'
+      if (offset >= file.text.length) {
+        if (screenRow > 0) buffer.write(Keys.newline);
+        buffer.write('~');
+        screenRow++;
+        continue;
+      }
+
+      // Find end of this line
+      int lineEnd = file.text.indexOf(Keys.newline, offset);
+      if (lineEnd == -1) lineEnd = file.text.length;
+
       // Extract line text
       String lineText = file.text.substring(offset, lineEnd);
       String rendered = lineText.tabsToSpaces(config.tabWidth);
 
       // Render line based on wrap mode
-      final params = RenderLineParams(
-        rendered: rendered,
-        lineNum: currentFileLineNum,
-        lineStartByte: offset,
-        lineEndByte: lineEnd,
-        screenRow: screenRow,
-        numLines: numLines,
-        viewportCol: viewportCol,
-        isCursorLine: currentFileLineNum == cursorLine,
-        cursorRenderCol: cursorRenderCol,
-      );
-      final result = switch (config.wrapMode) {
-        WrapMode.none => _renderLineNoWrap(params, config),
-        WrapMode.char => _renderLineCharWrap(params, config),
-        WrapMode.word => _renderLineWordWrap(params, config),
+      screenRow = switch (config.wrapMode) {
+        WrapMode.none => _renderLineNoWrap(
+          rendered: rendered,
+          lineStartByte: offset,
+          viewportCol: viewportCol,
+          screenRow: screenRow,
+          numLines: numLines,
+          syntaxHighlighting: config.syntaxHighlighting,
+        ),
+        WrapMode.char => _renderLineCharWrap(
+          rendered: rendered,
+          lineStartByte: offset,
+          screenRow: screenRow,
+          numLines: numLines,
+          syntaxHighlighting: config.syntaxHighlighting,
+        ),
+        WrapMode.word => _renderLineWordWrap(
+          rendered: rendered,
+          lineStartByte: offset,
+          screenRow: screenRow,
+          numLines: numLines,
+          syntaxHighlighting: config.syntaxHighlighting,
+          breakat: config.breakat,
+        ),
       };
 
-      screenRow = result.screenRow;
-      if (result.cursorScreenRow != null) {
-        cursorScreenRow = result.cursorScreenRow!;
-        cursorWrapCol = result.cursorWrapCol;
-        cursorFound = true;
-      }
-
-      // Move to next file line
       offset = lineEnd + 1;
-      currentFileLineNum++;
     }
-
-    return RenderResult(
-      cursorScreenRow: cursorScreenRow,
-      cursorWrapCol: cursorWrapCol,
-      found: cursorFound,
-    );
   }
 
-  /// Render line without wrapping (horizontal scroll)
-  RenderLineResult _renderLineNoWrap(RenderLineParams p, Config config) {
-    if (p.screenRow > 0) buffer.write(Keys.newline);
+  /// Render line without wrapping
+  int _renderLineNoWrap({
+    required String rendered,
+    required int lineStartByte,
+    required int viewportCol,
+    required int screenRow,
+    required int numLines,
+    required bool syntaxHighlighting,
+  }) {
+    if (screenRow > 0) buffer.write(Keys.newline);
 
-    // Add screen row mapping
-    screenRowMap.add(
-      ScreenRowInfo(
-        lineNum: p.lineNum,
-        wrapCol: p.viewportCol,
-        lineStartByte: p.lineStartByte,
-      ),
-    );
-
-    if (p.rendered.isNotEmpty) {
-      final visible = p.rendered.renderLine(p.viewportCol, terminal.width);
-      if (config.syntaxHighlighting) {
-        final byteOffset = p.rendered.characters
-            .take(p.viewportCol)
-            .string
-            .length;
-        final styled = highlighter.style(visible, p.lineStartByte + byteOffset);
+    if (rendered.isNotEmpty) {
+      final visible = rendered.renderLine(viewportCol, terminal.width);
+      if (syntaxHighlighting) {
+        final byteOffset = rendered.characters.take(viewportCol).string.length;
+        final styled = highlighter.style(visible, lineStartByte + byteOffset);
         buffer.write(styled);
       } else {
         buffer.write(visible);
       }
     }
-    return RenderLineResult(
-      screenRow: p.screenRow + 1,
-      cursorScreenRow: p.isCursorLine ? p.screenRow + 1 : null,
-      cursorWrapCol: 0,
-    );
+    return screenRow + 1;
   }
 
-  /// Render line with character wrap (break at any character)
-  RenderLineResult _renderLineCharWrap(RenderLineParams p, Config config) {
-    int? cursorScreenRow;
-    int cursorWrapCol = 0;
+  /// Render line with character wrap
+  int _renderLineCharWrap({
+    required String rendered,
+    required int lineStartByte,
+    required int screenRow,
+    required int numLines,
+    required bool syntaxHighlighting,
+  }) {
     int wrapCol = 0;
-    int screenRow = p.screenRow;
     bool firstWrap = true;
-    int lastScreenRow = screenRow;
-    int lastWrapCol = 0;
 
-    while (wrapCol < p.rendered.length || firstWrap) {
-      if (screenRow >= p.numLines) break;
+    while (wrapCol < rendered.length || firstWrap) {
+      if (screenRow >= numLines) break;
       if (screenRow > 0) buffer.write(Keys.newline);
 
-      // Add screen row mapping for this wrapped segment
-      screenRowMap.add(
-        ScreenRowInfo(
-          lineNum: p.lineNum,
-          wrapCol: wrapCol,
-          lineStartByte: p.lineStartByte,
-        ),
-      );
+      String chunk = rendered.ch.skip(wrapCol).take(terminal.width).string;
 
-      int chunkEnd = wrapCol + terminal.width;
-      if (chunkEnd > p.rendered.length) chunkEnd = p.rendered.length;
-
-      // Calculate cursor screen row
-      if (p.isCursorLine) {
-        if (p.cursorRenderCol >= wrapCol && p.cursorRenderCol < chunkEnd) {
-          cursorScreenRow = screenRow + 1;
-          cursorWrapCol = wrapCol;
-        }
-        // Track last segment in case cursor is past end of line
-        lastScreenRow = screenRow + 1;
-        lastWrapCol = wrapCol;
-      }
-
-      // Take up to terminal.width characters
-      String chunk = p.rendered.ch.skip(wrapCol).take(terminal.width).string;
-
-      // Apply syntax highlighting to chunk
-      if (config.syntaxHighlighting) {
-        final byteOffset = p.rendered.characters.take(wrapCol).string.length;
-        final styled = highlighter.style(chunk, p.lineStartByte + byteOffset);
+      if (syntaxHighlighting) {
+        final byteOffset = rendered.characters.take(wrapCol).string.length;
+        final styled = highlighter.style(chunk, lineStartByte + byteOffset);
         buffer.write(styled);
       } else {
         buffer.write(chunk);
@@ -370,82 +535,50 @@ class Renderer {
       screenRow++;
       firstWrap = false;
 
-      if (p.rendered.isEmpty) break;
+      if (rendered.isEmpty) break;
     }
 
-    // If cursor line but cursorScreenRow not set, cursor is past end of line
-    if (p.isCursorLine && cursorScreenRow == null) {
-      cursorScreenRow = lastScreenRow;
-      cursorWrapCol = lastWrapCol;
-    }
-
-    return RenderLineResult(
-      screenRow: screenRow,
-      cursorScreenRow: cursorScreenRow,
-      cursorWrapCol: cursorWrapCol,
-    );
+    return screenRow;
   }
 
-  /// Render line with word wrap (break at word boundaries)
-  RenderLineResult _renderLineWordWrap(RenderLineParams p, Config config) {
-    int? cursorScreenRow;
-    int cursorWrapCol = 0;
+  /// Render line with word wrap
+  int _renderLineWordWrap({
+    required String rendered,
+    required int lineStartByte,
+    required int screenRow,
+    required int numLines,
+    required bool syntaxHighlighting,
+    required String breakat,
+  }) {
     int wrapCol = 0;
-    int screenRow = p.screenRow;
     bool firstWrap = true;
-    int lastScreenRow = screenRow;
-    int lastWrapCol = 0;
 
-    while (wrapCol < p.rendered.length || firstWrap) {
-      if (screenRow >= p.numLines) break;
+    while (wrapCol < rendered.length || firstWrap) {
+      if (screenRow >= numLines) break;
       if (screenRow > 0) buffer.write(Keys.newline);
 
-      // Add screen row mapping for this wrapped segment
-      screenRowMap.add(
-        ScreenRowInfo(
-          lineNum: p.lineNum,
-          wrapCol: wrapCol,
-          lineStartByte: p.lineStartByte,
-        ),
-      );
-
-      // Find wrap point - try to break at word boundary
+      // Find wrap point
       int chunkEnd = wrapCol + terminal.width;
-      if (chunkEnd < p.rendered.length) {
-        // Look for a break character within the line (search backwards)
+      if (chunkEnd < rendered.length) {
         int breakAt = chunkEnd;
         for (int i = chunkEnd - 1; i > wrapCol; i--) {
-          if (config.breakat.contains(p.rendered[i])) {
-            breakAt = i + 1; // Include the break character
+          if (breakat.contains(rendered[i])) {
+            breakAt = i + 1;
             break;
           }
         }
-        // Only use word break if it's reasonable (not too far back)
         if (breakAt > wrapCol + terminal.width ~/ 2) {
           chunkEnd = breakAt;
         }
       } else {
-        chunkEnd = p.rendered.length;
+        chunkEnd = rendered.length;
       }
 
-      // Calculate cursor screen row
-      if (p.isCursorLine) {
-        if (p.cursorRenderCol >= wrapCol && p.cursorRenderCol < chunkEnd) {
-          cursorScreenRow = screenRow + 1;
-          cursorWrapCol = wrapCol;
-        }
-        // Track last segment in case cursor is past end of line
-        lastScreenRow = screenRow + 1;
-        lastWrapCol = wrapCol;
-      }
+      String chunk = rendered.substring(wrapCol, chunkEnd);
 
-      // Take the chunk
-      String chunk = p.rendered.substring(wrapCol, chunkEnd);
-
-      // Apply syntax highlighting to chunk
-      if (config.syntaxHighlighting) {
-        final byteOffset = p.rendered.characters.take(wrapCol).string.length;
-        final styled = highlighter.style(chunk, p.lineStartByte + byteOffset);
+      if (syntaxHighlighting) {
+        final byteOffset = rendered.characters.take(wrapCol).string.length;
+        final styled = highlighter.style(chunk, lineStartByte + byteOffset);
         buffer.write(styled);
       } else {
         buffer.write(chunk);
@@ -455,20 +588,10 @@ class Renderer {
       screenRow++;
       firstWrap = false;
 
-      if (p.rendered.isEmpty) break;
+      if (rendered.isEmpty) break;
     }
 
-    // If cursor line but cursorScreenRow not set, cursor is past end of line
-    if (p.isCursorLine && cursorScreenRow == null) {
-      cursorScreenRow = lastScreenRow;
-      cursorWrapCol = lastWrapCol;
-    }
-
-    return RenderLineResult(
-      screenRow: screenRow,
-      cursorScreenRow: cursorScreenRow,
-      cursorWrapCol: cursorWrapCol,
-    );
+    return screenRow;
   }
 
   void _drawCursor(
