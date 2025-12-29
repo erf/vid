@@ -2,21 +2,21 @@ import 'package:test/test.dart';
 import 'package:vid/regex.dart';
 
 void main() {
-  test('skip scroll events x1b[[A-B]', () {
-    expect(Regex.scrollEvents.hasMatch('\x1b[A'), true);
-    expect(Regex.scrollEvents.hasMatch('\x1b[B'), true);
-    expect(Regex.scrollEvents.hasMatch('\x1b[C'), true);
-    expect(Regex.scrollEvents.hasMatch('\x1b[D'), true);
+  test('matches arrow key sequences x1b[[A-D]', () {
+    expect(Regex.scrollEvents.hasMatch('\x1b[A'), true); // up
+    expect(Regex.scrollEvents.hasMatch('\x1b[B'), true); // down
+    expect(Regex.scrollEvents.hasMatch('\x1b[C'), true); // right
+    expect(Regex.scrollEvents.hasMatch('\x1b[D'), true); // left
   });
 
-  test('skip scroll events x1bO[A-B]', () {
-    expect(Regex.scrollEvents.hasMatch('\x1bOA'), true);
-    expect(Regex.scrollEvents.hasMatch('\x1bOB'), true);
-    expect(Regex.scrollEvents.hasMatch('\x1bOC'), true);
-    expect(Regex.scrollEvents.hasMatch('\x1bOD'), true);
+  test('matches arrow key sequences x1bO[A-D]', () {
+    expect(Regex.scrollEvents.hasMatch('\x1bOA'), true); // up
+    expect(Regex.scrollEvents.hasMatch('\x1bOB'), true); // down
+    expect(Regex.scrollEvents.hasMatch('\x1bOC'), true); // right
+    expect(Regex.scrollEvents.hasMatch('\x1bOD'), true); // left
   });
 
-  test('skip scroll events x1bO[A-B]', () {
+  test('does not match invalid sequences', () {
     expect(Regex.scrollEvents.hasMatch('test'), false);
     expect(Regex.scrollEvents.hasMatch('\x1b[X'), false);
     expect(Regex.scrollEvents.hasMatch('[C'), false);

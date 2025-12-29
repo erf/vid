@@ -84,7 +84,7 @@ class Editor {
 
     terminal.write(Ansi.graphemeCluster(true));
     terminal.write(Ansi.altBuffer(true));
-    terminal.write(Ansi.altScroll(false));
+    terminal.write(Ansi.altScroll(true));
     terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
     terminal.write(Ansi.pushTitle());
     terminal.write(Ansi.setTitle('vid ${path ?? '[No Name]'}'));
@@ -165,6 +165,7 @@ class Editor {
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
     if (Regex.scrollEvents.hasMatch(str)) {
+      _handleScrollEvent(str);
       return;
     }
     for (String char in str.characters) {
@@ -174,6 +175,64 @@ class Editor {
       draw();
     }
     message = null;
+  }
+
+  /// Handle mouse scroll events to offset viewport
+  /// Scroll up: \x1b[A or \x1bOA, Scroll down: \x1b[B or \x1bOB
+  /// Left/right arrows (C/D) are caught but discarded
+  void _handleScrollEvent(String str) {
+    final isUp = str.endsWith('A');
+    final isDown = str.endsWith('B');
+
+    // Only handle up/down, discard left/right
+    if (!isUp && !isDown) return;
+
+    const scrollLines = 3;
+    final currentLine = file.lineNumber(file.viewport);
+
+    if (isUp) {
+      // Scroll up - move viewport earlier in file
+      final targetLine = (currentLine - scrollLines).clamp(
+        0,
+        file.totalLines - 1,
+      );
+      file.viewport = file.lineOffset(targetLine);
+    } else {
+      // Scroll down - move viewport later in file
+      final targetLine = (currentLine + scrollLines).clamp(
+        0,
+        file.totalLines - 1,
+      );
+      file.viewport = file.lineOffset(targetLine);
+    }
+
+    // Clamp cursor to stay within visible viewport
+    _clampCursorToViewport();
+
+    if (redraw) {
+      draw();
+    }
+  }
+
+  /// Clamp cursor to top/bottom of viewport if it goes off-screen
+  void _clampCursorToViewport() {
+    final viewportLine = file.lineNumber(file.viewport);
+    final cursorLine = file.lineNumber(file.cursor);
+    final visibleLines = terminal.height - 2; // Account for status line
+
+    if (cursorLine < viewportLine) {
+      // Cursor above viewport - move to first visible line
+      file.cursor = file.lineOffset(viewportLine);
+      file.clampCursor();
+    } else if (cursorLine >= viewportLine + visibleLines) {
+      // Cursor below viewport - move to last visible line
+      final lastVisibleLine = (viewportLine + visibleLines - 1).clamp(
+        0,
+        file.totalLines - 1,
+      );
+      file.cursor = file.lineOffset(lastVisibleLine);
+      file.clampCursor();
+    }
   }
 
   // match input against key bindings for executing commands
