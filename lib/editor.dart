@@ -32,6 +32,7 @@ class Editor {
   ExtensionRegistry? extensions;
   late final Highlighter _highlighter;
   late final Renderer renderer;
+  String _inputBuffer = ''; // Buffer for incomplete escape sequences
 
   Editor({
     required this.terminal,
@@ -166,15 +167,32 @@ class Editor {
       logFile ??= File(logPath!);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
-    // Handle mouse events (SGR extended format)
-    final mouse = MouseEvent.tryParse(str);
-    if (mouse != null) {
-      _handleMouseEvent(mouse);
-      return;
+
+    // Prepend any buffered input from previous incomplete sequences
+    str = _inputBuffer + str;
+    _inputBuffer = '';
+
+    // Check for incomplete mouse sequence at end and buffer it
+    final incomplete = RegExp(r'\x1b\[<[\d;]*$');
+    final match = incomplete.firstMatch(str);
+    if (match != null) {
+      _inputBuffer = match.group(0)!;
+      str = str.substring(0, match.start);
     }
-    for (String char in str.characters) {
+
+    // Extract and handle complete mouse sequences
+    final mouseSeq = RegExp(r'\x1b\[<[\d;]+[Mm]');
+    for (final m in mouseSeq.allMatches(str)) {
+      final mouse = MouseEvent.tryParse(m.group(0)!);
+      if (mouse != null) _handleMouseEvent(mouse);
+    }
+
+    // Handle remaining input (with mouse sequences removed)
+    final remaining = str.replaceAll(mouseSeq, '');
+    for (String char in remaining.characters) {
       handleInput(char);
     }
+
     if (redraw) {
       draw();
     }
