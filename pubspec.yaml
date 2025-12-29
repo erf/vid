@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   characters: ^1.4.1
-  termio: ^0.3.1
+  termio: ^0.4.0
 
 dev_dependencies:
   lints: ^6.0.0
