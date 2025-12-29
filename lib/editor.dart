@@ -232,6 +232,10 @@ class Editor {
 
   /// Handle scroll wheel via mouse event
   void _handleMouseScroll(MouseEvent mouse) {
+    // Only handle vertical scroll events
+    final dir = mouse.scrollDirection;
+    if (dir != ScrollDirection.up && dir != ScrollDirection.down) return;
+
     final visibleLines = terminal.height - 1;
 
     // Don't scroll if all content fits in viewport
@@ -240,9 +244,7 @@ class Editor {
     const scrollLines = 3;
     const scrollPadding = 3; // Empty lines to allow past end of file
     final currentLine = file.lineNumber(file.viewport);
-    final delta = mouse.scrollDirection == ScrollDirection.up
-        ? -scrollLines
-        : scrollLines;
+    final delta = dir == ScrollDirection.up ? -scrollLines : scrollLines;
     // Max viewport line: last line at bottom of screen + padding
     final maxViewportLine = file.totalLines - visibleLines + scrollPadding;
     final targetLine = (currentLine + delta).clamp(0, maxViewportLine);
