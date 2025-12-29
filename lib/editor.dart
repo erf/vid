@@ -84,7 +84,7 @@ class Editor {
 
     terminal.write(Ansi.graphemeCluster(true));
     terminal.write(Ansi.altBuffer(true));
-    terminal.write(Ansi.alternateScroll(false));
+    terminal.write(Ansi.altScroll(false));
     terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
     terminal.write(Ansi.pushTitle());
     terminal.write(Ansi.setTitle('vid ${path ?? '[No Name]'}'));

@@ -8,8 +8,14 @@ typedef OperatorFunction = void Function(Editor e, FileBuffer f, Range range);
 
 class Operators {
   static void change(Editor e, FileBuffer f, Range r) {
-    delete(e, f, r);
+    final Range range = r.norm;
+    // Yank before deleting, with linewise info
+    f.yankRange(range, linewise: f.edit.linewise);
+    f.replace(range.start, range.end, '', config: e.config);
+    f.cursor = range.start;
+    // Set insert mode BEFORE clamping so cursor can stay on newline
     f.setMode(e, .insert);
+    f.clampCursor();
   }
 
   static void delete(Editor e, FileBuffer f, Range r) {
@@ -19,8 +25,8 @@ class Operators {
     // Use undo: false to skip auto-yank in replace (we already yanked with linewise)
     f.replace(range.start, range.end, '', config: e.config);
     f.cursor = range.start;
-    f.clampCursor();
     f.setMode(e, .normal);
+    f.clampCursor();
   }
 
   static void yank(Editor e, FileBuffer f, Range r) {

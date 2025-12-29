@@ -28,6 +28,20 @@ void main() {
     f.cursor = 5; // at space after 'hello'
     e.input('C');
     expect(f.text, 'hello\n');
+    expect(f.cursor, 5); // cursor at newline, ready to insert at end of line
+  });
+
+  test('actionChangeLineEnd cursor at end of line', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\n';
+    f.cursor = 2; // at 'c'
+    e.input('C');
+    expect(f.text, 'ab\n');
+    expect(f.cursor, 2); // cursor at newline, not moved back
   });
 
   test('actionDeleteCharNext', () {
