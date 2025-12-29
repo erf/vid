@@ -18,7 +18,7 @@ import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'motions/motion.dart';
 import 'range.dart';
-import 'regex.dart';
+import 'string_ext.dart';
 
 class Editor {
   Config config;
@@ -85,6 +85,7 @@ class Editor {
     terminal.write(Ansi.graphemeCluster(true));
     terminal.write(Ansi.altBuffer(true));
     terminal.write(Ansi.altScroll(true));
+    terminal.write(Ansi.mouseMode(true));
     terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
     terminal.write(Ansi.pushTitle());
     terminal.write(Ansi.setTitle('vid ${path ?? '[No Name]'}'));
@@ -97,6 +98,7 @@ class Editor {
   void quit() {
     extensions?.notifyQuit();
 
+    terminal.write(Ansi.mouseMode(false));
     terminal.write(Ansi.popTitle());
     terminal.write(Ansi.reset());
     terminal.write(Ansi.cursorReset());
@@ -164,8 +166,10 @@ class Editor {
       logFile ??= File(logPath!);
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
-    if (Regex.scrollEvents.hasMatch(str)) {
-      _handleScrollEvent(str);
+    // Handle mouse events (SGR extended format)
+    final mouse = MouseEvent.tryParse(str);
+    if (mouse != null) {
+      _handleMouseEvent(mouse);
       return;
     }
     for (String char in str.characters) {
@@ -175,43 +179,6 @@ class Editor {
       draw();
     }
     message = null;
-  }
-
-  /// Handle mouse scroll events to offset viewport
-  /// Scroll up: \x1b[A or \x1bOA, Scroll down: \x1b[B or \x1bOB
-  /// Left/right arrows (C/D) are caught but discarded
-  void _handleScrollEvent(String str) {
-    final isUp = str.endsWith('A');
-    final isDown = str.endsWith('B');
-
-    // Only handle up/down, discard left/right
-    if (!isUp && !isDown) return;
-
-    const scrollLines = 3;
-    final currentLine = file.lineNumber(file.viewport);
-
-    if (isUp) {
-      // Scroll up - move viewport earlier in file
-      final targetLine = (currentLine - scrollLines).clamp(
-        0,
-        file.totalLines - 1,
-      );
-      file.viewport = file.lineOffset(targetLine);
-    } else {
-      // Scroll down - move viewport later in file
-      final targetLine = (currentLine + scrollLines).clamp(
-        0,
-        file.totalLines - 1,
-      );
-      file.viewport = file.lineOffset(targetLine);
-    }
-
-    // Clamp cursor to stay within visible viewport
-    _clampCursorToViewport();
-
-    if (redraw) {
-      draw();
-    }
   }
 
   /// Clamp cursor to top/bottom of viewport if it goes off-screen
@@ -233,6 +200,69 @@ class Editor {
       file.cursor = file.lineOffset(lastVisibleLine);
       file.clampCursor();
     }
+  }
+
+  /// Handle mouse events (clicks and scroll)
+  void _handleMouseEvent(MouseEvent mouse) {
+    if (mouse.isScroll) {
+      _handleMouseScroll(mouse);
+    } else if (mouse.isPress && mouse.button == MouseButton.left) {
+      _handleMouseClick(mouse);
+    }
+    // Ignore other events (release, right-click, etc.)
+  }
+
+  /// Handle scroll wheel via mouse event
+  void _handleMouseScroll(MouseEvent mouse) {
+    const scrollLines = 3;
+    final currentLine = file.lineNumber(file.viewport);
+    final delta = mouse.scrollDirection == ScrollDirection.up
+        ? -scrollLines
+        : scrollLines;
+    final targetLine = (currentLine + delta).clamp(0, file.totalLines - 1);
+    file.viewport = file.lineOffset(targetLine);
+    _clampCursorToViewport();
+    if (redraw) draw();
+  }
+
+  /// Handle left-click to set cursor position
+  void _handleMouseClick(MouseEvent mouse) {
+    // mouse.x and mouse.y are 1-based screen coordinates
+    final screenRow = mouse.y - 1; // Convert to 0-based
+    final screenCol = mouse.x - 1;
+
+    // Don't handle clicks on status line
+    if (screenRow >= terminal.height - 1) return;
+
+    // Calculate target line from viewport + screen row
+    final viewportLine = file.lineNumber(file.viewport);
+    final targetLine = (viewportLine + screenRow).clamp(0, file.totalLines - 1);
+
+    // Get line text and find byte offset for clicked column
+    final lineText = file.lineTextAt(targetLine);
+    final lineStart = file.lines[targetLine].start;
+
+    // Map screen column to byte offset within line
+    file.cursor = _screenColToOffset(lineText, lineStart, screenCol);
+    file.clampCursor();
+
+    if (redraw) draw();
+  }
+
+  /// Convert screen column to byte offset within a line
+  int _screenColToOffset(String lineText, int lineStart, int screenCol) {
+    if (lineText.isEmpty) return lineStart;
+
+    int renderCol = 0;
+    int byteOffset = 0;
+
+    for (final char in lineText.characters) {
+      if (renderCol >= screenCol) break;
+      renderCol += char.charWidth(config.tabWidth);
+      byteOffset += char.length;
+    }
+
+    return lineStart + byteOffset;
   }
 
   // match input against key bindings for executing commands
