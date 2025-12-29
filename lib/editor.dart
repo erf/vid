@@ -238,11 +238,14 @@ class Editor {
     if (file.totalLines <= visibleLines) return;
 
     const scrollLines = 3;
+    const scrollPadding = 3; // Empty lines to allow past end of file
     final currentLine = file.lineNumber(file.viewport);
     final delta = mouse.scrollDirection == ScrollDirection.up
         ? -scrollLines
         : scrollLines;
-    final targetLine = (currentLine + delta).clamp(0, file.totalLines - 1);
+    // Max viewport line: last line at bottom of screen + padding
+    final maxViewportLine = file.totalLines - visibleLines + scrollPadding;
+    final targetLine = (currentLine + delta).clamp(0, maxViewportLine);
     file.viewport = file.lineOffset(targetLine);
     _clampCursorToViewport();
     if (redraw) draw();
