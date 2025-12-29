@@ -10,6 +10,7 @@ import 'string_ext.dart';
 /// Parameters for rendering a line
 class RenderLineParams {
   final String rendered;
+  final int lineNum;
   final int lineStartByte;
   final int lineEndByte;
   final int screenRow;
@@ -20,6 +21,7 @@ class RenderLineParams {
 
   RenderLineParams({
     required this.rendered,
+    required this.lineNum,
     required this.lineStartByte,
     required this.lineEndByte,
     required this.screenRow,
@@ -56,11 +58,33 @@ class RenderResult {
   });
 }
 
+/// Info about what logical position a screen row maps to
+class ScreenRowInfo {
+  /// The logical line number (0-based)
+  final int lineNum;
+
+  /// The render column offset within the line (for wrapped lines)
+  final int wrapCol;
+
+  /// The byte offset of the start of this line
+  final int lineStartByte;
+
+  const ScreenRowInfo({
+    required this.lineNum,
+    required this.wrapCol,
+    required this.lineStartByte,
+  });
+}
+
 class Renderer {
   final buffer = StringBuffer();
 
   final TerminalBase terminal;
   final Highlighter highlighter;
+
+  /// Maps screen row (0-based) to logical line info. Populated during draw().
+  /// Used for mouse click -> cursor position mapping.
+  final List<ScreenRowInfo> screenRowMap = [];
 
   Renderer({required this.terminal, required this.highlighter});
 
@@ -195,11 +219,22 @@ class Renderer {
     bool cursorFound = false;
     int currentFileLineNum = file.lineNumber(file.viewport);
 
+    // Clear screen row map for fresh population
+    screenRowMap.clear();
+
     while (screenRow < numLines) {
       // Past end of file - draw '~'
       if (offset >= file.text.length) {
         if (screenRow > 0) buffer.write(Keys.newline);
         buffer.write('~');
+        // Add empty entry for ~ lines (no valid position)
+        screenRowMap.add(
+          ScreenRowInfo(
+            lineNum: -1,
+            wrapCol: 0,
+            lineStartByte: file.text.length,
+          ),
+        );
         screenRow++;
         continue;
       }
@@ -215,6 +250,7 @@ class Renderer {
       // Render line based on wrap mode
       final params = RenderLineParams(
         rendered: rendered,
+        lineNum: currentFileLineNum,
         lineStartByte: offset,
         lineEndByte: lineEnd,
         screenRow: screenRow,
@@ -251,6 +287,16 @@ class Renderer {
   /// Render line without wrapping (horizontal scroll)
   RenderLineResult _renderLineNoWrap(RenderLineParams p, Config config) {
     if (p.screenRow > 0) buffer.write(Keys.newline);
+
+    // Add screen row mapping
+    screenRowMap.add(
+      ScreenRowInfo(
+        lineNum: p.lineNum,
+        wrapCol: p.viewportCol,
+        lineStartByte: p.lineStartByte,
+      ),
+    );
+
     if (p.rendered.isNotEmpty) {
       final visible = p.rendered.renderLine(p.viewportCol, terminal.width);
       if (config.syntaxHighlighting) {
@@ -284,6 +330,15 @@ class Renderer {
     while (wrapCol < p.rendered.length || firstWrap) {
       if (screenRow >= p.numLines) break;
       if (screenRow > 0) buffer.write(Keys.newline);
+
+      // Add screen row mapping for this wrapped segment
+      screenRowMap.add(
+        ScreenRowInfo(
+          lineNum: p.lineNum,
+          wrapCol: wrapCol,
+          lineStartByte: p.lineStartByte,
+        ),
+      );
 
       int chunkEnd = wrapCol + terminal.width;
       if (chunkEnd > p.rendered.length) chunkEnd = p.rendered.length;
@@ -344,6 +399,15 @@ class Renderer {
     while (wrapCol < p.rendered.length || firstWrap) {
       if (screenRow >= p.numLines) break;
       if (screenRow > 0) buffer.write(Keys.newline);
+
+      // Add screen row mapping for this wrapped segment
+      screenRowMap.add(
+        ScreenRowInfo(
+          lineNum: p.lineNum,
+          wrapCol: wrapCol,
+          lineStartByte: p.lineStartByte,
+        ),
+      );
 
       // Find wrap point - try to break at word boundary
       int chunkEnd = wrapCol + terminal.width;

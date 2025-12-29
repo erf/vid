@@ -234,16 +234,24 @@ class Editor {
     // Don't handle clicks on status line
     if (screenRow >= terminal.height - 1) return;
 
-    // Calculate target line from viewport + screen row
-    final viewportLine = file.lineNumber(file.viewport);
-    final targetLine = (viewportLine + screenRow).clamp(0, file.totalLines - 1);
+    // Use the screen row map populated by the renderer
+    if (screenRow >= renderer.screenRowMap.length) return;
+
+    final rowInfo = renderer.screenRowMap[screenRow];
+
+    // Ignore clicks on ~ lines (past end of file)
+    if (rowInfo.lineNum < 0) return;
 
     // Get line text and find byte offset for clicked column
-    final lineText = file.lineTextAt(targetLine);
-    final lineStart = file.lines[targetLine].start;
+    final lineText = file.lineTextAt(rowInfo.lineNum);
+    final lineStart = rowInfo.lineStartByte;
 
-    // Map screen column to byte offset within line
-    file.cursor = _screenColToOffset(lineText, lineStart, screenCol);
+    // screenCol + wrapCol gives the position within the full line
+    file.cursor = _screenColToOffset(
+      lineText,
+      lineStart,
+      rowInfo.wrapCol + screenCol,
+    );
     file.clampCursor();
 
     if (redraw) draw();
