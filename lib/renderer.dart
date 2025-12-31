@@ -117,7 +117,14 @@ class Renderer {
 
     // Pass 2: Render using the calculated layout
     buffer.clear();
+
+    // Apply theme background and foreground colors if set, then clear screen
+    // (clearing after setting bg fills screen with theme background)
+    final theme = highlighter.theme;
+    if (theme.background != null) buffer.write(theme.background);
+    if (theme.foreground != null) buffer.write(theme.foreground);
     buffer.write(Ansi.clearScreen());
+
     _renderLines(file: file, config: config, viewportCol: viewportCol);
 
     if (file.mode case Mode.command || Mode.search) {
