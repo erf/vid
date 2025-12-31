@@ -17,7 +17,7 @@ We use a `TextOp` class with a `start`, `prevText` and `newText` to solve this.
 We use convinience functions on top of that for delete and insert.
 We use the `String.replaceRange` to do all text operations.
 
-```
+```Dart
 String replaceRange(
   int start,
   int? end,
@@ -27,6 +27,7 @@ String replaceRange(
 
 Example:
 
+```Dart
 text = "hello test world"
 
 // action: delete 'test '
@@ -85,6 +86,7 @@ text.replaceRange(undo.start, undo.start + undo.newtext.len, undo.prevtext)
 undo += redo
 text.replaceRange(undo.start, undo.end, undo.newtext) // same as the initial action (do), so we could pass the same undo obj
 // text = "hello bold"
+```
 
 ## TODO 
 
