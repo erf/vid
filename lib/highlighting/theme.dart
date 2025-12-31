@@ -83,17 +83,14 @@ class Theme {
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)
-  static final Theme _mono = Theme._(
-    'mono',
-    {
-      TokenType.keyword: Ansi.bold(),
-      TokenType.lineComment: Ansi.dim(),
-      TokenType.blockComment: Ansi.dim(),
-      TokenType.string: Ansi.italic(),
-      TokenType.number: '',
-      TokenType.literal: Ansi.bold(),
-      TokenType.type: Ansi.underline(),
-      TokenType.plain: _reset,
-    },
-  );
+  static final Theme _mono = Theme._('mono', {
+    TokenType.keyword: Ansi.bold(),
+    TokenType.lineComment: Ansi.dim(),
+    TokenType.blockComment: Ansi.dim(),
+    TokenType.string: Ansi.italic(),
+    TokenType.number: '',
+    TokenType.literal: Ansi.bold(),
+    TokenType.type: Ansi.underline(),
+    TokenType.plain: _reset,
+  });
 }
