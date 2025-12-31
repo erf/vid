@@ -29,7 +29,7 @@ class Theme {
 
   static final String _reset = Ansi.reset();
 
-  // Rosé Pine Dawn (light mode) - https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/schemes/Rose%20Pine%20Dawn.itermcolors
+  // Rosé Pine Dawn (light mode) - https://raw.githubusercontent.com/rose-pine/palette/main/palette.json
   static final Theme _rosePineDawn = Theme._('rosepine-dawn', {
     TokenType.keyword: Ansi.fgRgb(40, 105, 131), // Pine #286983
     TokenType.lineComment: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
@@ -41,7 +41,7 @@ class Theme {
     TokenType.plain: _reset,
   });
 
-  // Rosé Pine (dark mode) - https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/schemes/Rose%20Pine.itermcolors
+  // Rosé Pine (dark mode) - https://raw.githubusercontent.com/rose-pine/palette/main/palette.json
   static final Theme _rosePine = Theme._('rosepine', {
     TokenType.keyword: Ansi.fgRgb(49, 116, 143), // Pine #31748f
     TokenType.lineComment: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
