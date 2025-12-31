@@ -53,10 +53,14 @@ class Highlighter {
 
   /// Apply styling to a visible substring.
   ///
+  /// [buffer] is the output buffer to write to.
   /// [text] is the visible text to style.
   /// [start] is the byte offset where this text starts in the document.
-  String style(String text, int start) {
-    if (_tokens.isEmpty || text.isEmpty) return text;
+  void style(StringBuffer buffer, String text, int start) {
+    if (_tokens.isEmpty || text.isEmpty) {
+      buffer.write(text);
+      return;
+    }
 
     final textEndByte = start + text.length;
 
@@ -69,10 +73,12 @@ class Highlighter {
       }
     }
 
-    if (overlapping.isEmpty) return text;
+    if (overlapping.isEmpty) {
+      buffer.write(text);
+      return;
+    }
 
     // Build styled output
-    final buffer = StringBuffer();
     var pos = 0;
 
     for (final token in overlapping) {
@@ -102,7 +108,5 @@ class Highlighter {
     if (pos < text.length) {
       buffer.write(text.substring(pos));
     }
-
-    return buffer.toString();
   }
 }

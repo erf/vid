@@ -504,8 +504,7 @@ class Renderer {
       final visible = rendered.renderLine(viewportCol, terminal.width);
       if (syntaxHighlighting) {
         final byteOffset = rendered.characters.take(viewportCol).string.length;
-        final styled = highlighter.style(visible, lineStartByte + byteOffset);
-        buffer.write(styled);
+        highlighter.style(buffer, visible, lineStartByte + byteOffset);
       } else {
         buffer.write(visible);
       }
@@ -532,8 +531,7 @@ class Renderer {
 
       if (syntaxHighlighting) {
         final byteOffset = rendered.characters.take(wrapCol).string.length;
-        final styled = highlighter.style(chunk, lineStartByte + byteOffset);
-        buffer.write(styled);
+        highlighter.style(buffer, chunk, lineStartByte + byteOffset);
       } else {
         buffer.write(chunk);
       }
@@ -585,8 +583,7 @@ class Renderer {
 
       if (syntaxHighlighting) {
         final byteOffset = rendered.characters.take(wrapCol).string.length;
-        final styled = highlighter.style(chunk, lineStartByte + byteOffset);
-        buffer.write(styled);
+        highlighter.style(buffer, chunk, lineStartByte + byteOffset);
       } else {
         buffer.write(chunk);
       }
