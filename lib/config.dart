@@ -1,4 +1,4 @@
-import 'highlighting/highlighter.dart';
+import 'package:vid/highlighting/theme.dart';
 
 enum WrapMode { none, char, word }
 

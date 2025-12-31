@@ -1,10 +1,10 @@
+import 'package:vid/highlighting/theme.dart';
+
 import 'languages/dart_tokenizer.dart';
 import 'languages/json_tokenizer.dart';
 import 'languages/markdown_tokenizer.dart';
 import 'languages/yaml_tokenizer.dart';
 import 'token.dart';
-
-export 'token.dart' show Token, TokenType, Theme, ThemeType;
 
 /// Main syntax highlighter that tokenizes text and applies styling.
 class Highlighter {
