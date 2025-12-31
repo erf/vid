@@ -28,25 +28,20 @@ class Theme {
 
   const Theme._(this.name, this._colors, {this.background, this.foreground});
 
-  String colorFor(TokenType type) => _colors[type] ?? Ansi.reset();
+  /// ANSI reset code for clearing styles.
+  static final String reset = Ansi.reset();
+
+  /// Get the ANSI color code for a given [TokenType].
+  String colorFor(TokenType type) => _colors[type] ?? reset;
 
   /// Code to reset back to theme's base colors.
   /// For themes with explicit colors, resets and reapplies bg/fg.
   /// For mono theme, just resets.
-  String get resetCode {
-    if (background == null && foreground == null) {
-      return Ansi.reset();
-    }
-    final buf = StringBuffer(Ansi.reset());
-    if (background != null) buf.write(background);
-    if (foreground != null) buf.write(foreground);
-    return buf.toString();
+  void resetCode(StringBuffer buffer) {
+    buffer.write(reset);
+    if (background != null) buffer.write(background);
+    if (foreground != null) buffer.write(foreground);
   }
-
-  /// ANSI reset code for clearing styles.
-  static final String reset = Ansi.reset();
-
-  static final String _reset = Ansi.reset();
 
   // Rosé Pine Dawn (light mode) - https://raw.githubusercontent.com/rose-pine/palette/main/palette.json
   static final Theme _rosePineDawn = Theme._(
@@ -59,7 +54,7 @@ class Theme {
       TokenType.number: Ansi.fgRgb(215, 130, 126), // Rose #d7827e
       TokenType.literal: Ansi.fgRgb(180, 99, 122), // Love #b4637a
       TokenType.type: Ansi.fgRgb(86, 148, 159), // Foam #56949f
-      TokenType.plain: _reset,
+      TokenType.plain: reset,
     },
     background: Ansi.bgRgb(250, 244, 237), // Base #faf4ed
     foreground: Ansi.fgRgb(87, 82, 121), // Text #575279
@@ -76,7 +71,7 @@ class Theme {
       TokenType.number: Ansi.fgRgb(235, 188, 186), // Rose #ebbcba
       TokenType.literal: Ansi.fgRgb(235, 111, 146), // Love #eb6f92
       TokenType.type: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
-      TokenType.plain: _reset,
+      TokenType.plain: reset,
     },
     background: Ansi.bgRgb(25, 23, 36), // Base #191724
     foreground: Ansi.fgRgb(224, 222, 244), // Text #e0def4
@@ -91,6 +86,6 @@ class Theme {
     TokenType.number: '',
     TokenType.literal: Ansi.bold(),
     TokenType.type: Ansi.underline(),
-    TokenType.plain: _reset,
+    TokenType.plain: reset,
   });
 }

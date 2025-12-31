@@ -90,7 +90,7 @@ class Highlighter {
       if (token.type != TokenType.plain) {
         buffer.write(theme.colorFor(token.type));
         buffer.write(text.substring(tokenStart, tokenEnd));
-        buffer.write(theme.resetCode);
+        theme.resetCode(buffer);
       } else {
         buffer.write(text.substring(tokenStart, tokenEnd));
       }
