@@ -417,4 +417,60 @@ void main() {
     expect(f.text, 'def\n');
     expect(f.cursor, 0);
   });
+
+  test('open line below with o', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.cursor = 0; // at 'a'
+    e.input('ox\x1b');
+    expect(f.text, 'abc\nx\ndef\n');
+    // cursor should be on 'x' after escape
+    expect(f.lineNumber(f.cursor), 1);
+  });
+
+  test('open line above with O', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.cursor = 4; // at 'd' on second line
+    e.input('Ox\x1b');
+    expect(f.text, 'abc\nx\ndef\n');
+    // cursor should be on 'x' (the new line above original 'def')
+    expect(f.lineNumber(f.cursor), 1);
+  });
+
+  test('open line above with O on first line', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.cursor = 0; // at 'a' on first line
+    e.input('Ox\x1b');
+    expect(f.text, 'x\nabc\ndef\n');
+    // cursor should be on 'x' (the new first line)
+    expect(f.lineNumber(f.cursor), 0);
+  });
+
+  test('open line above with O places cursor on new empty line', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.cursor = 4; // at 'd' on second line
+    e.input('O\x1b');
+    expect(f.text, 'abc\n\ndef\n');
+    // cursor should be on the new empty line (line 1), not on 'abc' (line 0)
+    expect(f.lineNumber(f.cursor), 1);
+  });
 }

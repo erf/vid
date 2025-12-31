@@ -25,8 +25,15 @@ class InsertActions {
   /// Exit insert mode and return to normal mode.
   static void escape(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
-    f.cursor = f.prevGrapheme(f.cursor);
-    f.cursor = max(f.cursor, f.lineStart(f.cursor));
+    // In vim, escape moves cursor back one char, but not past line start.
+    // We need to get lineStart BEFORE moving, to avoid crossing line boundaries.
+    int lineStart = f.lineStart(f.cursor);
+    int prev = f.prevGrapheme(f.cursor);
+    // Only move back if we won't go before line start
+    if (prev >= lineStart) {
+      f.cursor = prev;
+    }
+    // If prev < lineStart, cursor stays at current position (line start or empty line)
   }
 
   /// Delete character before cursor.
