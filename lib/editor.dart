@@ -224,9 +224,19 @@ class Editor {
     final buf = e.value;
     final current = idx == _currentBufferIndex ? '%' : ' ';
     final modified = buf.modified ? '+' : ' ';
-    final name = buf.path ?? '[No Name]';
+    final name = buf.path != null ? _relativePath(buf.path!) : '[No Name]';
     return '${idx + 1}$current$modified "$name"';
   }).toList();
+
+  /// Convert absolute path to relative path from current directory.
+  String _relativePath(String path) {
+    final cwd = Directory.current.path;
+    if (path.startsWith(cwd)) {
+      final relative = path.substring(cwd.length);
+      return relative.startsWith('/') ? relative.substring(1) : relative;
+    }
+    return path;
+  }
 
   void initTerminal(String? path) {
     terminal.rawMode = true;
