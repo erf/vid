@@ -150,6 +150,8 @@ const lineEditCommands = <String, LineEditCommand>{
   'quit!': LineEditCommand(LineEdit.forceQuit),
   'o': LineEditCommand(LineEdit.open),
   'open': LineEditCommand(LineEdit.open),
+  'e': LineEditCommand(LineEdit.open),
+  'edit': LineEditCommand(LineEdit.open),
   'r': LineEditCommand(LineEdit.read),
   'read': LineEditCommand(LineEdit.read),
   'w': LineEditCommand(LineEdit.write),
@@ -160,6 +162,20 @@ const lineEditCommands = <String, LineEditCommand>{
   'nowrap': LineEditCommand(LineEdit.setNoWrap),
   'charwrap': LineEditCommand(LineEdit.setCharWrap),
   'wordwrap': LineEditCommand(LineEdit.setWordWrap),
+  // Buffer commands
+  'bn': LineEditCommand(BufferCommands.nextBuffer),
+  'bnext': LineEditCommand(BufferCommands.nextBuffer),
+  'bp': LineEditCommand(BufferCommands.prevBuffer),
+  'bprev': LineEditCommand(BufferCommands.prevBuffer),
+  'bprevious': LineEditCommand(BufferCommands.prevBuffer),
+  'b': LineEditCommand(BufferCommands.switchToBuffer),
+  'buffer': LineEditCommand(BufferCommands.switchToBuffer),
+  'bd': LineEditCommand(BufferCommands.closeBuffer),
+  'bdelete': LineEditCommand(BufferCommands.closeBuffer),
+  'bd!': LineEditCommand(BufferCommands.forceCloseBuffer),
+  'bdelete!': LineEditCommand(BufferCommands.forceCloseBuffer),
+  'ls': LineEditCommand(BufferCommands.listBuffers),
+  'buffers': LineEditCommand(BufferCommands.listBuffers),
 };
 
 const lineEditInputBindings = <String, Command>{

@@ -8,4 +8,8 @@ abstract class Extension {
   void onQuit(Editor editor);
 
   void onFileOpen(Editor editor, FileBuffer file) {}
+
+  void onBufferSwitch(Editor editor, FileBuffer previous, FileBuffer next) {}
+
+  void onBufferClose(Editor editor, FileBuffer file) {}
 }

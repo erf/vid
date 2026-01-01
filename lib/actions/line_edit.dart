@@ -7,6 +7,66 @@ import '../regex.dart';
 import 'motions.dart';
 import 'normal.dart';
 
+/// Buffer navigation and management commands.
+class BufferCommands {
+  /// Switch to next buffer (:bn, :bnext)
+  static void nextBuffer(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    if (e.bufferCount <= 1) {
+      e.showMessage(.info('Only one buffer open'));
+      return;
+    }
+    e.nextBuffer();
+    e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
+  }
+
+  /// Switch to previous buffer (:bp, :bprev)
+  static void prevBuffer(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    if (e.bufferCount <= 1) {
+      e.showMessage(.info('Only one buffer open'));
+      return;
+    }
+    e.prevBuffer();
+    e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
+  }
+
+  /// Switch to buffer by number (:b <n>)
+  static void switchToBuffer(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    if (args.length < 2) {
+      e.showMessage(.error('Buffer number required'));
+      return;
+    }
+    final num = int.tryParse(args[1]);
+    if (num == null || num < 1 || num > e.bufferCount) {
+      e.showMessage(.error('Invalid buffer number: ${args[1]}'));
+      return;
+    }
+    e.switchBuffer(num - 1);
+    e.showMessage(.info('Buffer $num/${e.bufferCount}'));
+  }
+
+  /// Close current buffer (:bd, :bdelete)
+  static void closeBuffer(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    e.closeBuffer(e.currentBufferIndex);
+  }
+
+  /// Force close current buffer (:bd!, :bdelete!)
+  static void forceCloseBuffer(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    e.closeBuffer(e.currentBufferIndex, force: true);
+  }
+
+  /// List all buffers (:ls, :buffers)
+  static void listBuffers(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    final list = e.bufferList.join(' | ');
+    e.showMessage(.info(list), timed: false);
+  }
+}
+
 /// Input actions for line edit mode (command line and search).
 class LineEditInput {
   /// Delete last character in line edit buffer, or exit if empty.
@@ -60,10 +120,6 @@ class LineEdit {
 
   static void open(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    if (f.modified) {
-      e.showMessage(.error('File has unsaved changes'));
-      return;
-    }
     if (args.length < 2 || args[1].isEmpty) {
       e.showMessage(.error('No file name'));
       return;

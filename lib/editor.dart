@@ -25,7 +25,23 @@ class Editor {
   Config config;
   final TerminalBase terminal;
   final bool redraw;
-  var file = FileBuffer();
+  final List<FileBuffer> _buffers = [];
+  int _currentBufferIndex = 0;
+  FileBuffer get file =>
+      _buffers.isEmpty ? _emptyBuffer : _buffers[_currentBufferIndex];
+  set file(FileBuffer buffer) {
+    if (_buffers.isEmpty) {
+      _buffers.add(buffer);
+    } else {
+      _buffers[_currentBufferIndex] = buffer;
+    }
+  }
+
+  List<FileBuffer> get buffers => _buffers; // Expose for extensions
+  static final _emptyBuffer = FileBuffer(); // Fallback for empty buffer list
+  int get bufferCount => _buffers.length;
+  int get currentBufferIndex => _currentBufferIndex;
+  YankBuffer? yankBuffer; // Shared across all buffers
   Message? message;
   Timer? messageTimer;
   String? logPath;
@@ -42,35 +58,166 @@ class Editor {
   }) {
     _highlighter = Highlighter(themeType: config.syntaxTheme);
     renderer = Renderer(terminal: terminal, highlighter: _highlighter);
+    _buffers.add(FileBuffer()); // Start with one empty buffer
   }
+
   void init(List<String> args) {
-    String? path = args.isNotEmpty ? args[0] : null;
-    final result = FileBufferIo.load(path ?? '', createIfNotExists: true);
-    if (result.hasError) {
-      print(result.error);
-      exit(0);
+    // Parse args: file paths with optional +linenum after each
+    // e.g., vid file1.dart +10 file2.dart +20 file3.txt
+    final files = <(String path, String? lineArg)>[];
+    String? pendingPath;
+
+    for (final arg in args) {
+      if (arg.startsWith('+')) {
+        if (pendingPath != null) {
+          files.add((pendingPath, arg));
+          pendingPath = null;
+        }
+        // Ignore +linenum without preceding file
+      } else {
+        if (pendingPath != null) {
+          files.add((pendingPath, null));
+        }
+        pendingPath = arg;
+      }
     }
-    file = result.value!;
-    file.parseCliArgs(args);
-    initTerminal(path);
+    if (pendingPath != null) {
+      files.add((pendingPath, null));
+    }
+
+    if (files.isEmpty) {
+      // No files specified, keep empty buffer
+      initTerminal(null);
+    } else {
+      // Load all specified files
+      for (int i = 0; i < files.length; i++) {
+        final (path, _) = files[i];
+        final result = FileBufferIo.load(path, createIfNotExists: true);
+        if (result.hasError) {
+          print(result.error);
+          exit(0);
+        }
+        final buffer = result.value!;
+        if (i == 0) {
+          _buffers[0] = buffer; // Replace the initial empty buffer
+        } else {
+          _buffers.add(buffer);
+        }
+      }
+      initTerminal(files[0].$1);
+    }
 
     extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
     extensions?.notifyInit();
-    extensions?.notifyFileOpen(file);
+
+    // Notify extensions for all loaded files
+    for (final buffer in _buffers) {
+      extensions?.notifyFileOpen(buffer);
+    }
+
+    // Apply +linenum args AFTER extensions (so they override saved cursor positions)
+    for (int i = 0; i < files.length; i++) {
+      final (path, lineArg) = files[i];
+      if (lineArg != null) {
+        _buffers[i].parseCliArgs([path, lineArg]);
+      }
+    }
+
     draw();
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
+    // Check if file is already open
+    final existingIndex = _buffers.indexWhere(
+      (b) =>
+          b.absolutePath != null &&
+          b.absolutePath == FileBufferIo.toAbsolutePath(path),
+    );
+    if (existingIndex != -1) {
+      switchBuffer(existingIndex);
+      return ErrorOr.value(_buffers[existingIndex]);
+    }
+
     final result = FileBufferIo.load(path, createIfNotExists: false);
     if (result.hasError) {
       return result;
     }
-    file = result.value!;
+    _buffers.add(result.value!);
+    _currentBufferIndex = _buffers.length - 1;
     terminal.write(Ansi.setTitle('vid $path'));
     extensions?.notifyFileOpen(file);
     draw();
     return result;
   }
+
+  /// Switch to buffer at given index
+  void switchBuffer(int index) {
+    if (index < 0 || index >= _buffers.length) return;
+    final oldBuffer = file;
+    _currentBufferIndex = index;
+    terminal.write(Ansi.setTitle('vid ${file.path ?? "[No Name]"}'));
+    extensions?.notifyBufferSwitch(oldBuffer, file);
+    draw();
+  }
+
+  /// Switch to next buffer
+  void nextBuffer() {
+    if (_buffers.length <= 1) return;
+    switchBuffer((_currentBufferIndex + 1) % _buffers.length);
+  }
+
+  /// Switch to previous buffer
+  void prevBuffer() {
+    if (_buffers.length <= 1) return;
+    switchBuffer((_currentBufferIndex - 1 + _buffers.length) % _buffers.length);
+  }
+
+  /// Close buffer at given index, returns true if closed
+  bool closeBuffer(int index, {bool force = false}) {
+    if (index < 0 || index >= _buffers.length) return false;
+    final buffer = _buffers[index];
+
+    if (!force && buffer.modified) {
+      showMessage(.error('Buffer has unsaved changes (use :bd! to force)'));
+      return false;
+    }
+
+    extensions?.notifyBufferClose(buffer);
+    _buffers.removeAt(index);
+
+    if (_buffers.isEmpty) {
+      // Last buffer closed, quit editor
+      quit();
+      return true;
+    }
+
+    // Adjust current index if needed
+    if (_currentBufferIndex >= _buffers.length) {
+      _currentBufferIndex = _buffers.length - 1;
+    } else if (_currentBufferIndex > index) {
+      _currentBufferIndex--;
+    }
+
+    terminal.write(Ansi.setTitle('vid ${file.path ?? "[No Name]"}'));
+    draw();
+    return true;
+  }
+
+  /// Check if any buffer has unsaved changes
+  bool get hasUnsavedChanges => _buffers.any((b) => b.modified);
+
+  /// Get count of buffers with unsaved changes
+  int get unsavedBufferCount => _buffers.where((b) => b.modified).length;
+
+  /// Get list of buffer info for display
+  List<String> get bufferList => _buffers.asMap().entries.map((e) {
+    final idx = e.key;
+    final buf = e.value;
+    final current = idx == _currentBufferIndex ? '%' : ' ';
+    final modified = buf.modified ? '+' : ' ';
+    final name = buf.path ?? '[No Name]';
+    return '${idx + 1}$current$modified "$name"';
+  }).toList();
 
   void initTerminal(String? path) {
     terminal.rawMode = true;
@@ -137,7 +284,13 @@ class Editor {
   }
 
   void draw() {
-    renderer.draw(file: file, config: config, message: message);
+    renderer.draw(
+      file: file,
+      config: config,
+      message: message,
+      bufferIndex: _currentBufferIndex,
+      bufferCount: _buffers.length,
+    );
   }
 
   void showMessage(Message message, {bool timed = true}) {

@@ -10,7 +10,7 @@ class Operators {
   static void change(Editor e, FileBuffer f, Range r) {
     final Range range = r.norm;
     // Yank before deleting, with linewise info
-    f.yankRange(range, linewise: f.edit.linewise);
+    f.yankRange(e, range, linewise: f.edit.linewise);
     f.replace(range.start, range.end, '', config: e.config);
     f.cursor = range.start;
     // Set insert mode BEFORE clamping so cursor can stay on newline
@@ -21,7 +21,7 @@ class Operators {
   static void delete(Editor e, FileBuffer f, Range r) {
     final Range range = r.norm;
     // Yank before deleting, with linewise info
-    f.yankRange(range, linewise: f.edit.linewise);
+    f.yankRange(e, range, linewise: f.edit.linewise);
     // Use undo: false to skip auto-yank in replace (we already yanked with linewise)
     f.replace(range.start, range.end, '', config: e.config);
     f.cursor = range.start;
@@ -30,8 +30,8 @@ class Operators {
   }
 
   static void yank(Editor e, FileBuffer f, Range r) {
-    f.yankRange(r, linewise: f.edit.linewise);
-    e.terminal.write(Ansi.copyToClipboard(f.yankBuffer!.text));
+    f.yankRange(e, r, linewise: f.edit.linewise);
+    e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
     f.setMode(e, .normal);
   }
 

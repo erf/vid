@@ -62,6 +62,8 @@ class Renderer {
     required FileBuffer file,
     required Config config,
     Message? message,
+    int bufferIndex = 0,
+    int bufferCount = 1,
   }) {
     file.clampCursor();
 
@@ -130,7 +132,7 @@ class Renderer {
     if (file.mode case Mode.command || Mode.search) {
       _drawLineEdit(file);
     } else {
-      _drawStatus(file, config, cursorLine, message);
+      _drawStatus(file, config, cursorLine, message, bufferIndex, bufferCount);
       _drawCursor(
         config,
         cursorRenderCol,
@@ -644,17 +646,23 @@ class Renderer {
     Config config,
     int cursorLine,
     Message? message,
+    int bufferIndex,
+    int bufferCount,
   ) {
     buffer.write(Ansi.inverse(true));
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
 
     int cursorCol = file.columnInLine(file.cursor);
     String mode = file.mode.label;
+    String bufferIndicator = bufferCount > 1
+        ? '[${bufferIndex + 1}/$bufferCount]'
+        : '';
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String wrap = config.wrapSymbol;
     String left = [
       mode,
+      bufferIndicator,
       path,
       modified,
       wrap,

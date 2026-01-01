@@ -11,7 +11,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - unlimited undo and redo
 - text wrap modes: no-wrap, character-wrap, word-wrap
 - syntax highlighting (dart, yaml, md, json)
-- remember prev cursor position
+- multi-buffer support
 
 ## Technical Details 🛠️
 - for modern terminals like [Ghostty](https://github.com/ghostty-org/ghostty) that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) 

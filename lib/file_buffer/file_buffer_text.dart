@@ -96,9 +96,12 @@ extension FileBufferText on FileBuffer {
     replace(offset, nextOffset, '', config: config);
   }
 
-  void yankRange(Range range, {bool linewise = false}) {
+  void yankRange(Editor e, Range range, {bool linewise = false}) {
     final Range r = range.norm;
-    yankBuffer = YankBuffer(text.substring(r.start, r.end), linewise: linewise);
+    e.yankBuffer = YankBuffer(
+      text.substring(r.start, r.end),
+      linewise: linewise,
+    );
   }
 
   TextOp? undo() {

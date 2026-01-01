@@ -25,4 +25,16 @@ class ExtensionRegistry {
       extension.onFileOpen(_editor, file);
     }
   }
+
+  void notifyBufferSwitch(FileBuffer previous, FileBuffer next) {
+    for (final extension in _extensions) {
+      extension.onBufferSwitch(_editor, previous, next);
+    }
+  }
+
+  void notifyBufferClose(FileBuffer file) {
+    for (final extension in _extensions) {
+      extension.onBufferClose(_editor, file);
+    }
+  }
 }

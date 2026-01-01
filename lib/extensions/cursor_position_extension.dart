@@ -7,7 +7,7 @@ import '../file_buffer/file_buffer.dart';
 import 'extension.dart';
 
 /// Extension that remembers cursor positions for files
-class CursorPositionExtension implements Extension {
+class CursorPositionExtension extends Extension {
   Map<String, int> cursorPerFile = {};
 
   CursorPositionExtension();
@@ -28,15 +28,31 @@ class CursorPositionExtension implements Extension {
   }
 
   @override
+  void onBufferSwitch(Editor editor, FileBuffer previous, FileBuffer next) {
+    // Save cursor position when switching away from a buffer
+    _saveCursorForBuffer(previous);
+  }
+
+  @override
+  void onBufferClose(Editor editor, FileBuffer file) {
+    // Save cursor position when closing a buffer
+    _saveCursorForBuffer(file);
+  }
+
+  @override
   void onQuit(Editor editor) {
-    FileBuffer file = editor.file;
-    if (file.absolutePath != null) {
-      if (file.cursor == 0) {
-        cursorPerFile.remove(file.absolutePath!);
+    // Save cursor position for current buffer and persist to disk
+    _saveCursorForBuffer(editor.file);
+    saveCursorPositions(cursorPerFile);
+  }
+
+  void _saveCursorForBuffer(FileBuffer buffer) {
+    if (buffer.absolutePath != null) {
+      if (buffer.cursor == 0) {
+        cursorPerFile.remove(buffer.absolutePath!);
       } else {
-        cursorPerFile[file.absolutePath!] = file.cursor;
+        cursorPerFile[buffer.absolutePath!] = buffer.cursor;
       }
-      saveCursorPositions(cursorPerFile);
     }
   }
 

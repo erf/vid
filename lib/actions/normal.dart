@@ -21,8 +21,8 @@ class Normal {
   }
 
   static void pasteAfter(Editor e, FileBuffer f) {
-    if (f.yankBuffer == null) return;
-    final YankBuffer yank = f.yankBuffer!;
+    if (e.yankBuffer == null) return;
+    final YankBuffer yank = e.yankBuffer!;
 
     if (yank.linewise) {
       // Paste after current line - insert after the newline at end of line
@@ -51,8 +51,8 @@ class Normal {
   }
 
   static void pasteBefore(Editor e, FileBuffer f) {
-    if (f.yankBuffer == null) return;
-    final YankBuffer yank = f.yankBuffer!;
+    if (e.yankBuffer == null) return;
+    final YankBuffer yank = e.yankBuffer!;
     if (yank.linewise) {
       // Paste before current line
       int lineStartOffset = f.lineStart(f.cursor);
@@ -65,8 +65,9 @@ class Normal {
   }
 
   static void quit(Editor e, FileBuffer f) {
-    if (f.modified) {
-      e.showMessage(.error('File has unsaved changes'));
+    final unsavedCount = e.unsavedBufferCount;
+    if (unsavedCount > 0) {
+      e.showMessage(.error('$unsavedCount buffer(s) have unsaved changes'));
     } else {
       e.quit();
     }

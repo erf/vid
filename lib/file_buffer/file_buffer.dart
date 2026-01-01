@@ -56,9 +56,6 @@ class FileBuffer {
   // the previous edit operation (for repeat)
   EditOperation? prevEdit;
 
-  // the yanked text with linewise info
-  YankBuffer? yankBuffer;
-
   // list of undo operations
   List<TextOp> undoList = [];
 

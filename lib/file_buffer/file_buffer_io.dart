@@ -84,6 +84,11 @@ extension FileBufferIo on FileBuffer {
     return utf8.decode([stdin.readByteSync()]);
   }
 
+  /// Convert a path to absolute path
+  static String toAbsolutePath(String path) {
+    return File(path).absolute.path;
+  }
+
   static String get cacheDir {
     return Platform.environment['XDG_CACHE_HOME'] ??
         '${Platform.environment['HOME']}/.cache';
