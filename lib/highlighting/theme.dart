@@ -26,7 +26,20 @@ class Theme {
   /// ANSI code for setting foreground color, or null to use terminal default.
   final String? foreground;
 
-  const Theme._(this.name, this._colors, {this.background, this.foreground});
+  /// ANSI code for cursor background color.
+  final String? cursor;
+
+  /// ANSI code for text color under cursor.
+  final String? cursorText;
+
+  const Theme._(
+    this.name,
+    this._colors, {
+    this.background,
+    this.foreground,
+    this.cursor,
+    this.cursorText,
+  });
 
   /// ANSI reset code for clearing styles.
   static final String reset = Ansi.reset();
@@ -43,7 +56,7 @@ class Theme {
     if (foreground != null) buffer.write(foreground);
   }
 
-  // Rosé Pine Dawn (light mode) - https://raw.githubusercontent.com/rose-pine/palette/main/palette.json
+  // Rosé Pine Dawn (light) - https://rosepinetheme.com/palette/ingredients
   static final Theme _rosePineDawn = Theme._(
     'rosepine-dawn',
     {
@@ -58,9 +71,11 @@ class Theme {
     },
     background: Ansi.bgRgb(250, 244, 237), // Base #faf4ed
     foreground: Ansi.fgRgb(87, 82, 121), // Text #575279
+    cursor: Ansi.bgRgb(87, 82, 121), // Text #575279
+    cursorText: Ansi.fgRgb(250, 244, 237), // Base #faf4ed
   );
 
-  // Rosé Pine (dark mode) - https://raw.githubusercontent.com/rose-pine/palette/main/palette.json
+  // Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
   static final Theme _rosePine = Theme._(
     'rosepine',
     {
@@ -75,6 +90,8 @@ class Theme {
     },
     background: Ansi.bgRgb(25, 23, 36), // Base #191724
     foreground: Ansi.fgRgb(224, 222, 244), // Text #e0def4
+    cursor: Ansi.bgRgb(224, 222, 244), // Text #e0def4
+    cursorText: Ansi.fgRgb(25, 23, 36), // Base #191724
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)
