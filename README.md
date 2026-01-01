@@ -2,9 +2,9 @@
 
 A minimal vim-like text editor for modern terminals written in [Dart](https://dart.dev)
 
-> Made for myself for fun and learning and not meant to replace your current editor
+> Made for myself for fun and learning (not meant to replace your current editor)
 
-## Features ✨
+## Features
 
 - basic vim motions, operators and a minimal command mode
 - render and edit emojis and wide characters
@@ -15,9 +15,10 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - text wrap modes: no-wrap, character-wrap, word-wrap
 - unlimited undo and redo
 
-## Technical Details 🛠️
+## Technical Details
+
 - for modern terminals like [Ghostty](https://github.com/ghostty-org/ghostty) that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) 
-- only third-party dependencies are [termio](https://github.com/erf/termio) (by me) and [characters](https://pub.dev/packages/characters)
+- only dependencies are [termio](https://github.com/erf/termio) and [characters](https://pub.dev/packages/characters)
 
 ## Keyboard Shortcuts
 
