@@ -104,6 +104,7 @@ class Editor {
     terminal.write(Ansi.popTitle());
     terminal.write(Ansi.reset());
     terminal.write(Ansi.cursorReset());
+    terminal.write(Ansi.resetCursorColor());
     terminal.write(Ansi.altBuffer(false));
 
     terminal.rawMode = false;

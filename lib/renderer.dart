@@ -615,11 +615,10 @@ class Renderer {
       screenCol = cursorRenderCol - cursorWrapCol + 1;
     }
 
-    // Apply theme cursor colors if set, otherwise use terminal default
+    // Apply theme cursor color via OSC 12 if set
     final theme = highlighter.theme;
-    if (theme.cursor != null && theme.cursorText != null) {
-      buffer.write(theme.cursor);
-      buffer.write(theme.cursorText);
+    if (theme.cursorColor != null) {
+      buffer.write(theme.cursorColor);
     }
 
     buffer.write(Ansi.cursor(x: screenCol, y: cursorScreenRow));
