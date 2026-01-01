@@ -8,6 +8,8 @@ import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/highlighting/theme.dart';
 import 'package:vid/lsp/lsp_extension.dart';
+import 'package:vid/popup/file_browser.dart';
+import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
 
 import 'actions/operators.dart';
@@ -18,6 +20,7 @@ import 'error_or.dart';
 import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
 import 'message.dart';
+import 'modes.dart';
 import 'motions/motion.dart';
 import 'range.dart';
 import 'string_ext.dart';
@@ -52,6 +55,12 @@ class Editor {
   late final Renderer renderer;
   String _inputBuffer = ''; // Buffer for incomplete escape sequences
 
+  /// Current popup state (null if no popup is shown).
+  PopupState? popup;
+
+  /// Mode to restore when popup is closed.
+  Mode? _popupPreviousMode;
+
   /// Jump list for Ctrl-o navigation (stores file path + cursor offset)
   final List<JumpLocation> _jumpList = [];
   int _jumpListIndex = -1;
@@ -72,6 +81,7 @@ class Editor {
     // e.g., vid file1.dart +10 file2.dart +20 file3.txt
     final files = <(String path, String? lineArg)>[];
     String? pendingPath;
+    String? directoryArg; // Track if a directory was passed
 
     for (final arg in args) {
       if (arg.startsWith('+')) {
@@ -81,6 +91,13 @@ class Editor {
         }
         // Ignore +linenum without preceding file
       } else {
+        // Check if arg is a directory
+        final dir = Directory(arg);
+        if (dir.existsSync()) {
+          directoryArg = arg;
+          continue; // Don't add directory as a file
+        }
+
         if (pendingPath != null) {
           files.add((pendingPath, null));
         }
@@ -133,6 +150,11 @@ class Editor {
     }
 
     draw();
+
+    // Show file browser if a directory was passed as argument
+    if (directoryArg != null) {
+      FileBrowser.show(this, directoryArg);
+    }
   }
 
   ErrorOr<FileBuffer> loadFile(String path) {
@@ -309,7 +331,24 @@ class Editor {
       message: message,
       bufferIndex: _currentBufferIndex,
       bufferCount: _buffers.length,
+      popup: popup,
     );
+  }
+
+  /// Show a popup menu.
+  void showPopup<T>(PopupState<T> popupState) {
+    _popupPreviousMode = file.mode;
+    popup = popupState;
+    file.setMode(this, .popup);
+    draw();
+  }
+
+  /// Close the current popup and restore previous mode.
+  void closePopup() {
+    popup = null;
+    file.setMode(this, _popupPreviousMode ?? .normal);
+    _popupPreviousMode = null;
+    draw();
   }
 
   void showMessage(Message message, {bool timed = true}) {
@@ -433,6 +472,12 @@ class Editor {
     final screenRow = mouse.y - 1; // Convert to 0-based
     final screenCol = mouse.x - 1;
 
+    // Check for popup click first
+    if (popup != null && file.mode == Mode.popup) {
+      _handlePopupClick(mouse.x, mouse.y);
+      return;
+    }
+
     // Don't handle clicks on status line
     if (screenRow >= terminal.height - 1) return;
 
@@ -473,6 +518,39 @@ class Editor {
     }
 
     return lineStart + byteOffset;
+  }
+
+  /// Handle click on popup menu
+  void _handlePopupClick(int x, int y) {
+    if (popup == null) return;
+
+    // Check if click is within popup bounds (1-based coordinates)
+    if (x < renderer.popupLeft + 1 ||
+        x > renderer.popupRight ||
+        y < renderer.popupTop + 1 ||
+        y > renderer.popupBottom) {
+      // Click outside popup - cancel
+      popup!.onCancel?.call();
+      return;
+    }
+
+    // Calculate which row was clicked (0-based, relative to popup content)
+    final contentRowStart = renderer.popupTop + 2; // After title bar
+    final clickedRow = y - contentRowStart;
+
+    // Check if click is on an item row
+    if (clickedRow >= 0 && clickedRow < renderer.popupRowMap.length) {
+      final itemIndex = renderer.popupRowMap[clickedRow];
+      if (itemIndex < popup!.items.length) {
+        // Update selection
+        popup = popup!.copyWith(selectedIndex: itemIndex);
+        draw();
+
+        // Select the item on click
+        final item = popup!.items[itemIndex];
+        popup!.onSelect?.call(item);
+      }
+    }
   }
 
   // match input against key bindings for executing commands

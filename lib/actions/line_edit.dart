@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import '../bindings.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
 import '../motions/motion.dart';
+import '../popup/buffer_selector.dart';
+import '../popup/file_browser.dart';
 import '../regex.dart';
 import 'motions.dart';
 import 'normal.dart';
@@ -59,11 +63,10 @@ class BufferCommands {
     e.closeBuffer(e.currentBufferIndex, force: true);
   }
 
-  /// List all buffers (:ls, :buffers)
+  /// List all buffers (:ls, :buffers) - shows interactive popup
   static void listBuffers(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    final list = e.bufferList.join(' | ');
-    e.showMessage(.info(list), timed: false);
+    BufferSelector.show(e);
   }
 }
 
@@ -121,10 +124,21 @@ class LineEdit {
   static void open(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     if (args.length < 2 || args[1].isEmpty) {
-      e.showMessage(.error('No file name'));
+      // No path specified - show file browser in current directory
+      FileBrowser.show(e);
       return;
     }
     String path = args[1];
+
+    // Check if path is a directory
+    final dir = Directory(path);
+    if (dir.existsSync()) {
+      // Path is a directory - show file browser
+      FileBrowser.show(e, path);
+      return;
+    }
+
+    // Path is a file - open it directly
     ErrorOr<FileBuffer> result = e.loadFile(path);
     if (result.hasError) {
       e.showMessage(.error(result.error!));

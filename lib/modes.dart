@@ -4,7 +4,8 @@ enum Mode {
   insert,
   replace,
   command,
-  search;
+  search,
+  popup;
 
   String get label => switch (this) {
     Mode.normal => 'NOR',
@@ -13,5 +14,6 @@ enum Mode {
     Mode.replace => 'REP',
     Mode.command => 'CMD',
     Mode.search => 'SRC',
+    Mode.popup => 'POP',
   };
 }

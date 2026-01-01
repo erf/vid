@@ -5,6 +5,7 @@ import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
+import 'popup/popup.dart';
 import 'string_ext.dart';
 
 /// Result of layout pass for a line
@@ -56,6 +57,16 @@ class Renderer {
   /// Used for mouse click -> cursor position mapping.
   final List<ScreenRowInfo> screenRowMap = [];
 
+  /// Maps popup row (0-based) to item index. Populated during _drawPopup().
+  /// Used for mouse click -> popup item mapping.
+  final List<int> popupRowMap = [];
+
+  /// Popup bounds for mouse click detection.
+  int popupLeft = 0;
+  int popupTop = 0;
+  int popupRight = 0;
+  int popupBottom = 0;
+
   Renderer({required this.terminal, required this.highlighter});
 
   void draw({
@@ -64,6 +75,7 @@ class Renderer {
     Message? message,
     int bufferIndex = 0,
     int bufferCount = 1,
+    PopupState? popup,
   }) {
     file.clampCursor();
 
@@ -131,6 +143,9 @@ class Renderer {
 
     if (file.mode case Mode.command || Mode.search) {
       _drawLineEdit(file);
+    } else if (file.mode == Mode.popup && popup != null) {
+      _drawStatus(file, config, cursorLine, message, bufferIndex, bufferCount);
+      _drawPopup(popup);
     } else {
       _drawStatus(file, config, cursorLine, message, bufferIndex, bufferCount);
       _drawCursor(
@@ -690,5 +705,113 @@ class Renderer {
     }
 
     buffer.write(Ansi.inverse(false));
+  }
+
+  /// Draw popup menu overlay.
+  void _drawPopup(PopupState popup) {
+    popupRowMap.clear();
+
+    // Use most of terminal space with comfortable padding
+    final popupWidth = terminal.width - 12;
+    final popupHeight = terminal.height - 8;
+    final innerPadding = 1; // Empty space inside the popup box
+    final contentWidth = popupWidth - (innerPadding * 2);
+    final maxVisible =
+        popupHeight -
+        (popup.showFilter ? 4 : 3); // Account for top/bottom padding
+    final items = popup.items;
+
+    // Center the popup
+    final left = 6;
+    final top = 4;
+
+    // Store bounds for mouse detection
+    popupLeft = left;
+    popupTop = top;
+    popupRight = left + popupWidth;
+    popupBottom = top + popupHeight;
+
+    // Draw top padding row
+    buffer.write(Ansi.cursor(x: left + 1, y: top + 1));
+    buffer.write(' ' * popupWidth);
+
+    // Draw items (fixed height, fill empty rows)
+    final scrollOffset = popup.scrollOffset;
+    for (int i = 0; i < maxVisible; i++) {
+      final itemIndex = scrollOffset + i;
+      final row = top + 2 + i; // +2 for top padding
+
+      buffer.write(Ansi.cursor(x: left + 1, y: row));
+      buffer.write(' ' * innerPadding); // Left padding
+
+      if (itemIndex < items.length) {
+        final item = items[itemIndex];
+        final isSelected = itemIndex == popup.selectedIndex;
+
+        // Highlight selected item
+        if (isSelected) {
+          buffer.write(Ansi.inverse(true));
+        }
+
+        // Build item content
+        final iconStr = item.icon != null ? '${item.icon} ' : '';
+        final labelStr = item.label;
+        final detailStr = item.detail != null ? ' ${item.detail}' : '';
+        var content = '$iconStr$labelStr$detailStr';
+
+        // Truncate if needed and pad to width
+        if (content.length > contentWidth) {
+          content = '${content.substring(0, contentWidth - 1)}…';
+        }
+        content = content.padRight(contentWidth);
+
+        buffer.write(content);
+
+        if (isSelected) {
+          buffer.write(Ansi.inverse(false));
+        }
+
+        // Map row to item index for mouse clicks
+        popupRowMap.add(itemIndex);
+      } else {
+        // Empty row
+        buffer.write(' ' * contentWidth);
+        popupRowMap.add(-1);
+      }
+
+      buffer.write(' ' * innerPadding); // Right padding
+    }
+
+    // Draw filter input line if shown
+    if (popup.showFilter) {
+      final filterRow = top + 2 + maxVisible;
+      buffer.write(Ansi.cursor(x: left + 1, y: filterRow));
+      buffer.write(' ' * innerPadding);
+      final filterContent = '> ${popup.filterText}';
+      final padded = filterContent.padRight(contentWidth);
+      buffer.write(padded.substring(0, contentWidth));
+      buffer.write(' ' * innerPadding);
+    }
+
+    // Draw bottom padding row
+    final bottomPadRow = top + 2 + maxVisible + (popup.showFilter ? 1 : 0);
+    buffer.write(Ansi.cursor(x: left + 1, y: bottomPadRow));
+    buffer.write(' ' * popupWidth);
+
+    // Position cursor in filter input if shown
+    if (popup.showFilter) {
+      final cursorX =
+          left +
+          1 +
+          innerPadding +
+          2 +
+          popup.filterText.length; // after padding + "> "
+      final cursorY = top + 2 + maxVisible;
+      buffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
+      buffer.write(Ansi.cursor(x: cursorX, y: cursorY));
+    } else {
+      // Hide cursor
+      buffer.write(Ansi.cursor(x: 1, y: terminal.height));
+    }
   }
 }

@@ -9,6 +9,7 @@ import 'actions/replace_actions.dart';
 import 'commands/command.dart';
 import 'lsp/lsp_actions.dart';
 import 'modes.dart';
+import 'popup/popup_actions.dart';
 
 enum KeyMatch { none, partial, match }
 
@@ -73,6 +74,8 @@ const normalCommands = <String, Command>{
   ':': ModeCommand(.command),
   '/': ModeCommand(.search),
   Keys.ctrlW: ActionCommand(Normal.toggleWrap),
+  Keys.ctrlP: ActionCommand(Normal.openFilePicker),
+  Keys.ctrlF: ActionCommand(Normal.openBufferSelector),
   'zz': ActionCommand(Normal.centerView),
   'zh': ActionCommand(Normal.toggleSyntax),
   'zt': ActionCommand(Normal.cycleTheme),
@@ -184,6 +187,9 @@ const lineEditCommands = <String, LineEditCommand>{
   'buffers': LineEditCommand(BufferCommands.listBuffers),
   // LSP commands
   'lsp': LineEditCommand(LspCommands.lsp),
+  'diagnostics': LineEditCommand(LspCommands.diagnostics),
+  'd': LineEditCommand(LspCommands.diagnostics),
+  'da': LineEditCommand(LspCommands.diagnosticsAll),
 };
 
 const lineEditInputBindings = <String, Command>{
@@ -199,6 +205,15 @@ const lineEditSearchBindings = <String, Command>{
   Keys.newline: ActionCommand(LineEditInput.executeSearch),
 };
 const lineEditSearchFallback = InputCommand(LineEditInput.input);
+
+const popupBindings = <String, Command>{
+  Keys.escape: ActionCommand(PopupActions.cancel),
+  Keys.newline: ActionCommand(PopupActions.select),
+  Keys.ctrlN: ActionCommand(PopupActions.moveDown),
+  Keys.ctrlP: ActionCommand(PopupActions.moveUp),
+  Keys.backspace: ActionCommand(PopupActions.filterBackspace),
+};
+const popupFallback = InputCommand(PopupActions.filterInput);
 
 final keyBindings = <Mode, ModeBindings<Command>>{
   .normal: ModeBindings({
@@ -223,4 +238,5 @@ final keyBindings = <Mode, ModeBindings<Command>>{
     lineEditSearchBindings,
     fallback: lineEditSearchFallback,
   ),
+  .popup: ModeBindings(popupBindings, fallback: popupFallback),
 };

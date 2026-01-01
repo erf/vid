@@ -1,5 +1,6 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../popup/diagnostics_popup.dart';
 import 'lsp_extension.dart';
 
 /// LSP-related actions for keybindings.
@@ -92,5 +93,17 @@ class LspCommands {
         f.setMode(e, .normal);
         e.showMessage(.error('Unknown lsp command: ${args[1]}'));
     }
+  }
+
+  /// Show diagnostics popup (:diagnostics).
+  static void diagnostics(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    DiagnosticsPopup.show(e);
+  }
+
+  /// Show all diagnostics popup (:diagnostics all).
+  static void diagnosticsAll(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    DiagnosticsPopup.showAll(e);
   }
 }

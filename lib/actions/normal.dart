@@ -4,6 +4,8 @@ import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
+import '../popup/buffer_selector.dart';
+import '../popup/file_browser.dart';
 import '../regex.dart';
 import '../text_op.dart';
 
@@ -207,5 +209,13 @@ class Normal {
 
   static void cycleTheme(Editor e, FileBuffer f) {
     e.cycleTheme();
+  }
+
+  static void openFilePicker(Editor e, FileBuffer f) {
+    FileBrowser.show(e);
+  }
+
+  static void openBufferSelector(Editor e, FileBuffer f) {
+    BufferSelector.show(e);
   }
 }
