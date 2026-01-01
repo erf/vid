@@ -8,13 +8,13 @@ import '../file_buffer/file_buffer.dart';
 class InsertActions {
   /// Insert character(s) at cursor position.
   static void insert(Editor e, FileBuffer f, String s) {
-    f.insertAt(f.cursor, s, config: e.config);
+    f.insertAt(f.cursor, s, config: e.config, editor: e);
     f.cursor += s.length;
   }
 
   /// Insert newline at cursor position.
   static void enter(Editor e, FileBuffer f) {
-    f.insertAt(f.cursor, Keys.newline, config: e.config);
+    f.insertAt(f.cursor, Keys.newline, config: e.config, editor: e);
     // Move cursor to start of next line
     f.cursor = f.lineEnd(f.cursor) + 1;
     if (f.cursor >= f.text.length) {
@@ -42,7 +42,7 @@ class InsertActions {
     if (f.cursor == 0) return;
     // Delete the character before cursor
     int prevPos = f.prevGrapheme(f.cursor);
-    f.replace(prevPos, f.cursor, '', config: e.config);
+    f.replace(prevPos, f.cursor, '', config: e.config, editor: e);
     f.cursor = prevPos;
   }
 }

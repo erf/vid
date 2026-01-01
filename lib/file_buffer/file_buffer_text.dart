@@ -17,6 +17,7 @@ extension FileBufferText on FileBuffer {
     String newText, {
     bool undo = true,
     Config? config,
+    Editor? editor,
   }) {
     assert(start <= end);
 
@@ -29,6 +30,9 @@ extension FileBufferText on FileBuffer {
       end = len - 1;
     }
 
+    // Capture old text before modification for LSP sync
+    final oldText = text.substring(start, end);
+
     if (undo && config != null) {
       addUndo(
         start: start,
@@ -40,6 +44,9 @@ extension FileBufferText on FileBuffer {
     }
 
     updateText(start, end, newText);
+
+    // Notify extensions of text change
+    editor?.extensions?.notifyTextChange(this, start, end, newText, oldText);
   }
 
   // add an undo operation
@@ -72,28 +79,28 @@ extension FileBufferText on FileBuffer {
     // so we don't auto-yank here anymore.
   }
 
-  void replaceRange(Range range, String newText, {Config? config}) {
+  void replaceRange(Range range, String newText, {Config? config, Editor? editor}) {
     final Range r = range.norm;
-    replace(r.start, r.end, newText, config: config);
+    replace(r.start, r.end, newText, config: config, editor: editor);
   }
 
-  void deleteRange(Range range, {Config? config}) {
-    replaceRange(range, '', config: config);
+  void deleteRange(Range range, {Config? config, Editor? editor}) {
+    replaceRange(range, '', config: config, editor: editor);
   }
 
-  void insertAt(int offset, String str, {bool undo = true, Config? config}) {
-    replace(offset, offset, str, undo: undo, config: config);
+  void insertAt(int offset, String str, {bool undo = true, Config? config, Editor? editor}) {
+    replace(offset, offset, str, undo: undo, config: config, editor: editor);
   }
 
-  void replaceAt(int offset, String str, {Config? config}) {
+  void replaceAt(int offset, String str, {Config? config, Editor? editor}) {
     // Replace one grapheme at offset
     int nextOffset = nextGrapheme(offset);
-    replace(offset, nextOffset, str, config: config);
+    replace(offset, nextOffset, str, config: config, editor: editor);
   }
 
-  void deleteAt(int offset, {Config? config}) {
+  void deleteAt(int offset, {Config? config, Editor? editor}) {
     int nextOffset = nextGrapheme(offset);
-    replace(offset, nextOffset, '', config: config);
+    replace(offset, nextOffset, '', config: config, editor: editor);
   }
 
   void yankRange(Editor e, Range range, {bool linewise = false}) {

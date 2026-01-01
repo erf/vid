@@ -7,6 +7,7 @@ import 'package:termio/termio.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/highlighting/theme.dart';
+import 'package:vid/lsp/lsp_extension.dart';
 import 'package:vid/renderer.dart';
 
 import 'actions/operators.dart';
@@ -107,7 +108,10 @@ class Editor {
       initTerminal(files[0].$1);
     }
 
-    extensions = ExtensionRegistry(this, [CursorPositionExtension()]);
+    extensions = ExtensionRegistry(this, [
+      CursorPositionExtension(),
+      LspExtension(),
+    ]);
     extensions?.notifyInit();
 
     // Notify extensions for all loaded files

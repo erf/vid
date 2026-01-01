@@ -7,6 +7,7 @@ import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
 import 'commands/command.dart';
+import 'lsp/lsp_actions.dart';
 import 'modes.dart';
 
 enum KeyMatch { none, partial, match }
@@ -75,6 +76,9 @@ const normalCommands = <String, Command>{
   'zz': ActionCommand(Normal.centerView),
   'zh': ActionCommand(Normal.toggleSyntax),
   'zt': ActionCommand(Normal.cycleTheme),
+  // LSP commands
+  'gd': ActionCommand(LspActions.goToDefinition),
+  'K': ActionCommand(LspActions.hover),
 };
 
 const insertBindings = <String, Command>{
@@ -176,6 +180,8 @@ const lineEditCommands = <String, LineEditCommand>{
   'bdelete!': LineEditCommand(BufferCommands.forceCloseBuffer),
   'ls': LineEditCommand(BufferCommands.listBuffers),
   'buffers': LineEditCommand(BufferCommands.listBuffers),
+  // LSP commands
+  'lsp': LineEditCommand(LspCommands.lsp),
 };
 
 const lineEditInputBindings = <String, Command>{

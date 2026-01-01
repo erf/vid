@@ -30,7 +30,7 @@ class Normal {
       // Insert after the newline (at start of next line position)
       int insertPos = lineEndOffset + 1;
       if (insertPos > f.text.length) insertPos = f.text.length;
-      f.insertAt(insertPos, yank.text, config: e.config);
+      f.insertAt(insertPos, yank.text, config: e.config, editor: e);
       // Move cursor to start of pasted content
       f.cursor = insertPos;
       f.clampCursor();
@@ -38,11 +38,11 @@ class Normal {
       // Check if line is empty (only has trailing space/newline)
       String lineText = f.lineText(f.cursor);
       if (lineText.isEmpty || lineText == ' ') {
-        f.insertAt(f.lineStart(f.cursor), yank.text, config: e.config);
+        f.insertAt(f.lineStart(f.cursor), yank.text, config: e.config, editor: e);
       } else {
         // Paste after cursor
         int insertPos = f.nextGrapheme(f.cursor);
-        f.insertAt(insertPos, yank.text, config: e.config);
+        f.insertAt(insertPos, yank.text, config: e.config, editor: e);
         // Move cursor to end of pasted content (last char, not past it)
         f.cursor = insertPos + yank.text.length - 1;
         f.clampCursor();
@@ -56,11 +56,11 @@ class Normal {
     if (yank.linewise) {
       // Paste before current line
       int lineStartOffset = f.lineStart(f.cursor);
-      f.insertAt(lineStartOffset, yank.text, config: e.config);
+      f.insertAt(lineStartOffset, yank.text, config: e.config, editor: e);
       f.cursor = lineStartOffset;
     } else {
       // Paste at cursor position
-      f.insertAt(f.cursor, yank.text, config: e.config);
+      f.insertAt(f.cursor, yank.text, config: e.config, editor: e);
     }
   }
 
@@ -163,7 +163,7 @@ class Normal {
 
     int matchStart = lineStartOffset + m.start;
     int matchEnd = lineStartOffset + m.end;
-    f.replace(matchStart, matchEnd, numstr, config: e.config);
+    f.replace(matchStart, matchEnd, numstr, config: e.config, editor: e);
     f.cursor = matchStart + numstr.length - 1;
   }
 

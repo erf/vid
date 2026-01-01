@@ -8,6 +8,14 @@ class ExtensionRegistry {
 
   const ExtensionRegistry(this._editor, this._extensions);
 
+  /// Get an extension by type.
+  T? getExtension<T extends Extension>() {
+    for (final ext in _extensions) {
+      if (ext is T) return ext;
+    }
+    return null;
+  }
+
   void notifyInit() {
     for (final extension in _extensions) {
       extension.onInit(_editor);
@@ -35,6 +43,18 @@ class ExtensionRegistry {
   void notifyBufferClose(FileBuffer file) {
     for (final extension in _extensions) {
       extension.onBufferClose(_editor, file);
+    }
+  }
+
+  void notifyTextChange(
+    FileBuffer file,
+    int start,
+    int end,
+    String newText,
+    String oldText,
+  ) {
+    for (final extension in _extensions) {
+      extension.onTextChange(_editor, file, start, end, newText, oldText);
     }
   }
 }
