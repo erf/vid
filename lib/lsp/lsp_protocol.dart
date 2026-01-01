@@ -229,16 +229,12 @@ class LspDiagnostic {
   }
 
   String get severityString {
-    switch (severity) {
-      case DiagnosticSeverity.error:
-        return 'error';
-      case DiagnosticSeverity.warning:
-        return 'warning';
-      case DiagnosticSeverity.information:
-        return 'info';
-      case DiagnosticSeverity.hint:
-        return 'hint';
-    }
+    return switch (severity) {
+      DiagnosticSeverity.error => 'error',
+      DiagnosticSeverity.warning => 'warning',
+      DiagnosticSeverity.information => 'info',
+      DiagnosticSeverity.hint => 'hint',
+    };
   }
 }
 
@@ -260,44 +256,23 @@ String? getDiagnosticsUri(Map<String, dynamic> params) {
 /// Detect language ID from file extension.
 String languageIdFromPath(String path) {
   final ext = path.split('.').last.toLowerCase();
-  switch (ext) {
-    case 'dart':
-      return 'dart';
-    case 'js':
-      return 'javascript';
-    case 'ts':
-      return 'typescript';
-    case 'json':
-      return 'json';
-    case 'yaml':
-    case 'yml':
-      return 'yaml';
-    case 'md':
-      return 'markdown';
-    case 'html':
-      return 'html';
-    case 'css':
-      return 'css';
-    case 'py':
-      return 'python';
-    case 'rs':
-      return 'rust';
-    case 'go':
-      return 'go';
-    case 'java':
-      return 'java';
-    case 'kt':
-      return 'kotlin';
-    case 'c':
-      return 'c';
-    case 'cpp':
-    case 'cc':
-    case 'cxx':
-      return 'cpp';
-    case 'h':
-    case 'hpp':
-      return 'cpp';
-    default:
-      return 'plaintext';
-  }
+  return switch (ext) {
+    'dart' => 'dart',
+    'js' => 'javascript',
+    'ts' => 'typescript',
+    'json' => 'json',
+    'yaml' || 'yml' => 'yaml',
+    'md' => 'markdown',
+    'html' => 'html',
+    'css' => 'css',
+    'py' => 'python',
+    'rs' => 'rust',
+    'go' => 'go',
+    'java' => 'java',
+    'kt' => 'kotlin',
+    'c' => 'c',
+    'cpp' || 'cc' || 'cxx' => 'cpp',
+    'h' || 'hpp' => 'cpp',
+    _ => 'plaintext',
+  };
 }

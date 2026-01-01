@@ -79,6 +79,8 @@ const normalCommands = <String, Command>{
   // LSP commands
   'gd': ActionCommand(LspActions.goToDefinition),
   'K': ActionCommand(LspActions.hover),
+  'go': ActionCommand(LspActions.jumpBack),
+  'gi': ActionCommand(LspActions.jumpForward),
 };
 
 const insertBindings = <String, Command>{

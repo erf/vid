@@ -38,7 +38,12 @@ class Normal {
       // Check if line is empty (only has trailing space/newline)
       String lineText = f.lineText(f.cursor);
       if (lineText.isEmpty || lineText == ' ') {
-        f.insertAt(f.lineStart(f.cursor), yank.text, config: e.config, editor: e);
+        f.insertAt(
+          f.lineStart(f.cursor),
+          yank.text,
+          config: e.config,
+          editor: e,
+        );
       } else {
         // Paste after cursor
         int insertPos = f.nextGrapheme(f.cursor);

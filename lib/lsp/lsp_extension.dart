@@ -139,17 +139,22 @@ class LspExtension extends Extension {
         return;
       }
 
+      // Save current position to jump list before jumping
+      editor.pushJumpLocation();
+
       final loc = locations.first;
       final targetPath = loc.filePath;
 
       // Check if it's the same file
       if (targetPath == file.absolutePath) {
         _jumpToLocation(file, loc.line, loc.character);
+        file.centerViewport(editor.terminal);
         editor.draw();
       } else {
         editor.loadFile(targetPath);
         final targetFile = editor.file;
         _jumpToLocation(targetFile, loc.line, loc.character);
+        targetFile.centerViewport(editor.terminal);
         editor.draw();
       }
     } catch (e) {
@@ -182,14 +187,44 @@ class LspExtension extends Extension {
         return;
       }
 
-      final firstLine = hoverText.split('\n').first;
-      final display = firstLine.length > 80
-          ? '${firstLine.substring(0, 77)}...'
-          : firstLine;
+      // Extract meaningful content from markdown hover response
+      final display = _extractHoverContent(hoverText);
+      if (display.isEmpty) {
+        editor.showMessage(Message.info('No hover info'));
+        return;
+      }
       editor.showMessage(Message.info(display), timed: false);
     } catch (e) {
       editor.showMessage(Message.error('LSP error: $e'));
     }
+  }
+
+  /// Extract meaningful content from markdown hover text.
+  String _extractHoverContent(String text) {
+    final lines = text.split('\n');
+    final result = <String>[];
+
+    bool inCodeBlock = false;
+    for (final line in lines) {
+      // Skip markdown code fence markers
+      if (line.startsWith('```')) {
+        inCodeBlock = !inCodeBlock;
+        continue;
+      }
+      // Skip empty lines
+      if (line.trim().isEmpty) continue;
+      // Skip horizontal rules
+      if (line.trim() == '---') continue;
+
+      result.add(line);
+    }
+
+    // Join and truncate
+    final joined = result.join(' ').trim();
+    if (joined.length > 100) {
+      return '${joined.substring(0, 97)}...';
+    }
+    return joined;
   }
 
   /// Restart the LSP server.

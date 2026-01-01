@@ -79,7 +79,12 @@ extension FileBufferText on FileBuffer {
     // so we don't auto-yank here anymore.
   }
 
-  void replaceRange(Range range, String newText, {Config? config, Editor? editor}) {
+  void replaceRange(
+    Range range,
+    String newText, {
+    Config? config,
+    Editor? editor,
+  }) {
     final Range r = range.norm;
     replace(r.start, r.end, newText, config: config, editor: editor);
   }
@@ -88,7 +93,13 @@ extension FileBufferText on FileBuffer {
     replaceRange(range, '', config: config, editor: editor);
   }
 
-  void insertAt(int offset, String str, {bool undo = true, Config? config, Editor? editor}) {
+  void insertAt(
+    int offset,
+    String str, {
+    bool undo = true,
+    Config? config,
+    Editor? editor,
+  }) {
     replace(offset, offset, str, undo: undo, config: config, editor: editor);
   }
 

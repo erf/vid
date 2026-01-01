@@ -35,6 +35,20 @@ class LspActions {
     }
     lsp.showStatus(e);
   }
+
+  /// Jump back to previous location (go).
+  static void jumpBack(Editor e, FileBuffer f) {
+    if (!e.jumpBack()) {
+      e.showMessage(.info('No previous location'));
+    }
+  }
+
+  /// Jump forward (gi).
+  static void jumpForward(Editor e, FileBuffer f) {
+    if (!e.jumpForward()) {
+      e.showMessage(.info('No next location'));
+    }
+  }
 }
 
 /// LSP-related line edit commands (:lsp ...).

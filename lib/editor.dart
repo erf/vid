@@ -52,6 +52,11 @@ class Editor {
   late final Renderer renderer;
   String _inputBuffer = ''; // Buffer for incomplete escape sequences
 
+  /// Jump list for Ctrl-o navigation (stores file path + cursor offset)
+  final List<JumpLocation> _jumpList = [];
+  int _jumpListIndex = -1;
+  static const _maxJumpListSize = 100;
+
   Editor({
     required this.terminal,
     this.redraw = true,
@@ -523,4 +528,92 @@ class Editor {
   void setWrapMode(WrapMode wrapMode) {
     config = config.copyWith(wrapMode: wrapMode);
   }
+
+  /// Push current location to jump list (call before jumping).
+  void pushJumpLocation() {
+    final path = file.absolutePath;
+    if (path == null) return;
+
+    final loc = JumpLocation(path, file.cursor);
+
+    // Remove any forward history when pushing new location
+    if (_jumpListIndex >= 0 && _jumpListIndex < _jumpList.length - 1) {
+      _jumpList.removeRange(_jumpListIndex + 1, _jumpList.length);
+    }
+
+    // Don't add duplicate of current position
+    if (_jumpList.isNotEmpty && _jumpList.last == loc) {
+      return;
+    }
+
+    _jumpList.add(loc);
+    if (_jumpList.length > _maxJumpListSize) {
+      _jumpList.removeAt(0);
+    }
+    _jumpListIndex = _jumpList.length - 1;
+  }
+
+  /// Go back in jump list (Ctrl-o).
+  bool jumpBack() {
+    if (_jumpList.isEmpty || _jumpListIndex < 0) {
+      return false;
+    }
+
+    // Save current position if we're at the end
+    if (_jumpListIndex == _jumpList.length - 1) {
+      final path = file.absolutePath;
+      if (path != null) {
+        final currentLoc = JumpLocation(path, file.cursor);
+        if (_jumpList.isEmpty || _jumpList.last != currentLoc) {
+          _jumpList.add(currentLoc);
+          _jumpListIndex = _jumpList.length - 1;
+        }
+      }
+    }
+
+    if (_jumpListIndex > 0) {
+      _jumpListIndex--;
+      final loc = _jumpList[_jumpListIndex];
+      _goToJumpLocation(loc);
+      return true;
+    }
+    return false;
+  }
+
+  /// Go forward in jump list (Ctrl-i, if we add it).
+  bool jumpForward() {
+    if (_jumpListIndex < _jumpList.length - 1) {
+      _jumpListIndex++;
+      final loc = _jumpList[_jumpListIndex];
+      _goToJumpLocation(loc);
+      return true;
+    }
+    return false;
+  }
+
+  void _goToJumpLocation(JumpLocation loc) {
+    // Switch to file if different
+    if (file.absolutePath != loc.path) {
+      final result = loadFile(loc.path);
+      if (result.hasError) return;
+    }
+    file.cursor = loc.cursor.clamp(0, file.text.length - 1);
+    file.clampCursor();
+    file.centerViewport(terminal);
+  }
+}
+
+/// A saved jump location (file + cursor position).
+class JumpLocation {
+  final String path;
+  final int cursor;
+
+  JumpLocation(this.path, this.cursor);
+
+  @override
+  bool operator ==(Object other) =>
+      other is JumpLocation && other.path == path && other.cursor == cursor;
+
+  @override
+  int get hashCode => Object.hash(path, cursor);
 }
