@@ -5,12 +5,16 @@ import 'package:vid/highlighting/token.dart';
 enum ThemeType {
   light,
   dark,
+  ayuLight,
+  ayuDark,
   mono;
 
   /// Get the [Theme] instance for this type.
   Theme get theme => switch (this) {
     ThemeType.light => Theme._rosePineDawn,
     ThemeType.dark => Theme._rosePine,
+    ThemeType.ayuLight => Theme._ayuLight,
+    ThemeType.ayuDark => Theme._ayuDark,
     ThemeType.mono => Theme._mono,
   };
 }
@@ -126,6 +130,82 @@ class Theme {
     background: Ansi.bgRgb(25, 23, 36), // Base #191724
     foreground: Ansi.fgRgb(224, 222, 244), // Text #e0def4
     cursorColor: Ansi.setCursorColor('#e0def4'), // Text
+  );
+
+  // Ayu Dark
+  static final Theme _ayuDark = Theme._(
+    'ayu-dark',
+    {
+      // Basic token types
+      TokenType.keyword: Ansi.fgRgb(255, 143, 64), // #FF8F40
+      TokenType.lineComment: Ansi.fgRgb(153, 173, 191), // #99ADBF
+      TokenType.blockComment: Ansi.fgRgb(153, 173, 191), // #99ADBF
+      TokenType.string: Ansi.fgRgb(170, 217, 76), // #AAD94C
+      TokenType.number: Ansi.fgRgb(210, 166, 255), // #D2A6FF
+      TokenType.literal: Ansi.fgRgb(210, 166, 255), // #D2A6FF
+      TokenType.type: Ansi.fgRgb(89, 194, 255), // #59C2FF
+      TokenType.plain: reset,
+      // LSP semantic token types
+      TokenType.namespace: Ansi.fgRgb(89, 194, 255), // #59C2FF
+      TokenType.class_: Ansi.fgRgb(89, 194, 255), // #59C2FF
+      TokenType.enum_: Ansi.fgRgb(89, 194, 255), // #59C2FF
+      TokenType.interface: Ansi.fgRgb(89, 194, 255), // #59C2FF
+      TokenType.struct: Ansi.fgRgb(89, 194, 255), // #59C2FF
+      TokenType.typeParameter: Ansi.fgRgb(89, 194, 255), // #59C2FF
+      TokenType.parameter: Ansi.fgRgb(210, 166, 255), // #D2A6FF
+      TokenType.variable: Ansi.fgRgb(191, 189, 182), // #BFBDB6
+      TokenType.property: Ansi.fgRgb(240, 113, 120), // #F07178
+      TokenType.enumMember: Ansi.fgRgb(210, 166, 255), // #D2A6FF
+      TokenType.event: Ansi.fgRgb(255, 180, 84), // #FFB454
+      TokenType.function: Ansi.fgRgb(255, 180, 84), // #FFB454
+      TokenType.method: Ansi.fgRgb(255, 180, 84), // #FFB454
+      TokenType.macro: Ansi.fgRgb(255, 143, 64), // #FF8F40
+      TokenType.modifier: Ansi.fgRgb(255, 143, 64), // #FF8F40
+      TokenType.regexp: Ansi.fgRgb(170, 217, 76), // #AAD94C
+      TokenType.operator: Ansi.fgRgb(242, 150, 104), // #F29668
+      TokenType.decorator: Ansi.fgRgb(240, 113, 120), // #F07178
+    },
+    background: Ansi.bgRgb(16, 20, 28), // #10141C
+    foreground: Ansi.fgRgb(191, 189, 182), // #BFBDB6
+    cursorColor: Ansi.setCursorColor('#E6B450'),
+  );
+
+  // Ayu Light
+  static final Theme _ayuLight = Theme._(
+    'ayu-light',
+    {
+      // Basic token types
+      TokenType.keyword: Ansi.fgRgb(255, 126, 51), // #FF7E33
+      TokenType.lineComment: Ansi.fgRgb(120, 123, 128), // #787B80
+      TokenType.blockComment: Ansi.fgRgb(120, 123, 128), // #787B80
+      TokenType.string: Ansi.fgRgb(134, 179, 0), // #86B300
+      TokenType.number: Ansi.fgRgb(163, 122, 204), // #A37ACC
+      TokenType.literal: Ansi.fgRgb(163, 122, 204), // #A37ACC
+      TokenType.type: Ansi.fgRgb(57, 158, 230), // #399EE6
+      TokenType.plain: reset,
+      // LSP semantic token types
+      TokenType.namespace: Ansi.fgRgb(57, 158, 230), // #399EE6
+      TokenType.class_: Ansi.fgRgb(57, 158, 230), // #399EE6
+      TokenType.enum_: Ansi.fgRgb(57, 158, 230), // #399EE6
+      TokenType.interface: Ansi.fgRgb(57, 158, 230), // #399EE6
+      TokenType.struct: Ansi.fgRgb(57, 158, 230), // #399EE6
+      TokenType.typeParameter: Ansi.fgRgb(57, 158, 230), // #399EE6
+      TokenType.parameter: Ansi.fgRgb(163, 122, 204), // #A37ACC
+      TokenType.variable: Ansi.fgRgb(92, 97, 102), // #5C6166
+      TokenType.property: Ansi.fgRgb(240, 113, 113), // #F07171
+      TokenType.enumMember: Ansi.fgRgb(163, 122, 204), // #A37ACC
+      TokenType.event: Ansi.fgRgb(242, 163, 0), // #F2A300
+      TokenType.function: Ansi.fgRgb(242, 163, 0), // #F2A300
+      TokenType.method: Ansi.fgRgb(242, 163, 0), // #F2A300
+      TokenType.macro: Ansi.fgRgb(255, 126, 51), // #FF7E33
+      TokenType.modifier: Ansi.fgRgb(255, 126, 51), // #FF7E33
+      TokenType.regexp: Ansi.fgRgb(134, 179, 0), // #86B300
+      TokenType.operator: Ansi.fgRgb(237, 147, 102), // #ED9366
+      TokenType.decorator: Ansi.fgRgb(240, 113, 113), // #F07171
+    },
+    background: Ansi.bgRgb(252, 252, 252), // #FCFCFC
+    foreground: Ansi.fgRgb(92, 97, 102), // #5C6166
+    cursorColor: Ansi.setCursorColor('#F29718'),
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)
