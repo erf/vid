@@ -77,7 +77,7 @@ class LspServerRegistry {
     args: [],
     extensions: {'lua'},
     languageIds: {'lua'},
-    projectMarkers: ['.luarc.json', '.luarc.jsonc', '.luacheckrc'],
+    projectMarkers: ['.luarc.json', '.luarc.jsonc', '.luacheckrc', 'init.lua'],
     supportsSemanticTokens: true,
   );
 
