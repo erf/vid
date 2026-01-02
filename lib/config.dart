@@ -11,6 +11,9 @@ class Config {
   final WrapMode wrapMode;
   final String breakat;
 
+  /// Whether auto-indentation is enabled.
+  final bool autoIndent;
+
   /// Whether syntax highlighting is enabled.
   final bool syntaxHighlighting;
 
@@ -27,6 +30,7 @@ class Config {
     this.wrapSymbols = const ['', '|↵', '↵'],
     this.wrapMode = WrapMode.none,
     this.breakat = ' !@*-+;:,./?',
+    this.autoIndent = true,
     this.syntaxHighlighting = true,
     this.syntaxTheme = ThemeType.mono,
   });
@@ -39,6 +43,7 @@ class Config {
     List<String>? wrapSymbols,
     WrapMode? wrapMode,
     String? breakat,
+    bool? autoIndent,
     bool? syntaxHighlighting,
     ThemeType? syntaxTheme,
   }) {
@@ -50,6 +55,7 @@ class Config {
       wrapSymbols: wrapSymbols ?? this.wrapSymbols,
       wrapMode: wrapMode ?? this.wrapMode,
       breakat: breakat ?? this.breakat,
+      autoIndent: autoIndent ?? this.autoIndent,
       syntaxHighlighting: syntaxHighlighting ?? this.syntaxHighlighting,
       syntaxTheme: syntaxTheme ?? this.syntaxTheme,
     );

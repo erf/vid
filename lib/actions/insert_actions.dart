@@ -12,11 +12,25 @@ class InsertActions {
     f.cursor += s.length;
   }
 
+  /// Get the leading whitespace of the line containing [offset].
+  /// If [fullLine] is false, only returns whitespace up to [offset].
+  static String getIndent(FileBuffer f, int offset, {bool fullLine = false}) {
+    int lineStart = f.lineStart(offset);
+    int end = fullLine ? f.lineEnd(offset) : offset;
+    String line = f.text.substring(lineStart, end);
+    return RegExp(r'^[ \t]*').stringMatch(line) ?? '';
+  }
+
   /// Insert newline at cursor position.
   static void enter(Editor e, FileBuffer f) {
-    f.insertAt(f.cursor, Keys.newline, config: e.config, editor: e);
-    // Move cursor to start of next line
-    f.cursor = f.lineEnd(f.cursor) + 1;
+    String indent = '';
+    if (e.config.autoIndent) {
+      indent = getIndent(f, f.cursor, fullLine: false);
+    }
+
+    f.insertAt(f.cursor, Keys.newline + indent, config: e.config, editor: e);
+    // Move cursor to start of next line (after indentation)
+    f.cursor = f.lineEnd(f.cursor) + 1 + indent.length;
     if (f.cursor >= f.text.length) {
       f.cursor = max(0, f.text.length - 1);
     }

@@ -1,9 +1,13 @@
 import 'dart:math';
 
+import 'package:termio/termio.dart';
+
 import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
+import '../modes.dart';
+import 'insert_actions.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/diagnostics_popup.dart';
 import '../popup/file_browser.dart';
@@ -101,6 +105,30 @@ class Normal {
     int nextPos = f.nextGrapheme(f.cursor);
     int lineEndPos = f.lines[f.lineNumber(f.cursor)].end;
     f.cursor = min(nextPos, lineEndPos);
+  }
+
+  static void openLineAbove(Editor e, FileBuffer f) {
+    String indent = '';
+    if (e.config.autoIndent) {
+      indent = InsertActions.getIndent(f, f.cursor, fullLine: true);
+    }
+
+    int lineStart = f.lineStart(f.cursor);
+    f.insertAt(lineStart, indent + Keys.newline, config: e.config, editor: e);
+    f.cursor = lineStart + indent.length;
+    f.setMode(e, Mode.insert);
+  }
+
+  static void openLineBelow(Editor e, FileBuffer f) {
+    String indent = '';
+    if (e.config.autoIndent) {
+      indent = InsertActions.getIndent(f, f.cursor, fullLine: true);
+    }
+
+    int lineEnd = f.lineEnd(f.cursor);
+    f.insertAt(lineEnd, Keys.newline + indent, config: e.config, editor: e);
+    f.cursor = lineEnd + 1 + indent.length;
+    f.setMode(e, Mode.insert);
   }
 
   static void joinLines(Editor e, FileBuffer f) {
