@@ -1,4 +1,3 @@
-import 'package:termio/termio.dart';
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';

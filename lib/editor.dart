@@ -7,7 +7,6 @@ import 'package:termio/termio.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/highlighting/theme.dart';
-import 'package:vid/input/input.dart';
 import 'package:vid/lsp/lsp_extension.dart';
 import 'package:vid/lsp/lsp_protocol.dart';
 import 'package:vid/popup/file_browser.dart';
@@ -404,11 +403,11 @@ class Editor {
     }
 
     // Parse input into events using the InputParser
-    final events = _inputParser.parse(str);
+    final events = _inputParser.parseString(str);
 
     for (final event in events) {
       switch (event) {
-        case KeyEvent key:
+        case KeyInputEvent key:
           // Pass the raw sequence to handleInput for key binding matching
           handleInput(key.raw);
         case MouseInputEvent mouse:
