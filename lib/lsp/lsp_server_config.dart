@@ -55,6 +55,7 @@ class LspServerConfig {
 /// Registry of available language server configurations.
 class LspServerRegistry {
   static final Map<String, LspServerConfig> _servers = {
+    'clangd': clangdServer,
     'dart': dartServer,
     'lua': luaServer,
   };
@@ -78,6 +79,23 @@ class LspServerRegistry {
     extensions: {'lua'},
     languageIds: {'lua'},
     projectMarkers: ['.luarc.json', '.luarc.jsonc', '.luacheckrc', 'init.lua'],
+    supportsSemanticTokens: true,
+  );
+
+  /// C/C++ language server configuration (clangd).
+  static const clangdServer = LspServerConfig(
+    name: 'clangd',
+    executable: 'clangd',
+    args: ['--background-index'],
+    extensions: {'c', 'h', 'cc', 'cpp', 'cxx', 'hpp', 'hxx'},
+    languageIds: {'c', 'cpp'},
+    projectMarkers: [
+      'compile_commands.json',
+      'compile_flags.txt',
+      '.clangd',
+      'CMakeLists.txt',
+      'Makefile',
+    ],
     supportsSemanticTokens: true,
   );
 
