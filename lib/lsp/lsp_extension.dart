@@ -48,15 +48,10 @@ class LspExtension extends Extension {
     return _semanticTokens[uri] ?? [];
   }
 
-  /// Request semantic tokens for a visible range of a document.
+  /// Request semantic tokens for the entire document.
   ///
-  /// This is debounced to avoid excessive requests during scrolling/editing.
-  void requestSemanticTokensRange(
-    String uri,
-    int startLine,
-    int endLine, {
-    bool immediate = false,
-  }) {
+  /// This is debounced to avoid excessive requests during rapid editing.
+  void requestSemanticTokens(String uri, {bool immediate = false}) {
     if (!supportsSemanticTokens) return;
     if (!_openDocuments.contains(uri)) return;
 
@@ -64,27 +59,17 @@ class LspExtension extends Extension {
     _semanticTokenTimers[uri]?.cancel();
 
     if (immediate) {
-      _fetchSemanticTokensRange(uri, startLine, endLine);
+      _fetchSemanticTokens(uri);
     } else {
       _semanticTokenTimers[uri] = Timer(_semanticTokenDebounce, () {
-        _fetchSemanticTokensRange(uri, startLine, endLine);
+        _fetchSemanticTokens(uri);
       });
     }
   }
 
-  Future<void> _fetchSemanticTokensRange(
-    String uri,
-    int startLine,
-    int endLine,
-  ) async {
+  Future<void> _fetchSemanticTokens(String uri) async {
     try {
-      final tokens = await _protocol?.semanticTokensRange(
-        uri,
-        startLine,
-        0, // start of line
-        endLine,
-        0, // will get tokens up to end of endLine
-      );
+      final tokens = await _protocol?.semanticTokensFull(uri);
       if (tokens != null) {
         _semanticTokens[uri] = tokens;
         _editor?.draw();
@@ -143,6 +128,9 @@ class LspExtension extends Extension {
     _documentVersions[uri] = 1;
     _protocol?.didOpen(uri, languageId, 1, file.text);
     _openDocuments.add(uri);
+
+    // Request semantic tokens for the whole file
+    requestSemanticTokens(uri, immediate: true);
   }
 
   @override
@@ -184,8 +172,8 @@ class LspExtension extends Extension {
     // Use full sync (simpler, always correct)
     _protocol?.didChangeFull(uri, version, file.text);
 
-    // Invalidate semantic tokens (will be re-fetched on next draw)
-    _semanticTokens.remove(uri);
+    // Re-fetch semantic tokens (debounced)
+    requestSemanticTokens(uri);
   }
 
   /// Go to definition at current cursor position.

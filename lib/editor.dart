@@ -337,11 +337,6 @@ class Editor {
       // Get cached semantic tokens if available
       if (lsp.supportsSemanticTokens) {
         semanticTokens = lsp.getSemanticTokens(uri);
-
-        // Request semantic tokens for visible range (debounced)
-        final viewportLine = file.lineNumber(file.viewport);
-        final endLine = viewportLine + terminal.height + 10; // buffer
-        lsp.requestSemanticTokensRange(uri, viewportLine, endLine);
       }
     }
 
