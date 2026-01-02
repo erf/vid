@@ -352,6 +352,12 @@ class LspExtension extends Extension {
     final success = await _client!.start(_rootPath!);
     if (success && _editor != null) {
       _editor!.showMessage(Message.info('LSP connected'));
+
+      // Open all currently loaded buffers with the LSP server
+      for (final buffer in _editor!.buffers) {
+        onFileOpen(_editor!, buffer);
+      }
+
       _editor!.draw();
     }
     return success;
