@@ -1,6 +1,7 @@
 import 'package:vid/highlighting/theme.dart';
 import 'package:vid/lsp/lsp_protocol.dart';
 
+import 'languages/c_tokenizer.dart';
 import 'languages/dart_tokenizer.dart';
 import 'languages/json_tokenizer.dart';
 import 'languages/lua_tokenizer.dart';
@@ -17,6 +18,7 @@ import 'token.dart';
 /// When both are available, LSP tokens overlay regex tokens.
 class Highlighter {
   Theme theme;
+  final _cTokenizer = CTokenizer();
   final _dartTokenizer = DartTokenizer();
   final _jsonTokenizer = JsonTokenizer();
   final _luaTokenizer = LuaTokenizer();
@@ -43,6 +45,7 @@ class Highlighter {
     if (dot == -1) return null;
     final ext = path.substring(dot + 1).toLowerCase();
     return switch (ext) {
+      'c' || 'h' => 'c',
       'dart' => 'dart',
       'lua' => 'lua',
       'md' || 'markdown' => 'markdown',
@@ -70,6 +73,7 @@ class Highlighter {
     }
 
     _regexTokens = switch (lang) {
+      'c' => _cTokenizer.tokenize(text, start, end),
       'dart' => _dartTokenizer.tokenize(text, start, end),
       'lua' => _luaTokenizer.tokenize(text, start, end),
       'markdown' => _markdownTokenizer.tokenize(text, start, end),
