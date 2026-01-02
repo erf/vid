@@ -81,6 +81,7 @@ const normalCommands = <String, Command>{
   'zt': ActionCommand(Normal.cycleTheme),
   // LSP commands
   'gd': ActionCommand(LspActions.goToDefinition),
+  'gr': ActionCommand(LspActions.findReferences),
   'gD': ActionCommand(Normal.openDiagnostics),
   'K': ActionCommand(LspActions.hover),
   'go': ActionCommand(LspActions.jumpBack),

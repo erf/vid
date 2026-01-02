@@ -203,6 +203,7 @@ class LspClient {
             'willSaveWaitUntil': false,
           },
           'definition': {'dynamicRegistration': false},
+          'references': {'dynamicRegistration': false},
           'hover': {'dynamicRegistration': false},
           'completion': {
             'dynamicRegistration': false,

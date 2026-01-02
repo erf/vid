@@ -1,6 +1,7 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/diagnostics_popup.dart';
+import '../popup/references_popup.dart';
 import 'lsp_extension.dart';
 
 /// LSP-related actions for keybindings.
@@ -15,6 +16,16 @@ class LspActions {
     }
     // Fire and forget - async result will update UI
     lsp.goToDefinition(e, f);
+  }
+
+  /// Find all references (gr).
+  static void findReferences(Editor e, FileBuffer f) {
+    final lsp = e.extensions?.getExtension<LspExtension>();
+    if (lsp == null) {
+      e.showMessage(.error('LSP not available'));
+      return;
+    }
+    ReferencesPopup.show(e, f);
   }
 
   /// Show hover info (K).

@@ -324,6 +324,31 @@ class LspProtocol {
     return [];
   }
 
+  /// Request find all references.
+  Future<List<LspLocation>> references(
+    String uri,
+    int line,
+    int char, {
+    bool includeDeclaration = true,
+  }) async {
+    final result = await client.sendRequest('textDocument/references', {
+      'textDocument': {'uri': uri},
+      'position': {'line': line, 'character': char},
+      'context': {'includeDeclaration': includeDeclaration},
+    });
+
+    if (result == null) return [];
+
+    final resultData = result['result'];
+    if (resultData == null) return [];
+
+    // Returns Location[] or null
+    if (resultData is List) {
+      return resultData.map((loc) => _parseLocation(loc)).toList();
+    }
+    return [];
+  }
+
   /// Request hover information.
   Future<String?> hover(String uri, int line, int char) async {
     final result = await client.sendRequest('textDocument/hover', {

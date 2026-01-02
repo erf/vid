@@ -316,6 +316,40 @@ class LspExtension extends Extension {
     }
   }
 
+  /// Find all references to the symbol at current cursor position.
+  Future<List<LspLocation>> findReferences(
+    Editor editor,
+    FileBuffer file,
+  ) async {
+    if (!isConnected) {
+      editor.showMessage(Message.error('LSP not connected'));
+      return [];
+    }
+
+    if (file.absolutePath == null) {
+      editor.showMessage(Message.error('File not saved'));
+      return [];
+    }
+
+    final uri = _fileUri(file.absolutePath!);
+
+    final line = file.lineNumber(file.cursor);
+    final lineStart = file.lineOffset(line);
+    final char = file.cursor - lineStart;
+
+    try {
+      final locations = await _protocol?.references(uri, line, char);
+      if (locations == null || locations.isEmpty) {
+        editor.showMessage(Message.info('No references found'));
+        return [];
+      }
+      return locations;
+    } catch (e) {
+      editor.showMessage(Message.error('LSP error: $e'));
+      return [];
+    }
+  }
+
   /// Extract meaningful content from markdown hover text.
   String _extractHoverContent(String text) {
     final lines = text.split('\n');
