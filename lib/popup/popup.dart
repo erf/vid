@@ -74,6 +74,9 @@ class PopupState<T> {
   /// Callback when an item is selected.
   final PopupSelectCallback? onSelect;
 
+  /// Callback when an item is highlighted (selection changes).
+  final PopupSelectCallback? onHighlight;
+
   /// Callback when popup is cancelled.
   final PopupCancelCallback? onCancel;
 
@@ -94,6 +97,7 @@ class PopupState<T> {
     this.scrollOffset = 0,
     this.filterText = '',
     this.onSelect,
+    this.onHighlight,
     this.onCancel,
     this.customFilter,
     this.showFilter = true,
@@ -105,6 +109,7 @@ class PopupState<T> {
     required String title,
     required List<PopupItem<T>> items,
     PopupSelectCallback? onSelect,
+    PopupSelectCallback? onHighlight,
     PopupCancelCallback? onCancel,
     PopupFilterCallback? customFilter,
     bool showFilter = true,
@@ -118,6 +123,7 @@ class PopupState<T> {
       scrollOffset: 0,
       filterText: '',
       onSelect: onSelect,
+      onHighlight: onHighlight,
       onCancel: onCancel,
       customFilter: customFilter,
       showFilter: showFilter,
@@ -140,6 +146,7 @@ class PopupState<T> {
     int? scrollOffset,
     String? filterText,
     PopupSelectCallback? onSelect,
+    PopupSelectCallback? onHighlight,
     PopupCancelCallback? onCancel,
     PopupFilterCallback? customFilter,
     bool? showFilter,
@@ -153,6 +160,7 @@ class PopupState<T> {
       scrollOffset: scrollOffset ?? this.scrollOffset,
       filterText: filterText ?? this.filterText,
       onSelect: onSelect ?? this.onSelect,
+      onHighlight: onHighlight ?? this.onHighlight,
       onCancel: onCancel ?? this.onCancel,
       customFilter: customFilter ?? this.customFilter,
       showFilter: showFilter ?? this.showFilter,

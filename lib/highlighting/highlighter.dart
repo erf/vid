@@ -32,7 +32,7 @@ class Highlighter {
   /// Line offsets for converting semantic token positions to byte offsets.
   List<int> _lineOffsets = [];
 
-  Highlighter({ThemeType themeType = ThemeType.dark}) : theme = themeType.theme;
+  Highlighter({ThemeType themeType = ThemeType.mono}) : theme = themeType.theme;
 
   set themeType(ThemeType type) => theme = type.theme;
 

@@ -7,6 +7,7 @@ import '../file_buffer/file_buffer.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/diagnostics_popup.dart';
 import '../popup/file_browser.dart';
+import '../popup/theme_selector.dart';
 import '../regex.dart';
 import '../text_op.dart';
 
@@ -218,6 +219,10 @@ class Normal {
 
   static void openBufferSelector(Editor e, FileBuffer f) {
     BufferSelector.show(e);
+  }
+
+  static void openThemeSelector(Editor e, FileBuffer f) {
+    ThemeSelector.show(e);
   }
 
   static void openDiagnostics(Editor e, FileBuffer f) {

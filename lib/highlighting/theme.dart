@@ -3,19 +3,19 @@ import 'package:vid/highlighting/token.dart';
 
 /// Available syntax highlighting themes.
 enum ThemeType {
-  light,
-  dark,
+  mono,
   ayuLight,
   ayuDark,
-  mono;
+  rosePineDawn,
+  rosePine;
 
   /// Get the [Theme] instance for this type.
   Theme get theme => switch (this) {
-    ThemeType.light => Theme._rosePineDawn,
-    ThemeType.dark => Theme._rosePine,
+    ThemeType.mono => Theme._mono,
     ThemeType.ayuLight => Theme._ayuLight,
     ThemeType.ayuDark => Theme._ayuDark,
-    ThemeType.mono => Theme._mono,
+    ThemeType.rosePineDawn => Theme._rosePineDawn,
+    ThemeType.rosePine => Theme._rosePine,
   };
 }
 

@@ -267,8 +267,8 @@ class Editor {
     final detectedTheme = ThemeDetector.detectSync();
     if (detectedTheme != null) {
       final themeType = detectedTheme.name == 'light'
-          ? ThemeType.light
-          : ThemeType.dark;
+          ? ThemeType.ayuLight
+          : ThemeType.ayuDark;
       config = config.copyWith(syntaxTheme: themeType);
       _highlighter.themeType = themeType;
     }
@@ -310,10 +310,14 @@ class Editor {
   void cycleTheme() {
     final nextTheme = ThemeType
         .values[(config.syntaxTheme.index + 1) % ThemeType.values.length];
-    config = config.copyWith(syntaxTheme: nextTheme);
-    _highlighter.themeType = nextTheme;
+    setTheme(nextTheme);
     showMessage(.info('Theme: ${nextTheme.theme.name}'));
     draw();
+  }
+
+  void setTheme(ThemeType theme) {
+    config = config.copyWith(syntaxTheme: theme);
+    _highlighter.themeType = theme;
   }
 
   void onResize(ProcessSignal signal) {

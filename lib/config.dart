@@ -28,7 +28,7 @@ class Config {
     this.wrapMode = WrapMode.none,
     this.breakat = ' !@*-+;:,./?',
     this.syntaxHighlighting = true,
-    this.syntaxTheme = ThemeType.dark,
+    this.syntaxTheme = ThemeType.mono,
   });
 
   Config copyWith({
