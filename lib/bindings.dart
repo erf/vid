@@ -217,6 +217,8 @@ const popupBindings = <String, Command>{
   Keys.newline: ActionCommand(PopupActions.select),
   Keys.ctrlN: ActionCommand(PopupActions.moveDown),
   Keys.ctrlP: ActionCommand(PopupActions.moveUp),
+  Keys.arrowDown: ActionCommand(PopupActions.moveDown),
+  Keys.arrowUp: ActionCommand(PopupActions.moveUp),
   Keys.backspace: ActionCommand(PopupActions.filterBackspace),
 };
 const popupFallback = InputCommand(PopupActions.filterInput);

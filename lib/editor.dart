@@ -406,12 +406,15 @@ class Editor {
     str = _inputBuffer + str;
     _inputBuffer = '';
 
-    // Check for incomplete mouse sequence at end and buffer it
-    final incomplete = RegExp(r'\x1b\[<[\d;]*$');
-    final match = incomplete.firstMatch(str);
-    if (match != null) {
-      _inputBuffer = match.group(0)!;
-      str = str.substring(0, match.start);
+    // Check for incomplete escape sequence at end and buffer it
+    // Only buffer if we have ESC followed by [ or O but not yet complete
+    // ESC alone is processed immediately as the escape key
+    // Matches: ESC[, ESC[<digits;, ESCO (but not ESC alone)
+    final incomplete = RegExp(r'\x1b(?:\[<[\d;]*|\[|O)$');
+    final incompleteMatch = incomplete.firstMatch(str);
+    if (incompleteMatch != null) {
+      _inputBuffer = incompleteMatch.group(0)!;
+      str = str.substring(0, incompleteMatch.start);
     }
 
     // Extract and handle complete mouse sequences
@@ -421,10 +424,25 @@ class Editor {
       if (mouse != null) _handleMouseEvent(mouse);
     }
 
-    // Handle remaining input (with mouse sequences removed)
-    final remaining = str.replaceAll(mouseSeq, '');
-    for (String char in remaining.characters) {
-      handleInput(char);
+    // Remove mouse sequences, then extract arrow/function key sequences
+    var remaining = str.replaceAll(mouseSeq, '');
+
+    // Match escape sequences: ESC[A-D (arrow keys), ESCOA-D (alt arrow keys)
+    final escapeSeq = RegExp(r'\x1b(?:\[[A-D]|O[A-D])');
+
+    // Process input, handling escape sequences as single units
+    int pos = 0;
+    while (pos < remaining.length) {
+      final match = escapeSeq.matchAsPrefix(remaining, pos);
+      if (match != null) {
+        // Handle complete escape sequence as single input
+        handleInput(match.group(0)!);
+        pos = match.end;
+      } else {
+        // Handle single character
+        handleInput(remaining[pos]);
+        pos++;
+      }
     }
 
     if (redraw) {
