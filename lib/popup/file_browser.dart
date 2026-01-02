@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import '../editor.dart';
@@ -6,21 +7,148 @@ import 'popup.dart';
 
 /// File picker popup that lists all files recursively.
 class FileBrowser {
+  /// Maximum number of files to collect.
+  static const int maxFiles = 5000;
+
+  /// Maximum directory depth to scan.
+  static const int maxDepth = 4;
+
+  /// Directories to always exclude from scanning.
+  static const Set<String> _excludeDirs = {
+    'node_modules',
+    '.dart_tool',
+    'build',
+    'target',
+    'vendor',
+    '.pub-cache',
+    '__pycache__',
+    '.venv',
+    'venv',
+    '.gradle',
+    '.idea',
+    '.vs',
+    'dist',
+    'out',
+    '.next',
+    '.nuxt',
+    'coverage',
+    '.cache',
+    'tmp',
+    'temp',
+  };
+
   /// Show file picker popup starting at the given path.
   static void show(Editor editor, [String? path]) {
     final rootPath = _resolvePath(path);
-    final items = _listAllFiles(rootPath);
+    final gitignore = _parseGitignore(rootPath);
 
+    // Show popup immediately with "Scanning..." message
     editor.showPopup(
       PopupState.create(
-        title: 'Open File',
-        items: items,
+        title: 'Open File (scanning...)',
+        items: <PopupItem<String>>[],
         onSelect: (item) => _onSelect(editor, item as PopupItem<String>),
-        onCancel: () => editor.closePopup(),
+        onCancel: () {
+          _cancelScan = true;
+          editor.closePopup();
+        },
         customFilter: (items, filter) =>
             _fuzzyFilter(items.cast<PopupItem<String>>(), filter),
       ),
     );
+
+    // Start async scanning
+    _scanFilesAsync(editor, rootPath, gitignore);
+  }
+
+  /// Flag to cancel ongoing scan.
+  static bool _cancelScan = false;
+
+  /// Scan files asynchronously and update popup progressively.
+  static Future<void> _scanFilesAsync(
+    Editor editor,
+    String rootPath,
+    Set<String> gitignore,
+  ) async {
+    _cancelScan = false;
+    final items = <PopupItem<String>>[];
+    final rootLen = rootPath.length + 1;
+    var lastUpdateCount = 0;
+    var scanComplete = false;
+
+    Future<void> scanDir(Directory dir, int depth) async {
+      if (_cancelScan || items.length >= maxFiles) return;
+      if (depth > maxDepth) return;
+
+      try {
+        final entries = dir.listSync()..sort(_compareEntries);
+        for (final entry in entries) {
+          if (_cancelScan || items.length >= maxFiles) return;
+
+          final name = entry.path.split(Platform.pathSeparator).last;
+
+          // Skip hidden files/directories
+          if (name.startsWith('.')) continue;
+
+          final relativePath = entry.path.length > rootLen
+              ? entry.path.substring(rootLen)
+              : name;
+
+          // Check gitignore patterns
+          if (_matchesGitignore(relativePath, gitignore)) continue;
+
+          if (entry is Directory) {
+            // Skip excluded directories
+            if (_excludeDirs.contains(name)) continue;
+            await scanDir(entry, depth + 1);
+          } else if (entry is File) {
+            items.add(PopupItem(label: relativePath, value: entry.path));
+
+            // Update popup every 100 files for progressive loading
+            if (items.length - lastUpdateCount >= 100) {
+              lastUpdateCount = items.length;
+              _updatePopup(editor, items, scanComplete);
+              // Yield to allow UI updates
+              await Future.delayed(Duration.zero);
+            }
+          }
+        }
+      } catch (e) {
+        // Skip directories we can't read
+      }
+    }
+
+    await scanDir(Directory(rootPath), 0);
+    scanComplete = true;
+
+    if (!_cancelScan) {
+      _updatePopup(editor, items, scanComplete);
+    }
+  }
+
+  /// Update the popup with current items.
+  static void _updatePopup(
+    Editor editor,
+    List<PopupItem<String>> items,
+    bool complete,
+  ) {
+    if (editor.popup == null) return;
+
+    final currentPopup = editor.popup as PopupState<String>;
+    final title = complete
+        ? 'Open File (${items.length} files)'
+        : 'Open File (${items.length} files, scanning...)';
+
+    final newPopup = currentPopup.copyWith(
+      title: title,
+      allItems: List.of(items),
+      items: currentPopup.filterText.isEmpty
+          ? List.of(items)
+          : _fuzzyFilter(List.of(items), currentPopup.filterText),
+    );
+
+    editor.popup = newPopup;
+    editor.draw();
   }
 
   /// Resolve path to an absolute directory path.
@@ -35,36 +163,75 @@ class FileBrowser {
     return Directory.current.path;
   }
 
-  /// List all files recursively from the root path.
-  static List<PopupItem<String>> _listAllFiles(String rootPath) {
-    final items = <PopupItem<String>>[];
-    final rootDir = Directory(rootPath);
-    final rootLen = rootPath.length + 1;
+  /// Parse .gitignore file and return set of patterns.
+  static Set<String> _parseGitignore(String rootPath) {
+    final patterns = <String>{};
+    final gitignoreFile = File('$rootPath/.gitignore');
 
-    void scanDir(Directory dir, int depth) {
-      if (depth > 10) return; // Prevent too deep recursion
-      try {
-        final entries = dir.listSync()..sort(_compareEntries);
-        for (final entry in entries) {
-          final name = entry.path.split(Platform.pathSeparator).last;
-          // Skip all hidden files/directories
-          if (name.startsWith('.')) continue;
-          if (entry is Directory) {
-            scanDir(entry, depth + 1);
-          } else if (entry is File) {
-            final relativePath = entry.path.length > rootLen
-                ? entry.path.substring(rootLen)
-                : name;
-            items.add(PopupItem(label: relativePath, value: entry.path));
-          }
+    if (!gitignoreFile.existsSync()) return patterns;
+
+    try {
+      final lines = gitignoreFile.readAsLinesSync();
+      for (final line in lines) {
+        final trimmed = line.trim();
+        // Skip empty lines and comments
+        if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
+        // Normalize pattern
+        var pattern = trimmed;
+        // Remove leading slash (we match relative paths)
+        if (pattern.startsWith('/')) {
+          pattern = pattern.substring(1);
         }
-      } catch (e) {
-        // Skip directories we can't read
+        // Remove trailing slash (we add it back for directory matching)
+        if (pattern.endsWith('/')) {
+          pattern = pattern.substring(0, pattern.length - 1);
+        }
+        patterns.add(pattern);
+      }
+    } catch (e) {
+      // Ignore errors reading .gitignore
+    }
+
+    return patterns;
+  }
+
+  /// Check if a path matches any gitignore pattern.
+  static bool _matchesGitignore(String relativePath, Set<String> patterns) {
+    if (patterns.isEmpty) return false;
+
+    final pathParts = relativePath.split('/');
+
+    for (final pattern in patterns) {
+      // Simple matching: check if any path component matches the pattern
+      // or if the full path starts with the pattern
+      if (pattern.contains('*')) {
+        // Handle glob patterns (simplified)
+        final regex = _globToRegex(pattern);
+        if (regex.hasMatch(relativePath)) return true;
+        // Also check individual path components
+        for (final part in pathParts) {
+          if (regex.hasMatch(part)) return true;
+        }
+      } else {
+        // Exact match on path component or prefix match on path
+        if (pathParts.contains(pattern)) return true;
+        if (relativePath.startsWith('$pattern/')) return true;
+        if (relativePath == pattern) return true;
       }
     }
 
-    scanDir(rootDir, 0);
-    return items;
+    return false;
+  }
+
+  /// Convert a simple glob pattern to regex.
+  static RegExp _globToRegex(String pattern) {
+    var regex = pattern
+        .replaceAll('.', r'\.')
+        .replaceAll('**', '{{DOUBLESTAR}}')
+        .replaceAll('*', r'[^/]*')
+        .replaceAll('{{DOUBLESTAR}}', r'.*')
+        .replaceAll('?', r'[^/]');
+    return RegExp('^$regex\$');
   }
 
   /// Compare directory entries for sorting (directories first, then alphabetically).

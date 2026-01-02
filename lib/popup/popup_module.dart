@@ -2,6 +2,7 @@
 ///
 /// Provides generic popup menus for file browsing, buffer selection,
 /// LSP diagnostics, and other interactive lists.
+library;
 
 export 'buffer_selector.dart';
 export 'diagnostics_popup.dart';
