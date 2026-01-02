@@ -385,17 +385,13 @@ class LspProtocol {
     int line,
     int char,
   ) async {
-    final result = await client.sendRequest(
-      'textDocument/completion',
-      {
-        'textDocument': {'uri': uri},
-        'position': {'line': line, 'character': char},
-      },
-      timeout: const Duration(seconds: 3),
-    );
+    final result = await client.sendRequest('textDocument/completion', {
+      'textDocument': {'uri': uri},
+      'position': {'line': line, 'character': char},
+    }, timeout: const Duration(seconds: 3));
 
     if (result == null) return [];
-    
+
     // Check for error response
     if (result.containsKey('error')) {
       final error = result['error'];

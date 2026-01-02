@@ -7,6 +7,7 @@ import 'package:termio/termio.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/highlighting/theme.dart';
+import 'package:vid/input/input.dart';
 import 'package:vid/lsp/lsp_extension.dart';
 import 'package:vid/lsp/lsp_protocol.dart';
 import 'package:vid/popup/file_browser.dart';
@@ -54,7 +55,7 @@ class Editor {
   ExtensionRegistry? extensions;
   late final Highlighter _highlighter;
   late final Renderer renderer;
-  String _inputBuffer = ''; // Buffer for incomplete escape sequences
+  final InputParser _inputParser = InputParser();
 
   /// Current popup state (null if no popup is shown).
   PopupState? popup;
@@ -402,46 +403,16 @@ class Editor {
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
 
-    // Prepend any buffered input from previous incomplete sequences
-    str = _inputBuffer + str;
-    _inputBuffer = '';
+    // Parse input into events using the InputParser
+    final events = _inputParser.parse(str);
 
-    // Check for incomplete escape sequence at end and buffer it
-    // Only buffer if we have ESC followed by [ or O but not yet complete
-    // ESC alone is processed immediately as the escape key
-    // Matches: ESC[, ESC[<digits;, ESCO (but not ESC alone)
-    final incomplete = RegExp(r'\x1b(?:\[<[\d;]*|\[|O)$');
-    final incompleteMatch = incomplete.firstMatch(str);
-    if (incompleteMatch != null) {
-      _inputBuffer = incompleteMatch.group(0)!;
-      str = str.substring(0, incompleteMatch.start);
-    }
-
-    // Extract and handle complete mouse sequences
-    final mouseSeq = RegExp(r'\x1b\[<[\d;]+[Mm]');
-    for (final m in mouseSeq.allMatches(str)) {
-      final mouse = MouseEvent.tryParse(m.group(0)!);
-      if (mouse != null) _handleMouseEvent(mouse);
-    }
-
-    // Remove mouse sequences, then extract arrow/function key sequences
-    var remaining = str.replaceAll(mouseSeq, '');
-
-    // Match escape sequences: ESC[A-D (arrow keys), ESCOA-D (alt arrow keys)
-    final escapeSeq = RegExp(r'\x1b(?:\[[A-D]|O[A-D])');
-
-    // Process input, handling escape sequences as single units
-    int pos = 0;
-    while (pos < remaining.length) {
-      final match = escapeSeq.matchAsPrefix(remaining, pos);
-      if (match != null) {
-        // Handle complete escape sequence as single input
-        handleInput(match.group(0)!);
-        pos = match.end;
-      } else {
-        // Handle single character
-        handleInput(remaining[pos]);
-        pos++;
+    for (final event in events) {
+      switch (event) {
+        case KeyEvent key:
+          // Pass the raw sequence to handleInput for key binding matching
+          handleInput(key.raw);
+        case MouseInputEvent mouse:
+          _handleMouseEvent(mouse.event);
       }
     }
 
