@@ -9,7 +9,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - basic vim motions, operators and a minimal command mode
 - render and edit emojis and wide characters
 - syntax highlighting (dart, lua, yaml, md, json)
-- LSP support for Dart and Lua (semantic highlighting, go-to-definition, find references, hover)
+- LSP support for Dart and Lua (semantic highlighting, go-to-definition, find references, completion, hover)
 - multi-buffer support
 - interactive popup for opening files, buffer selection and diagnostics
 - text wrap modes: no-wrap, character-wrap, word-wrap
