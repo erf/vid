@@ -122,7 +122,7 @@ class Normal {
   static void openLineBelow(Editor e, FileBuffer f) {
     String indent = '';
     if (e.config.autoIndent) {
-      indent = InsertActions.getIndent(f, f.cursor, fullLine: true);
+      indent = InsertActions.getSmartIndent(e, f, f.cursor, fullLine: true);
     }
 
     int lineEnd = f.lineEnd(f.cursor);

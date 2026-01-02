@@ -21,11 +21,63 @@ class InsertActions {
     return RegExp(r'^[ \t]*').stringMatch(line) ?? '';
   }
 
+  /// Get the smart indentation for a new line starting at [offset].
+  static String getSmartIndent(
+    Editor e,
+    FileBuffer f,
+    int offset, {
+    bool fullLine = false,
+  }) {
+    String indent = getIndent(f, offset, fullLine: fullLine);
+
+    int lineStart = f.lineStart(offset);
+    int end = fullLine ? f.lineEnd(offset) : offset;
+    String lineToConsider = f.text.substring(lineStart, end).trimRight();
+
+    if (lineToConsider.endsWith('{') ||
+        lineToConsider.endsWith('(') ||
+        lineToConsider.endsWith('[')) {
+      indent += _getIndentUnit(e, f, offset, indent);
+    }
+    return indent;
+  }
+
+  /// Get one unit of indentation based on existing indent style.
+  static String _getIndentUnit(
+    Editor e,
+    FileBuffer f,
+    int offset,
+    String currentIndent,
+  ) {
+    // Tabs: just add one tab
+    if (currentIndent.startsWith('\t')) return '\t';
+
+    // Spaces: find step from previous line with less indentation
+    int currentLen = currentIndent.length;
+    int lineNum = f.lineNumber(offset);
+
+    for (int i = lineNum - 1; i >= 0; i--) {
+      String line = f.lineTextAt(i);
+      if (line.trim().isEmpty) continue;
+
+      String prevIndent = getIndent(f, f.lineOffset(i), fullLine: true);
+      if (prevIndent.startsWith('\t')) break;
+
+      int prevLen = prevIndent.length;
+      if (prevLen < currentLen) {
+        return ' ' * (currentLen - prevLen);
+      }
+    }
+
+    // No reference found: use current indent length, or tabWidth as fallback
+    return ' ' * (currentLen > 0 ? currentLen : e.config.tabWidth);
+  }
+
   /// Insert newline at cursor position.
   static void enter(Editor e, FileBuffer f) {
     String indent = '';
     if (e.config.autoIndent) {
-      indent = getIndent(f, f.cursor, fullLine: false);
+      indent = getSmartIndent(e, f, f.cursor, fullLine: false);
     }
 
     f.insertAt(f.cursor, Keys.newline + indent, config: e.config, editor: e);
