@@ -158,7 +158,12 @@ class FileBrowser {
     }
     final resolved = Directory(path);
     if (resolved.existsSync()) {
-      return resolved.absolute.path;
+      var absPath = resolved.absolute.path;
+      // Remove trailing slash to ensure consistent path handling
+      if (absPath.endsWith('/') && absPath.length > 1) {
+        absPath = absPath.substring(0, absPath.length - 1);
+      }
+      return absPath;
     }
     return Directory.current.path;
   }
