@@ -379,6 +379,45 @@ class LspProtocol {
     return null;
   }
 
+  /// Request completion items at a position.
+  Future<List<LspCompletionItem>> completion(
+    String uri,
+    int line,
+    int char,
+  ) async {
+    final result = await client.sendRequest(
+      'textDocument/completion',
+      {
+        'textDocument': {'uri': uri},
+        'position': {'line': line, 'character': char},
+      },
+      timeout: const Duration(seconds: 3),
+    );
+
+    if (result == null) return [];
+    
+    // Check for error response
+    if (result.containsKey('error')) {
+      final error = result['error'];
+      throw Exception('LSP error: ${error['message'] ?? error}');
+    }
+
+    final resultData = result['result'];
+    if (resultData == null) return [];
+
+    // Can be CompletionItem[] or CompletionList
+    List<dynamic> items;
+    if (resultData is List) {
+      items = resultData;
+    } else if (resultData is Map && resultData['items'] is List) {
+      items = resultData['items'] as List;
+    } else {
+      return [];
+    }
+
+    return items.map((item) => LspCompletionItem.fromJson(item)).toList();
+  }
+
   LspLocation _parseLocation(dynamic loc) {
     if (loc is! Map) return LspLocation.empty();
 
@@ -575,4 +614,85 @@ class SemanticTokensResult {
   final String? resultId;
 
   SemanticTokensResult(this.tokens, this.resultId);
+}
+
+/// Completion item kind from LSP spec.
+enum CompletionItemKind {
+  text(1),
+  method(2),
+  function_(3),
+  constructor(4),
+  field(5),
+  variable(6),
+  class_(7),
+  interface(8),
+  module(9),
+  property(10),
+  unit(11),
+  value_(12),
+  enum_(13),
+  keyword(14),
+  snippet(15),
+  color(16),
+  file(17),
+  reference(18),
+  folder(19),
+  enumMember(20),
+  constant(21),
+  struct(22),
+  event(23),
+  operator_(24),
+  typeParameter(25);
+
+  final int code;
+  const CompletionItemKind(this.code);
+
+  static CompletionItemKind? fromValue(int? value) {
+    if (value == null) return null;
+    return CompletionItemKind.values.cast<CompletionItemKind?>().firstWhere(
+      (k) => k?.code == value,
+      orElse: () => null,
+    );
+  }
+}
+
+/// A completion item from LSP.
+class LspCompletionItem {
+  /// The label shown in the completion list.
+  final String label;
+
+  /// Optional detail (e.g., type signature).
+  final String? detail;
+
+  /// The text to insert (defaults to label if not set).
+  final String? insertText;
+
+  /// The kind of completion item.
+  final CompletionItemKind? kind;
+
+  /// Sort text used for ordering items.
+  final String? sortText;
+
+  /// Filter text used for filtering items.
+  final String? filterText;
+
+  LspCompletionItem({
+    required this.label,
+    this.detail,
+    this.insertText,
+    this.kind,
+    this.sortText,
+    this.filterText,
+  });
+
+  factory LspCompletionItem.fromJson(Map<String, dynamic> json) {
+    return LspCompletionItem(
+      label: json['label'] as String,
+      detail: json['detail'] as String?,
+      insertText: json['insertText'] as String?,
+      kind: CompletionItemKind.fromValue(json['kind'] as int?),
+      sortText: json['sortText'] as String?,
+      filterText: json['filterText'] as String?,
+    );
+  }
 }

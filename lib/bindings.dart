@@ -1,5 +1,6 @@
 import 'package:termio/termio.dart';
 
+import 'actions/completion_actions.dart';
 import 'actions/insert_actions.dart';
 import 'actions/line_edit.dart';
 import 'actions/motions.dart';
@@ -92,6 +93,8 @@ const insertBindings = <String, Command>{
   Keys.backspace: ActionCommand(InsertActions.backspace),
   Keys.newline: ActionCommand(InsertActions.enter),
   Keys.escape: ActionCommand(InsertActions.escape),
+  Keys.ctrlN: ActionCommand(CompletionActions.showCompletion),
+  Keys.ctrlP: ActionCommand(CompletionActions.showCompletion),
 };
 const insertFallback = InputCommand(InsertActions.insert);
 
