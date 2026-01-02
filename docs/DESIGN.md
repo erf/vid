@@ -2,20 +2,23 @@
 
 ## Overview
 
-- file as a single `text` String
-- create lines of text + metadata on init / changes
-- use lines for rendering and cursor movement
-- minimal API to replace for a given range on `text`
+- file as a single `text` String for simplicity
+- minimal API to replace text for a given range
+- cursor (and viewport) is byte based 
+- use regex for most text operations within range
+- create lines of text + metadata on changes
+- use lines for help with motions etc.
 - undo operations are added to a list on replace
-- we add newline to eof if missing (unix)
+- multiple buffers
+- compiled extensions (cursor pos, LSP)
 
 ## Text operations
 
 We want to delete, insert and replace text for a spesific range.
 We want to save changes to be able to undo and redo those changes.
+We use the `String.replaceRange` to do all text operations.
 We use a `TextOp` class with a `start`, `prevText` and `newText` to solve this.
 We use convinience functions on top of that for delete and insert.
-We use the `String.replaceRange` to do all text operations.
 
 ```Dart
 String replaceRange(
