@@ -23,14 +23,14 @@ class LspExtension extends Extension {
   /// Files that have been opened with the LSP server.
   final Set<String> _openDocuments = {};
 
-  /// Cached semantic tokens per file URI.
+  /// Cached semantic tokens per file URI (for rendering).
   final Map<String, List<SemanticToken>> _semanticTokens = {};
 
-  /// Pending semantic token requests (debounced).
-  final Map<String, Timer> _semanticTokenTimers = {};
+  /// Previous semantic tokens for delta requests (kept even when display cleared).
+  final Map<String, List<SemanticToken>> _previousTokens = {};
 
-  /// Debounce delay for semantic token requests.
-  static const _semanticTokenDebounce = Duration(milliseconds: 150);
+  /// Pending semantic token requests.
+  final Map<String, Timer> _semanticTokenTimers = {};
 
   Editor? _editor;
   String? _rootPath;
@@ -48,9 +48,10 @@ class LspExtension extends Extension {
     return _semanticTokens[uri] ?? [];
   }
 
+  /// Debounce delay for semantic token requests.
+  static const _semanticTokenDebounce = Duration(milliseconds: 50);
+
   /// Request semantic tokens for the entire document.
-  ///
-  /// This is debounced to avoid excessive requests during rapid editing.
   void requestSemanticTokens(String uri, {bool immediate = false}) {
     if (!supportsSemanticTokens) return;
     if (!_openDocuments.contains(uri)) return;
@@ -58,7 +59,7 @@ class LspExtension extends Extension {
     // Cancel any pending request for this file
     _semanticTokenTimers[uri]?.cancel();
 
-    if (immediate) {
+    if (immediate || _semanticTokenDebounce == Duration.zero) {
       _fetchSemanticTokens(uri);
     } else {
       _semanticTokenTimers[uri] = Timer(_semanticTokenDebounce, () {
@@ -69,9 +70,15 @@ class LspExtension extends Extension {
 
   Future<void> _fetchSemanticTokens(String uri) async {
     try {
-      final tokens = await _protocol?.semanticTokensFull(uri);
-      if (tokens != null) {
-        _semanticTokens[uri] = tokens;
+      // Pass previous tokens to enable delta updates
+      final previousTokens = _previousTokens[uri];
+      final result = await _protocol?.semanticTokensFull(
+        uri,
+        previousTokens: previousTokens,
+      );
+      if (result != null) {
+        _semanticTokens[uri] = result.tokens;
+        _previousTokens[uri] = result.tokens;
         _editor?.draw();
       }
     } catch (_) {
@@ -82,6 +89,7 @@ class LspExtension extends Extension {
   /// Clear cached semantic tokens for a file (e.g., on close).
   void clearSemanticTokens(String uri) {
     _semanticTokens.remove(uri);
+    _previousTokens.remove(uri);
     _semanticTokenTimers[uri]?.cancel();
     _semanticTokenTimers.remove(uri);
   }
@@ -129,7 +137,7 @@ class LspExtension extends Extension {
     _protocol?.didOpen(uri, languageId, 1, file.text);
     _openDocuments.add(uri);
 
-    // Request semantic tokens for the whole file
+    // Request semantic tokens immediately for the whole file
     requestSemanticTokens(uri, immediate: true);
   }
 
@@ -172,8 +180,54 @@ class LspExtension extends Extension {
     // Use full sync (simpler, always correct)
     _protocol?.didChangeFull(uri, version, file.text);
 
+    // Only invalidate tokens on affected lines, keep the rest
+    _invalidateTokensForEdit(uri, file, start, oldText, newText);
+
     // Re-fetch semantic tokens (debounced)
     requestSemanticTokens(uri);
+  }
+
+  /// Invalidate only tokens on lines affected by an edit.
+  /// Tokens on unaffected lines remain valid and avoid flashing.
+  void _invalidateTokensForEdit(
+    String uri,
+    FileBuffer file,
+    int editStart,
+    String oldText,
+    String newText,
+  ) {
+    final tokens = _semanticTokens[uri];
+    if (tokens == null || tokens.isEmpty) return;
+
+    final oldLines = '\n'.allMatches(oldText).length;
+    final newLines = '\n'.allMatches(newText).length;
+    final lineDelta = newLines - oldLines;
+
+    final editLine = file.lineNumber(editStart);
+    final affectedEndLine = editLine + oldLines;
+
+    final adjusted = <SemanticToken>[];
+    for (final token in tokens) {
+      if (token.line < editLine) {
+        // Before edit - keep unchanged
+        adjusted.add(token);
+      } else if (token.line <= affectedEndLine) {
+        // On affected lines - skip (will use regex highlighting)
+      } else {
+        // After edit - shift line number
+        adjusted.add(
+          SemanticToken(
+            line: token.line + lineDelta,
+            character: token.character,
+            length: token.length,
+            type: token.type,
+            modifiers: token.modifiers,
+          ),
+        );
+      }
+    }
+
+    _semanticTokens[uri] = adjusted;
   }
 
   /// Go to definition at current cursor position.

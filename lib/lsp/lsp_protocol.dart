@@ -100,12 +100,58 @@ class LspProtocol {
     return _decodeSemanticTokens(data.cast<int>());
   }
 
-  /// Request all semantic tokens for a document.
+  /// Stored result IDs for delta requests per file.
+  final Map<String, String> _resultIds = {};
+
+  /// Request semantic tokens for a document, using delta if available.
   ///
-  /// Returns a list of [SemanticToken]s with absolute positions.
-  Future<List<SemanticToken>?> semanticTokensFull(String uri) async {
+  /// Returns a [SemanticTokensResult] with tokens and optional resultId.
+  Future<SemanticTokensResult?> semanticTokensFull(
+    String uri, {
+    List<SemanticToken>? previousTokens,
+  }) async {
     if (!client.supportsSemanticTokens) return null;
 
+    final previousResultId = _resultIds[uri];
+
+    // Try delta request if we have a previous resultId
+    if (previousResultId != null && previousTokens != null) {
+      final result = await client.sendRequest(
+        'textDocument/semanticTokens/full/delta',
+        {
+          'textDocument': {'uri': uri},
+          'previousResultId': previousResultId,
+        },
+      );
+
+      if (result != null) {
+        final resultData = result['result'];
+        if (resultData != null) {
+          // Check if server returned delta edits or full data
+          final edits = resultData['edits'];
+          if (edits != null && edits is List) {
+            // Apply delta edits to previous tokens
+            final newResultId = resultData['resultId'] as String?;
+            if (newResultId != null) _resultIds[uri] = newResultId;
+            final newTokens = _applySemanticEdits(previousTokens, edits);
+            return SemanticTokensResult(newTokens, newResultId);
+          }
+
+          // Server returned full data instead of delta
+          final data = resultData['data'];
+          if (data != null && data is List) {
+            final newResultId = resultData['resultId'] as String?;
+            if (newResultId != null) _resultIds[uri] = newResultId;
+            return SemanticTokensResult(
+              _decodeSemanticTokens(data.cast<int>()),
+              newResultId,
+            );
+          }
+        }
+      }
+    }
+
+    // Fall back to full request
     final result = await client.sendRequest(
       'textDocument/semanticTokens/full',
       {
@@ -115,10 +161,103 @@ class LspProtocol {
 
     if (result == null) return null;
 
-    final data = result['result']?['data'];
+    final resultData = result['result'];
+    if (resultData == null) return null;
+
+    final data = resultData['data'];
     if (data == null || data is! List) return null;
 
-    return _decodeSemanticTokens(data.cast<int>());
+    final newResultId = resultData['resultId'] as String?;
+    if (newResultId != null) _resultIds[uri] = newResultId;
+
+    return SemanticTokensResult(
+      _decodeSemanticTokens(data.cast<int>()),
+      newResultId,
+    );
+  }
+
+  /// Apply semantic token edits to existing token data.
+  List<SemanticToken> _applySemanticEdits(
+    List<SemanticToken> previous,
+    List<dynamic> edits,
+  ) {
+    // Convert tokens back to raw data format for editing
+    final data = <int>[];
+    var prevLine = 0;
+    var prevChar = 0;
+
+    for (final token in previous) {
+      final deltaLine = token.line - prevLine;
+      final deltaChar = deltaLine > 0
+          ? token.character
+          : token.character - prevChar;
+      data.addAll([
+        deltaLine,
+        deltaChar,
+        token.length,
+        _tokenTypeToIndex(token.type),
+        token.modifiers,
+      ]);
+      prevLine = token.line;
+      prevChar = token.character;
+    }
+
+    // Apply edits in reverse order to preserve indices
+    final sortedEdits = List<Map<String, dynamic>>.from(
+      edits.map((e) => e as Map<String, dynamic>),
+    )..sort((a, b) => (b['start'] as int).compareTo(a['start'] as int));
+
+    for (final edit in sortedEdits) {
+      final start = edit['deleteCount'] != null ? edit['start'] as int : 0;
+      final deleteCount = edit['deleteCount'] as int? ?? 0;
+      final insertData = edit['data'] as List<dynamic>? ?? [];
+
+      // Remove deleted elements
+      if (deleteCount > 0 && start < data.length) {
+        data.removeRange(start, (start + deleteCount).clamp(0, data.length));
+      }
+
+      // Insert new elements
+      if (insertData.isNotEmpty) {
+        data.insertAll(start.clamp(0, data.length), insertData.cast<int>());
+      }
+    }
+
+    return _decodeSemanticTokens(data);
+  }
+
+  /// Map TokenType back to index for delta encoding.
+  int _tokenTypeToIndex(TokenType type) {
+    final legend = client.semanticTokenTypes;
+    // Find matching type in legend
+    final typeName = switch (type) {
+      TokenType.namespace => 'namespace',
+      TokenType.class_ => 'class',
+      TokenType.enum_ => 'enum',
+      TokenType.interface => 'interface',
+      TokenType.struct => 'struct',
+      TokenType.typeParameter => 'typeParameter',
+      TokenType.parameter => 'parameter',
+      TokenType.variable => 'variable',
+      TokenType.property => 'property',
+      TokenType.enumMember => 'enumMember',
+      TokenType.event => 'event',
+      TokenType.function => 'function',
+      TokenType.method => 'method',
+      TokenType.macro => 'macro',
+      TokenType.keyword => 'keyword',
+      TokenType.modifier => 'modifier',
+      TokenType.blockComment || TokenType.lineComment => 'comment',
+      TokenType.string => 'string',
+      TokenType.number => 'number',
+      TokenType.regexp => 'regexp',
+      TokenType.operator => 'operator',
+      TokenType.decorator => 'decorator',
+      TokenType.type => 'type',
+      _ => 'variable',
+    };
+    final index = legend.indexOf(typeName);
+    return index >= 0 ? index : 0;
   }
 
   /// Decode delta-encoded semantic token data into absolute positions.
@@ -403,4 +542,12 @@ class SemanticToken {
   @override
   String toString() =>
       'SemanticToken($type, L$line:$character, len=$length, mod=$modifiers)';
+}
+
+/// Result of a semantic tokens request.
+class SemanticTokensResult {
+  final List<SemanticToken> tokens;
+  final String? resultId;
+
+  SemanticTokensResult(this.tokens, this.resultId);
 }

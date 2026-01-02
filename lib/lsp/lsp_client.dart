@@ -213,7 +213,7 @@ class LspClient {
             'dynamicRegistration': false,
             'requests': {
               'range': true,
-              'full': {'delta': false},
+              'full': {'delta': true},
             },
             'tokenTypes': [
               'namespace',
