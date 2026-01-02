@@ -206,6 +206,32 @@ class PopupState<T> {
     return copyWith(selectedIndex: newIndex, scrollOffset: newScroll);
   }
 
+  /// Move selection down by half a page (Ctrl+D style).
+  PopupState<T> pageDown() {
+    if (items.isEmpty) return this;
+    final halfPage = (maxVisibleItems ~/ 2).clamp(1, maxVisibleItems);
+    final newIndex = (selectedIndex + halfPage).clamp(0, items.length - 1);
+    var newScroll = scrollOffset;
+    // Scroll down if selection goes below visible area
+    if (newIndex >= scrollOffset + maxVisibleItems) {
+      newScroll = (newIndex - maxVisibleItems + 1).clamp(0, items.length - 1);
+    }
+    return copyWith(selectedIndex: newIndex, scrollOffset: newScroll);
+  }
+
+  /// Move selection up by half a page (Ctrl+U style).
+  PopupState<T> pageUp() {
+    if (items.isEmpty) return this;
+    final halfPage = (maxVisibleItems ~/ 2).clamp(1, maxVisibleItems);
+    final newIndex = (selectedIndex - halfPage).clamp(0, items.length - 1);
+    var newScroll = scrollOffset;
+    // Scroll up if selection goes above visible area
+    if (newIndex < scrollOffset) {
+      newScroll = newIndex;
+    }
+    return copyWith(selectedIndex: newIndex, scrollOffset: newScroll);
+  }
+
   /// Update filter and re-filter items.
   PopupState<T> setFilter(String newFilter) {
     final filteredItems = _filterItems(newFilter);

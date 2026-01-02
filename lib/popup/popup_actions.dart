@@ -43,6 +43,26 @@ class PopupActions {
     }
   }
 
+  /// Move selection down by one page (Ctrl+D).
+  static void pageDown(Editor e, FileBuffer f) {
+    if (e.popup == null) return;
+    final oldIndex = e.popup!.selectedIndex;
+    e.popup = e.popup!.pageDown();
+    if (e.popup!.selectedIndex != oldIndex) {
+      _notifyHighlight(e);
+    }
+  }
+
+  /// Move selection up by one page (Ctrl+U).
+  static void pageUp(Editor e, FileBuffer f) {
+    if (e.popup == null) return;
+    final oldIndex = e.popup!.selectedIndex;
+    e.popup = e.popup!.pageUp();
+    if (e.popup!.selectedIndex != oldIndex) {
+      _notifyHighlight(e);
+    }
+  }
+
   static void _notifyHighlight(Editor e) {
     final popup = e.popup;
     if (popup == null) return;
