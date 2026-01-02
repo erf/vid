@@ -405,7 +405,8 @@ class LspExtension extends Extension {
 
     final success = await _client!.start(_rootPath!);
     if (success && _editor != null) {
-      _editor!.showMessage(Message.info('LSP connected'));
+      final serverName = _client!.serverConfig?.name.split(' ').first ?? 'LSP';
+      _editor!.showMessage(Message.info('LSP connected ($serverName)'));
 
       // Open all currently loaded buffers with the LSP server
       for (final buffer in _editor!.buffers) {
