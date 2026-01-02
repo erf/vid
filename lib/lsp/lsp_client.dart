@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'lsp_server_config.dart';
+
 /// JSON-RPC client for LSP communication over stdin/stdout.
 /// Handles Content-Length framing and request/response correlation.
 class LspClient {
@@ -13,6 +15,13 @@ class LspClient {
   int? _contentLength;
   bool _initialized = false;
   String? _rootPath;
+  LspServerConfig? _serverConfig;
+
+  /// Semantic token type legend from server capabilities.
+  List<String> _semanticTokenTypes = [];
+
+  /// Semantic token modifier legend from server capabilities.
+  List<String> _semanticTokenModifiers = [];
 
   /// Stream of notifications from the server (diagnostics, log messages, etc.)
   Stream<LspNotification> get notifications => _notificationController.stream;
@@ -20,14 +29,35 @@ class LspClient {
   /// Whether the LSP client is connected and initialized.
   bool get isConnected => _process != null && _initialized;
 
+  /// The server configuration being used.
+  LspServerConfig? get serverConfig => _serverConfig;
+
+  /// Whether the server supports semantic tokens.
+  bool get supportsSemanticTokens => _semanticTokenTypes.isNotEmpty;
+
+  /// Semantic token type legend for decoding responses.
+  List<String> get semanticTokenTypes => _semanticTokenTypes;
+
+  /// Semantic token modifier legend for decoding responses.
+  List<String> get semanticTokenModifiers => _semanticTokenModifiers;
+
   /// Start the LSP server process and initialize the connection.
-  Future<bool> start(String rootPath) async {
+  ///
+  /// If [config] is provided, uses that server configuration.
+  /// Otherwise, attempts to detect the appropriate server for the project.
+  Future<bool> start(String rootPath, {LspServerConfig? config}) async {
     _rootPath = rootPath;
+    _serverConfig = config ?? LspServerRegistry.detectForProject(rootPath);
+
+    // Fall back to Dart server if no config detected
+    _serverConfig ??= LspServerRegistry.dartServer;
+
     try {
-      _process = await Process.start('dart', [
-        'language-server',
-        '--protocol=lsp',
-      ], workingDirectory: rootPath);
+      _process = await Process.start(
+        _serverConfig!.executable,
+        _serverConfig!.args,
+        workingDirectory: rootPath,
+      );
 
       _process!.stdout
           .transform(utf8.decoder)
@@ -41,6 +71,8 @@ class LspClient {
       final result = await initialize(rootPath);
       if (result != null) {
         _initialized = true;
+        // Extract semantic token legend from server capabilities
+        _extractSemanticTokenLegend(result);
         // Send initialized notification
         sendNotification('initialized', {});
         return true;
@@ -51,6 +83,32 @@ class LspClient {
         LspNotification('error', {'message': 'Failed to start LSP: $e'}),
       );
       return false;
+    }
+  }
+
+  /// Extract semantic token type/modifier legends from initialize response.
+  void _extractSemanticTokenLegend(Map<String, dynamic> result) {
+    try {
+      final capabilities = result['result']?['capabilities'];
+      if (capabilities == null) return;
+
+      final semanticProvider = capabilities['semanticTokensProvider'];
+      if (semanticProvider == null) return;
+
+      final legend = semanticProvider['legend'];
+      if (legend == null) return;
+
+      final types = legend['tokenTypes'];
+      if (types is List) {
+        _semanticTokenTypes = types.cast<String>();
+      }
+
+      final modifiers = legend['tokenModifiers'];
+      if (modifiers is List) {
+        _semanticTokenModifiers = modifiers.cast<String>();
+      }
+    } catch (_) {
+      // Ignore parsing errors
     }
   }
 
@@ -151,6 +209,53 @@ class LspClient {
             'completionItem': {'snippetSupport': false},
           },
           'publishDiagnostics': {'relatedInformation': true},
+          'semanticTokens': {
+            'dynamicRegistration': false,
+            'requests': {
+              'range': true,
+              'full': {'delta': false},
+            },
+            'tokenTypes': [
+              'namespace',
+              'type',
+              'class',
+              'enum',
+              'interface',
+              'struct',
+              'typeParameter',
+              'parameter',
+              'variable',
+              'property',
+              'enumMember',
+              'event',
+              'function',
+              'method',
+              'macro',
+              'keyword',
+              'modifier',
+              'comment',
+              'string',
+              'number',
+              'regexp',
+              'operator',
+              'decorator',
+            ],
+            'tokenModifiers': [
+              'declaration',
+              'definition',
+              'readonly',
+              'static',
+              'deprecated',
+              'abstract',
+              'async',
+              'modification',
+              'documentation',
+              'defaultLibrary',
+            ],
+            'formats': ['relative'],
+            'overlappingTokenSupport': false,
+            'multilineTokenSupport': true,
+          },
         },
         'workspace': {
           'workspaceFolders': true,

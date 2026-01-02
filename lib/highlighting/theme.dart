@@ -56,6 +56,7 @@ class Theme {
   static final Theme _rosePineDawn = Theme._(
     'rosepine-dawn',
     {
+      // Basic token types (regex-based)
       TokenType.keyword: Ansi.fgRgb(40, 105, 131), // Pine #286983
       TokenType.lineComment: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
       TokenType.blockComment: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
@@ -64,6 +65,25 @@ class Theme {
       TokenType.literal: Ansi.fgRgb(180, 99, 122), // Love #b4637a
       TokenType.type: Ansi.fgRgb(86, 148, 159), // Foam #56949f
       TokenType.plain: reset,
+      // LSP semantic token types
+      TokenType.namespace: Ansi.fgRgb(87, 82, 121), // Text #575279
+      TokenType.class_: Ansi.fgRgb(86, 148, 159), // Foam #56949f
+      TokenType.enum_: Ansi.fgRgb(86, 148, 159), // Foam #56949f
+      TokenType.interface: Ansi.fgRgb(86, 148, 159), // Foam #56949f
+      TokenType.struct: Ansi.fgRgb(86, 148, 159), // Foam #56949f
+      TokenType.typeParameter: Ansi.fgRgb(86, 148, 159), // Foam #56949f
+      TokenType.parameter: Ansi.fgRgb(144, 122, 169), // Iris #907aa9
+      TokenType.variable: Ansi.fgRgb(87, 82, 121), // Text #575279
+      TokenType.property: Ansi.fgRgb(144, 122, 169), // Iris #907aa9
+      TokenType.enumMember: Ansi.fgRgb(180, 99, 122), // Love #b4637a
+      TokenType.event: Ansi.fgRgb(215, 130, 126), // Rose #d7827e
+      TokenType.function: Ansi.fgRgb(215, 130, 126), // Rose #d7827e
+      TokenType.method: Ansi.fgRgb(215, 130, 126), // Rose #d7827e
+      TokenType.macro: Ansi.fgRgb(40, 105, 131), // Pine #286983
+      TokenType.modifier: Ansi.fgRgb(40, 105, 131), // Pine #286983
+      TokenType.regexp: Ansi.fgRgb(234, 157, 52), // Gold #ea9d34
+      TokenType.operator: Ansi.fgRgb(87, 82, 121), // Text #575279
+      TokenType.decorator: Ansi.fgRgb(144, 122, 169), // Iris #907aa9
     },
     background: Ansi.bgRgb(250, 244, 237), // Base #faf4ed
     foreground: Ansi.fgRgb(87, 82, 121), // Text #575279
@@ -74,6 +94,7 @@ class Theme {
   static final Theme _rosePine = Theme._(
     'rosepine',
     {
+      // Basic token types (regex-based)
       TokenType.keyword: Ansi.fgRgb(49, 116, 143), // Pine #31748f
       TokenType.lineComment: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
       TokenType.blockComment: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
@@ -82,6 +103,25 @@ class Theme {
       TokenType.literal: Ansi.fgRgb(235, 111, 146), // Love #eb6f92
       TokenType.type: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
       TokenType.plain: reset,
+      // LSP semantic token types
+      TokenType.namespace: Ansi.fgRgb(224, 222, 244), // Text #e0def4
+      TokenType.class_: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
+      TokenType.enum_: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
+      TokenType.interface: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
+      TokenType.struct: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
+      TokenType.typeParameter: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
+      TokenType.parameter: Ansi.fgRgb(196, 167, 231), // Iris #c4a7e7
+      TokenType.variable: Ansi.fgRgb(224, 222, 244), // Text #e0def4
+      TokenType.property: Ansi.fgRgb(196, 167, 231), // Iris #c4a7e7
+      TokenType.enumMember: Ansi.fgRgb(235, 111, 146), // Love #eb6f92
+      TokenType.event: Ansi.fgRgb(235, 188, 186), // Rose #ebbcba
+      TokenType.function: Ansi.fgRgb(235, 188, 186), // Rose #ebbcba
+      TokenType.method: Ansi.fgRgb(235, 188, 186), // Rose #ebbcba
+      TokenType.macro: Ansi.fgRgb(49, 116, 143), // Pine #31748f
+      TokenType.modifier: Ansi.fgRgb(49, 116, 143), // Pine #31748f
+      TokenType.regexp: Ansi.fgRgb(246, 193, 119), // Gold #f6c177
+      TokenType.operator: Ansi.fgRgb(224, 222, 244), // Text #e0def4
+      TokenType.decorator: Ansi.fgRgb(196, 167, 231), // Iris #c4a7e7
     },
     background: Ansi.bgRgb(25, 23, 36), // Base #191724
     foreground: Ansi.fgRgb(224, 222, 244), // Text #e0def4
@@ -90,6 +130,7 @@ class Theme {
 
   // Monochrome theme using text attributes (uses terminal default colors)
   static final Theme _mono = Theme._('mono', {
+    // Basic token types
     TokenType.keyword: Ansi.bold(),
     TokenType.lineComment: Ansi.dim(),
     TokenType.blockComment: Ansi.dim(),
@@ -98,5 +139,24 @@ class Theme {
     TokenType.literal: Ansi.bold(),
     TokenType.type: Ansi.underline(),
     TokenType.plain: reset,
+    // LSP semantic token types
+    TokenType.namespace: '',
+    TokenType.class_: Ansi.underline(),
+    TokenType.enum_: Ansi.underline(),
+    TokenType.interface: Ansi.underline(),
+    TokenType.struct: Ansi.underline(),
+    TokenType.typeParameter: Ansi.underline(),
+    TokenType.parameter: Ansi.italic(),
+    TokenType.variable: '',
+    TokenType.property: Ansi.italic(),
+    TokenType.enumMember: Ansi.bold(),
+    TokenType.event: '',
+    TokenType.function: Ansi.bold(),
+    TokenType.method: Ansi.bold(),
+    TokenType.macro: Ansi.bold(),
+    TokenType.modifier: Ansi.bold(),
+    TokenType.regexp: Ansi.italic(),
+    TokenType.operator: '',
+    TokenType.decorator: '${Ansi.dim()}${Ansi.italic()}',
   });
 }

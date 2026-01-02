@@ -8,6 +8,7 @@ import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/highlighting/theme.dart';
 import 'package:vid/lsp/lsp_extension.dart';
+import 'package:vid/lsp/lsp_protocol.dart';
 import 'package:vid/popup/file_browser.dart';
 import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
@@ -325,12 +326,23 @@ class Editor {
   }
 
   void draw() {
-    // Get diagnostic count for current file from LSP
+    // Get diagnostic count and semantic tokens for current file from LSP
     int diagnosticCount = 0;
+    List<SemanticToken>? semanticTokens;
     final lsp = extensions?.getExtension<LspExtension>();
     if (lsp != null && lsp.isConnected && file.absolutePath != null) {
       final uri = 'file://${file.absolutePath}';
       diagnosticCount = lsp.getDiagnostics(uri).length;
+
+      // Get cached semantic tokens if available
+      if (lsp.supportsSemanticTokens) {
+        semanticTokens = lsp.getSemanticTokens(uri);
+
+        // Request semantic tokens for visible range (debounced)
+        final viewportLine = file.lineNumber(file.viewport);
+        final endLine = viewportLine + terminal.height + 10; // buffer
+        lsp.requestSemanticTokensRange(uri, viewportLine, endLine);
+      }
     }
 
     renderer.draw(
@@ -341,6 +353,7 @@ class Editor {
       bufferCount: _buffers.length,
       popup: popup,
       diagnosticCount: diagnosticCount,
+      semanticTokens: semanticTokens,
     );
   }
 

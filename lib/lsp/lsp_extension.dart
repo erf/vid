@@ -23,12 +23,83 @@ class LspExtension extends Extension {
   /// Files that have been opened with the LSP server.
   final Set<String> _openDocuments = {};
 
+  /// Cached semantic tokens per file URI.
+  final Map<String, List<SemanticToken>> _semanticTokens = {};
+
+  /// Pending semantic token requests (debounced).
+  final Map<String, Timer> _semanticTokenTimers = {};
+
+  /// Debounce delay for semantic token requests.
+  static const _semanticTokenDebounce = Duration(milliseconds: 150);
+
   Editor? _editor;
   String? _rootPath;
 
   LspClient? get client => _client;
   LspProtocol? get protocol => _protocol;
   bool get isConnected => _client?.isConnected ?? false;
+
+  /// Whether semantic tokens are available.
+  bool get supportsSemanticTokens => _client?.supportsSemanticTokens ?? false;
+
+  /// Get cached semantic tokens for a file.
+  List<SemanticToken> getSemanticTokens(String? uri) {
+    if (uri == null) return [];
+    return _semanticTokens[uri] ?? [];
+  }
+
+  /// Request semantic tokens for a visible range of a document.
+  ///
+  /// This is debounced to avoid excessive requests during scrolling/editing.
+  void requestSemanticTokensRange(
+    String uri,
+    int startLine,
+    int endLine, {
+    bool immediate = false,
+  }) {
+    if (!supportsSemanticTokens) return;
+    if (!_openDocuments.contains(uri)) return;
+
+    // Cancel any pending request for this file
+    _semanticTokenTimers[uri]?.cancel();
+
+    if (immediate) {
+      _fetchSemanticTokensRange(uri, startLine, endLine);
+    } else {
+      _semanticTokenTimers[uri] = Timer(_semanticTokenDebounce, () {
+        _fetchSemanticTokensRange(uri, startLine, endLine);
+      });
+    }
+  }
+
+  Future<void> _fetchSemanticTokensRange(
+    String uri,
+    int startLine,
+    int endLine,
+  ) async {
+    try {
+      final tokens = await _protocol?.semanticTokensRange(
+        uri,
+        startLine,
+        0, // start of line
+        endLine,
+        0, // will get tokens up to end of endLine
+      );
+      if (tokens != null) {
+        _semanticTokens[uri] = tokens;
+        _editor?.draw();
+      }
+    } catch (_) {
+      // Ignore errors - semantic tokens are optional enhancement
+    }
+  }
+
+  /// Clear cached semantic tokens for a file (e.g., on close).
+  void clearSemanticTokens(String uri) {
+    _semanticTokens.remove(uri);
+    _semanticTokenTimers[uri]?.cancel();
+    _semanticTokenTimers.remove(uri);
+  }
 
   /// Get diagnostics for a file.
   List<LspDiagnostic> getDiagnostics(String? uri) {
@@ -85,6 +156,7 @@ class LspExtension extends Extension {
     _openDocuments.remove(uri);
     _documentVersions.remove(uri);
     _diagnostics.remove(uri);
+    clearSemanticTokens(uri);
   }
 
   @override
@@ -111,6 +183,9 @@ class LspExtension extends Extension {
 
     // Use full sync (simpler, always correct)
     _protocol?.didChangeFull(uri, version, file.text);
+
+    // Invalidate semantic tokens (will be re-fetched on next draw)
+    _semanticTokens.remove(uri);
   }
 
   /// Go to definition at current cursor position.
@@ -235,6 +310,11 @@ class LspExtension extends Extension {
     _openDocuments.clear();
     _documentVersions.clear();
     _diagnostics.clear();
+    _semanticTokens.clear();
+    for (final timer in _semanticTokenTimers.values) {
+      timer.cancel();
+    }
+    _semanticTokenTimers.clear();
 
     if (_rootPath != null) {
       final success = await _startLsp();

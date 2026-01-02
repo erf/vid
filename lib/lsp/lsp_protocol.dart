@@ -1,3 +1,5 @@
+import 'package:vid/highlighting/token.dart';
+
 import 'lsp_client.dart';
 
 /// High-level LSP protocol operations built on LspClient.
@@ -65,6 +67,101 @@ class LspProtocol {
       'textDocument': {'uri': uri},
       if (text != null) 'text': text,
     });
+  }
+
+  /// Request semantic tokens for a range of a document.
+  ///
+  /// Returns a list of [SemanticToken]s with absolute positions.
+  Future<List<SemanticToken>?> semanticTokensRange(
+    String uri,
+    int startLine,
+    int startChar,
+    int endLine,
+    int endChar,
+  ) async {
+    if (!client.supportsSemanticTokens) return null;
+
+    final result = await client.sendRequest(
+      'textDocument/semanticTokens/range',
+      {
+        'textDocument': {'uri': uri},
+        'range': {
+          'start': {'line': startLine, 'character': startChar},
+          'end': {'line': endLine, 'character': endChar},
+        },
+      },
+    );
+
+    if (result == null) return null;
+
+    final data = result['result']?['data'];
+    if (data == null || data is! List) return null;
+
+    return _decodeSemanticTokens(data.cast<int>());
+  }
+
+  /// Request all semantic tokens for a document.
+  ///
+  /// Returns a list of [SemanticToken]s with absolute positions.
+  Future<List<SemanticToken>?> semanticTokensFull(String uri) async {
+    if (!client.supportsSemanticTokens) return null;
+
+    final result = await client.sendRequest(
+      'textDocument/semanticTokens/full',
+      {
+        'textDocument': {'uri': uri},
+      },
+    );
+
+    if (result == null) return null;
+
+    final data = result['result']?['data'];
+    if (data == null || data is! List) return null;
+
+    return _decodeSemanticTokens(data.cast<int>());
+  }
+
+  /// Decode delta-encoded semantic token data into absolute positions.
+  ///
+  /// LSP semantic tokens are encoded as:
+  /// [deltaLine, deltaStartChar, length, tokenType, tokenModifiers, ...]
+  List<SemanticToken> _decodeSemanticTokens(List<int> data) {
+    final tokens = <SemanticToken>[];
+    final legend = client.semanticTokenTypes;
+
+    var line = 0;
+    var char = 0;
+
+    for (var i = 0; i + 4 < data.length; i += 5) {
+      final deltaLine = data[i];
+      final deltaChar = data[i + 1];
+      final length = data[i + 2];
+      final typeIndex = data[i + 3];
+      final modifiers = data[i + 4];
+
+      // Update position
+      if (deltaLine > 0) {
+        line += deltaLine;
+        char = deltaChar;
+      } else {
+        char += deltaChar;
+      }
+
+      // Map type index to TokenType
+      final tokenType = SemanticTokenTypes.fromIndex(typeIndex, legend);
+
+      tokens.add(
+        SemanticToken(
+          line: line,
+          character: char,
+          length: length,
+          type: tokenType,
+          modifiers: modifiers,
+        ),
+      );
+    }
+
+    return tokens;
   }
 
   /// Request go-to-definition.
@@ -258,6 +355,7 @@ String languageIdFromPath(String path) {
   final ext = path.split('.').last.toLowerCase();
   return switch (ext) {
     'dart' => 'dart',
+    'lua' => 'lua',
     'js' => 'javascript',
     'ts' => 'typescript',
     'json' => 'json',
@@ -275,4 +373,34 @@ String languageIdFromPath(String path) {
     'h' || 'hpp' => 'cpp',
     _ => 'plaintext',
   };
+}
+
+/// A semantic token from LSP with absolute position.
+class SemanticToken {
+  /// 0-based line number.
+  final int line;
+
+  /// 0-based character offset within the line.
+  final int character;
+
+  /// Length of the token in characters.
+  final int length;
+
+  /// Token type mapped to [TokenType].
+  final TokenType type;
+
+  /// Bitmask of token modifiers.
+  final int modifiers;
+
+  const SemanticToken({
+    required this.line,
+    required this.character,
+    required this.length,
+    required this.type,
+    required this.modifiers,
+  });
+
+  @override
+  String toString() =>
+      'SemanticToken($type, L$line:$character, len=$length, mod=$modifiers)';
 }

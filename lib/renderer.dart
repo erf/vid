@@ -3,6 +3,7 @@ import 'package:termio/termio.dart';
 import 'config.dart';
 import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
+import 'lsp/lsp_protocol.dart';
 import 'message.dart';
 import 'modes.dart';
 import 'popup/popup.dart';
@@ -77,6 +78,7 @@ class Renderer {
     int bufferCount = 1,
     PopupState? popup,
     int diagnosticCount = 0,
+    List<SemanticToken>? semanticTokens,
   }) {
     file.clampCursor();
 
@@ -127,6 +129,7 @@ class Renderer {
         startByte,
         endByte,
         file.absolutePath,
+        semanticTokens: semanticTokens,
       );
     }
 
@@ -495,27 +498,33 @@ class Renderer {
       // Render line based on wrap mode
       screenRow = switch (config.wrapMode) {
         WrapMode.none => _renderLineNoWrap(
+          original: lineText,
           rendered: rendered,
           lineStartByte: offset,
           viewportCol: viewportCol,
           screenRow: screenRow,
           numLines: numLines,
           syntaxHighlighting: config.syntaxHighlighting,
+          tabWidth: config.tabWidth,
         ),
         WrapMode.char => _renderLineCharWrap(
+          original: lineText,
           rendered: rendered,
           lineStartByte: offset,
           screenRow: screenRow,
           numLines: numLines,
           syntaxHighlighting: config.syntaxHighlighting,
+          tabWidth: config.tabWidth,
         ),
         WrapMode.word => _renderLineWordWrap(
+          original: lineText,
           rendered: rendered,
           lineStartByte: offset,
           screenRow: screenRow,
           numLines: numLines,
           syntaxHighlighting: config.syntaxHighlighting,
           breakat: config.breakat,
+          tabWidth: config.tabWidth,
         ),
       };
 
@@ -525,20 +534,40 @@ class Renderer {
 
   /// Render line without wrapping
   int _renderLineNoWrap({
+    required String original,
     required String rendered,
     required int lineStartByte,
     required int viewportCol,
     required int screenRow,
     required int numLines,
     required bool syntaxHighlighting,
+    required int tabWidth,
   }) {
     if (screenRow > 0) buffer.write(Keys.newline);
 
     if (rendered.isNotEmpty) {
       final visible = rendered.renderLine(viewportCol, terminal.width);
       if (syntaxHighlighting) {
-        final byteOffset = rendered.characters.take(viewportCol).string.length;
-        highlighter.style(buffer, visible, lineStartByte + byteOffset);
+        // Map viewportCol in rendered string to byte offset in original
+        final byteOffset = _renderedToOriginalOffset(
+          original,
+          viewportCol,
+          tabWidth,
+        );
+        // Get the original text slice corresponding to visible
+        final visibleLen = visible.length;
+        final originalSlice = _getOriginalSlice(
+          original,
+          viewportCol,
+          visibleLen,
+          tabWidth,
+        );
+        highlighter.style(
+          buffer,
+          originalSlice,
+          lineStartByte + byteOffset,
+          tabWidth: tabWidth,
+        );
       } else {
         buffer.write(visible);
       }
@@ -548,11 +577,13 @@ class Renderer {
 
   /// Render line with character wrap
   int _renderLineCharWrap({
+    required String original,
     required String rendered,
     required int lineStartByte,
     required int screenRow,
     required int numLines,
     required bool syntaxHighlighting,
+    required int tabWidth,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -564,8 +595,23 @@ class Renderer {
       String chunk = rendered.ch.skip(wrapCol).take(terminal.width).string;
 
       if (syntaxHighlighting) {
-        final byteOffset = rendered.characters.take(wrapCol).string.length;
-        highlighter.style(buffer, chunk, lineStartByte + byteOffset);
+        final byteOffset = _renderedToOriginalOffset(
+          original,
+          wrapCol,
+          tabWidth,
+        );
+        final originalSlice = _getOriginalSlice(
+          original,
+          wrapCol,
+          chunk.length,
+          tabWidth,
+        );
+        highlighter.style(
+          buffer,
+          originalSlice,
+          lineStartByte + byteOffset,
+          tabWidth: tabWidth,
+        );
       } else {
         buffer.write(chunk);
       }
@@ -582,12 +628,14 @@ class Renderer {
 
   /// Render line with word wrap
   int _renderLineWordWrap({
+    required String original,
     required String rendered,
     required int lineStartByte,
     required int screenRow,
     required int numLines,
     required bool syntaxHighlighting,
     required String breakat,
+    required int tabWidth,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -616,8 +664,23 @@ class Renderer {
       String chunk = rendered.substring(wrapCol, chunkEnd);
 
       if (syntaxHighlighting) {
-        final byteOffset = rendered.characters.take(wrapCol).string.length;
-        highlighter.style(buffer, chunk, lineStartByte + byteOffset);
+        final byteOffset = _renderedToOriginalOffset(
+          original,
+          wrapCol,
+          tabWidth,
+        );
+        final originalSlice = _getOriginalSlice(
+          original,
+          wrapCol,
+          chunk.length,
+          tabWidth,
+        );
+        highlighter.style(
+          buffer,
+          originalSlice,
+          lineStartByte + byteOffset,
+          tabWidth: tabWidth,
+        );
       } else {
         buffer.write(chunk);
       }
@@ -860,5 +923,71 @@ class Renderer {
       // Hide cursor
       buffer.write(Ansi.cursor(x: 1, y: terminal.height));
     }
+  }
+
+  /// Map a position in the rendered (tab-expanded) string to a byte offset
+  /// in the original string.
+  int _renderedToOriginalOffset(
+    String original,
+    int renderedPos,
+    int tabWidth,
+  ) {
+    int rendered = 0;
+    int origBytes = 0;
+
+    for (var i = 0; i < original.length && rendered < renderedPos; i++) {
+      final c = original.codeUnitAt(i);
+      if (c == 0x09) {
+        // tab
+        rendered += tabWidth;
+      } else {
+        rendered++;
+      }
+      origBytes++;
+    }
+    return origBytes;
+  }
+
+  /// Get the original text slice that corresponds to a rendered position and length.
+  String _getOriginalSlice(
+    String original,
+    int renderedStart,
+    int renderedLen,
+    int tabWidth,
+  ) {
+    // Find start byte offset
+    int rendered = 0;
+    int startByte = 0;
+
+    for (var i = 0; i < original.length && rendered < renderedStart; i++) {
+      final c = original.codeUnitAt(i);
+      if (c == 0x09) {
+        rendered += tabWidth;
+      } else {
+        rendered++;
+      }
+      startByte++;
+    }
+
+    // Find end byte offset
+    int endByte = startByte;
+    int sliceRenderedLen = 0;
+
+    for (
+      var i = startByte;
+      i < original.length && sliceRenderedLen < renderedLen;
+      i++
+    ) {
+      final c = original.codeUnitAt(i);
+      if (c == 0x09) {
+        sliceRenderedLen += tabWidth;
+      } else {
+        sliceRenderedLen++;
+      }
+      endByte++;
+    }
+
+    if (startByte >= original.length) return '';
+    return original.substring(startByte, endByte.clamp(0, original.length));
   }
 }
