@@ -49,8 +49,8 @@ class LspClient {
     _rootPath = rootPath;
     _serverConfig = config ?? LspServerRegistry.detectForProject(rootPath);
 
-    // Fall back to Dart server if no config detected
-    _serverConfig ??= LspServerRegistry.dartServer;
+    // Don't start LSP if no matching server config for this project
+    if (_serverConfig == null) return false;
 
     try {
       _process = await Process.start(
