@@ -2,6 +2,7 @@
 import 'package:termio/termio.dart';
 
 import '../edit.dart';
+import '../editor.dart';
 import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
@@ -100,9 +101,12 @@ class FileBuffer {
   }
 
   // update text and partially rebuild line index from edit point
-  void updateText(int start, int end, String newText) {
+  void updateText(int start, int end, String newText, {Editor? editor}) {
     // Find line containing start offset before modifying text
     final startLine = lineNumber(start);
+
+    // Capture old text before modification for LSP sync
+    final oldText = _text.substring(start, end);
 
     _text = _text.replaceRange(start, end, newText);
 
@@ -116,6 +120,9 @@ class FileBuffer {
       scanFrom = idx + 1;
       idx = _text.indexOf(Keys.newline, scanFrom);
     }
+
+    // Notify extensions of text change
+    editor?.extensions?.notifyTextChange(this, start, end, newText, oldText);
   }
 
   // get line number for offset using binary search - O(log n)

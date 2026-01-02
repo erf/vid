@@ -5,6 +5,7 @@ import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/buffer_selector.dart';
+import '../popup/diagnostics_popup.dart';
 import '../popup/file_browser.dart';
 import '../regex.dart';
 import '../text_op.dart';
@@ -115,7 +116,7 @@ class Normal {
 
   static void undo(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
-      TextOp? op = f.undo();
+      TextOp? op = f.undo(editor: e);
       if (op != null) {
         f.cursor = op.cursor;
         f.clampCursor();
@@ -126,7 +127,7 @@ class Normal {
 
   static void redo(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
-      TextOp? op = f.redo();
+      TextOp? op = f.redo(editor: e);
       if (op != null) {
         f.cursor = op.cursor;
         f.clampCursor();
@@ -217,5 +218,9 @@ class Normal {
 
   static void openBufferSelector(Editor e, FileBuffer f) {
     BufferSelector.show(e);
+  }
+
+  static void openDiagnostics(Editor e, FileBuffer f) {
+    DiagnosticsPopup.show(e);
   }
 }

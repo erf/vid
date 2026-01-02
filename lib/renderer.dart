@@ -76,6 +76,7 @@ class Renderer {
     int bufferIndex = 0,
     int bufferCount = 1,
     PopupState? popup,
+    int diagnosticCount = 0,
   }) {
     file.clampCursor();
 
@@ -144,10 +145,26 @@ class Renderer {
     if (file.mode case Mode.command || Mode.search) {
       _drawLineEdit(file);
     } else if (file.mode == Mode.popup && popup != null) {
-      _drawStatus(file, config, cursorLine, message, bufferIndex, bufferCount);
+      _drawStatus(
+        file,
+        config,
+        cursorLine,
+        message,
+        bufferIndex,
+        bufferCount,
+        diagnosticCount,
+      );
       _drawPopup(popup);
     } else {
-      _drawStatus(file, config, cursorLine, message, bufferIndex, bufferCount);
+      _drawStatus(
+        file,
+        config,
+        cursorLine,
+        message,
+        bufferIndex,
+        bufferCount,
+        diagnosticCount,
+      );
       _drawCursor(
         config,
         cursorRenderCol,
@@ -663,34 +680,47 @@ class Renderer {
     Message? message,
     int bufferIndex,
     int bufferCount,
+    int diagnosticCount,
   ) {
     buffer.write(Ansi.inverse(true));
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
 
     int cursorCol = file.columnInLine(file.cursor);
     String mode = file.mode.label;
-    String bufferIndicator = bufferCount > 1
-        ? '[${bufferIndex + 1}/$bufferCount]'
-        : '';
     String path = file.path ?? '[No Name]';
     String modified = file.modified ? '*' : '';
+    String pathWithMod = '$path$modified';
     String wrap = config.wrapSymbol;
-    String left = [
-      mode,
-      bufferIndicator,
-      path,
-      modified,
-      wrap,
-    ].where((s) => s.isNotEmpty).join(' ');
-    String right = ' ${cursorLine + 1}, ${cursorCol + 1} ';
-    int padLeft = terminal.width - left.length - 2;
-    String status = ' $left ${right.padLeft(padLeft)}';
 
-    if (status.length <= terminal.width - 1) {
-      buffer.write(status);
-    } else {
-      buffer.write(status.substring(0, terminal.width));
+    // Build left side with special formatting for buffer indicator and diagnostics
+    final leftParts = <String>[mode, pathWithMod];
+    if (wrap.isNotEmpty) leftParts.add(wrap);
+    String left = leftParts.join(' ');
+
+    // Calculate extra parts that need special formatting
+    String bufferPart = '';
+    if (bufferCount > 1) {
+      bufferPart =
+          ' ${Ansi.dim()}${bufferIndex + 1}/$bufferCount${Ansi.reset()}${Ansi.inverse(true)}';
     }
+    String diagPart = '';
+    if (diagnosticCount > 0) {
+      diagPart =
+          ' ${Ansi.fg(Color.red)}!$diagnosticCount${Ansi.reset()}${Ansi.inverse(true)}';
+    }
+
+    // Calculate visible lengths (without ANSI codes)
+    int bufferVisibleLen = bufferCount > 1
+        ? ' ${bufferIndex + 1}/$bufferCount'.length
+        : 0;
+    int diagVisibleLen = diagnosticCount > 0 ? ' !$diagnosticCount'.length : 0;
+
+    String right = ' ${cursorLine + 1}, ${cursorCol + 1} ';
+    int padLeft =
+        terminal.width - left.length - bufferVisibleLen - diagVisibleLen - 2;
+    String padding = right.padLeft(padLeft);
+
+    buffer.write(' $left$bufferPart$diagPart $padding');
 
     // draw message
     if (message != null) {
@@ -718,7 +748,7 @@ class Renderer {
     final contentWidth = popupWidth - (innerPadding * 2);
     final maxVisible =
         popupHeight -
-        (popup.showFilter ? 4 : 3); // Account for top/bottom padding
+        (popup.showFilter ? 4 : 3); // Account for footer + top/bottom padding
     final items = popup.items;
 
     // Center the popup
@@ -782,9 +812,26 @@ class Renderer {
       buffer.write(' ' * innerPadding); // Right padding
     }
 
+    // Draw footer with title and count
+    final footerRow = top + 2 + maxVisible;
+    buffer.write(Ansi.cursor(x: left + 1, y: footerRow));
+    buffer.write(' ' * innerPadding);
+    final totalItems = popup.allItems.length;
+    final countStr = totalItems != items.length
+        ? '${items.length}/$totalItems'
+        : '${items.length}';
+    var footer = '${popup.title} ($countStr)';
+    if (footer.length > contentWidth) {
+      footer = '${footer.substring(0, contentWidth - 1)}…';
+    }
+    buffer.write(Ansi.dim());
+    buffer.write(footer.padRight(contentWidth));
+    buffer.write(Ansi.reset());
+    buffer.write(' ' * innerPadding);
+
     // Draw filter input line if shown
     if (popup.showFilter) {
-      final filterRow = top + 2 + maxVisible;
+      final filterRow = top + 3 + maxVisible;
       buffer.write(Ansi.cursor(x: left + 1, y: filterRow));
       buffer.write(' ' * innerPadding);
       final filterContent = '> ${popup.filterText}';
@@ -794,7 +841,7 @@ class Renderer {
     }
 
     // Draw bottom padding row
-    final bottomPadRow = top + 2 + maxVisible + (popup.showFilter ? 1 : 0);
+    final bottomPadRow = top + 3 + maxVisible + (popup.showFilter ? 1 : 0);
     buffer.write(Ansi.cursor(x: left + 1, y: bottomPadRow));
     buffer.write(' ' * popupWidth);
 
@@ -806,7 +853,7 @@ class Renderer {
           innerPadding +
           2 +
           popup.filterText.length; // after padding + "> "
-      final cursorY = top + 2 + maxVisible;
+      final cursorY = top + 3 + maxVisible;
       buffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
       buffer.write(Ansi.cursor(x: cursorX, y: cursorY));
     } else {

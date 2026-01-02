@@ -327,18 +327,8 @@ class LspExtension extends Extension {
     final diags = parseDiagnostics(params);
     _diagnostics[uri] = diags;
 
-    if (_editor != null) {
-      final currentUri = _editor!.file.absolutePath != null
-          ? _fileUri(_editor!.file.absolutePath!)
-          : null;
-      if (uri == currentUri && diags.isNotEmpty) {
-        final errorMsg = getFirstErrorMessage(uri);
-        if (errorMsg != null) {
-          _editor!.showMessage(Message.error(errorMsg));
-          _editor!.draw();
-        }
-      }
-    }
+    // Just redraw to update diagnostic count in status bar
+    _editor?.draw();
   }
 
   void _handleShowMessage(Map<String, dynamic> params) {

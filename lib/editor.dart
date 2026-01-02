@@ -325,6 +325,14 @@ class Editor {
   }
 
   void draw() {
+    // Get diagnostic count for current file from LSP
+    int diagnosticCount = 0;
+    final lsp = extensions?.getExtension<LspExtension>();
+    if (lsp != null && lsp.isConnected && file.absolutePath != null) {
+      final uri = 'file://${file.absolutePath}';
+      diagnosticCount = lsp.getDiagnostics(uri).length;
+    }
+
     renderer.draw(
       file: file,
       config: config,
@@ -332,6 +340,7 @@ class Editor {
       bufferIndex: _currentBufferIndex,
       bufferCount: _buffers.length,
       popup: popup,
+      diagnosticCount: diagnosticCount,
     );
   }
 

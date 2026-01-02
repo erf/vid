@@ -30,9 +30,6 @@ extension FileBufferText on FileBuffer {
       end = len - 1;
     }
 
-    // Capture old text before modification for LSP sync
-    final oldText = text.substring(start, end);
-
     if (undo && config != null) {
       addUndo(
         start: start,
@@ -43,10 +40,7 @@ extension FileBufferText on FileBuffer {
       );
     }
 
-    updateText(start, end, newText);
-
-    // Notify extensions of text change
-    editor?.extensions?.notifyTextChange(this, start, end, newText, oldText);
+    updateText(start, end, newText, editor: editor);
   }
 
   // add an undo operation
@@ -122,18 +116,18 @@ extension FileBufferText on FileBuffer {
     );
   }
 
-  TextOp? undo() {
+  TextOp? undo({Editor? editor}) {
     if (undoList.isEmpty) return null;
     TextOp op = undoList.removeLast();
-    updateText(op.start, op.endNew, op.prevText);
+    updateText(op.start, op.endNew, op.prevText, editor: editor);
     redoList.add(op);
     return op;
   }
 
-  TextOp? redo() {
+  TextOp? redo({Editor? editor}) {
     if (redoList.isEmpty) return null;
     TextOp op = redoList.removeLast();
-    updateText(op.start, op.endPrev, op.newText);
+    updateText(op.start, op.endPrev, op.newText, editor: editor);
     undoList.add(op);
     return op;
   }
