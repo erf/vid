@@ -1,4 +1,3 @@
-import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
 import 'config.dart';
 import 'file_buffer/file_buffer.dart';
