@@ -6,19 +6,18 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 ## Features
 
-- basic vim motions, operators and a minimal command mode
+- basic vim motions, operators and command mode
+- syntax highlighting and LSP support
 - render and edit emojis and wide characters
-- syntax highlighting (dart, lua, c, yaml, md, json)
-- LSP support for Dart, Lua, c (highlighting, go-to-def, find refs, completion, hover)
-- multi-buffer support
-- interactive popup for opening files, buffer selection, themes and diagnostics
-- text wrap modes: no-wrap, character-wrap, word-wrap
-- unlimited undo and redo
+- multi-buffer support with interactive popups
+- undo and redo
 - file-based YAML configuration
 
-## Keyboard Shortcuts
+## Code References
 
-See [bindings.dart](lib/bindings.dart) for the full list of vim-like key mappings.
+- [bindings.dart](lib/bindings.dart) — key mappings
+- [config.example.yaml](config.example.yaml) — configuration options
+- [lsp_server_config.dart](lib/lsp/lsp_server_config.dart) — LSP server configs
 
 ## Building
 
