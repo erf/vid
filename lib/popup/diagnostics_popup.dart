@@ -46,7 +46,7 @@ class DiagnosticsPopup {
 
     editor.showPopup(
       PopupState.create(
-        title: 'Diagnostics (${diagnostics.length})',
+        title: 'Diagnostics',
         items: items,
         onSelect: (item) =>
             _onSelect(editor, item as PopupItem<DiagnosticLocation>),
@@ -92,7 +92,7 @@ class DiagnosticsPopup {
 
     editor.showPopup(
       PopupState.create(
-        title: 'All Diagnostics (${items.length})',
+        title: 'All Diagnostics',
         items: items,
         onSelect: (item) =>
             _onSelect(editor, item as PopupItem<DiagnosticLocation>),

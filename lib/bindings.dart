@@ -78,6 +78,7 @@ const normalCommands = <String, Command>{
   Keys.ctrlP: ActionCommand(Normal.openFilePicker),
   Keys.ctrlF: ActionCommand(Normal.openBufferSelector),
   Keys.ctrlT: ActionCommand(Normal.openThemeSelector),
+  Keys.ctrlE: ActionCommand(Normal.openDiagnostics),
   'zz': ActionCommand(Normal.centerView),
   'zh': ActionCommand(Normal.toggleSyntax),
   'zt': ActionCommand(Normal.cycleTheme),

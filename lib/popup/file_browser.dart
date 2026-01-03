@@ -45,7 +45,7 @@ class FileBrowser {
     // Show popup immediately with "Scanning..." message
     editor.showPopup(
       PopupState.create(
-        title: 'Open File (scanning...)',
+        title: 'Files (scanning...)',
         items: <PopupItem<String>>[],
         onSelect: (item) => _onSelect(editor, item as PopupItem<String>),
         onCancel: () {
@@ -135,9 +135,7 @@ class FileBrowser {
     if (editor.popup == null) return;
 
     final currentPopup = editor.popup as PopupState<String>;
-    final title = complete
-        ? 'Open File (${items.length} files)'
-        : 'Open File (${items.length} files, scanning...)';
+    final title = complete ? 'Files' : 'Files (scanning...)';
 
     final newPopup = currentPopup.copyWith(
       title: title,
