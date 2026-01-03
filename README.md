@@ -14,6 +14,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - interactive popup for opening files, buffer selection, themes and diagnostics
 - text wrap modes: no-wrap, character-wrap, word-wrap
 - unlimited undo and redo
+- file-based YAML configuration
 
 ## Keyboard Shortcuts
 
