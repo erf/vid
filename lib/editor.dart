@@ -267,8 +267,8 @@ class Editor {
     final detectedTheme = ThemeDetector.detectSync();
     if (detectedTheme != null) {
       final themeType = detectedTheme.name == 'light'
-          ? ThemeType.ayuLight
-          : ThemeType.ayuDark;
+          ? ThemeType.rosePineDawn
+          : ThemeType.rosePine;
       config = config.copyWith(syntaxTheme: themeType);
       _highlighter.themeType = themeType;
     }
