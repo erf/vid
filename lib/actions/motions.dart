@@ -85,7 +85,8 @@ class Motions {
   }
 
   /// Find next/prev occurrence of the word under cursor
-  static int matchCursorWord(
+  /// Returns (destinationOffset, matchedWord) or null if no word found
+  static (int, String)? matchCursorWord(
     FileBuffer f,
     int offset, {
     required bool forward,
@@ -107,7 +108,8 @@ class Motions {
       if (match != null) {
         // We are not on the word
         if (offset < match.start || offset >= match.end) {
-          return match.start;
+          final wordToMatch = f.text.substring(match.start, match.end);
+          return (match.start, wordToMatch);
         }
         // We are on the word - find the next/prev same word
         final wordToMatch = f.text.substring(match.start, match.end);
@@ -115,11 +117,11 @@ class Motions {
         final int index = forward
             ? f.text.indexOf(pattern, match.end)
             : f.text.lastIndexOf(pattern, max(0, match.start - 1));
-        return index == -1 ? match.start : index;
+        return (index == -1 ? match.start : index, wordToMatch);
       }
 
       // No match found - expand search or give up
-      if (searchStart == 0) return offset;
+      if (searchStart == 0) return null;
       searchStart = max(0, searchStart - chunkSize);
     }
   }
@@ -377,7 +379,11 @@ class Motions {
     int offset, {
     bool op = false,
   }) {
-    return matchCursorWord(f, offset, forward: true);
+    final result = matchCursorWord(f, offset, forward: true);
+    if (result == null) return offset;
+    final (destOffset, word) = result;
+    f.edit.findStr = word;
+    return destOffset;
   }
 
   /// Move to previous same word (#)
@@ -387,7 +393,11 @@ class Motions {
     int offset, {
     bool op = false,
   }) {
-    return matchCursorWord(f, offset, forward: false);
+    final result = matchCursorWord(f, offset, forward: false);
+    if (result == null) return offset;
+    final (destOffset, word) = result;
+    f.edit.findStr = word;
+    return destOffset;
   }
 
   /// Linewise motion for same-line operators (dd, yy, cc)
