@@ -268,7 +268,7 @@ class Editor {
     if (!config.themeExplicitlySet) {
       final detectedTheme = ThemeDetector.detectSync();
       if (detectedTheme != null) {
-        final themeType = detectedTheme.name == 'light'
+        final themeType = detectedTheme == .light
             ? config.preferredLightTheme
             : config.preferredDarkTheme;
         config = config.copyWith(syntaxTheme: themeType);
