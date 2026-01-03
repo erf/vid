@@ -793,7 +793,7 @@ class Renderer {
       }
       buffer.write(Ansi.cursor(x: 1, y: terminal.height - 1));
       buffer.write(' ${message.text} ');
-      buffer.write(Ansi.reset());
+      highlighter.theme.resetCode(buffer);
     }
 
     buffer.write(Ansi.inverse(false));
@@ -888,7 +888,7 @@ class Renderer {
     }
     buffer.write(Ansi.dim());
     buffer.write(footer.padRight(contentWidth));
-    buffer.write(Ansi.reset());
+    highlighter.theme.resetCode(buffer);
     buffer.write(' ' * innerPadding);
 
     // Draw filter input line if shown
