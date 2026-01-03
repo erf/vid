@@ -2,7 +2,7 @@
 
 A minimal vim-like text editor for modern terminals written in [Dart](https://dart.dev)
 
-> Made for myself for fun and learning (not meant to replace your current editor)
+> Made for myself for fun and learning
 
 ## Features
 
@@ -19,6 +19,16 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 ## Keyboard Shortcuts
 
 See [bindings.dart](lib/bindings.dart) for the full list of vim-like key mappings.
+
+## Building
+
+Requires the [Dart SDK](https://dart.dev/get-dart) (3.10+).
+
+```bash
+./build.sh
+```
+
+This compiles vid to a native executable at `build/vid` and copies it to `~/bin/`.
 
 ## Configuration
 
