@@ -1,0 +1,42 @@
+# vid configuration file
+#
+# Place this file in one of the following locations (searched in order):
+#   1. ./vid.yaml (local project config)
+#   2. $XDG_CONFIG_HOME/vid/config.yaml
+#   3. ~/.config/vid/config.yaml
+#
+# All settings are optional - missing values use defaults shown below.
+
+# Tab width for rendering tab characters
+tabWidth: 4
+
+# Maximum number of undo steps to keep
+maxNumUndo: 100
+
+# Lines of scroll margin at top/bottom of viewport
+scrollMargin: 10
+
+# Text wrap mode: none, char, or word
+wrapMode: none
+
+# Characters that can break a line in word-wrap mode
+breakat: " !@*-+;:,./?"
+
+# Enable auto-indentation when pressing Enter
+autoIndent: true
+
+# Enable syntax highlighting
+syntaxHighlighting: true
+
+# Syntax theme: mono, rosePineDawn, rosePine, ayuLight, ayuDark
+# If not set, vid auto-detects based on terminal light/dark mode
+# syntaxTheme: rosePine
+
+# Theme to use when system is in light mode (for auto-detection)
+preferredLightTheme: rosePineDawn
+
+# Theme to use when system is in dark mode (for auto-detection)
+preferredDarkTheme: rosePine
+
+# Message display time in milliseconds
+messageTime: 3000

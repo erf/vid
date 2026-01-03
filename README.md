@@ -15,18 +15,26 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - text wrap modes: no-wrap, character-wrap, word-wrap
 - unlimited undo and redo
 
-## Technical Details
-
-- for modern terminals like [Ghostty](https://github.com/ghostty-org/ghostty) that support [mode 2027](https://github.com/contour-terminal/terminal-unicode-core) 
-- only dependencies are [termio](https://github.com/erf/termio) and [characters](https://pub.dev/packages/characters)
-
 ## Keyboard Shortcuts
 
 See [bindings.dart](lib/bindings.dart) for the full list of vim-like key mappings.
 
 ## Configuration
 
-See [config.dart](lib/config.dart)
+vid loads configuration from YAML files at the following locations (first found wins):
+
+1. `./vid.yaml` — local project config
+2. `$XDG_CONFIG_HOME/vid/config.yaml`
+3. `~/.config/vid/config.yaml`
+
+Copy the example config to get started:
+
+```bash
+mkdir -p ~/.config/vid
+cp config.example.yaml ~/.config/vid/config.yaml
+```
+
+All settings are optional — missing values use sensible defaults. See [config.example.yaml](config.example.yaml) for all available options.
 
 ## Contributing
 

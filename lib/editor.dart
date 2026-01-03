@@ -264,13 +264,16 @@ class Editor {
   void initTerminal(String? path) {
     terminal.rawMode = true;
 
-    final detectedTheme = ThemeDetector.detectSync();
-    if (detectedTheme != null) {
-      final themeType = detectedTheme.name == 'light'
-          ? ThemeType.rosePineDawn
-          : ThemeType.rosePine;
-      config = config.copyWith(syntaxTheme: themeType);
-      _highlighter.themeType = themeType;
+    // Only auto-detect theme if user hasn't explicitly set one in config file
+    if (!config.themeExplicitlySet) {
+      final detectedTheme = ThemeDetector.detectSync();
+      if (detectedTheme != null) {
+        final themeType = detectedTheme.name == 'light'
+            ? config.preferredLightTheme
+            : config.preferredDarkTheme;
+        config = config.copyWith(syntaxTheme: themeType);
+        _highlighter.themeType = themeType;
+      }
     }
 
     terminal.write(Ansi.graphemeCluster(true));

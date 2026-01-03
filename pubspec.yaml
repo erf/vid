@@ -9,6 +9,7 @@ environment:
 dependencies:
   characters: ^1.4.1
   termio: ^0.5.1
+  yaml: ^3.1.3
 
 dev_dependencies:
   lints: ^6.0.0
