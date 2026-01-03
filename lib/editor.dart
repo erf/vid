@@ -342,7 +342,7 @@ class Editor {
       diagnosticCount = lsp.getDiagnostics(uri).length;
 
       // Get cached semantic tokens if available
-      if (lsp.supportsSemanticTokens) {
+      if (config.semanticHighlighting && lsp.supportsSemanticTokens) {
         semanticTokens = lsp.getSemanticTokens(uri);
       }
     }

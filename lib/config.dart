@@ -47,6 +47,11 @@ class Config {
   /// Whether syntax highlighting is enabled.
   final bool syntaxHighlighting;
 
+  /// Whether LSP semantic highlighting is enabled.
+  /// When true, uses richer token info from the language server.
+  /// When false, falls back to tokenizer-based syntax highlighting.
+  final bool semanticHighlighting;
+
   /// The current syntax highlighting theme.
   final ThemeType syntaxTheme;
 
@@ -73,6 +78,7 @@ class Config {
     this.breakat = ' !@*-+;:,./?',
     this.autoIndent = true,
     this.syntaxHighlighting = true,
+    this.semanticHighlighting = true,
     this.syntaxTheme = ThemeType.mono,
     this.themeExplicitlySet = false,
     this.preferredLightTheme = ThemeType.rosePineDawn,
@@ -92,6 +98,7 @@ class Config {
       breakat: map['breakat'] as String?,
       autoIndent: _parseBool(map['autoIndent']),
       syntaxHighlighting: _parseBool(map['syntaxHighlighting']),
+      semanticHighlighting: _parseBool(map['semanticHighlighting']),
       syntaxTheme: _parseEnum(map['syntaxTheme'], ThemeType.values),
       themeExplicitlySet: map['syntaxTheme'] != null,
       preferredLightTheme: _parseEnum(
@@ -139,6 +146,7 @@ class Config {
     String? breakat,
     bool? autoIndent,
     bool? syntaxHighlighting,
+    bool? semanticHighlighting,
     ThemeType? syntaxTheme,
     bool? themeExplicitlySet,
     ThemeType? preferredLightTheme,
@@ -154,6 +162,7 @@ class Config {
       breakat: breakat ?? this.breakat,
       autoIndent: autoIndent ?? this.autoIndent,
       syntaxHighlighting: syntaxHighlighting ?? this.syntaxHighlighting,
+      semanticHighlighting: semanticHighlighting ?? this.semanticHighlighting,
       syntaxTheme: syntaxTheme ?? this.syntaxTheme,
       themeExplicitlySet: themeExplicitlySet ?? this.themeExplicitlySet,
       preferredLightTheme: preferredLightTheme ?? this.preferredLightTheme,
