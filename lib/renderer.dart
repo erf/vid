@@ -760,15 +760,19 @@ class Renderer {
     String left = leftParts.join(' ');
 
     // Calculate extra parts that need special formatting
+    // After Ansi.reset(), we must restore theme colors before continuing
+    final theme = highlighter.theme;
+    final themeRestore = '${theme.background ?? ''}${theme.foreground ?? ''}';
+
     String bufferPart = '';
     if (bufferCount > 1) {
       bufferPart =
-          ' ${Ansi.dim()}${bufferIndex + 1}/$bufferCount${Ansi.reset()}${Ansi.inverse(true)}';
+          ' ${Ansi.dim()}${bufferIndex + 1}/$bufferCount${Ansi.reset()}$themeRestore${Ansi.inverse(true)}';
     }
     String diagPart = '';
     if (diagnosticCount > 0) {
       diagPart =
-          ' ${Ansi.fg(Color.red)}!$diagnosticCount${Ansi.reset()}${Ansi.inverse(true)}';
+          ' ${Ansi.fg(Color.red)}!$diagnosticCount${Ansi.reset()}$themeRestore${Ansi.inverse(true)}';
     }
 
     // Calculate visible lengths (without ANSI codes)
