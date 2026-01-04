@@ -6,6 +6,7 @@ import 'languages/dart_tokenizer.dart';
 import 'languages/json_tokenizer.dart';
 import 'languages/lua_tokenizer.dart';
 import 'languages/markdown_tokenizer.dart';
+import 'languages/swift_tokenizer.dart';
 import 'languages/yaml_tokenizer.dart';
 import 'token.dart';
 
@@ -23,6 +24,7 @@ class Highlighter {
   final _jsonTokenizer = JsonTokenizer();
   final _luaTokenizer = LuaTokenizer();
   final _markdownTokenizer = MarkdownTokenizer();
+  final _swiftTokenizer = SwiftTokenizer();
   final _yamlTokenizer = YamlTokenizer();
 
   /// Regex-based tokens for current visible range.
@@ -49,6 +51,7 @@ class Highlighter {
       'dart' => 'dart',
       'lua' => 'lua',
       'md' || 'markdown' => 'markdown',
+      'swift' => 'swift',
       'yaml' || 'yml' => 'yaml',
       'json' => 'json',
       _ => null,
@@ -77,6 +80,7 @@ class Highlighter {
       'dart' => _dartTokenizer.tokenize(text, start, end),
       'lua' => _luaTokenizer.tokenize(text, start, end),
       'markdown' => _markdownTokenizer.tokenize(text, start, end),
+      'swift' => _swiftTokenizer.tokenize(text, start, end),
       'yaml' => _yamlTokenizer.tokenize(text, start, end),
       'json' => _jsonTokenizer.tokenize(text, start, end),
       _ => [],
