@@ -1,13 +1,14 @@
 // Barrel file - exports all file_buffer extensions
 import 'package:termio/termio.dart';
+import 'package:vid/edit_builder.dart';
+import 'package:vid/edit_operation.dart';
+import 'package:vid/input_state.dart';
 
-import '../edit.dart';
 import '../editor.dart';
 import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
 
-export '../edit.dart' show EditBuilder, EditOperation, InputState, YankBuffer;
 export 'file_buffer_io.dart';
 export 'file_buffer_nav.dart';
 export 'file_buffer_text.dart';

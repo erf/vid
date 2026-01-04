@@ -4,14 +4,17 @@ import 'dart:io';
 
 import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
+import 'package:vid/edit_operation.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
 import 'package:vid/extensions/extension_registry.dart';
 import 'package:vid/highlighting/theme.dart';
+import 'package:vid/input_state.dart';
 import 'package:vid/lsp/lsp_extension.dart';
 import 'package:vid/lsp/lsp_protocol.dart';
 import 'package:vid/popup/file_browser.dart';
 import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
+import 'package:vid/yank_buffer.dart';
 
 import 'actions/operators.dart';
 import 'bindings.dart';

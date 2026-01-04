@@ -1,3 +1,5 @@
+import 'package:vid/edit_builder.dart';
+
 import '../actions/motions.dart';
 import '../actions/operators.dart';
 import '../editor.dart';
