@@ -65,6 +65,12 @@ class Config {
   /// The theme to use when system is in dark mode (used for auto-detection).
   final ThemeType preferredDarkTheme;
 
+  /// Maximum number of files to collect in the file browser.
+  final int fileBrowserMaxFiles;
+
+  /// Maximum directory depth to scan in the file browser.
+  final int fileBrowserMaxDepth;
+
   /// Returns the wrap symbol for the current [wrapMode].
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
@@ -83,6 +89,8 @@ class Config {
     this.themeExplicitlySet = false,
     this.preferredLightTheme = ThemeType.rosePineDawn,
     this.preferredDarkTheme = ThemeType.rosePine,
+    this.fileBrowserMaxFiles = 5000,
+    this.fileBrowserMaxDepth = 4,
   });
 
   /// Creates a [Config] from a map (typically parsed from YAML).
@@ -109,6 +117,8 @@ class Config {
         map['preferredDarkTheme'],
         ThemeType.values,
       ),
+      fileBrowserMaxFiles: _parseInt(map['fileBrowserMaxFiles']),
+      fileBrowserMaxDepth: _parseInt(map['fileBrowserMaxDepth']),
     );
   }
 
@@ -151,6 +161,8 @@ class Config {
     bool? themeExplicitlySet,
     ThemeType? preferredLightTheme,
     ThemeType? preferredDarkTheme,
+    int? fileBrowserMaxFiles,
+    int? fileBrowserMaxDepth,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -167,6 +179,8 @@ class Config {
       themeExplicitlySet: themeExplicitlySet ?? this.themeExplicitlySet,
       preferredLightTheme: preferredLightTheme ?? this.preferredLightTheme,
       preferredDarkTheme: preferredDarkTheme ?? this.preferredDarkTheme,
+      fileBrowserMaxFiles: fileBrowserMaxFiles ?? this.fileBrowserMaxFiles,
+      fileBrowserMaxDepth: fileBrowserMaxDepth ?? this.fileBrowserMaxDepth,
     );
   }
 }

@@ -43,3 +43,9 @@ preferredDarkTheme: rosePine
 
 # Message display time in milliseconds
 messageTime: 3000
+
+# File browser: maximum number of files to collect
+fileBrowserMaxFiles: 5000
+
+# File browser: maximum directory depth to scan
+fileBrowserMaxDepth: 4

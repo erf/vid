@@ -7,12 +7,6 @@ import 'popup.dart';
 
 /// File picker popup that lists all files recursively.
 class FileBrowser {
-  /// Maximum number of files to collect.
-  static const int maxFiles = 5000;
-
-  /// Maximum directory depth to scan.
-  static const int maxDepth = 4;
-
   /// Directories to always exclude from scanning.
   static const Set<String> _excludeDirs = {
     'node_modules',
@@ -75,6 +69,8 @@ class FileBrowser {
     final rootLen = rootPath.length + 1;
     var lastUpdateCount = 0;
     var scanComplete = false;
+    final maxFiles = editor.config.fileBrowserMaxFiles;
+    final maxDepth = editor.config.fileBrowserMaxDepth;
 
     Future<void> scanDir(Directory dir, int depth) async {
       if (_cancelScan || items.length >= maxFiles) return;
