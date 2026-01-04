@@ -11,11 +11,11 @@ enum ThemeType {
 
   /// Get the [Theme] instance for this type.
   Theme get theme => switch (this) {
-    ThemeType.mono => Theme._mono,
-    ThemeType.rosePineDawn => Theme._rosePineDawn,
-    ThemeType.rosePine => Theme._rosePine,
-    ThemeType.ayuLight => Theme._ayuLight,
-    ThemeType.ayuDark => Theme._ayuDark,
+    .mono => Theme._mono,
+    .rosePineDawn => Theme._rosePineDawn,
+    .rosePine => Theme._rosePine,
+    .ayuLight => Theme._ayuLight,
+    .ayuDark => Theme._ayuDark,
   };
 }
 

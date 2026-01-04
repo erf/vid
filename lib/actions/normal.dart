@@ -7,7 +7,6 @@ import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
-import '../modes.dart';
 import 'insert_actions.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/diagnostics_popup.dart';
@@ -117,7 +116,7 @@ class Normal {
     int lineStart = f.lineStart(f.cursor);
     f.insertAt(lineStart, indent + Keys.newline, config: e.config, editor: e);
     f.cursor = lineStart + indent.length;
-    f.setMode(e, Mode.insert);
+    f.setMode(e, .insert);
   }
 
   static void openLineBelow(Editor e, FileBuffer f) {
@@ -129,7 +128,7 @@ class Normal {
     int lineEnd = f.lineEnd(f.cursor);
     f.insertAt(lineEnd, Keys.newline + indent, config: e.config, editor: e);
     f.cursor = lineEnd + 1 + indent.length;
-    f.setMode(e, Mode.insert);
+    f.setMode(e, .insert);
   }
 
   static void joinLines(Editor e, FileBuffer f) {

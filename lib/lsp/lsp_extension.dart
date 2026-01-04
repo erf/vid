@@ -107,7 +107,7 @@ class LspExtension extends Extension {
   String? getFirstErrorMessage(String? uri) {
     final diags = getDiagnostics(uri);
     if (diags.isEmpty) return null;
-    final errors = diags.where((d) => d.severity == DiagnosticSeverity.error);
+    final errors = diags.where((d) => d.severity == .error);
     if (errors.isEmpty) return null;
     final first = errors.first;
     return 'L${first.startLine + 1}: ${first.message}';

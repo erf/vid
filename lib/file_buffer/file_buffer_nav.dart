@@ -78,7 +78,7 @@ extension FileBufferNav on FileBuffer {
     cursor = cursor.clamp(0, math.max(0, text.length - 1));
 
     // In insert mode, cursor can be on newline (inserting before it)
-    if (mode == Mode.insert || mode == Mode.replace) {
+    if (mode == .insert || mode == .replace) {
       return;
     }
 
@@ -127,9 +127,9 @@ extension FileBufferNav on FileBuffer {
     }
     switch (mode) {
       case .normal:
-        e.terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
+        e.terminal.write(Ansi.cursorStyle(.steadyBlock));
       case .insert:
-        e.terminal.write(Ansi.cursorStyle(CursorStyle.steadyBar));
+        e.terminal.write(Ansi.cursorStyle(.steadyBar));
       default:
         break;
     }

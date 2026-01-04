@@ -488,7 +488,7 @@ class Editor {
     final screenCol = mouse.x - 1;
 
     // Check for popup click first
-    if (popup != null && file.mode == Mode.popup) {
+    if (popup != null && file.mode == .popup) {
       _handlePopupClick(mouse.x, mouse.y);
       return;
     }

@@ -8,12 +8,12 @@ enum Mode {
   popup;
 
   String get label => switch (this) {
-    Mode.normal => 'NOR',
-    Mode.operatorPending => 'PEN',
-    Mode.insert => 'INS',
-    Mode.replace => 'REP',
-    Mode.command => 'CMD',
-    Mode.search => 'SRC',
-    Mode.popup => 'POP',
+    .normal => 'NOR',
+    .operatorPending => 'PEN',
+    .insert => 'INS',
+    .replace => 'REP',
+    .command => 'CMD',
+    .search => 'SRC',
+    .popup => 'POP',
   };
 }

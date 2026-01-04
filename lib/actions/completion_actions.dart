@@ -3,7 +3,6 @@ import 'dart:async';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../lsp/lsp_extension.dart';
-import '../modes.dart';
 import '../popup/popup.dart';
 
 /// Actions for word completion (CTRL-n in insert mode).
@@ -54,7 +53,7 @@ class CompletionActions {
       final items = await lsp.protocol?.completion(uri, line, char);
 
       // Check we're still in insert mode after async call
-      if (f.mode != Mode.insert) return;
+      if (f.mode != .insert) return;
 
       if (items == null || items.isEmpty) {
         e.showMessage(.info('No completions'));
@@ -73,11 +72,11 @@ class CompletionActions {
 
       _showCompletionPopup(e, f, wordStart, wordEnd, popupItems);
     } on TimeoutException {
-      if (f.mode != Mode.insert) return;
+      if (f.mode != .insert) return;
       e.showMessage(.info('Completion timed out'));
       e.draw();
     } catch (err) {
-      if (f.mode != Mode.insert) return;
+      if (f.mode != .insert) return;
       e.showMessage(.error('$err'));
       e.draw();
     }

@@ -4,7 +4,6 @@ import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
 import 'lsp/lsp_protocol.dart';
 import 'message.dart';
-import 'modes.dart';
 import 'popup/popup.dart';
 import 'string_ext.dart';
 
@@ -144,9 +143,9 @@ class Renderer {
 
     _renderLines(file: file, config: config, viewportCol: viewportCol);
 
-    if (file.mode case Mode.command || Mode.search) {
+    if (file.mode case .command || .search) {
       _drawLineEdit(file);
-    } else if (file.mode == Mode.popup && popup != null) {
+    } else if (file.mode == .popup && popup != null) {
       _drawStatus(
         file,
         config,
@@ -201,7 +200,7 @@ class Renderer {
     );
 
     // In wrap mode, if cursor not found, scroll viewport down until visible
-    if (result == null && config.wrapMode != WrapMode.none) {
+    if (result == null && config.wrapMode != .none) {
       int viewportLine = file.lineNumber(file.viewport);
       while (result == null && viewportLine < cursorLine) {
         viewportLine++;
@@ -263,7 +262,7 @@ class Renderer {
 
       // Layout line based on wrap mode
       final result = switch (config.wrapMode) {
-        WrapMode.none => _layoutLineNoWrap(
+        .none => _layoutLineNoWrap(
           lineNum: currentFileLineNum,
           lineStartByte: offset,
           viewportCol: viewportCol,
@@ -272,7 +271,7 @@ class Renderer {
           isCursorLine: isCursorLine,
           cursorRenderCol: cursorRenderCol,
         ),
-        WrapMode.char => _layoutLineCharWrap(
+        .char => _layoutLineCharWrap(
           rendered: rendered,
           lineNum: currentFileLineNum,
           lineStartByte: offset,
@@ -281,7 +280,7 @@ class Renderer {
           isCursorLine: isCursorLine,
           cursorRenderCol: cursorRenderCol,
         ),
-        WrapMode.word => _layoutLineWordWrap(
+        .word => _layoutLineWordWrap(
           rendered: rendered,
           lineNum: currentFileLineNum,
           lineStartByte: offset,
@@ -496,7 +495,7 @@ class Renderer {
 
       // Render line based on wrap mode
       screenRow = switch (config.wrapMode) {
-        WrapMode.none => _renderLineNoWrap(
+        .none => _renderLineNoWrap(
           original: lineText,
           rendered: rendered,
           lineStartByte: offset,
@@ -506,7 +505,7 @@ class Renderer {
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
         ),
-        WrapMode.char => _renderLineCharWrap(
+        .char => _renderLineCharWrap(
           original: lineText,
           rendered: rendered,
           lineStartByte: offset,
@@ -515,7 +514,7 @@ class Renderer {
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
         ),
-        WrapMode.word => _renderLineWordWrap(
+        .word => _renderLineWordWrap(
           original: lineText,
           rendered: rendered,
           lineStartByte: offset,
@@ -703,7 +702,7 @@ class Renderer {
   ) {
     int screenCol;
 
-    if (config.wrapMode == WrapMode.none) {
+    if (config.wrapMode == .none) {
       // No wrap - adjust for horizontal scroll
       screenCol = cursorRenderCol - viewportCol + 1;
     } else {
@@ -725,13 +724,13 @@ class Renderer {
     final String lineEdit = file.input.lineEdit;
 
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
-    if (file.mode == Mode.search) {
+    if (file.mode == .search) {
       buffer.write('/$lineEdit ');
     } else {
       buffer.write(':$lineEdit ');
     }
     int cursor = lineEdit.length + 2;
-    buffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
+    buffer.write(Ansi.cursorStyle(.steadyBar));
     buffer.write(Ansi.cursor(x: cursor, y: terminal.height));
   }
 
@@ -790,10 +789,11 @@ class Renderer {
 
     // draw message
     if (message != null) {
-      if (message.type == MessageType.error) {
-        buffer.write(Ansi.fg(Color.red));
-      } else {
-        buffer.write(Ansi.fg(Color.green));
+      switch (message.type) {
+        case .info:
+          buffer.write(Ansi.fg(Color.green));
+        case .error:
+          buffer.write(Ansi.fg(Color.red));
       }
       buffer.write(Ansi.cursor(x: 1, y: terminal.height - 1));
       buffer.write(' ${message.text} ');

@@ -478,12 +478,8 @@ enum DiagnosticSeverity {
   final int value;
   const DiagnosticSeverity(this.value);
 
-  static DiagnosticSeverity fromValue(int? value) {
-    return DiagnosticSeverity.values.firstWhere(
-      (s) => s.value == value,
-      orElse: () => DiagnosticSeverity.error,
-    );
-  }
+  static DiagnosticSeverity fromValue(int? value) => DiagnosticSeverity.values
+      .firstWhere((s) => s.value == value, orElse: () => .error);
 }
 
 /// A diagnostic (error, warning, etc.) from LSP.
