@@ -1,0 +1,91 @@
+import 'lsp_server_config.dart';
+
+/// Default LSP server configurations.
+///
+/// These are used as fallbacks when no user configuration is found,
+/// or when the user config file fails to load.
+class LspServerDefaults {
+  /// Dart language server configuration.
+  static const dart = LspServerConfig(
+    name: 'Dart Analysis Server',
+    executable: 'dart',
+    args: ['language-server', '--protocol=lsp'],
+    extensions: {'dart'},
+    languageIds: {'dart'},
+    projectMarkers: ['pubspec.yaml', 'pubspec.lock'],
+    supportsSemanticTokens: true,
+  );
+
+  /// Lua language server configuration (lua-language-server).
+  static const lua = LspServerConfig(
+    name: 'Lua Language Server',
+    executable: 'lua-language-server',
+    args: [],
+    extensions: {'lua'},
+    languageIds: {'lua'},
+    projectMarkers: ['.luarc.json', '.luarc.jsonc', '.luacheckrc', 'init.lua'],
+    supportsSemanticTokens: true,
+  );
+
+  /// C/C++ language server configuration (clangd).
+  static const clangd = LspServerConfig(
+    name: 'clangd',
+    executable: 'clangd',
+    args: ['--background-index'],
+    extensions: {'c', 'h', 'cc', 'cpp', 'cxx', 'hpp', 'hxx'},
+    languageIds: {'c', 'cpp'},
+    projectMarkers: [
+      'compile_commands.json',
+      'compile_flags.txt',
+      '.clangd',
+      'CMakeLists.txt',
+      'Makefile',
+    ],
+    supportsSemanticTokens: true,
+  );
+
+  /// Swift language server configuration (SourceKit-LSP).
+  static const swift = LspServerConfig(
+    name: 'SourceKit-LSP',
+    executable: 'sourcekit-lsp',
+    args: [],
+    extensions: {'swift'},
+    languageIds: {'swift'},
+    projectMarkers: [
+      'Package.swift',
+      'Podfile',
+      '*.xcworkspace',
+      '*.xcodeproj',
+    ],
+    supportsSemanticTokens: true,
+    preferBuiltInHighlighting: true,
+  );
+
+  /// All default server configurations, keyed by identifier.
+  static const Map<String, LspServerConfig> all = {
+    'dart': dart,
+    'lua': lua,
+    'clangd': clangd,
+    'swift': swift,
+  };
+
+  /// Fallback language ID mappings for extensions without LSP config.
+  static const Map<String, String> fallbackLanguageIds = {
+    'js': 'javascript',
+    'ts': 'typescript',
+    'json': 'json',
+    'yaml': 'yaml',
+    'yml': 'yaml',
+    'md': 'markdown',
+    'html': 'html',
+    'css': 'css',
+    'py': 'python',
+    'rs': 'rust',
+    'go': 'go',
+    'java': 'java',
+    'kt': 'kotlin',
+  };
+}
+
+/// Top-level constant for easy access to default LSP server configurations.
+const defaultLspServers = LspServerDefaults.all;

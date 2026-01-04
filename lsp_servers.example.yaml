@@ -1,0 +1,90 @@
+# LSP Server Configuration for vid
+#
+# This file configures Language Server Protocol (LSP) support.
+# Copy this file to one of these locations:
+#   - ./vid_lsp.yaml (project-local)
+#   - $XDG_CONFIG_HOME/vid/lsp_servers.yaml
+#   - ~/.config/vid/lsp_servers.yaml
+
+# Global toggle to enable/disable all LSP functionality
+enabled: true
+
+# Server configurations
+# Each server is identified by a key (e.g., 'dart', 'lua', 'clangd')
+# Built-in servers: dart, lua, clangd, swift
+#
+# You can override built-in servers or add new ones.
+# Set a server to `false` or `null` to disable it.
+servers:
+  # Dart Analysis Server
+  dart:
+    name: "Dart Analysis Server"
+    executable: "dart"
+    args: ["language-server", "--protocol=lsp"]
+    extensions: [dart]
+    languageIds: [dart]
+    projectMarkers: [pubspec.yaml, pubspec.lock]
+    supportsSemanticTokens: true
+
+  # Lua Language Server
+  lua:
+    name: "Lua Language Server"
+    executable: "lua-language-server"
+    args: []
+    extensions: [lua]
+    languageIds: [lua]
+    projectMarkers: [".luarc.json", ".luarc.jsonc", ".luacheckrc", "init.lua"]
+    supportsSemanticTokens: true
+
+  # clangd (C/C++)
+  clangd:
+    name: "clangd"
+    executable: "clangd"
+    args: ["--background-index"]
+    extensions: [c, h, cc, cpp, cxx, hpp, hxx]
+    languageIds: [c, cpp]
+    projectMarkers:
+      - compile_commands.json
+      - compile_flags.txt
+      - .clangd
+      - CMakeLists.txt
+      - Makefile
+    supportsSemanticTokens: true
+
+  # SourceKit-LSP (Swift)
+  swift:
+    name: "SourceKit-LSP"
+    executable: "sourcekit-lsp"
+    args: []
+    extensions: [swift]
+    languageIds: [swift]
+    projectMarkers:
+      - Package.swift
+      - Podfile
+      - "*.xcworkspace"
+      - "*.xcodeproj"
+    supportsSemanticTokens: true
+    preferBuiltInHighlighting: true
+
+  # Example: Add rust-analyzer
+  # rust:
+  #   name: "rust-analyzer"
+  #   executable: "rust-analyzer"
+  #   args: []
+  #   extensions: [rs]
+  #   languageIds: [rust]
+  #   projectMarkers: [Cargo.toml]
+  #   supportsSemanticTokens: true
+
+  # Example: Add Python LSP (pylsp or pyright)
+  # python:
+  #   name: "Python LSP Server"
+  #   executable: "pylsp"
+  #   args: []
+  #   extensions: [py]
+  #   languageIds: [python]
+  #   projectMarkers: [pyproject.toml, setup.py, requirements.txt]
+  #   supportsSemanticTokens: true
+
+  # Example: Disable a built-in server
+  # lua: false

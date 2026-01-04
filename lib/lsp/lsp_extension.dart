@@ -7,6 +7,7 @@ import '../file_buffer/file_buffer.dart';
 import '../message.dart';
 import 'lsp_client.dart';
 import 'lsp_protocol.dart';
+import 'lsp_server_config.dart';
 
 /// Extension that manages LSP client lifecycle and document synchronization.
 class LspExtension extends Extension {
@@ -434,6 +435,7 @@ class LspExtension extends Extension {
 
   Future<bool> _startLsp() async {
     if (_rootPath == null) return false;
+    if (!LspServerRegistry.enabled) return false;
 
     _client = LspClient();
     _protocol = LspProtocol(_client!);

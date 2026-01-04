@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:vid/config.dart';
+import 'package:vid/lsp/lsp_config_loader.dart';
+import 'package:vid/lsp/lsp_server_config.dart';
 import 'package:yaml/yaml.dart';
 
 /// Loads configuration from YAML files at standard paths.
@@ -72,6 +75,41 @@ class ConfigLoader {
       }
     }
     return const Config();
+  }
+
+  /// Loads configuration asynchronously from the first available config file.
+  /// Returns default [Config] if no config file is found or on parse error.
+  static Future<Config> loadAsync() async {
+    for (final path in configPaths) {
+      final file = File(path);
+      if (await file.exists()) {
+        try {
+          final contents = await file.readAsString();
+          final yaml = loadYaml(contents);
+          if (yaml is YamlMap) {
+            return Config.fromMap(_yamlMapToMap(yaml));
+          }
+        } catch (e) {
+          // Silently fall back to defaults on parse error
+        }
+      }
+    }
+    return const Config();
+  }
+
+  /// Loads both editor config and LSP config in parallel.
+  /// This is the preferred way to initialize the editor for faster startup.
+  static Future<Config> loadAllAsync() async {
+    final results = await Future.wait([
+      loadAsync(),
+      LspConfigLoader.loadAsync(),
+    ]);
+
+    // Initialize LSP registry with loaded config
+    final lspConfig = results[1] as LspConfig;
+    LspServerRegistry.initializeWith(lspConfig);
+
+    return results[0] as Config;
   }
 
   /// Converts a [YamlMap] to a standard [Map<String, dynamic>].

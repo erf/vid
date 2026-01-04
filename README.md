@@ -17,7 +17,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 - [bindings.dart](lib/bindings.dart) — key mappings
 - [config.example.yaml](config.example.yaml) — configuration options
-- [lsp_server_config.dart](lib/lsp/lsp_server_config.dart) — LSP server configs
+- [lsp_servers.example.yaml](lsp_servers.example.yaml) — LSP server configs
 
 ## Building
 
@@ -45,6 +45,22 @@ cp config.example.yaml ~/.config/vid/config.yaml
 ```
 
 All settings are optional — missing values use sensible defaults. See [config.example.yaml](config.example.yaml) for all available options.
+
+## LSP Configuration
+
+vid includes built-in support for several language servers (Dart, Lua, clangd, Swift). You can customize or extend LSP support via a separate YAML file:
+
+1. `./vid_lsp.yaml` — local project config
+2. `$XDG_CONFIG_HOME/vid/lsp_servers.yaml`
+3. `~/.config/vid/lsp_servers.yaml`
+
+Copy the example config to customize:
+
+```bash
+cp lsp_servers.example.yaml ~/.config/vid/lsp_servers.yaml
+```
+
+See [lsp_servers.example.yaml](lsp_servers.example.yaml) for all options and examples.
 
 ## Contributing
 

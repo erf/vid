@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'lsp_config_loader.dart';
+import 'lsp_server_defaults.dart';
+
 /// Configuration for a language server.
 class LspServerConfig {
   /// Display name for the language server.
@@ -58,80 +61,68 @@ class LspServerConfig {
 }
 
 /// Registry of available language server configurations.
+///
+/// This registry can be initialized with configurations loaded from a YAML file,
+/// or falls back to hardcoded defaults.
 class LspServerRegistry {
-  static final Map<String, LspServerConfig> _servers = {
-    'clangd': clangdServer,
-    'dart': dartServer,
-    'lua': luaServer,
-    'swift': swiftServer,
-  };
+  /// Singleton instance, lazily initialized.
+  static LspServerRegistry? _instance;
 
-  /// Dart language server configuration.
-  static const dartServer = LspServerConfig(
-    name: 'Dart Analysis Server',
-    executable: 'dart',
-    args: ['language-server', '--protocol=lsp'],
-    extensions: {'dart'},
-    languageIds: {'dart'},
-    projectMarkers: ['pubspec.yaml', 'pubspec.lock'],
-    supportsSemanticTokens: true,
-  );
+  /// The loaded LSP configuration.
+  final LspConfig _config;
 
-  /// Lua language server configuration (lua-language-server).
-  static const luaServer = LspServerConfig(
-    name: 'Lua Language Server',
-    executable: 'lua-language-server',
-    args: [],
-    extensions: {'lua'},
-    languageIds: {'lua'},
-    projectMarkers: ['.luarc.json', '.luarc.jsonc', '.luacheckrc', 'init.lua'],
-    supportsSemanticTokens: true,
-  );
+  /// Private constructor.
+  LspServerRegistry._(this._config);
 
-  /// C/C++ language server configuration (clangd).
-  static const clangdServer = LspServerConfig(
-    name: 'clangd',
-    executable: 'clangd',
-    args: ['--background-index'],
-    extensions: {'c', 'h', 'cc', 'cpp', 'cxx', 'hpp', 'hxx'},
-    languageIds: {'c', 'cpp'},
-    projectMarkers: [
-      'compile_commands.json',
-      'compile_flags.txt',
-      '.clangd',
-      'CMakeLists.txt',
-      'Makefile',
-    ],
-    supportsSemanticTokens: true,
-  );
+  /// Gets the singleton instance, initializing with defaults if needed.
+  /// For async initialization, call [initializeAsync] first.
+  static LspServerRegistry get instance {
+    _instance ??= LspServerRegistry._(LspConfigLoader.load());
+    return _instance!;
+  }
 
-  /// Swift language server configuration (SourceKit-LSP).
-  static const swiftServer = LspServerConfig(
-    name: 'SourceKit-LSP',
-    executable: 'sourcekit-lsp',
-    args: [],
-    extensions: {'swift'},
-    languageIds: {'swift'},
-    projectMarkers: [
-      'Package.swift',
-      'Podfile',
-      '*.xcworkspace',
-      '*.xcodeproj',
-    ],
-    supportsSemanticTokens: true,
-    preferBuiltInHighlighting: true,
-  );
+  /// Whether LSP support is enabled globally.
+  static bool get enabled => instance._config.enabled;
+
+  /// Initializes the registry synchronously.
+  /// Call this at startup to load configuration.
+  static void initialize() {
+    _instance ??= LspServerRegistry._(LspConfigLoader.load());
+  }
+
+  /// Initializes the registry asynchronously.
+  /// Preferred for startup to avoid blocking.
+  static Future<void> initializeAsync() async {
+    if (_instance == null) {
+      final config = await LspConfigLoader.loadAsync();
+      _instance = LspServerRegistry._(config);
+    }
+  }
+
+  /// Initializes the registry with a pre-loaded config.
+  /// Used for parallel loading of configs.
+  static void initializeWith(LspConfig config) {
+    _instance ??= LspServerRegistry._(config);
+  }
+
+  /// Resets the registry (useful for testing or reloading config).
+  static void reset() {
+    _instance = null;
+  }
+
+  /// The map of server configurations.
+  Map<String, LspServerConfig> get _servers => _config.servers;
 
   /// Get all registered server configurations.
-  static Iterable<LspServerConfig> get all => _servers.values;
+  static Iterable<LspServerConfig> get all => instance._servers.values;
 
   /// Get server configuration by name.
-  static LspServerConfig? getByName(String name) => _servers[name];
+  static LspServerConfig? getByName(String name) => instance._servers[name];
 
   /// Get server configuration for a file extension.
   static LspServerConfig? getForExtension(String ext) {
     final normalizedExt = ext.toLowerCase().replaceFirst('.', '');
-    for (final server in _servers.values) {
+    for (final server in instance._servers.values) {
       if (server.handlesExtension(normalizedExt)) {
         return server;
       }
@@ -141,7 +132,7 @@ class LspServerRegistry {
 
   /// Get server configuration for a language ID.
   static LspServerConfig? getForLanguageId(String langId) {
-    for (final server in _servers.values) {
+    for (final server in instance._servers.values) {
       if (server.handlesLanguageId(langId)) {
         return server;
       }
@@ -155,28 +146,14 @@ class LspServerRegistry {
     final ext = path.split('.').last.toLowerCase();
 
     // Check registered LSP servers first
-    for (final server in _servers.values) {
+    for (final server in instance._servers.values) {
       if (server.extensions.contains(ext)) {
         return server.languageIds.first;
       }
     }
 
     // Fallback for languages without LSP config
-    return switch (ext) {
-      'js' => 'javascript',
-      'ts' => 'typescript',
-      'json' => 'json',
-      'yaml' || 'yml' => 'yaml',
-      'md' => 'markdown',
-      'html' => 'html',
-      'css' => 'css',
-      'py' => 'python',
-      'rs' => 'rust',
-      'go' => 'go',
-      'java' => 'java',
-      'kt' => 'kotlin',
-      _ => 'plaintext',
-    };
+    return LspServerDefaults.fallbackLanguageIds[ext] ?? 'plaintext';
   }
 
   /// Detect which server to use based on project files in a directory.
@@ -184,7 +161,7 @@ class LspServerRegistry {
     final dir = Directory(rootPath);
     if (!dir.existsSync()) return null;
 
-    for (final server in _servers.values) {
+    for (final server in instance._servers.values) {
       if (_hasProjectMarker(dir, rootPath, server.projectMarkers)) {
         return server;
       }
@@ -198,7 +175,7 @@ class LspServerRegistry {
     if (!dir.existsSync()) return [];
 
     final results = <LspServerConfig>[];
-    for (final server in _servers.values) {
+    for (final server in instance._servers.values) {
       if (_hasProjectMarker(dir, rootPath, server.projectMarkers)) {
         results.add(server);
       }
