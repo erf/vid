@@ -554,10 +554,16 @@ class LspExtension extends Extension {
       }
     }
 
-    // Show consolidated message
+    // Show consolidated message and open buffers
     if (startedServers.isNotEmpty && _editor != null) {
       final names = startedServers.join(', ');
       _editor!.showMessage(Message.info('LSP connected ($names)'));
+
+      // Open all currently loaded buffers with their respective servers
+      for (final buffer in _editor!.buffers) {
+        onFileOpen(_editor!, buffer);
+      }
+
       _editor!.draw();
     }
   }
