@@ -58,6 +58,7 @@ class LspServerRegistry {
     'clangd': clangdServer,
     'dart': dartServer,
     'lua': luaServer,
+    'swift': swiftServer,
   };
 
   /// Dart language server configuration.
@@ -95,6 +96,22 @@ class LspServerRegistry {
       '.clangd',
       'CMakeLists.txt',
       'Makefile',
+    ],
+    supportsSemanticTokens: true,
+  );
+
+  /// Swift language server configuration (SourceKit-LSP).
+  static const swiftServer = LspServerConfig(
+    name: 'SourceKit-LSP',
+    executable: 'sourcekit-lsp',
+    args: [],
+    extensions: {'swift'},
+    languageIds: {'swift'},
+    projectMarkers: [
+      'Package.swift',
+      'Podfile',
+      '*.xcworkspace',
+      '*.xcodeproj',
     ],
     supportsSemanticTokens: true,
   );
