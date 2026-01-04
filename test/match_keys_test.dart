@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vid/bindings.dart';
+import 'package:vid/mode_bindings.dart';
 
 void main() {
   test('MatchKeys none, partial, and match for key bindings', () {
