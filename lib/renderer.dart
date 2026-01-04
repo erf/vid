@@ -748,7 +748,7 @@ class Renderer {
 
     int cursorCol = file.columnInLine(file.cursor);
     String mode = file.mode.label;
-    String path = file.path ?? '[No Name]';
+    String path = file.relativePath ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String pathWithMod = '$path$modified';
     String wrap = config.wrapSymbol;

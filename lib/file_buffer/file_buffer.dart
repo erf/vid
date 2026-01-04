@@ -1,4 +1,6 @@
 // Barrel file - exports all file_buffer extensions
+import 'dart:io';
+
 import 'package:termio/termio.dart';
 import 'package:vid/edit_builder.dart';
 import 'package:vid/edit_operation.dart';
@@ -39,6 +41,19 @@ class FileBuffer {
 
   // the absolute path to the file
   String? absolutePath;
+
+  /// Get the path relative to current working directory.
+  /// Returns null if no path is set, or the absolute path if outside cwd.
+  String? get relativePath {
+    final abs = absolutePath;
+    if (abs == null) return null;
+    final cwd = Directory.current.path;
+    if (abs.startsWith(cwd)) {
+      final rel = abs.substring(cwd.length);
+      return rel.startsWith('/') ? rel.substring(1) : rel;
+    }
+    return abs;
+  }
 
   // the cursor position (byte offset, always at grapheme cluster boundary)
   int cursor = 0;
