@@ -9,11 +9,16 @@ import 'lsp_client.dart';
 import 'lsp_protocol.dart';
 import 'lsp_server_config.dart';
 
-/// Extension that manages LSP client lifecycle and document synchronization.
+/// Extension that manages multiple LSP clients for different languages.
 class LspExtension extends Extension {
-  LspClient? _client;
-  LspProtocol? _protocol;
-  StreamSubscription<LspNotification>? _notificationSub;
+  /// Map of server key to LSP client (e.g., 'dart' -> LspClient).
+  final Map<String, LspClient> _clients = {};
+
+  /// Map of server key to LSP protocol wrapper.
+  final Map<String, LspProtocol> _protocols = {};
+
+  /// Map of server key to notification subscription.
+  final Map<String, StreamSubscription<LspNotification>> _notificationSubs = {};
 
   /// Document versions per file URI (for incremental sync).
   final Map<String, int> _documentVersions = {};
@@ -21,8 +26,8 @@ class LspExtension extends Extension {
   /// Current diagnostics per file URI.
   final Map<String, List<LspDiagnostic>> _diagnostics = {};
 
-  /// Files that have been opened with the LSP server.
-  final Set<String> _openDocuments = {};
+  /// Files that have been opened with the LSP server, mapped to server key.
+  final Map<String, String> _openDocuments = {}; // uri -> serverKey
 
   /// Cached semantic tokens per file URI (for rendering).
   final Map<String, List<SemanticToken>> _semanticTokens = {};
@@ -36,15 +41,48 @@ class LspExtension extends Extension {
   Editor? _editor;
   String? _rootPath;
 
-  LspClient? get client => _client;
-  LspProtocol? get protocol => _protocol;
-  bool get isConnected => _client?.isConnected ?? false;
+  /// Get client for a specific file extension.
+  LspClient? getClientForExtension(String ext) {
+    final config = LspServerRegistry.getForExtension(ext);
+    if (config == null) return null;
+    final key = _serverKeyForConfig(config);
+    return _clients[key];
+  }
 
-  /// Whether semantic tokens are available and should be used.
-  /// Returns false if the server prefers built-in highlighting.
-  bool get supportsSemanticTokens =>
-      (_client?.supportsSemanticTokens ?? false) &&
-      !(_client?.serverConfig?.preferBuiltInHighlighting ?? false);
+  /// Get client for a specific file path.
+  LspClient? getClientForPath(String path) {
+    final ext = path.split('.').last;
+    return getClientForExtension(ext);
+  }
+
+  /// Get protocol for a specific file path.
+  LspProtocol? getProtocolForPath(String path) {
+    final ext = path.split('.').last;
+    final config = LspServerRegistry.getForExtension(ext);
+    if (config == null) return null;
+    final key = _serverKeyForConfig(config);
+    return _protocols[key];
+  }
+
+  /// Legacy accessors for compatibility (returns first connected client).
+  LspClient? get client => _clients.values.firstOrNull;
+  LspProtocol? get protocol => _protocols.values.firstOrNull;
+  bool get isConnected => _clients.values.any((c) => c.isConnected);
+
+  /// Whether semantic tokens are available for a given file.
+  bool supportsSemanticTokensFor(String? path) {
+    if (path == null) return false;
+    final client = getClientForPath(path);
+    if (client == null || !client.isConnected) return false;
+    if (!client.supportsSemanticTokens) return false;
+    return !(client.serverConfig?.preferBuiltInHighlighting ?? false);
+  }
+
+  /// Legacy accessor - checks current file.
+  bool get supportsSemanticTokens {
+    final path = _editor?.file.absolutePath;
+    return supportsSemanticTokensFor(path);
+  }
 
   /// Get cached semantic tokens for a file.
   List<SemanticToken> getSemanticTokens(String? uri) {
@@ -57,8 +95,9 @@ class LspExtension extends Extension {
 
   /// Request semantic tokens for the entire document.
   void requestSemanticTokens(String uri, {bool immediate = false}) {
-    if (!supportsSemanticTokens) return;
-    if (!_openDocuments.contains(uri)) return;
+    final path = Uri.parse(uri).toFilePath();
+    if (!supportsSemanticTokensFor(path)) return;
+    if (!_openDocuments.containsKey(uri)) return;
 
     // Cancel any pending request for this file
     _semanticTokenTimers[uri]?.cancel();
@@ -74,9 +113,13 @@ class LspExtension extends Extension {
 
   Future<void> _fetchSemanticTokens(String uri) async {
     try {
+      final path = Uri.parse(uri).toFilePath();
+      final protocol = getProtocolForPath(path);
+      if (protocol == null) return;
+
       // Pass previous tokens to enable delta updates
       final previousTokens = _previousTokens[uri];
-      final result = await _protocol?.semanticTokensFull(
+      final result = await protocol.semanticTokensFull(
         uri,
         previousTokens: previousTokens,
       );
@@ -108,7 +151,7 @@ class LspExtension extends Extension {
   String? getFirstErrorMessage(String? uri) {
     final diags = getDiagnostics(uri);
     if (diags.isEmpty) return null;
-    final errors = diags.where((d) => d.severity == .error);
+    final errors = diags.where((d) => d.severity == DiagnosticSeverity.error);
     if (errors.isEmpty) return null;
     final first = errors.first;
     return 'L${first.startLine + 1}: ${first.message}';
@@ -120,26 +163,57 @@ class LspExtension extends Extension {
     _rootPath = _findProjectRoot(editor);
 
     if (_rootPath != null) {
-      _startLsp();
+      _startLspServers();
     }
   }
 
   @override
   void onQuit(Editor editor) {
-    _stopLsp();
+    _stopAllLspServers();
   }
 
   @override
   void onFileOpen(Editor editor, FileBuffer file) {
-    if (!isConnected || file.absolutePath == null) return;
+    if (file.absolutePath == null) return;
 
     final uri = _fileUri(file.absolutePath!);
-    if (_openDocuments.contains(uri)) return;
+    if (_openDocuments.containsKey(uri)) return;
+
+    final ext = file.absolutePath!.split('.').last;
+    final config = LspServerRegistry.getForExtension(ext);
+    if (config == null) return;
+
+    final serverKey = _serverKeyForConfig(config);
+
+    // Start server if not already running
+    if (!_clients.containsKey(serverKey)) {
+      // Start server async and open document when ready
+      _startLspServer(config).then((success) {
+        if (success) {
+          _openDocumentWithServer(file, uri, serverKey);
+        }
+      });
+      return;
+    }
+
+    _openDocumentWithServer(file, uri, serverKey);
+  }
+
+  /// Open a document with a specific LSP server.
+  void _openDocumentWithServer(FileBuffer file, String uri, String serverKey) {
+    if (file.absolutePath == null) return;
+
+    final client = _clients[serverKey];
+    final protocol = _protocols[serverKey];
+    if (client == null || !client.isConnected || protocol == null) return;
+
+    // Check if already open (might have been opened while waiting for server)
+    if (_openDocuments.containsKey(uri)) return;
 
     final languageId = languageIdFromPath(file.absolutePath!);
     _documentVersions[uri] = 1;
-    _protocol?.didOpen(uri, languageId, 1, file.text);
-    _openDocuments.add(uri);
+    protocol.didOpen(uri, languageId, 1, file.text);
+    _openDocuments[uri] = serverKey;
 
     // Request semantic tokens immediately for the whole file
     requestSemanticTokens(uri, immediate: true);
@@ -147,12 +221,15 @@ class LspExtension extends Extension {
 
   @override
   void onBufferClose(Editor editor, FileBuffer file) {
-    if (!isConnected || file.absolutePath == null) return;
+    if (file.absolutePath == null) return;
 
     final uri = _fileUri(file.absolutePath!);
-    if (!_openDocuments.contains(uri)) return;
+    final serverKey = _openDocuments[uri];
+    if (serverKey == null) return;
 
-    _protocol?.didClose(uri);
+    final protocol = _protocols[serverKey];
+    protocol?.didClose(uri);
+
     _openDocuments.remove(uri);
     _documentVersions.remove(uri);
     _diagnostics.remove(uri);
@@ -168,21 +245,27 @@ class LspExtension extends Extension {
     String newText,
     String oldText,
   ) {
-    if (!isConnected || file.absolutePath == null) return;
+    if (file.absolutePath == null) return;
 
     final uri = _fileUri(file.absolutePath!);
 
     // Ensure document is open
-    if (!_openDocuments.contains(uri)) {
+    if (!_openDocuments.containsKey(uri)) {
       onFileOpen(editor, file);
     }
+
+    final serverKey = _openDocuments[uri];
+    if (serverKey == null) return;
+
+    final protocol = _protocols[serverKey];
+    if (protocol == null) return;
 
     // Increment version
     final version = (_documentVersions[uri] ?? 0) + 1;
     _documentVersions[uri] = version;
 
     // Use full sync (simpler, always correct)
-    _protocol?.didChangeFull(uri, version, file.text);
+    protocol.didChangeFull(uri, version, file.text);
 
     // Only invalidate tokens on affected lines, keep the rest
     _invalidateTokensForEdit(uri, file, start, oldText, newText);
@@ -236,13 +319,14 @@ class LspExtension extends Extension {
 
   /// Go to definition at current cursor position.
   Future<void> goToDefinition(Editor editor, FileBuffer file) async {
-    if (!isConnected) {
-      editor.showMessage(Message.error('LSP not connected'));
+    if (file.absolutePath == null) {
+      editor.showMessage(Message.error('File not saved'));
       return;
     }
 
-    if (file.absolutePath == null) {
-      editor.showMessage(Message.error('File not saved'));
+    final protocol = getProtocolForPath(file.absolutePath!);
+    if (protocol == null) {
+      editor.showMessage(Message.error('No LSP server for this file type'));
       return;
     }
 
@@ -254,8 +338,8 @@ class LspExtension extends Extension {
     final char = file.cursor - lineStart;
 
     try {
-      final locations = await _protocol?.definition(uri, line, char);
-      if (locations == null || locations.isEmpty) {
+      final locations = await protocol.definition(uri, line, char);
+      if (locations.isEmpty) {
         editor.showMessage(Message.info('Definition not found'));
         return;
       }
@@ -285,13 +369,14 @@ class LspExtension extends Extension {
 
   /// Get hover information at current cursor position.
   Future<void> hover(Editor editor, FileBuffer file) async {
-    if (!isConnected) {
-      editor.showMessage(Message.error('LSP not connected'));
+    if (file.absolutePath == null) {
+      editor.showMessage(Message.error('File not saved'));
       return;
     }
 
-    if (file.absolutePath == null) {
-      editor.showMessage(Message.error('File not saved'));
+    final protocol = getProtocolForPath(file.absolutePath!);
+    if (protocol == null) {
+      editor.showMessage(Message.error('No LSP server for this file type'));
       return;
     }
 
@@ -302,7 +387,7 @@ class LspExtension extends Extension {
     final char = file.cursor - lineStart;
 
     try {
-      final hoverText = await _protocol?.hover(uri, line, char);
+      final hoverText = await protocol.hover(uri, line, char);
       if (hoverText == null || hoverText.isEmpty) {
         editor.showMessage(Message.info('No hover info'));
         return;
@@ -325,13 +410,14 @@ class LspExtension extends Extension {
     Editor editor,
     FileBuffer file,
   ) async {
-    if (!isConnected) {
-      editor.showMessage(Message.error('LSP not connected'));
+    if (file.absolutePath == null) {
+      editor.showMessage(Message.error('File not saved'));
       return [];
     }
 
-    if (file.absolutePath == null) {
-      editor.showMessage(Message.error('File not saved'));
+    final protocol = getProtocolForPath(file.absolutePath!);
+    if (protocol == null) {
+      editor.showMessage(Message.error('No LSP server for this file type'));
       return [];
     }
 
@@ -342,8 +428,8 @@ class LspExtension extends Extension {
     final char = file.cursor - lineStart;
 
     try {
-      final locations = await _protocol?.references(uri, line, char);
-      if (locations == null || locations.isEmpty) {
+      final locations = await protocol.references(uri, line, char);
+      if (locations.isEmpty) {
         editor.showMessage(Message.info('No references found'));
         return [];
       }
@@ -382,27 +468,39 @@ class LspExtension extends Extension {
     return joined;
   }
 
-  /// Restart the LSP server.
+  /// Restart all LSP servers.
   Future<void> restart(Editor editor) async {
-    editor.showMessage(Message.info('Restarting LSP...'));
+    editor.showMessage(Message.info('Restarting LSP servers...'));
     editor.draw();
-    _stopLsp();
+
+    _stopAllLspServers();
     _openDocuments.clear();
     _documentVersions.clear();
     _diagnostics.clear();
     _semanticTokens.clear();
+    _previousTokens.clear();
     for (final timer in _semanticTokenTimers.values) {
       timer.cancel();
     }
     _semanticTokenTimers.clear();
 
     if (_rootPath != null) {
-      final success = await _startLsp();
-      if (success) {
-        onFileOpen(editor, editor.file);
-        editor.showMessage(Message.info('LSP restarted'));
+      await _startLspServers();
+
+      // Re-open all buffers
+      for (final buffer in editor.buffers) {
+        onFileOpen(editor, buffer);
+      }
+
+      final count = _clients.length;
+      if (count > 0) {
+        final names = _clients.values
+            .where((c) => c.isConnected)
+            .map((c) => c.serverConfig?.name.split(' ').first ?? '?')
+            .join(', ');
+        editor.showMessage(Message.info('LSP restarted ($names)'));
       } else {
-        editor.showMessage(Message.error('LSP failed to start'));
+        editor.showMessage(Message.info('No LSP servers started'));
       }
     } else {
       editor.showMessage(Message.error('No project root found'));
@@ -411,10 +509,17 @@ class LspExtension extends Extension {
   }
 
   void showStatus(Editor editor) {
-    if (isConnected) {
+    final connectedServers = _clients.values
+        .where((c) => c.isConnected)
+        .map((c) => c.serverConfig?.name.split(' ').first ?? '?')
+        .toList();
+
+    if (connectedServers.isNotEmpty) {
       final openCount = _openDocuments.length;
       editor.showMessage(
-        Message.info('LSP: connected, $openCount open documents'),
+        Message.info(
+          'LSP: ${connectedServers.join(", ")} ($openCount open docs)',
+        ),
       );
     } else {
       editor.showMessage(Message.info('LSP: not connected'));
@@ -433,39 +538,91 @@ class LspExtension extends Extension {
     file.cursor = lineStart + char;
   }
 
-  Future<bool> _startLsp() async {
+  /// Start LSP servers for all relevant languages detected in the project.
+  Future<void> _startLspServers() async {
+    if (_rootPath == null) return;
+    if (!LspServerRegistry.enabled) return;
+
+    // Detect all servers that might be relevant for this project
+    final servers = LspServerRegistry.detectAllForProject(_rootPath!);
+
+    final startedServers = <String>[];
+    for (final config in servers) {
+      final success = await _startLspServer(config, showMessage: false);
+      if (success) {
+        startedServers.add(config.name.split(' ').first);
+      }
+    }
+
+    // Show consolidated message
+    if (startedServers.isNotEmpty && _editor != null) {
+      final names = startedServers.join(', ');
+      _editor!.showMessage(Message.info('LSP connected ($names)'));
+      _editor!.draw();
+    }
+  }
+
+  /// Start a specific LSP server.
+  /// If [showMessage] is true, shows a connection message on success.
+  Future<bool> _startLspServer(
+    LspServerConfig config, {
+    bool showMessage = true,
+  }) async {
     if (_rootPath == null) return false;
     if (!LspServerRegistry.enabled) return false;
 
-    _client = LspClient();
-    _protocol = LspProtocol(_client!);
+    final serverKey = _serverKeyForConfig(config);
 
-    _notificationSub = _client!.notifications.listen(_handleNotification);
+    // Don't start if already running
+    if (_clients.containsKey(serverKey)) {
+      return _clients[serverKey]!.isConnected;
+    }
 
-    final success = await _client!.start(_rootPath!);
-    if (success && _editor != null) {
-      final serverName = _client!.serverConfig?.name.split(' ').first ?? 'LSP';
+    final client = LspClient();
+    final protocol = LspProtocol(client);
+
+    _clients[serverKey] = client;
+    _protocols[serverKey] = protocol;
+
+    _notificationSubs[serverKey] = client.notifications.listen(
+      (notification) => _handleNotification(serverKey, notification),
+    );
+
+    final success = await client.start(_rootPath!, config: config);
+    if (success && _editor != null && showMessage) {
+      final serverName = config.name;
       _editor!.showMessage(Message.info('LSP connected ($serverName)'));
-
-      // Open all currently loaded buffers with the LSP server
-      for (final buffer in _editor!.buffers) {
-        onFileOpen(_editor!, buffer);
-      }
-
       _editor!.draw();
+    }
+    if (!success) {
+      // Clean up failed client
+      _notificationSubs[serverKey]?.cancel();
+      _notificationSubs.remove(serverKey);
+      _clients.remove(serverKey);
+      _protocols.remove(serverKey);
     }
     return success;
   }
 
-  void _stopLsp() {
-    _notificationSub?.cancel();
-    _notificationSub = null;
-    _client?.stop();
-    _client = null;
-    _protocol = null;
+  /// Get a unique key for a server config.
+  String _serverKeyForConfig(LspServerConfig config) {
+    return config.executable;
   }
 
-  void _handleNotification(LspNotification notification) {
+  void _stopAllLspServers() {
+    for (final sub in _notificationSubs.values) {
+      sub.cancel();
+    }
+    _notificationSubs.clear();
+
+    for (final client in _clients.values) {
+      client.stop();
+    }
+    _clients.clear();
+    _protocols.clear();
+  }
+
+  void _handleNotification(String serverKey, LspNotification notification) {
     switch (notification.method) {
       case 'textDocument/publishDiagnostics':
         _handleDiagnostics(notification.params);
@@ -482,7 +639,9 @@ class LspExtension extends Extension {
         _editor?.draw();
         break;
       case 'disconnected':
-        _editor?.showMessage(Message.error('LSP disconnected'));
+        final client = _clients[serverKey];
+        final name = client?.serverConfig?.name ?? serverKey;
+        _editor?.showMessage(Message.error('LSP disconnected ($name)'));
         _editor?.draw();
         break;
     }
