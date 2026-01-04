@@ -7,6 +7,6 @@ class ReplaceActions {
     f.setMode(e, .normal);
     // Check if text is empty (just a trailing newline)
     if (f.text.length <= 1) return;
-    f.replaceAt(f.cursor, s, config: e.config, editor: e);
+    f.replaceAt(f.cursor, s, config: e.config);
   }
 }

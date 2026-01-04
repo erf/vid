@@ -3,14 +3,15 @@
 ## Overview
 
 - file as a single `text` String for simplicity
-- minimal API to replace text for a given range
 - cursor (and viewport) is byte based 
 - use regex for most text operations within range
+- minimal API to replace text for a given range
+- undo operations are added to a list on replace
 - create lines of text + metadata on changes
 - use lines for help with motions etc.
-- undo operations are added to a list on replace
 - multiple buffers
 - compiled extensions (cursor pos, LSP)
+- lsp ..
 
 ## Text operations
 

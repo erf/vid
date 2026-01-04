@@ -6,14 +6,25 @@ import 'package:vid/edit_builder.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/input_state.dart';
 
-import '../editor.dart';
 import '../line_info.dart';
 import '../modes.dart';
 import '../text_op.dart';
+import '../error_or.dart';
+import 'file_buffer_io.dart';
 
 export 'file_buffer_io.dart';
 export 'file_buffer_nav.dart';
 export 'file_buffer_text.dart';
+
+/// Callback for text changes in a [FileBuffer].
+typedef TextChangeListener =
+    void Function(
+      FileBuffer buffer,
+      int start,
+      int end,
+      String newText,
+      String oldText,
+    );
 
 /// A file buffer that maintains text with a trailing newline invariant.
 ///
@@ -82,6 +93,11 @@ class FileBuffer {
   // the savepoint for undo operations
   int savepoint = 0;
 
+  // listeners for text changes
+  final List<TextChangeListener> _listeners = [];
+
+  void addListener(TextChangeListener listener) => _listeners.add(listener);
+
   // --- Getters/Setters ---
 
   String get text => _text;
@@ -117,7 +133,7 @@ class FileBuffer {
   }
 
   // update text and partially rebuild line index from edit point
-  void updateText(int start, int end, String newText, {Editor? editor}) {
+  void updateText(int start, int end, String newText) {
     // Find line containing start offset before modifying text
     final startLine = lineNumber(start);
 
@@ -137,8 +153,10 @@ class FileBuffer {
       idx = _text.indexOf(Keys.newline, scanFrom);
     }
 
-    // Notify extensions of text change
-    editor?.extensions?.notifyTextChange(this, start, end, newText, oldText);
+    // Notify listeners of text change
+    for (final listener in _listeners) {
+      listener(this, start, end, newText, oldText);
+    }
   }
 
   // get line number for offset using binary search - O(log n)
@@ -166,4 +184,12 @@ class FileBuffer {
 
   // set if the file has been modified
   void setSavepoint() => savepoint = undoList.length;
+
+  /// Load a file from disk.
+  static ErrorOr<FileBuffer> load(
+    String path, {
+    bool createIfNotExists = false,
+  }) {
+    return FileBufferIo.load(path, createIfNotExists: createIfNotExists);
+  }
 }

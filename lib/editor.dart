@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/extensions/cursor_position_extension.dart';
@@ -27,7 +26,6 @@ import 'message.dart';
 import 'modes.dart';
 import 'motions/motion.dart';
 import 'range.dart';
-import 'string_ext.dart';
 
 class Editor {
   // Instance fields
@@ -53,7 +51,7 @@ class Editor {
   Mode? _popupPreviousMode;
 
   /// Jump list for Ctrl-o navigation (stores file path + cursor offset)
-  final List<JumpLocation> _jumpList = [];
+  final List<_JumpLocation> _jumpList = [];
   int _jumpListIndex = -1;
 
   // Static fields
@@ -66,7 +64,7 @@ class Editor {
 
   set file(FileBuffer buffer) {
     if (_buffers.isEmpty) {
-      _buffers.add(buffer);
+      _addBuffer(buffer);
     } else {
       _buffers[_currentBufferIndex] = buffer;
     }
@@ -83,87 +81,106 @@ class Editor {
   }) {
     _highlighter = Highlighter(themeType: config.syntaxTheme);
     renderer = Renderer(terminal: terminal, highlighter: _highlighter);
-    _buffers.add(FileBuffer()); // Start with one empty buffer
+    _addBuffer(FileBuffer()); // Start with one empty buffer
+  }
+
+  void _addBufferListener(FileBuffer buffer) {
+    buffer.addListener((buf, start, end, newText, oldText) {
+      extensions?.notifyTextChange(buf, start, end, newText, oldText);
+    });
+  }
+
+  void _addBuffer(FileBuffer buffer) {
+    _addBufferListener(buffer);
+    _buffers.add(buffer);
   }
 
   void init(List<String> args) {
-    // Parse args: file paths with optional +linenum after each
-    // e.g., vid file1.dart +10 file2.dart +20 file3.txt
-    final files = <(String path, String? lineArg)>[];
+    final List<_FileArg> files = _parseArgs(args);
+    final String? directoryArg = _getDirectoryArg(args);
+
+    if (files.isNotEmpty) {
+      _loadInitialFiles(files);
+    }
+    _initTerminal(files.firstOrNull?.path);
+    _initExtensions();
+    _applyLineArgs(files);
+
+    draw();
+
+    if (directoryArg != null) {
+      FileBrowser.show(this, directoryArg);
+    }
+  }
+
+  List<_FileArg> _parseArgs(List<String> args) {
+    final files = <_FileArg>[];
     String? pendingPath;
-    String? directoryArg; // Track if a directory was passed
 
     for (final arg in args) {
       if (arg.startsWith('+')) {
         if (pendingPath != null) {
-          files.add((pendingPath, arg));
+          files.add(_FileArg(pendingPath, arg));
           pendingPath = null;
         }
-        // Ignore +linenum without preceding file
       } else {
-        // Check if arg is a directory
-        final dir = Directory(arg);
-        if (dir.existsSync()) {
-          directoryArg = arg;
-          continue; // Don't add directory as a file
-        }
-
+        if (Directory(arg).existsSync()) continue;
         if (pendingPath != null) {
-          files.add((pendingPath, null));
+          files.add(_FileArg(pendingPath, null));
         }
         pendingPath = arg;
       }
     }
     if (pendingPath != null) {
-      files.add((pendingPath, null));
+      files.add(_FileArg(pendingPath, null));
     }
+    return files;
+  }
 
-    if (files.isEmpty) {
-      // No files specified, keep empty buffer
-      initTerminal(null);
-    } else {
-      // Load all specified files
-      for (int i = 0; i < files.length; i++) {
-        final (path, _) = files[i];
-        final result = FileBufferIo.load(path, createIfNotExists: true);
-        if (result.hasError) {
-          print(result.error);
-          exit(0);
-        }
-        final buffer = result.value!;
-        if (i == 0) {
-          _buffers[0] = buffer; // Replace the initial empty buffer
-        } else {
-          _buffers.add(buffer);
-        }
+  String? _getDirectoryArg(List<String> args) {
+    for (final arg in args) {
+      if (!arg.startsWith('+') && Directory(arg).existsSync()) {
+        return arg;
       }
-      initTerminal(files[0].$1);
     }
+    return null;
+  }
 
+  void _loadInitialFiles(List<_FileArg> files) {
+    for (int i = 0; i < files.length; i++) {
+      final result = FileBuffer.load(files[i].path, createIfNotExists: true);
+      if (result.hasError) {
+        print(result.error);
+        exit(0);
+      }
+      final buffer = result.value!;
+      if (i == 0) {
+        _buffers[0] = buffer;
+        _addBufferListener(buffer);
+      } else {
+        _addBuffer(buffer);
+      }
+    }
+  }
+
+  void _initExtensions() {
     extensions = ExtensionRegistry(this, [
       CursorPositionExtension(),
       LspExtension(),
     ]);
     extensions?.notifyInit();
 
-    // Notify extensions for all loaded files
     for (final buffer in _buffers) {
       extensions?.notifyFileOpen(buffer);
     }
+  }
 
-    // Apply +linenum args AFTER extensions (so they override saved cursor positions)
+  void _applyLineArgs(List<_FileArg> files) {
     for (int i = 0; i < files.length; i++) {
-      final (path, lineArg) = files[i];
+      final lineArg = files[i].lineArg;
       if (lineArg != null) {
-        _buffers[i].parseCliArgs([path, lineArg]);
+        _buffers[i].parseCliArgs([files[i].path, lineArg]);
       }
-    }
-
-    draw();
-
-    // Show file browser if a directory was passed as argument
-    if (directoryArg != null) {
-      FileBrowser.show(this, directoryArg);
     }
   }
 
@@ -179,11 +196,12 @@ class Editor {
       return ErrorOr.value(_buffers[existingIndex]);
     }
 
-    final result = FileBufferIo.load(path, createIfNotExists: false);
+    final result = FileBuffer.load(path, createIfNotExists: false);
     if (result.hasError) {
       return result;
     }
-    _buffers.add(result.value!);
+    final buffer = result.value!;
+    _addBuffer(buffer);
     _currentBufferIndex = _buffers.length - 1;
     terminal.write(Ansi.setTitle('vid $path'));
     extensions?.notifyFileOpen(file);
@@ -260,7 +278,7 @@ class Editor {
     return '${idx + 1}$current$modified "$name"';
   }).toList();
 
-  void initTerminal(String? path) {
+  void _initTerminal(String? path) {
     terminal.rawMode = true;
 
     // Only auto-detect theme if user hasn't explicitly set one in config file
@@ -500,35 +518,15 @@ class Editor {
     // Ignore clicks on ~ lines (past end of file)
     if (rowInfo.lineNum < 0) return;
 
-    // Get line text and find byte offset for clicked column
-    final lineText = file.lineTextAt(rowInfo.lineNum);
-    final lineStart = rowInfo.lineStartByte;
-
     // screenCol + wrapCol gives the position within the full line
-    file.cursor = _screenColToOffset(
-      lineText,
-      lineStart,
+    file.cursor = file.screenColToOffset(
+      rowInfo.lineNum,
       rowInfo.wrapCol + screenCol,
+      config.tabWidth,
     );
     file.clampCursor();
 
     if (redraw) draw();
-  }
-
-  /// Convert screen column to byte offset within a line
-  int _screenColToOffset(String lineText, int lineStart, int screenCol) {
-    if (lineText.isEmpty) return lineStart;
-
-    int renderCol = 0;
-    int byteOffset = 0;
-
-    for (final char in lineText.characters) {
-      if (renderCol >= screenCol) break;
-      renderCol += char.charWidth(config.tabWidth);
-      byteOffset += char.length;
-    }
-
-    return lineStart + byteOffset;
   }
 
   /// Handle click on popup menu
@@ -633,7 +631,7 @@ class Editor {
     final path = file.absolutePath;
     if (path == null) return;
 
-    final loc = JumpLocation(path, file.cursor);
+    final loc = _JumpLocation(path, file.cursor);
 
     // Remove any forward history when pushing new location
     if (_jumpListIndex >= 0 && _jumpListIndex < _jumpList.length - 1) {
@@ -662,7 +660,7 @@ class Editor {
     if (_jumpListIndex == _jumpList.length - 1) {
       final path = file.absolutePath;
       if (path != null) {
-        final currentLoc = JumpLocation(path, file.cursor);
+        final currentLoc = _JumpLocation(path, file.cursor);
         if (_jumpList.isEmpty || _jumpList.last != currentLoc) {
           _jumpList.add(currentLoc);
           _jumpListIndex = _jumpList.length - 1;
@@ -690,7 +688,7 @@ class Editor {
     return false;
   }
 
-  void _goToJumpLocation(JumpLocation loc) {
+  void _goToJumpLocation(_JumpLocation loc) {
     // Switch to file if different
     if (file.absolutePath != loc.path) {
       final result = loadFile(loc.path);
@@ -703,16 +701,24 @@ class Editor {
 }
 
 /// A saved jump location (file + cursor position).
-class JumpLocation {
+class _JumpLocation {
   final String path;
   final int cursor;
 
-  JumpLocation(this.path, this.cursor);
+  const _JumpLocation(this.path, this.cursor);
 
   @override
   bool operator ==(Object other) =>
-      other is JumpLocation && other.path == path && other.cursor == cursor;
+      other is _JumpLocation && other.path == path && other.cursor == cursor;
 
   @override
   int get hashCode => Object.hash(path, cursor);
+}
+
+/// A parsed file argument from the command line.
+class _FileArg {
+  final String path;
+  final String? lineArg;
+
+  const _FileArg(this.path, this.lineArg);
 }

@@ -8,7 +8,7 @@ import '../file_buffer/file_buffer.dart';
 class InsertActions {
   /// Insert character(s) at cursor position.
   static void insert(Editor e, FileBuffer f, String s) {
-    f.insertAt(f.cursor, s, config: e.config, editor: e);
+    f.insertAt(f.cursor, s, config: e.config);
     f.cursor += s.length;
   }
 
@@ -80,7 +80,7 @@ class InsertActions {
       indent = getSmartIndent(e, f, f.cursor, fullLine: false);
     }
 
-    f.insertAt(f.cursor, Keys.newline + indent, config: e.config, editor: e);
+    f.insertAt(f.cursor, Keys.newline + indent, config: e.config);
     // Move cursor to start of next line (after indentation)
     f.cursor = f.lineEnd(f.cursor) + 1 + indent.length;
     if (f.cursor >= f.text.length) {
@@ -108,7 +108,7 @@ class InsertActions {
     if (f.cursor == 0) return;
     // Delete the character before cursor
     int prevPos = f.prevGrapheme(f.cursor);
-    f.replace(prevPos, f.cursor, '', config: e.config, editor: e);
+    f.replace(prevPos, f.cursor, '', config: e.config);
     f.cursor = prevPos;
   }
 }

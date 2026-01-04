@@ -18,7 +18,6 @@ extension FileBufferText on FileBuffer {
     String newText, {
     bool undo = true,
     Config? config,
-    Editor? editor,
   }) {
     assert(start <= end);
 
@@ -27,21 +26,22 @@ extension FileBufferText on FileBuffer {
 
     // protect final newline when deleting to end (unless preceded by newline)
     final len = text.length;
+    int actualEnd = end;
     if (end >= len && (start == 0 || text[start - 1] != '\n')) {
-      end = len - 1;
+      actualEnd = len - 1;
     }
 
     if (undo && config != null) {
       addUndo(
         start: start,
-        end: end,
+        end: actualEnd,
         newText: newText,
         cursorOffset: cursor,
         config: config,
       );
     }
 
-    updateText(start, end, newText, editor: editor);
+    updateText(start, actualEnd, newText);
   }
 
   // add an undo operation
@@ -74,39 +74,28 @@ extension FileBufferText on FileBuffer {
     // so we don't auto-yank here anymore.
   }
 
-  void replaceRange(
-    Range range,
-    String newText, {
-    Config? config,
-    Editor? editor,
-  }) {
+  void replaceRange(Range range, String newText, {Config? config}) {
     final Range r = range.norm;
-    replace(r.start, r.end, newText, config: config, editor: editor);
+    replace(r.start, r.end, newText, config: config);
   }
 
-  void deleteRange(Range range, {Config? config, Editor? editor}) {
-    replaceRange(range, '', config: config, editor: editor);
+  void deleteRange(Range range, {Config? config}) {
+    replaceRange(range, '', config: config);
   }
 
-  void insertAt(
-    int offset,
-    String str, {
-    bool undo = true,
-    Config? config,
-    Editor? editor,
-  }) {
-    replace(offset, offset, str, undo: undo, config: config, editor: editor);
+  void insertAt(int offset, String str, {bool undo = true, Config? config}) {
+    replace(offset, offset, str, undo: undo, config: config);
   }
 
-  void replaceAt(int offset, String str, {Config? config, Editor? editor}) {
+  void replaceAt(int offset, String str, {Config? config}) {
     // Replace one grapheme at offset
     int nextOffset = nextGrapheme(offset);
-    replace(offset, nextOffset, str, config: config, editor: editor);
+    replace(offset, nextOffset, str, config: config);
   }
 
-  void deleteAt(int offset, {Config? config, Editor? editor}) {
+  void deleteAt(int offset, {Config? config}) {
     int nextOffset = nextGrapheme(offset);
-    replace(offset, nextOffset, '', config: config, editor: editor);
+    replace(offset, nextOffset, '', config: config);
   }
 
   void yankRange(Editor e, Range range, {bool linewise = false}) {
@@ -117,18 +106,18 @@ extension FileBufferText on FileBuffer {
     );
   }
 
-  TextOp? undo({Editor? editor}) {
+  TextOp? undo() {
     if (undoList.isEmpty) return null;
     TextOp op = undoList.removeLast();
-    updateText(op.start, op.endNew, op.prevText, editor: editor);
+    updateText(op.start, op.endNew, op.prevText);
     redoList.add(op);
     return op;
   }
 
-  TextOp? redo({Editor? editor}) {
+  TextOp? redo() {
     if (redoList.isEmpty) return null;
     TextOp op = redoList.removeLast();
-    updateText(op.start, op.endPrev, op.newText, editor: editor);
+    updateText(op.start, op.endPrev, op.newText);
     undoList.add(op);
     return op;
   }

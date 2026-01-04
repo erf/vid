@@ -217,13 +217,7 @@ class LineEdit {
       if (match == null) {
         break;
       }
-      f.replace(
-        match.start,
-        match.end,
-        replacement,
-        config: e.config,
-        editor: e,
-      );
+      f.replace(match.start, match.end, replacement, config: e.config);
       f.cursor = match.start;
       f.clampCursor();
       if (!global) {

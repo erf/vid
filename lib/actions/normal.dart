@@ -38,7 +38,7 @@ class Normal {
       // Insert after the newline (at start of next line position)
       int insertPos = lineEndOffset + 1;
       if (insertPos > f.text.length) insertPos = f.text.length;
-      f.insertAt(insertPos, yank.text, config: e.config, editor: e);
+      f.insertAt(insertPos, yank.text, config: e.config);
       // Move cursor to start of pasted content
       f.cursor = insertPos;
       f.clampCursor();
@@ -46,16 +46,11 @@ class Normal {
       // Check if line is empty (only has trailing space/newline)
       String lineText = f.lineText(f.cursor);
       if (lineText.isEmpty || lineText == ' ') {
-        f.insertAt(
-          f.lineStart(f.cursor),
-          yank.text,
-          config: e.config,
-          editor: e,
-        );
+        f.insertAt(f.lineStart(f.cursor), yank.text, config: e.config);
       } else {
         // Paste after cursor
         int insertPos = f.nextGrapheme(f.cursor);
-        f.insertAt(insertPos, yank.text, config: e.config, editor: e);
+        f.insertAt(insertPos, yank.text, config: e.config);
         // Move cursor to end of pasted content (last char, not past it)
         f.cursor = insertPos + yank.text.length - 1;
         f.clampCursor();
@@ -69,11 +64,11 @@ class Normal {
     if (yank.linewise) {
       // Paste before current line
       int lineStartOffset = f.lineStart(f.cursor);
-      f.insertAt(lineStartOffset, yank.text, config: e.config, editor: e);
+      f.insertAt(lineStartOffset, yank.text, config: e.config);
       f.cursor = lineStartOffset;
     } else {
       // Paste at cursor position
-      f.insertAt(f.cursor, yank.text, config: e.config, editor: e);
+      f.insertAt(f.cursor, yank.text, config: e.config);
     }
   }
 
@@ -114,7 +109,7 @@ class Normal {
     }
 
     int lineStart = f.lineStart(f.cursor);
-    f.insertAt(lineStart, indent + Keys.newline, config: e.config, editor: e);
+    f.insertAt(lineStart, indent + Keys.newline, config: e.config);
     f.cursor = lineStart + indent.length;
     f.setMode(e, .insert);
   }
@@ -126,7 +121,7 @@ class Normal {
     }
 
     int lineEnd = f.lineEnd(f.cursor);
-    f.insertAt(lineEnd, Keys.newline + indent, config: e.config, editor: e);
+    f.insertAt(lineEnd, Keys.newline + indent, config: e.config);
     f.cursor = lineEnd + 1 + indent.length;
     f.setMode(e, .insert);
   }
@@ -145,7 +140,7 @@ class Normal {
 
   static void undo(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
-      TextOp? op = f.undo(editor: e);
+      TextOp? op = f.undo();
       if (op != null) {
         f.cursor = op.cursor;
         f.clampCursor();
@@ -156,7 +151,7 @@ class Normal {
 
   static void redo(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
-      TextOp? op = f.redo(editor: e);
+      TextOp? op = f.redo();
       if (op != null) {
         f.cursor = op.cursor;
         f.clampCursor();
@@ -200,7 +195,7 @@ class Normal {
 
     int matchStart = lineStartOffset + m.start;
     int matchEnd = lineStartOffset + m.end;
-    f.replace(matchStart, matchEnd, numstr, config: e.config, editor: e);
+    f.replace(matchStart, matchEnd, numstr, config: e.config);
     f.cursor = matchStart + numstr.length - 1;
   }
 

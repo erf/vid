@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
+import 'package:vid/string_ext.dart';
 
 import '../editor.dart';
 import '../modes.dart';
@@ -134,5 +135,23 @@ extension FileBufferNav on FileBuffer {
         break;
     }
     this.mode = mode;
+  }
+
+  /// Convert screen column to byte offset within a line
+  int screenColToOffset(int lineNum, int screenCol, int tabWidth) {
+    final lineText = lineTextAt(lineNum);
+    final lineStart = lineOffset(lineNum);
+    if (lineText.isEmpty) return lineStart;
+
+    int renderCol = 0;
+    int byteOffset = 0;
+
+    for (final char in lineText.characters) {
+      if (renderCol >= screenCol) break;
+      renderCol += char.charWidth(tabWidth).toInt();
+      byteOffset += char.length;
+    }
+
+    return lineStart + byteOffset;
   }
 }
