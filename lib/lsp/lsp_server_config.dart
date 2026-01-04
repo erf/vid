@@ -132,10 +132,8 @@ class LspServerRegistry {
     if (!dir.existsSync()) return null;
 
     for (final server in _servers.values) {
-      for (final marker in server.projectMarkers) {
-        if (File('$rootPath/$marker').existsSync()) {
-          return server;
-        }
+      if (_hasProjectMarker(dir, rootPath, server.projectMarkers)) {
+        return server;
       }
     }
     return null;
@@ -148,13 +146,41 @@ class LspServerRegistry {
 
     final results = <LspServerConfig>[];
     for (final server in _servers.values) {
-      for (final marker in server.projectMarkers) {
-        if (File('$rootPath/$marker').existsSync()) {
-          results.add(server);
-          break;
-        }
+      if (_hasProjectMarker(dir, rootPath, server.projectMarkers)) {
+        results.add(server);
       }
     }
     return results;
+  }
+
+  /// Check if any project marker exists in the directory.
+  /// Supports glob patterns like '*.xcworkspace'.
+  static bool _hasProjectMarker(
+    Directory dir,
+    String rootPath,
+    List<String> markers,
+  ) {
+    for (final marker in markers) {
+      if (marker.contains('*')) {
+        // Glob pattern - check directory entries
+        final suffix = marker.replaceFirst('*', '');
+        try {
+          for (final entity in dir.listSync()) {
+            final name = entity.path.split('/').last;
+            if (name.endsWith(suffix)) {
+              return true;
+            }
+          }
+        } catch (_) {
+          // Ignore permission errors etc.
+        }
+      } else {
+        // Exact file match
+        if (File('$rootPath/$marker').existsSync()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
