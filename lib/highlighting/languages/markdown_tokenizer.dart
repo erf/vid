@@ -33,7 +33,7 @@ class MarkdownTokenizer extends Tokenizer {
     // If starting inside a fenced code block, find its end
     if (state != null && !state.isComment) {
       final endPos = _findCodeFenceEnd(text, pos, end, state.delimiter!);
-      tokens.add(Token(TokenType.blockComment, pos, endPos));
+      tokens.add(Token(.blockComment, pos, endPos));
       pos = endPos;
       if (endPos < end && _consumedFence(text, endPos, state.delimiter!)) {
         state = null;
@@ -49,7 +49,7 @@ class MarkdownTokenizer extends Tokenizer {
           final lineEnd = findLineEnd(text, pos, end);
           // Find the closing fence
           final closePos = _findCodeFenceEnd(text, lineEnd + 1, end, fence);
-          tokens.add(Token(TokenType.blockComment, pos, closePos));
+          tokens.add(Token(.blockComment, pos, closePos));
           pos = closePos;
           if (closePos >= end || !_consumedFence(text, closePos, fence)) {
             state = Multiline(fence);
@@ -63,7 +63,7 @@ class MarkdownTokenizer extends Tokenizer {
         final headerMatch = _header.matchAsPrefix(text, pos);
         if (headerMatch != null) {
           final lineEnd = findLineEnd(text, pos, end);
-          tokens.add(Token(TokenType.keyword, pos, lineEnd));
+          tokens.add(Token(.keyword, pos, lineEnd));
           pos = lineEnd;
           continue;
         }
@@ -72,7 +72,7 @@ class MarkdownTokenizer extends Tokenizer {
         final quoteMatch = _blockquote.matchAsPrefix(text, pos);
         if (quoteMatch != null) {
           final lineEnd = findLineEnd(text, pos, end);
-          tokens.add(Token(TokenType.lineComment, pos, lineEnd));
+          tokens.add(Token(.lineComment, pos, lineEnd));
           pos = lineEnd;
           continue;
         }
@@ -80,7 +80,7 @@ class MarkdownTokenizer extends Tokenizer {
         // List items
         final listMatch = _listItem.matchAsPrefix(text, pos);
         if (listMatch != null) {
-          tokens.add(Token(TokenType.number, pos, listMatch.end));
+          tokens.add(Token(.number, pos, listMatch.end));
           pos = listMatch.end;
           continue;
         }
@@ -89,7 +89,7 @@ class MarkdownTokenizer extends Tokenizer {
       // Inline code (highest priority for inline elements)
       final codeMatch = _inlineCode.matchAsPrefix(text, pos);
       if (codeMatch != null) {
-        tokens.add(Token(TokenType.string, pos, codeMatch.end));
+        tokens.add(Token(.string, pos, codeMatch.end));
         pos = codeMatch.end;
         continue;
       }
@@ -97,7 +97,7 @@ class MarkdownTokenizer extends Tokenizer {
       // Bold
       final boldMatch = _bold.matchAsPrefix(text, pos);
       if (boldMatch != null) {
-        tokens.add(Token(TokenType.literal, pos, boldMatch.end));
+        tokens.add(Token(.literal, pos, boldMatch.end));
         pos = boldMatch.end;
         continue;
       }
@@ -105,7 +105,7 @@ class MarkdownTokenizer extends Tokenizer {
       // Links
       final linkMatch = _link.matchAsPrefix(text, pos);
       if (linkMatch != null) {
-        tokens.add(Token(TokenType.type, pos, linkMatch.end));
+        tokens.add(Token(.type, pos, linkMatch.end));
         pos = linkMatch.end;
         continue;
       }
@@ -113,7 +113,7 @@ class MarkdownTokenizer extends Tokenizer {
       // Italic
       final italicMatch = _italic.matchAsPrefix(text, pos);
       if (italicMatch != null) {
-        tokens.add(Token(TokenType.type, pos, italicMatch.end));
+        tokens.add(Token(.type, pos, italicMatch.end));
         pos = italicMatch.end;
         continue;
       }

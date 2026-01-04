@@ -279,7 +279,7 @@ class SwiftTokenizer extends Tokenizer {
     if (matchesAt(text, pos, '//')) {
       var end = text.indexOf('\n', pos);
       if (end == -1 || end > endByte) end = endByte;
-      return _TokenMatch(Token(TokenType.lineComment, pos, end), end, null);
+      return _TokenMatch(Token(.lineComment, pos, end), end, null);
     }
 
     // Block comment (nested)
@@ -288,16 +288,12 @@ class SwiftTokenizer extends Tokenizer {
       if (endIdx == -1) {
         // Unclosed - goes to end of range
         return _TokenMatch(
-          Token(TokenType.blockComment, pos, endByte),
+          Token(.blockComment, pos, endByte),
           endByte,
           Multiline.blockComment,
         );
       }
-      return _TokenMatch(
-        Token(TokenType.blockComment, pos, endIdx),
-        endIdx,
-        null,
-      );
+      return _TokenMatch(Token(.blockComment, pos, endIdx), endIdx, null);
     }
 
     // Multi-line string literals
@@ -308,17 +304,13 @@ class SwiftTokenizer extends Tokenizer {
     // Regular double-quoted strings
     final dbl = _doubleString.matchAsPrefix(text, pos);
     if (dbl != null) {
-      return _TokenMatch(Token(TokenType.string, pos, dbl.end), dbl.end, null);
+      return _TokenMatch(Token(.string, pos, dbl.end), dbl.end, null);
     }
 
     // Attributes (@main, @available, etc.)
     final attr = _attribute.matchAsPrefix(text, pos);
     if (attr != null) {
-      return _TokenMatch(
-        Token(TokenType.keyword, pos, attr.end),
-        attr.end,
-        null,
-      );
+      return _TokenMatch(Token(.keyword, pos, attr.end), attr.end, null);
     }
 
     // Compiler directives (#if, #else, #endif, #available, etc.)
@@ -328,7 +320,7 @@ class SwiftTokenizer extends Tokenizer {
       ).matchAsPrefix(text, pos);
       if (directiveMatch != null) {
         return _TokenMatch(
-          Token(TokenType.keyword, pos, directiveMatch.end),
+          Token(.keyword, pos, directiveMatch.end),
           directiveMatch.end,
           null,
         );
@@ -338,7 +330,7 @@ class SwiftTokenizer extends Tokenizer {
     // Numbers
     final num = _number.matchAsPrefix(text, pos);
     if (num != null) {
-      return _TokenMatch(Token(TokenType.number, pos, num.end), num.end, null);
+      return _TokenMatch(Token(.number, pos, num.end), num.end, null);
     }
 
     // Identifiers (keywords, literals, types)
@@ -347,13 +339,13 @@ class SwiftTokenizer extends Tokenizer {
       final word = ident.group(0)!;
       TokenType type;
       if (_keywords.contains(word)) {
-        type = TokenType.keyword;
+        type = .keyword;
       } else if (_literals.contains(word)) {
-        type = TokenType.literal;
+        type = .literal;
       } else if (_builtinTypes.contains(word) || _typePattern.hasMatch(word)) {
-        type = TokenType.type;
+        type = .type;
       } else {
-        type = TokenType.plain;
+        type = .plain;
       }
       return _TokenMatch(Token(type, pos, ident.end), ident.end, null);
     }
@@ -373,14 +365,14 @@ class SwiftTokenizer extends Tokenizer {
     if (endIdx == -1) {
       // Unclosed - goes to end of range
       return _TokenMatch(
-        Token(TokenType.string, pos, endByte),
+        Token(.string, pos, endByte),
         endByte,
         Multiline(delim, isRaw: false),
       );
     }
 
     final end = endIdx + 3;
-    return _TokenMatch(Token(TokenType.string, pos, end), end, null);
+    return _TokenMatch(Token(.string, pos, end), end, null);
   }
 
   int _findMultilineEnd(String text, int pos, int endByte, Multiline state) {

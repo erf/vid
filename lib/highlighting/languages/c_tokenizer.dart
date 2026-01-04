@@ -91,7 +91,7 @@ class CTokenizer extends Tokenizer {
     // If starting inside a block comment, find its end
     if (state != null) {
       final endPos = _findBlockCommentEnd(text, pos, end);
-      tokens.add(Token(TokenType.blockComment, pos, endPos));
+      tokens.add(Token(.blockComment, pos, endPos));
       pos = endPos;
       if (endPos < end && matchesAt(text, endPos - 2, '*/')) {
         state = null;
@@ -199,7 +199,7 @@ class CTokenizer extends Tokenizer {
     if (matchesAt(text, pos, '//')) {
       var end = text.indexOf('\n', pos);
       if (end == -1 || end > endByte) end = endByte;
-      return _TokenMatch(Token(TokenType.lineComment, pos, end), end, null);
+      return _TokenMatch(Token(.lineComment, pos, end), end, null);
     }
 
     // Block comment
@@ -207,13 +207,13 @@ class CTokenizer extends Tokenizer {
       final endIdx = text.indexOf('*/', pos + 2);
       if (endIdx == -1) {
         return _TokenMatch(
-          Token(TokenType.blockComment, pos, endByte),
+          Token(.blockComment, pos, endByte),
           endByte,
           Multiline.blockComment,
         );
       }
       final end = endIdx + 2;
-      return _TokenMatch(Token(TokenType.blockComment, pos, end), end, null);
+      return _TokenMatch(Token(.blockComment, pos, end), end, null);
     }
 
     // Preprocessor directive
@@ -233,25 +233,25 @@ class CTokenizer extends Tokenizer {
           break;
         }
       }
-      return _TokenMatch(Token(TokenType.macro, pos, end), end, null);
+      return _TokenMatch(Token(.macro, pos, end), end, null);
     }
 
     // String literal
     final str = _doubleString.matchAsPrefix(text, pos);
     if (str != null) {
-      return _TokenMatch(Token(TokenType.string, pos, str.end), str.end, null);
+      return _TokenMatch(Token(.string, pos, str.end), str.end, null);
     }
 
     // Character literal
     final chr = _charLiteral.matchAsPrefix(text, pos);
     if (chr != null) {
-      return _TokenMatch(Token(TokenType.string, pos, chr.end), chr.end, null);
+      return _TokenMatch(Token(.string, pos, chr.end), chr.end, null);
     }
 
     // Numbers
     final num = _number.matchAsPrefix(text, pos);
     if (num != null) {
-      return _TokenMatch(Token(TokenType.number, pos, num.end), num.end, null);
+      return _TokenMatch(Token(.number, pos, num.end), num.end, null);
     }
 
     // Identifiers (keywords, literals, types)
@@ -260,13 +260,13 @@ class CTokenizer extends Tokenizer {
       final word = ident.group(0)!;
       TokenType type;
       if (_keywords.contains(word)) {
-        type = TokenType.keyword;
+        type = .keyword;
       } else if (_literals.contains(word)) {
-        type = TokenType.literal;
+        type = .literal;
       } else if (_builtinTypes.contains(word)) {
-        type = TokenType.type;
+        type = .type;
       } else {
-        type = TokenType.plain;
+        type = .plain;
       }
       return _TokenMatch(Token(type, pos, ident.end), ident.end, null);
     }

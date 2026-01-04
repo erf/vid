@@ -159,14 +159,14 @@ class LuaTokenizer extends Tokenizer {
             // Unclosed block comment - extends to end
             // Use isRaw=true to indicate block comment
             return _MatchResult(
-              Token(TokenType.blockComment, pos, endByte),
+              Token(.blockComment, pos, endByte),
               endByte,
               Multiline(delimiter, isRaw: true),
             );
           }
           final tokenEnd = closePos + delimiter.length;
           return _MatchResult(
-            Token(TokenType.blockComment, pos, tokenEnd),
+            Token(.blockComment, pos, tokenEnd),
             tokenEnd,
             null,
           );
@@ -174,11 +174,7 @@ class LuaTokenizer extends Tokenizer {
       }
       // Regular line comment
       final lineEnd = findLineEnd(text, pos, text.length);
-      return _MatchResult(
-        Token(TokenType.lineComment, pos, lineEnd),
-        lineEnd,
-        null,
-      );
+      return _MatchResult(Token(.lineComment, pos, lineEnd), lineEnd, null);
     }
 
     // Long bracket string [[ or [=[
@@ -190,17 +186,13 @@ class LuaTokenizer extends Tokenizer {
         if (closePos == -1) {
           // Unclosed - extends to end
           return _MatchResult(
-            Token(TokenType.string, pos, endByte),
+            Token(.string, pos, endByte),
             endByte,
             Multiline(delimiter),
           );
         }
         final tokenEnd = closePos + delimiter.length;
-        return _MatchResult(
-          Token(TokenType.string, pos, tokenEnd),
-          tokenEnd,
-          null,
-        );
+        return _MatchResult(Token(.string, pos, tokenEnd), tokenEnd, null);
       }
     }
 
@@ -208,7 +200,7 @@ class LuaTokenizer extends Tokenizer {
     final dMatch = _doubleString.matchAsPrefix(text, pos);
     if (dMatch != null) {
       return _MatchResult(
-        Token(TokenType.string, dMatch.start, dMatch.end),
+        Token(.string, dMatch.start, dMatch.end),
         dMatch.end,
         null,
       );
@@ -218,7 +210,7 @@ class LuaTokenizer extends Tokenizer {
     final sMatch = _singleString.matchAsPrefix(text, pos);
     if (sMatch != null) {
       return _MatchResult(
-        Token(TokenType.string, sMatch.start, sMatch.end),
+        Token(.string, sMatch.start, sMatch.end),
         sMatch.end,
         null,
       );
@@ -228,7 +220,7 @@ class LuaTokenizer extends Tokenizer {
     final numMatch = _number.matchAsPrefix(text, pos);
     if (numMatch != null) {
       return _MatchResult(
-        Token(TokenType.number, numMatch.start, numMatch.end),
+        Token(.number, numMatch.start, numMatch.end),
         numMatch.end,
         null,
       );
@@ -240,13 +232,13 @@ class LuaTokenizer extends Tokenizer {
       final word = idMatch.group(0)!;
       TokenType type;
       if (_keywords.contains(word)) {
-        type = TokenType.keyword;
+        type = .keyword;
       } else if (_literals.contains(word)) {
-        type = TokenType.literal;
+        type = .literal;
       } else if (_builtinTypes.contains(word)) {
-        type = TokenType.type;
+        type = .type;
       } else {
-        type = TokenType.plain;
+        type = .plain;
       }
       return _MatchResult(
         Token(type, idMatch.start, idMatch.end),

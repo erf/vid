@@ -240,7 +240,7 @@ class DartTokenizer extends Tokenizer {
     if (matchesAt(text, pos, '//')) {
       var end = text.indexOf('\n', pos);
       if (end == -1 || end > endByte) end = endByte;
-      return _TokenMatch(Token(TokenType.lineComment, pos, end), end, null);
+      return _TokenMatch(Token(.lineComment, pos, end), end, null);
     }
 
     // Block comment
@@ -249,13 +249,13 @@ class DartTokenizer extends Tokenizer {
       if (endIdx == -1) {
         // Unclosed - goes to end of range
         return _TokenMatch(
-          Token(TokenType.blockComment, pos, endByte),
+          Token(.blockComment, pos, endByte),
           endByte,
           Multiline.blockComment,
         );
       }
       final end = endIdx + 2;
-      return _TokenMatch(Token(TokenType.blockComment, pos, end), end, null);
+      return _TokenMatch(Token(.blockComment, pos, end), end, null);
     }
 
     // Raw triple-quoted strings
@@ -277,35 +277,27 @@ class DartTokenizer extends Tokenizer {
     // Raw single-line strings
     final rawDbl = _rawDoubleString.matchAsPrefix(text, pos);
     if (rawDbl != null) {
-      return _TokenMatch(
-        Token(TokenType.string, pos, rawDbl.end),
-        rawDbl.end,
-        null,
-      );
+      return _TokenMatch(Token(.string, pos, rawDbl.end), rawDbl.end, null);
     }
     final rawSgl = _rawSingleString.matchAsPrefix(text, pos);
     if (rawSgl != null) {
-      return _TokenMatch(
-        Token(TokenType.string, pos, rawSgl.end),
-        rawSgl.end,
-        null,
-      );
+      return _TokenMatch(Token(.string, pos, rawSgl.end), rawSgl.end, null);
     }
 
     // Regular strings
     final dbl = _doubleString.matchAsPrefix(text, pos);
     if (dbl != null) {
-      return _TokenMatch(Token(TokenType.string, pos, dbl.end), dbl.end, null);
+      return _TokenMatch(Token(.string, pos, dbl.end), dbl.end, null);
     }
     final sgl = _singleString.matchAsPrefix(text, pos);
     if (sgl != null) {
-      return _TokenMatch(Token(TokenType.string, pos, sgl.end), sgl.end, null);
+      return _TokenMatch(Token(.string, pos, sgl.end), sgl.end, null);
     }
 
     // Numbers
     final num = _number.matchAsPrefix(text, pos);
     if (num != null) {
-      return _TokenMatch(Token(TokenType.number, pos, num.end), num.end, null);
+      return _TokenMatch(Token(.number, pos, num.end), num.end, null);
     }
 
     // Identifiers (keywords, literals, types)
@@ -314,13 +306,13 @@ class DartTokenizer extends Tokenizer {
       final word = ident.group(0)!;
       TokenType type;
       if (_keywords.contains(word)) {
-        type = TokenType.keyword;
+        type = .keyword;
       } else if (_literals.contains(word)) {
-        type = TokenType.literal;
+        type = .literal;
       } else if (_builtinTypes.contains(word) || _typePattern.hasMatch(word)) {
-        type = TokenType.type;
+        type = .type;
       } else {
-        type = TokenType.plain;
+        type = .plain;
       }
       return _TokenMatch(Token(type, pos, ident.end), ident.end, null);
     }
@@ -342,14 +334,14 @@ class DartTokenizer extends Tokenizer {
     if (endIdx == -1) {
       // Unclosed - goes to end of range
       return _TokenMatch(
-        Token(TokenType.string, start, endByte),
+        Token(.string, start, endByte),
         endByte,
         Multiline(delim, isRaw: raw),
       );
     }
 
     final end = endIdx + 3;
-    return _TokenMatch(Token(TokenType.string, start, end), end, null);
+    return _TokenMatch(Token(.string, start, end), end, null);
   }
 
   int _findMultilineEnd(String text, int pos, int endByte, Multiline state) {

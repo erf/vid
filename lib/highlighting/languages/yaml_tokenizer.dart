@@ -52,7 +52,7 @@ class YamlTokenizer extends Tokenizer {
         final match = _lineComment.matchAsPrefix(text, pos);
         if (match != null) {
           final endPos = match.end > end ? end : match.end;
-          tokens.add(Token(TokenType.lineComment, pos, endPos));
+          tokens.add(Token(.lineComment, pos, endPos));
           pos = endPos;
           continue;
         }
@@ -63,7 +63,7 @@ class YamlTokenizer extends Tokenizer {
         final match = _directive.matchAsPrefix(text, pos);
         if (match != null) {
           final endPos = match.end > end ? end : match.end;
-          tokens.add(Token(TokenType.keyword, pos, endPos));
+          tokens.add(Token(.keyword, pos, endPos));
           pos = endPos;
           continue;
         }
@@ -74,7 +74,7 @@ class YamlTokenizer extends Tokenizer {
         final match = _listItem.matchAsPrefix(text, pos);
         if (match != null) {
           // Just highlight the dash
-          tokens.add(Token(TokenType.number, pos, pos + 1));
+          tokens.add(Token(.number, pos, pos + 1));
           pos++;
           continue;
         }
@@ -84,7 +84,7 @@ class YamlTokenizer extends Tokenizer {
       if (text[pos] == '|' || text[pos] == '>') {
         final match = _blockScalar.matchAsPrefix(text, pos);
         if (match != null) {
-          tokens.add(Token(TokenType.keyword, pos, match.end));
+          tokens.add(Token(.keyword, pos, match.end));
           pos = match.end;
           continue;
         }
@@ -94,7 +94,7 @@ class YamlTokenizer extends Tokenizer {
       if (text[pos] == '"') {
         final match = _doubleString.matchAsPrefix(text, pos);
         if (match != null) {
-          tokens.add(Token(TokenType.string, pos, match.end));
+          tokens.add(Token(.string, pos, match.end));
           pos = match.end;
           continue;
         }
@@ -104,7 +104,7 @@ class YamlTokenizer extends Tokenizer {
       if (text[pos] == "'") {
         final match = _singleString.matchAsPrefix(text, pos);
         if (match != null) {
-          tokens.add(Token(TokenType.string, pos, match.end));
+          tokens.add(Token(.string, pos, match.end));
           pos = match.end;
           continue;
         }
@@ -114,7 +114,7 @@ class YamlTokenizer extends Tokenizer {
       if (text[pos] == '&' || text[pos] == '*') {
         final match = _anchor.matchAsPrefix(text, pos);
         if (match != null) {
-          tokens.add(Token(TokenType.type, pos, match.end));
+          tokens.add(Token(.type, pos, match.end));
           pos = match.end;
           continue;
         }
@@ -124,7 +124,7 @@ class YamlTokenizer extends Tokenizer {
       if (text[pos] == '!') {
         final match = _tag.matchAsPrefix(text, pos);
         if (match != null) {
-          tokens.add(Token(TokenType.type, pos, match.end));
+          tokens.add(Token(.type, pos, match.end));
           pos = match.end;
           continue;
         }
@@ -133,7 +133,7 @@ class YamlTokenizer extends Tokenizer {
       // Literal (boolean, null)
       final literalMatch = _literal.matchAsPrefix(text, pos);
       if (literalMatch != null) {
-        tokens.add(Token(TokenType.literal, pos, literalMatch.end));
+        tokens.add(Token(.literal, pos, literalMatch.end));
         pos = literalMatch.end;
         continue;
       }
@@ -141,7 +141,7 @@ class YamlTokenizer extends Tokenizer {
       // Number
       final numMatch = _number.matchAsPrefix(text, pos);
       if (numMatch != null) {
-        tokens.add(Token(TokenType.number, pos, numMatch.end));
+        tokens.add(Token(.number, pos, numMatch.end));
         pos = numMatch.end;
         continue;
       }
@@ -149,7 +149,7 @@ class YamlTokenizer extends Tokenizer {
       // Key (identifier before colon)
       final keyMatch = _key.matchAsPrefix(text, pos);
       if (keyMatch != null) {
-        tokens.add(Token(TokenType.keyword, pos, keyMatch.end));
+        tokens.add(Token(.keyword, pos, keyMatch.end));
         pos = keyMatch.end;
         continue;
       }

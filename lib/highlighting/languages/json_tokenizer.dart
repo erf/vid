@@ -45,7 +45,7 @@ class JsonTokenizer extends Tokenizer {
           // This is a key - find just the string part
           final stringMatch = _string.matchAsPrefix(text, pos);
           if (stringMatch != null) {
-            tokens.add(Token(TokenType.keyword, pos, stringMatch.end));
+            tokens.add(Token(.keyword, pos, stringMatch.end));
             pos = stringMatch.end;
             continue;
           }
@@ -54,7 +54,7 @@ class JsonTokenizer extends Tokenizer {
         // Regular string value
         final stringMatch = _string.matchAsPrefix(text, pos);
         if (stringMatch != null) {
-          tokens.add(Token(TokenType.string, pos, stringMatch.end));
+          tokens.add(Token(.string, pos, stringMatch.end));
           pos = stringMatch.end;
           continue;
         }
@@ -63,7 +63,7 @@ class JsonTokenizer extends Tokenizer {
       // Literal (boolean, null)
       final literalMatch = _literal.matchAsPrefix(text, pos);
       if (literalMatch != null) {
-        tokens.add(Token(TokenType.literal, pos, literalMatch.end));
+        tokens.add(Token(.literal, pos, literalMatch.end));
         pos = literalMatch.end;
         continue;
       }
@@ -73,7 +73,7 @@ class JsonTokenizer extends Tokenizer {
           (char.codeUnitAt(0) >= 0x30 && char.codeUnitAt(0) <= 0x39)) {
         final numMatch = _number.matchAsPrefix(text, pos);
         if (numMatch != null) {
-          tokens.add(Token(TokenType.number, pos, numMatch.end));
+          tokens.add(Token(.number, pos, numMatch.end));
           pos = numMatch.end;
           continue;
         }
