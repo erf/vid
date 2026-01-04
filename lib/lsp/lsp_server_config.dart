@@ -24,6 +24,10 @@ class LspServerConfig {
   /// Whether this server supports semantic tokens.
   final bool supportsSemanticTokens;
 
+  /// Whether to prefer built-in syntax highlighting over LSP semantic tokens.
+  /// Useful when the built-in highlighter produces better results.
+  final bool preferBuiltInHighlighting;
+
   const LspServerConfig({
     required this.name,
     required this.executable,
@@ -32,6 +36,7 @@ class LspServerConfig {
     required this.languageIds,
     required this.projectMarkers,
     this.supportsSemanticTokens = false,
+    this.preferBuiltInHighlighting = false,
   });
 
   /// Check if this server handles a given file extension.
@@ -114,6 +119,7 @@ class LspServerRegistry {
       '*.xcodeproj',
     ],
     supportsSemanticTokens: true,
+    preferBuiltInHighlighting: true,
   );
 
   /// Get all registered server configurations.
@@ -141,6 +147,36 @@ class LspServerRegistry {
       }
     }
     return null;
+  }
+
+  /// Get language ID from file path based on registered server configs.
+  /// Falls back to common language mappings for non-LSP languages.
+  static String languageIdFromPath(String path) {
+    final ext = path.split('.').last.toLowerCase();
+
+    // Check registered LSP servers first
+    for (final server in _servers.values) {
+      if (server.extensions.contains(ext)) {
+        return server.languageIds.first;
+      }
+    }
+
+    // Fallback for languages without LSP config
+    return switch (ext) {
+      'js' => 'javascript',
+      'ts' => 'typescript',
+      'json' => 'json',
+      'yaml' || 'yml' => 'yaml',
+      'md' => 'markdown',
+      'html' => 'html',
+      'css' => 'css',
+      'py' => 'python',
+      'rs' => 'rust',
+      'go' => 'go',
+      'java' => 'java',
+      'kt' => 'kotlin',
+      _ => 'plaintext',
+    };
   }
 
   /// Detect which server to use based on project files in a directory.

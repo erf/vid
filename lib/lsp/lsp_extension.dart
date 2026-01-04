@@ -39,8 +39,11 @@ class LspExtension extends Extension {
   LspProtocol? get protocol => _protocol;
   bool get isConnected => _client?.isConnected ?? false;
 
-  /// Whether semantic tokens are available.
-  bool get supportsSemanticTokens => _client?.supportsSemanticTokens ?? false;
+  /// Whether semantic tokens are available and should be used.
+  /// Returns false if the server prefers built-in highlighting.
+  bool get supportsSemanticTokens =>
+      (_client?.supportsSemanticTokens ?? false) &&
+      !(_client?.serverConfig?.preferBuiltInHighlighting ?? false);
 
   /// Get cached semantic tokens for a file.
   List<SemanticToken> getSemanticTokens(String? uri) {

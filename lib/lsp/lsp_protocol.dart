@@ -1,6 +1,7 @@
 import 'package:vid/highlighting/token.dart';
 
 import 'lsp_client.dart';
+import 'lsp_server_config.dart';
 
 /// High-level LSP protocol operations built on LspClient.
 class LspProtocol {
@@ -550,30 +551,9 @@ String? getDiagnosticsUri(Map<String, dynamic> params) {
 }
 
 /// Detect language ID from file extension.
-String languageIdFromPath(String path) {
-  final ext = path.split('.').last.toLowerCase();
-  return switch (ext) {
-    'dart' => 'dart',
-    'lua' => 'lua',
-    'js' => 'javascript',
-    'ts' => 'typescript',
-    'json' => 'json',
-    'yaml' || 'yml' => 'yaml',
-    'md' => 'markdown',
-    'html' => 'html',
-    'css' => 'css',
-    'py' => 'python',
-    'rs' => 'rust',
-    'go' => 'go',
-    'java' => 'java',
-    'kt' => 'kotlin',
-    'swift' => 'swift',
-    'c' => 'c',
-    'cpp' || 'cc' || 'cxx' => 'cpp',
-    'h' || 'hpp' => 'cpp',
-    _ => 'plaintext',
-  };
-}
+/// Delegates to [LspServerRegistry.languageIdFromPath].
+String languageIdFromPath(String path) =>
+    LspServerRegistry.languageIdFromPath(path);
 
 /// A semantic token from LSP with absolute position.
 class SemanticToken {
