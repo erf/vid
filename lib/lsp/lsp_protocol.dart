@@ -567,6 +567,7 @@ String languageIdFromPath(String path) {
     'go' => 'go',
     'java' => 'java',
     'kt' => 'kotlin',
+    'swift' => 'swift',
     'c' => 'c',
     'cpp' || 'cc' || 'cxx' => 'cpp',
     'h' || 'hpp' => 'cpp',
