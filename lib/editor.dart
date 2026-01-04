@@ -30,25 +30,12 @@ import 'range.dart';
 import 'string_ext.dart';
 
 class Editor {
+  // Instance fields
   Config config;
   final TerminalBase terminal;
   final bool redraw;
   final List<FileBuffer> _buffers = [];
   int _currentBufferIndex = 0;
-  FileBuffer get file =>
-      _buffers.isEmpty ? _emptyBuffer : _buffers[_currentBufferIndex];
-  set file(FileBuffer buffer) {
-    if (_buffers.isEmpty) {
-      _buffers.add(buffer);
-    } else {
-      _buffers[_currentBufferIndex] = buffer;
-    }
-  }
-
-  List<FileBuffer> get buffers => _buffers; // Expose for extensions
-  static final _emptyBuffer = FileBuffer(); // Fallback for empty buffer list
-  int get bufferCount => _buffers.length;
-  int get currentBufferIndex => _currentBufferIndex;
   YankBuffer? yankBuffer; // Shared across all buffers
   Message? message;
   Timer? messageTimer;
@@ -68,7 +55,26 @@ class Editor {
   /// Jump list for Ctrl-o navigation (stores file path + cursor offset)
   final List<JumpLocation> _jumpList = [];
   int _jumpListIndex = -1;
+
+  // Static fields
+  static final _emptyBuffer = FileBuffer(); // Fallback for empty buffer list
   static const _maxJumpListSize = 100;
+
+  // Getters and setters
+  FileBuffer get file =>
+      _buffers.isEmpty ? _emptyBuffer : _buffers[_currentBufferIndex];
+
+  set file(FileBuffer buffer) {
+    if (_buffers.isEmpty) {
+      _buffers.add(buffer);
+    } else {
+      _buffers[_currentBufferIndex] = buffer;
+    }
+  }
+
+  List<FileBuffer> get buffers => _buffers; // Expose for extensions
+  int get bufferCount => _buffers.length;
+  int get currentBufferIndex => _currentBufferIndex;
 
   Editor({
     required this.terminal,
