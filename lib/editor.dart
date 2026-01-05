@@ -15,7 +15,6 @@ import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
 import 'package:vid/yank_buffer.dart';
 
-import 'actions/operators.dart';
 import 'bindings.dart';
 import 'commands/command.dart';
 import 'config.dart';
@@ -24,7 +23,6 @@ import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
-import 'motions/motion.dart';
 import 'range.dart';
 
 class Editor {
@@ -584,42 +582,71 @@ class Editor {
     }
   }
 
-  // execute operator on motion range count times
+  /// Execute an edit operation (motion with optional operator).
+  ///
+  /// Runs the motion [edit.count] times to calculate the affected range,
+  /// then either moves the cursor (no operator) or applies the operator
+  /// to the range.
   void commitEdit(EditOperation edit) {
-    Motion motion = edit.motion;
-    file.edit.linewise = motion.linewise;
-    // Copy findStr from edit to builder for motions that need it (like find char)
+    final motion = edit.motion;
+    final op = edit.op;
+    final linewise = motion.linewise;
+
+    // Set findStr on builder for motions like f/t that need it.
+    // Motions may also write to this during execution (capturing char for repeat).
     file.edit.findStr = edit.findStr;
-    OperatorFunction? op = edit.op;
-    int start = file.cursor;
-    int end = file.cursor;
+
+    // Calculate the end position by running motion count times
+    final start = file.cursor;
+    var end = start;
     for (int i = 0; i < edit.count; i++) {
-      end = motion.run(this, file, end, op: op != null);
+      end = motion.run(this, file, end);
     }
+
     if (op == null) {
+      // No operator - just move cursor to end of motion
       file.cursor = end;
     } else {
-      if (motion.linewise) {
-        final r = Range(start, end).norm;
-        // Expand to full lines for linewise operations
-        int startLineNum = file.lineNumber(r.start);
-        int endLineNum = file.lineNumber(r.end);
-        start = file.lines[startLineNum].start;
-        end = file.lines[endLineNum].end + 1; // Include the newline
-        if (end > file.text.length) end = file.text.length;
+      // For inclusive motions, extend end to include the character under cursor
+      if (motion.inclusive && end < file.text.length) {
+        end = file.nextGrapheme(end);
       }
-      op(this, file, Range(start, end).norm);
 
-      if (motion.linewise) {
-        file.cursor = start; // start is already the line start
+      // Apply operator to the normalized range
+      var range = Range(start, end).norm;
+      if (linewise) {
+        range = _expandToFullLines(range);
+      }
+      op(this, file, range, linewise: linewise);
+
+      // For linewise operations, move cursor to start of affected range
+      if (linewise) {
+        file.cursor = range.start;
         file.clampCursor();
       }
     }
-    // Save for repeat (motion may have updated findStr on builder)
-    if (edit.canRepeatWithDot || file.edit.findStr != null) {
-      file.prevEdit = edit.copyWith(findStr: file.edit.findStr);
-    }
+
+    _saveForRepeat(edit);
     file.edit.reset();
+  }
+
+  /// Expand range to include full lines (for linewise operations).
+  Range _expandToFullLines(Range range) {
+    final startLineNum = file.lineNumber(range.start);
+    final endLineNum = file.lineNumber(range.end);
+    final start = file.lines[startLineNum].start;
+    var end = file.lines[endLineNum].end + 1; // Include the newline
+    if (end > file.text.length) end = file.text.length;
+    return Range(start, end);
+  }
+
+  /// Save the edit for repeat with `.` command if applicable.
+  void _saveForRepeat(EditOperation edit) {
+    // Motions like f/t capture a find string during execution for repeat
+    final capturedFindStr = file.edit.findStr;
+    if (edit.canRepeatWithDot || capturedFindStr != null) {
+      file.prevEdit = edit.copyWith(findStr: capturedFindStr);
+    }
   }
 
   void setWrapMode(WrapMode wrapMode) {

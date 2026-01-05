@@ -129,45 +129,44 @@ class Motions {
   // ===== Motion functions =====
 
   /// Move to next character (l)
-  static int charNext(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  static int charNext(Editor e, FileBuffer f, int offset) {
     int next = f.nextGrapheme(offset);
     if (next >= f.text.length) return offset;
     return next;
   }
 
   /// Move to previous character (h)
-  static int charPrev(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  static int charPrev(Editor e, FileBuffer f, int offset) {
     if (offset <= 0) return 0;
     return f.prevGrapheme(offset);
   }
 
-  /// Move to next line (j) - linewise, inclusive
-  static int lineDown(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  /// Move to next line (j) - linewise
+  static int lineDown(Editor e, FileBuffer f, int offset) {
     int currentLine = f.lineNumber(offset);
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
     return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine + 1);
   }
 
-  /// Move to previous line (k) - linewise, inclusive
-  static int lineUp(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  /// Move to previous line (k) - linewise
+  static int lineUp(Editor e, FileBuffer f, int offset) {
     int currentLine = f.lineNumber(offset);
     if (currentLine == 0) return offset;
     return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine - 1);
   }
 
   /// Move to start of line (0)
-  static int lineStart(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  static int lineStart(Editor e, FileBuffer f, int offset) {
     return f.lineStart(offset);
   }
 
   /// Move to end of line ($) - inclusive
-  static int lineEnd(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  /// Returns the last character position (before newline).
+  static int lineEnd(Editor e, FileBuffer f, int offset) {
     int lineNum = f.lineNumber(offset);
     int lineEndOff = f.lines[lineNum].end;
-    // For inclusive operator mode, include the newline
-    if (op) return lineEndOff;
-    // Otherwise, go to last char before newline (or stay at lineStart if empty line)
+    // Go to last char before newline (or stay if empty line)
     if (lineEndOff > f.lines[lineNum].start) {
       return f.prevGrapheme(lineEndOff);
     }
@@ -175,12 +174,7 @@ class Motions {
   }
 
   /// Move to first non-blank character (^) - linewise
-  static int firstNonBlank(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int firstNonBlank(Editor e, FileBuffer f, int offset) {
     int lineNum = f.lineNumber(offset);
     int lineStartOff = f.lines[lineNum].start;
     String lineText = f.lineTextAt(lineNum);
@@ -191,32 +185,32 @@ class Motions {
   }
 
   /// Move to next word (w)
-  static int wordNext(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  static int wordNext(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.word);
   }
 
   /// Move to previous word (b)
-  static int wordPrev(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  static int wordPrev(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.word);
   }
 
   /// Move to end of word (e) - inclusive
-  static int wordEnd(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  /// Returns the position of the last character of the word.
+  static int wordEnd(Editor e, FileBuffer f, int offset) {
     final matches = Regex.word.allMatches(f.text, offset);
     if (matches.isEmpty) return offset;
     final match = matches.firstWhere(
       (m) => offset < m.end - 1,
       orElse: () => matches.first,
     );
-    return match.end - (op ? 0 : 1);
+    return match.end - 1; // Position ON the last char
   }
 
-  /// Move to end of previous word (ge)
+  /// Move to end of previous word (ge) - inclusive
   static int wordEndPrev(
     Editor e,
     FileBuffer f,
     int offset, {
-    bool op = false,
     int chunkSize = 1000,
   }) {
     int searchStart = max(0, offset - chunkSize);
@@ -237,79 +231,51 @@ class Motions {
   }
 
   /// Move to next WORD (W)
-  static int wordCapNext(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int wordCapNext(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.wordCap);
   }
 
   /// Move to previous WORD (B)
-  static int wordCapPrev(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int wordCapPrev(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.wordCap);
   }
 
-  /// Move to start of file or line number (gg) - linewise, inclusive
-  static int fileStart(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  /// Move to start of file or line number (gg) - linewise
+  static int fileStart(Editor e, FileBuffer f, int offset) {
     int targetLine = 0;
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
     int lineStartOff = f.lineOffset(targetLine);
-    return firstNonBlank(e, f, lineStartOff, op: op);
+    return firstNonBlank(e, f, lineStartOff);
   }
 
-  /// Move to end of file or line number (G) - linewise, inclusive
-  static int fileEnd(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  /// Move to end of file or line number (G) - linewise
+  static int fileEnd(Editor e, FileBuffer f, int offset) {
     int targetLine = f.totalLines - 1;
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
     int lineStartOff = f.lineOffset(targetLine);
-    return firstNonBlank(e, f, lineStartOff, op: op);
+    return firstNonBlank(e, f, lineStartOff);
   }
 
   /// Find next character (f) - inclusive
-  static int findNextChar(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  /// Returns the position of the matched character.
+  static int findNextChar(Editor e, FileBuffer f, int offset) {
     f.edit.findStr = f.edit.findStr ?? f.readNextChar();
-    int matchPos = regexNext(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
-    if (op) {
-      matchPos = f.nextGrapheme(matchPos);
-    }
-    return matchPos;
+    return regexNext(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
   }
 
-  /// Find previous character (F)
-  static int findPrevChar(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  /// Find previous character (F) - inclusive
+  static int findPrevChar(Editor e, FileBuffer f, int offset) {
     f.edit.findStr = f.edit.findStr ?? f.readNextChar();
     return regexPrev(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
   }
 
-  /// Find till next character (t) - stops one before
-  static int findTillNextChar(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
-    final next = findNextChar(e, f, offset, op: op);
+  /// Find till next character (t) - inclusive, stops one before
+  static int findTillNextChar(Editor e, FileBuffer f, int offset) {
+    final next = findNextChar(e, f, offset);
     // Move back one grapheme, but not past original position
     if (next > offset) {
       return max(f.prevGrapheme(next), offset);
@@ -317,14 +283,9 @@ class Motions {
     return next;
   }
 
-  /// Find till previous character (T) - stops one after
-  static int findTillPrevChar(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
-    final prev = findPrevChar(e, f, offset, op: op);
+  /// Find till previous character (T) - inclusive, stops one after
+  static int findTillPrevChar(Editor e, FileBuffer f, int offset) {
+    final prev = findPrevChar(e, f, offset);
     // Move forward one grapheme, but not past original position
     if (prev < offset) {
       return min(f.nextGrapheme(prev), offset);
@@ -333,52 +294,27 @@ class Motions {
   }
 
   /// Move to next paragraph ({)
-  static int paragraphNext(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int paragraphNext(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.paragraph);
   }
 
   /// Move to previous paragraph (})
-  static int paragraphPrev(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int paragraphPrev(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.paragraphPrev);
   }
 
   /// Move to next sentence ())
-  static int sentenceNext(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int sentenceNext(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.sentence);
   }
 
   /// Move to previous sentence (()
-  static int sentencePrev(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int sentencePrev(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.sentence);
   }
 
   /// Move to next same word (*)
-  static int sameWordNext(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int sameWordNext(Editor e, FileBuffer f, int offset) {
     final result = matchCursorWord(f, offset, forward: true);
     if (result == null) return offset;
     final (destOffset, word) = result;
@@ -387,12 +323,7 @@ class Motions {
   }
 
   /// Move to previous same word (#)
-  static int sameWordPrev(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    bool op = false,
-  }) {
+  static int sameWordPrev(Editor e, FileBuffer f, int offset) {
     final result = matchCursorWord(f, offset, forward: false);
     if (result == null) return offset;
     final (destOffset, word) = result;
@@ -401,7 +332,7 @@ class Motions {
   }
 
   /// Linewise motion for same-line operators (dd, yy, cc)
-  static int linewise(Editor e, FileBuffer f, int offset, {bool op = true}) {
+  static int linewise(Editor e, FileBuffer f, int offset) {
     int lineNum = f.lineNumber(offset);
     int lineEndOff = f.lines[lineNum].end;
     int lineStartOff = f.lines[lineNum].start;
@@ -418,7 +349,7 @@ class Motions {
   }
 
   /// Search next (n)
-  static int searchNext(Editor e, FileBuffer f, int offset, {bool op = false}) {
+  static int searchNext(Editor e, FileBuffer f, int offset) {
     final String pattern = f.edit.findStr ?? '';
     return regexNext(f, offset, RegExp(RegExp.escape(pattern)), skip: 1);
   }
