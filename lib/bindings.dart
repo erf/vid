@@ -68,7 +68,7 @@ const insertBindings = <String, Command>{
 };
 const insertFallback = InputCommand(InsertActions.insert);
 
-const replaceBindings = <String, Command>{};
+const replaceBindings = <String, Command>{Keys.escape: ModeCommand(.normal)};
 const replaceFallback = InputCommand(ReplaceActions.replace);
 
 const countCommands = <String, Command>{
