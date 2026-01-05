@@ -9,9 +9,9 @@ import 'package:yaml/yaml.dart';
 /// Loads configuration from YAML files at standard paths.
 ///
 /// Search order (first found wins):
-/// 1. `./vid.yaml` (local project config)
+/// 1. `./config.yaml` (local project config)
 /// 2. `$XDG_CONFIG_HOME/vid/config.yaml`
-/// 3. `$HOME/.config/vid/config.yaml`
+/// 3. `~/.config/vid/config.yaml`
 class ConfigLoader {
   /// The name of the config file to search for.
   static const String configFileName = 'config.yaml';
@@ -24,7 +24,7 @@ class ConfigLoader {
     final paths = <String>[];
 
     // 1. Local project config
-    paths.add('${Directory.current.path}/vid.yaml');
+    paths.add('${Directory.current.path}/$configFileName');
 
     // 2. XDG_CONFIG_HOME
     final xdgConfigHome = Platform.environment['XDG_CONFIG_HOME'];

@@ -33,7 +33,7 @@ This compiles vid to a native executable at `build/vid` and copies it to `~/bin/
 
 vid loads configuration from YAML files at the following locations (first found wins):
 
-1. `./vid.yaml` — local project config
+1. `./config.yaml` — local project config
 2. `$XDG_CONFIG_HOME/vid/config.yaml`
 3. `~/.config/vid/config.yaml`
 
@@ -50,7 +50,7 @@ All settings are optional — missing values use sensible defaults. See [config.
 
 vid includes built-in support for several language servers (Dart, Lua, clangd, Swift). You can customize or extend LSP support via a separate YAML file:
 
-1. `./vid_lsp.yaml` — local project config
+1. `./lsp_servers.yaml` — local project config
 2. `$XDG_CONFIG_HOME/vid/lsp_servers.yaml`
 3. `~/.config/vid/lsp_servers.yaml`
 

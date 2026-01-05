@@ -24,7 +24,7 @@ class LspConfig {
 /// Loads LSP server configuration from YAML files at standard paths.
 ///
 /// Search order (first found wins):
-/// 1. `./vid_lsp.yaml` (local project config)
+/// 1. `./lsp_servers.yaml` (local project config)
 /// 2. `$XDG_CONFIG_HOME/vid/lsp_servers.yaml`
 /// 3. `$HOME/.config/vid/lsp_servers.yaml`
 ///
@@ -41,7 +41,7 @@ class LspConfigLoader {
     final paths = <String>[];
 
     // 1. Local project config
-    paths.add('${Directory.current.path}/vid_lsp.yaml');
+    paths.add('${Directory.current.path}/$configFileName');
 
     // 2. XDG_CONFIG_HOME
     final xdgConfigHome = Platform.environment['XDG_CONFIG_HOME'];

@@ -2,7 +2,7 @@
 #
 # This file configures Language Server Protocol (LSP) support.
 # Copy this file to one of these locations:
-#   - ./vid_lsp.yaml (project-local)
+#   - ./lsp_servers.yaml (project-local)
 #   - $XDG_CONFIG_HOME/vid/lsp_servers.yaml
 #   - ~/.config/vid/lsp_servers.yaml
 

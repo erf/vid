@@ -1,7 +1,7 @@
 # vid configuration file
 #
 # Place this file in one of the following locations (searched in order):
-#   1. ./vid.yaml (local project config)
+#   1. ./config.yaml (local project config)
 #   2. $XDG_CONFIG_HOME/vid/config.yaml
 #   3. ~/.config/vid/config.yaml
 #
