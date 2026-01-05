@@ -81,9 +81,6 @@ class MotionCommand extends Command {
 
   const MotionCommand(this.motion);
 
-  MotionCommand.fn(MotionFn fn, {bool inclusive = false, bool linewise = false})
-    : motion = Motion(fn, inclusive: inclusive, linewise: linewise);
-
   @override
   void execute(Editor e, FileBuffer f, String s) {
     f.edit.motion = motion;

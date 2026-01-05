@@ -600,7 +600,7 @@ class Editor {
     final start = file.cursor;
     var end = start;
     for (int i = 0; i < edit.count; i++) {
-      end = motion.run(this, file, end);
+      end = motion.fn(this, file, end);
     }
 
     if (op == null) {
