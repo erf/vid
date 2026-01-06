@@ -71,6 +71,9 @@ class Config {
   /// Maximum directory depth to scan in the file browser.
   final int fileBrowserMaxDepth;
 
+  /// Maximum width for popup windows (null for auto-sizing based on terminal).
+  final int? popupMaxWidth;
+
   /// Returns the wrap symbol for the current [wrapMode].
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
@@ -91,6 +94,7 @@ class Config {
     this.preferredDarkTheme = .rosePine,
     this.fileBrowserMaxFiles = 5000,
     this.fileBrowserMaxDepth = 4,
+    this.popupMaxWidth,
   });
 
   /// Creates a [Config] from a map (typically parsed from YAML).
@@ -119,6 +123,7 @@ class Config {
       ),
       fileBrowserMaxFiles: _parseInt(map['fileBrowserMaxFiles']),
       fileBrowserMaxDepth: _parseInt(map['fileBrowserMaxDepth']),
+      popupMaxWidth: _parseInt(map['popupMaxWidth']),
     );
   }
 
@@ -163,6 +168,7 @@ class Config {
     ThemeType? preferredDarkTheme,
     int? fileBrowserMaxFiles,
     int? fileBrowserMaxDepth,
+    int? popupMaxWidth,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -181,6 +187,7 @@ class Config {
       preferredDarkTheme: preferredDarkTheme ?? this.preferredDarkTheme,
       fileBrowserMaxFiles: fileBrowserMaxFiles ?? this.fileBrowserMaxFiles,
       fileBrowserMaxDepth: fileBrowserMaxDepth ?? this.fileBrowserMaxDepth,
+      popupMaxWidth: popupMaxWidth ?? this.popupMaxWidth,
     );
   }
 }

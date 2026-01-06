@@ -49,3 +49,6 @@ fileBrowserMaxFiles: 5000
 
 # File browser: maximum directory depth to scan
 fileBrowserMaxDepth: 4
+
+# Maximum width for popup windows (unset for auto-sizing based on terminal)
+# popupMaxWidth: 80

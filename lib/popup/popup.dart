@@ -89,6 +89,9 @@ class PopupState<T> {
   /// Maximum visible items (popup height).
   final int maxVisibleItems;
 
+  /// Maximum width of the popup (null for auto-sizing).
+  final int? maxWidth;
+
   const PopupState({
     required this.title,
     required this.allItems,
@@ -102,6 +105,7 @@ class PopupState<T> {
     this.customFilter,
     this.showFilter = true,
     this.maxVisibleItems = 15,
+    this.maxWidth,
   });
 
   /// Create initial popup state.
@@ -114,6 +118,7 @@ class PopupState<T> {
     PopupFilterCallback<T>? customFilter,
     bool showFilter = true,
     int maxVisibleItems = 15,
+    int? maxWidth,
   }) {
     return PopupState<T>(
       title: title,
@@ -128,6 +133,7 @@ class PopupState<T> {
       customFilter: customFilter,
       showFilter: showFilter,
       maxVisibleItems: maxVisibleItems,
+      maxWidth: maxWidth,
     );
   }
 
@@ -167,6 +173,7 @@ class PopupState<T> {
     PopupFilterCallback<T>? customFilter,
     bool? showFilter,
     int? maxVisibleItems,
+    int? maxWidth,
   }) {
     return PopupState<T>(
       title: title ?? this.title,
@@ -181,6 +188,7 @@ class PopupState<T> {
       customFilter: customFilter ?? this.customFilter,
       showFilter: showFilter ?? this.showFilter,
       maxVisibleItems: maxVisibleItems ?? this.maxVisibleItems,
+      maxWidth: maxWidth ?? this.maxWidth,
     );
   }
 

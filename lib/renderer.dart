@@ -155,7 +155,7 @@ class Renderer {
         bufferCount,
         diagnosticCount,
       );
-      _drawPopup(popup);
+      _drawPopup(popup, config);
     } else {
       _drawStatus(
         file,
@@ -804,11 +804,16 @@ class Renderer {
   }
 
   /// Draw popup menu overlay.
-  void _drawPopup(PopupState popup) {
+  void _drawPopup(PopupState popup, Config config) {
     popupRowMap.clear();
 
-    // Use most of terminal space with comfortable padding
-    final popupWidth = terminal.width - 12;
+    // Use most of terminal space with comfortable padding, respecting maxWidth
+    var popupWidth = terminal.width - 12;
+    // Config takes precedence, then popup's own maxWidth
+    final maxWidth = config.popupMaxWidth ?? popup.maxWidth;
+    if (maxWidth != null && popupWidth > maxWidth) {
+      popupWidth = maxWidth;
+    }
     final popupHeight = terminal.height - 8;
     final innerPadding = 1; // Empty space inside the popup box
     final contentWidth = popupWidth - (innerPadding * 2);
@@ -818,7 +823,7 @@ class Renderer {
     final items = popup.items;
 
     // Center the popup
-    final left = 6;
+    final left = (terminal.width - popupWidth) ~/ 2;
     final top = 4;
 
     // Store bounds for mouse detection
