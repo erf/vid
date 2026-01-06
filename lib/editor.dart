@@ -426,8 +426,8 @@ class Editor {
     for (final event in events) {
       switch (event) {
         case KeyInputEvent key:
-          // Pass the raw sequence to handleInput for key binding matching
-          handleInput(key.raw);
+          // Pass the raw sequence to _handleInput for key binding matching
+          _handleInput(key.raw);
         case MouseInputEvent mouse:
           _handleMouseEvent(mouse.event);
       }
@@ -561,7 +561,7 @@ class Editor {
   }
 
   // match input against key bindings for executing commands
-  void handleInput(String char) {
+  void _handleInput(String char) {
     InputState input = file.input;
 
     // append char to input
