@@ -633,7 +633,9 @@ class Editor {
   /// Expand range to include full lines (for linewise operations).
   Range _expandToFullLines(Range range) {
     final startLineNum = file.lineNumber(range.start);
-    final endLineNum = file.lineNumber(range.end);
+    final endLineNum = range.start == range.end
+        ? startLineNum
+        : file.lineNumber(range.end);
     final start = file.lines[startLineNum].start;
     var end = file.lines[endLineNum].end + 1; // Include the newline
     if (end > file.text.length) end = file.text.length;
