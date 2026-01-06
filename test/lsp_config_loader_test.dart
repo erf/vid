@@ -29,7 +29,7 @@ void main() {
       final paths = LspConfigLoader.configPaths;
 
       expect(paths.length, greaterThanOrEqualTo(1));
-      expect(paths.first, endsWith('/vid_lsp.yaml'));
+      expect(paths.first, endsWith('/lsp_servers.yaml'));
     });
 
     test('parseConfig parses enabled flag', () {
