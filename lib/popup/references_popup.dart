@@ -55,8 +55,7 @@ class ReferencesPopup {
       PopupState.create(
         title: 'References (${locations.length})',
         items: items,
-        onSelect: (item) =>
-            _onSelect(editor, item as PopupItem<ReferenceLocation>),
+        onSelect: (item) => _onSelect(editor, item),
         onCancel: () => editor.closePopup(),
       ),
     );

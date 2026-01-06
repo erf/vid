@@ -42,14 +42,14 @@ class PopupItem<T> {
 }
 
 /// Callback when an item is selected.
-typedef PopupSelectCallback = void Function(PopupItem item);
+typedef PopupSelectCallback<T> = void Function(PopupItem<T> item);
 
 /// Callback when popup is cancelled.
 typedef PopupCancelCallback = void Function();
 
 /// Callback when filter text changes (for custom filtering).
-typedef PopupFilterCallback =
-    List<PopupItem> Function(List<PopupItem> items, String filter);
+typedef PopupFilterCallback<T> =
+    List<PopupItem<T>> Function(List<PopupItem<T>> items, String filter);
 
 /// A generic popup menu state.
 class PopupState<T> {
@@ -72,16 +72,16 @@ class PopupState<T> {
   final String filterText;
 
   /// Callback when an item is selected.
-  final PopupSelectCallback? onSelect;
+  final PopupSelectCallback<T>? onSelect;
 
   /// Callback when an item is highlighted (selection changes).
-  final PopupSelectCallback? onHighlight;
+  final PopupSelectCallback<T>? onHighlight;
 
   /// Callback when popup is cancelled.
   final PopupCancelCallback? onCancel;
 
   /// Custom filter function (optional).
-  final PopupFilterCallback? customFilter;
+  final PopupFilterCallback<T>? customFilter;
 
   /// Whether to show filter input.
   final bool showFilter;
@@ -108,10 +108,10 @@ class PopupState<T> {
   factory PopupState.create({
     required String title,
     required List<PopupItem<T>> items,
-    PopupSelectCallback? onSelect,
-    PopupSelectCallback? onHighlight,
+    PopupSelectCallback<T>? onSelect,
+    PopupSelectCallback<T>? onHighlight,
     PopupCancelCallback? onCancel,
-    PopupFilterCallback? customFilter,
+    PopupFilterCallback<T>? customFilter,
     bool showFilter = true,
     int maxVisibleItems = 15,
   }) {
@@ -137,6 +137,22 @@ class PopupState<T> {
       ? items[selectedIndex]
       : null;
 
+  /// Invoke onSelect callback with the selected item (type-safe).
+  void invokeSelect() {
+    final item = selectedItem;
+    if (item != null && onSelect != null) {
+      onSelect!(item);
+    }
+  }
+
+  /// Invoke onHighlight callback with the selected item (type-safe).
+  void invokeHighlight() {
+    final item = selectedItem;
+    if (item != null && onHighlight != null) {
+      onHighlight!(item);
+    }
+  }
+
   /// Create a copy with modified fields.
   PopupState<T> copyWith({
     String? title,
@@ -145,10 +161,10 @@ class PopupState<T> {
     int? selectedIndex,
     int? scrollOffset,
     String? filterText,
-    PopupSelectCallback? onSelect,
-    PopupSelectCallback? onHighlight,
+    PopupSelectCallback<T>? onSelect,
+    PopupSelectCallback<T>? onHighlight,
     PopupCancelCallback? onCancel,
-    PopupFilterCallback? customFilter,
+    PopupFilterCallback<T>? customFilter,
     bool? showFilter,
     int? maxVisibleItems,
   }) {
@@ -260,8 +276,7 @@ class PopupState<T> {
 
     // Use custom filter if provided
     if (customFilter != null) {
-      final result = customFilter!(allItems.cast<PopupItem>(), filter);
-      return result.cast<PopupItem<T>>();
+      return customFilter!(allItems, filter);
     }
 
     // Default: case-insensitive substring match on label
@@ -276,10 +291,7 @@ class PopupState<T> {
     final filteredItems = filterText.isEmpty
         ? newItems
         : (customFilter != null
-              ? customFilter!(
-                  newItems.cast<PopupItem>(),
-                  filterText,
-                ).cast<PopupItem<T>>()
+              ? customFilter!(newItems, filterText)
               : newItems
                     .where(
                       (item) => item.label.toLowerCase().contains(

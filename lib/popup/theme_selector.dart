@@ -15,9 +15,8 @@ class ThemeSelector {
       PopupState.create(
         title: 'Themes',
         items: items,
-        onSelect: (item) => _onSelect(editor, item as PopupItem<ThemeType>),
-        onHighlight: (item) =>
-            _onHighlight(editor, item as PopupItem<ThemeType>),
+        onSelect: (item) => _onSelect(editor, item),
+        onHighlight: (item) => _onHighlight(editor, item),
         onCancel: () => editor.closePopup(),
       ).copyWith(selectedIndex: selectedIndex),
     );

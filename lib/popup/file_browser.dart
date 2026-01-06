@@ -41,13 +41,12 @@ class FileBrowser {
       PopupState.create(
         title: 'Files (scanning...)',
         items: <PopupItem<String>>[],
-        onSelect: (item) => _onSelect(editor, item as PopupItem<String>),
+        onSelect: (item) => _onSelect(editor, item),
         onCancel: () {
           _cancelScan = true;
           editor.closePopup();
         },
-        customFilter: (items, filter) =>
-            _fuzzyFilter(items.cast<PopupItem<String>>(), filter),
+        customFilter: (items, filter) => _fuzzyFilter(items, filter),
       ),
     );
 

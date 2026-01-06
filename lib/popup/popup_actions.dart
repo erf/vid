@@ -66,21 +66,14 @@ class PopupActions {
   static void _notifyHighlight(Editor e) {
     final popup = e.popup;
     if (popup == null) return;
-    final item = popup.selectedItem;
-    if (item != null && popup.onHighlight != null) {
-      popup.onHighlight!(item);
-    }
+    popup.invokeHighlight();
   }
 
   /// Select current item (Enter).
   static void select(Editor e, FileBuffer f) {
     final popup = e.popup;
     if (popup == null) return;
-
-    final item = popup.selectedItem;
-    if (item != null && popup.onSelect != null) {
-      popup.onSelect!(item);
-    }
+    popup.invokeSelect();
   }
 
   /// Cancel popup (Escape).

@@ -48,8 +48,7 @@ class DiagnosticsPopup {
       PopupState.create(
         title: 'Diagnostics',
         items: items,
-        onSelect: (item) =>
-            _onSelect(editor, item as PopupItem<DiagnosticLocation>),
+        onSelect: (item) => _onSelect(editor, item),
         onCancel: () => editor.closePopup(),
       ),
     );
@@ -94,8 +93,7 @@ class DiagnosticsPopup {
       PopupState.create(
         title: 'All Diagnostics',
         items: items,
-        onSelect: (item) =>
-            _onSelect(editor, item as PopupItem<DiagnosticLocation>),
+        onSelect: (item) => _onSelect(editor, item),
         onCancel: () => editor.closePopup(),
       ),
     );

@@ -95,9 +95,8 @@ class CompletionActions {
       items: items,
       showFilter: false,
       onSelect: (item) {
-        final completion = item.value as String;
-        f.replace(wordStart, wordEnd, completion, config: e.config);
-        f.cursor = wordStart + completion.length;
+        f.replace(wordStart, wordEnd, item.value, config: e.config);
+        f.cursor = wordStart + item.value.length;
         e.closePopup();
         f.setMode(e, .insert);
       },

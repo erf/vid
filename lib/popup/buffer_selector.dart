@@ -22,7 +22,7 @@ class BufferSelector {
       PopupState.create(
         title: 'Buffers',
         items: items,
-        onSelect: (item) => _onSelect(editor, item as PopupItem<int>),
+        onSelect: (item) => _onSelect(editor, item),
         onCancel: () => editor.closePopup(),
       ).copyWith(selectedIndex: selectedIndex),
     );
