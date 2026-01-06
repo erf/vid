@@ -633,6 +633,7 @@ class Editor {
   /// Expand range to include full lines (for linewise operations).
   Range _expandToFullLines(Range range) {
     final startLineNum = file.lineNumber(range.start);
+    // if same position, we're on the same line
     final endLineNum = range.start == range.end
         ? startLineNum
         : file.lineNumber(range.end);
