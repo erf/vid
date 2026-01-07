@@ -31,36 +31,25 @@ This compiles vid to a native executable at `build/vid` and copies it to `~/bin/
 
 ## Configuration
 
-vid loads configuration from YAML files at the following locations (first found wins):
+vid loads configuration from YAML files at these locations (first found wins):
 
-1. `./config.yaml` — local project config
-2. `$XDG_CONFIG_HOME/vid/config.yaml`
-3. `~/.config/vid/config.yaml`
+1. `./` — local project config
+2. `$XDG_CONFIG_HOME/vid/`
+3. `~/.config/vid/`
 
-Copy the example config to get started:
+Two config files are supported:
+- **config.yaml** — editor settings (see [config.example.yaml](config.example.yaml))
+- **lsp_servers.yaml** — LSP server configs (see [lsp_servers.example.yaml](lsp_servers.example.yaml))
+
+Copy the example configs to get started:
 
 ```bash
 mkdir -p ~/.config/vid
 cp config.example.yaml ~/.config/vid/config.yaml
-```
-
-All settings are optional — missing values use sensible defaults. See [config.example.yaml](config.example.yaml) for all available options.
-
-## LSP Configuration
-
-vid includes built-in support for several language servers (Dart, Lua, clangd, Swift). You can customize or extend LSP support via a separate YAML file:
-
-1. `./lsp_servers.yaml` — local project config
-2. `$XDG_CONFIG_HOME/vid/lsp_servers.yaml`
-3. `~/.config/vid/lsp_servers.yaml`
-
-Copy the example config to customize:
-
-```bash
 cp lsp_servers.example.yaml ~/.config/vid/lsp_servers.yaml
 ```
 
-See [lsp_servers.example.yaml](lsp_servers.example.yaml) for all options and examples.
+All settings are optional — missing values use sensible defaults.
 
 ## Contributing
 
