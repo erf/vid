@@ -12,10 +12,11 @@ extension FileBufferIo on FileBuffer {
   static ErrorOr<FileBuffer> load(
     String path, {
     required bool createIfNotExists,
+    String? cwd,
   }) {
     //  if no path is given, return an empty file buffer
     if (path.isEmpty) {
-      return ErrorOr.value(FileBuffer());
+      return ErrorOr.value(FileBuffer(cwd: cwd));
     }
 
     // check if path is a directory
@@ -34,7 +35,12 @@ extension FileBufferIo on FileBuffer {
           text += Keys.newline;
         }
         return ErrorOr.value(
-          FileBuffer(path: path, absolutePath: absolutePath, text: text),
+          FileBuffer(
+            path: path,
+            absolutePath: absolutePath,
+            text: text,
+            cwd: cwd,
+          ),
         );
       } catch (error) {
         return ErrorOr.error('Error reading file: \'$error\'');
@@ -43,7 +49,9 @@ extension FileBufferIo on FileBuffer {
 
     // create new file if allowed
     if (createIfNotExists) {
-      return ErrorOr.value(FileBuffer(path: path, absolutePath: absolutePath));
+      return ErrorOr.value(
+        FileBuffer(path: path, absolutePath: absolutePath, cwd: cwd),
+      );
     }
 
     // file not found

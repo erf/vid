@@ -1,6 +1,4 @@
 // Barrel file - exports all file_buffer extensions
-import 'dart:io';
-
 import 'package:termio/termio.dart';
 import 'package:vid/edit_builder.dart';
 import 'package:vid/edit_operation.dart';
@@ -33,8 +31,12 @@ typedef TextChangeListener =
 /// on text modifications.
 class FileBuffer {
   // create a new file buffer
-  FileBuffer({String text = Keys.newline, this.path, this.absolutePath})
-    : _text = text {
+  FileBuffer({
+    String text = Keys.newline,
+    this.path,
+    this.absolutePath,
+    this.cwd,
+  }) : _text = text {
     assert(text.endsWith(Keys.newline), 'Text must end with newline');
     _buildLineIndex();
   }
@@ -53,14 +55,17 @@ class FileBuffer {
   // the absolute path to the file
   String? absolutePath;
 
+  // the current working directory (for relativePath calculation)
+  String? cwd;
+
   /// Get the path relative to current working directory.
   /// Returns null if no path is set, or the absolute path if outside cwd.
   String? get relativePath {
     final abs = absolutePath;
     if (abs == null) return null;
-    final cwd = Directory.current.path;
-    if (abs.startsWith(cwd)) {
-      final rel = abs.substring(cwd.length);
+    final workingDir = cwd;
+    if (workingDir != null && abs.startsWith(workingDir)) {
+      final rel = abs.substring(workingDir.length);
       return rel.startsWith('/') ? rel.substring(1) : rel;
     }
     return abs;
@@ -189,7 +194,12 @@ class FileBuffer {
   static ErrorOr<FileBuffer> load(
     String path, {
     bool createIfNotExists = false,
+    String? cwd,
   }) {
-    return FileBufferIo.load(path, createIfNotExists: createIfNotExists);
+    return FileBufferIo.load(
+      path,
+      createIfNotExists: createIfNotExists,
+      cwd: cwd,
+    );
   }
 }

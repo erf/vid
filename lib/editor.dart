@@ -30,6 +30,7 @@ class Editor {
   Config config;
   final TerminalBase terminal;
   final bool redraw;
+  final String workingDirectory = Directory.current.path;
   final List<FileBuffer> _buffers = [];
   int _currentBufferIndex = 0;
   YankBuffer? yankBuffer; // Shared across all buffers
@@ -79,7 +80,9 @@ class Editor {
   }) {
     _highlighter = Highlighter(themeType: config.syntaxTheme);
     renderer = Renderer(terminal: terminal, highlighter: _highlighter);
-    _addBuffer(FileBuffer()); // Start with one empty buffer
+    _addBuffer(
+      FileBuffer(cwd: workingDirectory),
+    ); // Start with one empty buffer
   }
 
   void _addBufferListener(FileBuffer buffer) {
@@ -146,7 +149,11 @@ class Editor {
 
   void _loadInitialFiles(List<_FileArg> files) {
     for (int i = 0; i < files.length; i++) {
-      final result = FileBuffer.load(files[i].path, createIfNotExists: true);
+      final result = FileBuffer.load(
+        files[i].path,
+        createIfNotExists: true,
+        cwd: workingDirectory,
+      );
       if (result.hasError) {
         print(result.error);
         exit(0);
@@ -194,7 +201,11 @@ class Editor {
       return ErrorOr.value(_buffers[existingIndex]);
     }
 
-    final result = FileBuffer.load(path, createIfNotExists: false);
+    final result = FileBuffer.load(
+      path,
+      createIfNotExists: false,
+      cwd: workingDirectory,
+    );
     if (result.hasError) {
       return result;
     }
