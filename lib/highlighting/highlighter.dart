@@ -1,5 +1,5 @@
+import 'package:vid/features/lsp/lsp_protocol.dart';
 import 'package:vid/highlighting/theme.dart';
-import 'package:vid/lsp/lsp_protocol.dart';
 
 import 'languages/c_tokenizer.dart';
 import 'languages/dart_tokenizer.dart';

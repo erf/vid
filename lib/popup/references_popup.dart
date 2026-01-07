@@ -1,7 +1,7 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../lsp/lsp_extension.dart';
-import '../lsp/lsp_protocol.dart';
+import '../features/lsp/lsp_feature.dart';
+import '../features/lsp/lsp_protocol.dart';
 import '../message.dart';
 import 'popup.dart';
 
@@ -22,8 +22,8 @@ class ReferenceLocation {
 class ReferencesPopup {
   /// Show references popup for symbol at cursor.
   static Future<void> show(Editor editor, FileBuffer file) async {
-    final lspExtension = editor.extensions?.getExtension<LspExtension>();
-    if (lspExtension == null || !lspExtension.isConnected) {
+    final lsp = editor.featureRegistry?.get<LspFeature>();
+    if (lsp == null || !lsp.isConnected) {
       editor.showMessage(Message.error('LSP not connected'));
       return;
     }
@@ -36,7 +36,7 @@ class ReferencesPopup {
     editor.showMessage(Message.info('Finding references...'));
     editor.draw();
 
-    final locations = await lspExtension.findReferences(editor, file);
+    final locations = await lsp.findReferences(editor, file);
 
     if (locations.isEmpty) {
       // Message already shown by findReferences

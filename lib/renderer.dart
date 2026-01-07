@@ -2,7 +2,7 @@ import 'package:termio/termio.dart';
 import 'config.dart';
 import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
-import 'lsp/lsp_protocol.dart';
+import 'features/lsp/lsp_protocol.dart';
 import 'message.dart';
 import 'popup/popup.dart';
 import 'string_ext.dart';

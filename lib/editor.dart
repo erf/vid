@@ -4,12 +4,12 @@ import 'dart:io';
 
 import 'package:termio/termio.dart';
 import 'package:vid/edit_operation.dart';
-import 'package:vid/extensions/cursor_position_extension.dart';
-import 'package:vid/extensions/extension_registry.dart';
+import 'package:vid/features/cursor_position/cursor_position_feature.dart';
+import 'package:vid/features/feature_registry.dart';
 import 'package:vid/highlighting/theme.dart';
 import 'package:vid/input_state.dart';
-import 'package:vid/lsp/lsp_extension.dart';
-import 'package:vid/lsp/lsp_protocol.dart';
+import 'package:vid/features/lsp/lsp_feature.dart';
+import 'package:vid/features/lsp/lsp_protocol.dart';
 import 'package:vid/popup/file_browser.dart';
 import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
@@ -38,7 +38,7 @@ class Editor {
   Timer? messageTimer;
   String? logPath;
   File? logFile;
-  ExtensionRegistry? extensions;
+  FeatureRegistry? featureRegistry;
   late final Highlighter _highlighter;
   late final Renderer renderer;
   final InputParser _inputParser = InputParser();
@@ -69,7 +69,7 @@ class Editor {
     }
   }
 
-  List<FileBuffer> get buffers => _buffers; // Expose for extensions
+  List<FileBuffer> get buffers => _buffers; // Expose for features
   int get bufferCount => _buffers.length;
   int get currentBufferIndex => _currentBufferIndex;
 
@@ -87,7 +87,7 @@ class Editor {
 
   void _addBufferListener(FileBuffer buffer) {
     buffer.addListener((buf, start, end, newText, oldText) {
-      extensions?.notifyTextChange(buf, start, end, newText, oldText);
+      featureRegistry?.notifyTextChange(buf, start, end, newText, oldText);
     });
   }
 
@@ -104,7 +104,7 @@ class Editor {
       _loadInitialFiles(files);
     }
     _initTerminal(files.firstOrNull?.path);
-    _initExtensions();
+    _initFeatures();
     _applyLineArgs(files);
 
     draw();
@@ -168,15 +168,15 @@ class Editor {
     }
   }
 
-  void _initExtensions() {
-    extensions = ExtensionRegistry(this, [
-      CursorPositionExtension(),
-      LspExtension(),
+  void _initFeatures() {
+    featureRegistry = FeatureRegistry(this, [
+      CursorPositionFeature(),
+      LspFeature(),
     ]);
-    extensions?.notifyInit();
+    featureRegistry?.notifyInit();
 
     for (final buffer in _buffers) {
-      extensions?.notifyFileOpen(buffer);
+      featureRegistry?.notifyFileOpen(buffer);
     }
   }
 
@@ -213,7 +213,7 @@ class Editor {
     _addBuffer(buffer);
     _currentBufferIndex = _buffers.length - 1;
     terminal.write(Ansi.setTitle('vid $path'));
-    extensions?.notifyFileOpen(file);
+    featureRegistry?.notifyFileOpen(file);
     draw();
     return result;
   }
@@ -224,7 +224,7 @@ class Editor {
     final oldBuffer = file;
     _currentBufferIndex = index;
     terminal.write(Ansi.setTitle('vid ${file.path ?? "[No Name]"}'));
-    extensions?.notifyBufferSwitch(oldBuffer, file);
+    featureRegistry?.notifyBufferSwitch(oldBuffer, file);
     draw();
   }
 
@@ -250,7 +250,7 @@ class Editor {
       return false;
     }
 
-    extensions?.notifyBufferClose(buffer);
+    featureRegistry?.notifyBufferClose(buffer);
     _buffers.removeAt(index);
 
     if (_buffers.isEmpty) {
@@ -316,7 +316,7 @@ class Editor {
   }
 
   void quit() {
-    extensions?.notifyQuit();
+    featureRegistry?.notifyQuit();
 
     terminal.write(Ansi.mouseMode(false));
     terminal.write(Ansi.popTitle());
@@ -362,7 +362,7 @@ class Editor {
     // Get diagnostic count and semantic tokens for current file from LSP
     int diagnosticCount = 0;
     List<SemanticToken>? semanticTokens;
-    final lsp = extensions?.getExtension<LspExtension>();
+    final lsp = featureRegistry?.get<LspFeature>();
     if (lsp != null && lsp.isConnected && file.absolutePath != null) {
       final uri = 'file://${file.absolutePath}';
       diagnosticCount = lsp.getDiagnostics(uri).length;

@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:termio/termio.dart';
 
-import '../editor.dart';
-import '../file_buffer/file_buffer.dart';
-import 'extension.dart';
+import '../../editor.dart';
+import '../../file_buffer/file_buffer.dart';
+import '../feature.dart';
 
-/// Extension that remembers cursor positions for files
-class CursorPositionExtension extends Extension {
+/// Feature that remembers cursor positions for files
+class CursorPositionFeature extends Feature {
   Map<String, int> cursorPerFile = {};
 
-  CursorPositionExtension();
+  CursorPositionFeature();
 
   @override
   void onInit(Editor editor) {

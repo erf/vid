@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
-import '../editor.dart';
-import '../extensions/extension.dart';
-import '../file_buffer/file_buffer.dart';
-import '../message.dart';
+import '../../editor.dart';
+import '../feature.dart';
+import '../../file_buffer/file_buffer.dart';
+import '../../message.dart';
 import 'lsp_client.dart';
 import 'lsp_protocol.dart';
 import 'lsp_server_config.dart';
 
-/// Extension that manages multiple LSP clients for different languages.
-class LspExtension extends Extension {
+/// Feature that manages multiple LSP clients for different languages.
+class LspFeature extends Feature {
   /// Map of server key to LSP client (e.g., 'dart' -> LspClient).
   final Map<String, LspClient> _clients = {};
 

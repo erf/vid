@@ -1,8 +1,8 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 
-/// Extension interface that all extensions must implement
-abstract class Extension {
+/// Feature interface that all features must implement
+abstract class Feature {
   void onInit(Editor editor);
 
   void onQuit(Editor editor);

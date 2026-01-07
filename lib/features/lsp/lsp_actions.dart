@@ -1,15 +1,15 @@
-import '../editor.dart';
-import '../file_buffer/file_buffer.dart';
-import '../popup/diagnostics_popup.dart';
-import '../popup/references_popup.dart';
-import 'lsp_extension.dart';
+import '../../editor.dart';
+import '../../file_buffer/file_buffer.dart';
+import '../../popup/diagnostics_popup.dart';
+import '../../popup/references_popup.dart';
+import 'lsp_feature.dart';
 
 /// LSP-related actions for keybindings.
 class LspActions {
   /// Go to definition (gd).
   /// Triggers async operation - result shown via message or file jump.
   static void goToDefinition(Editor e, FileBuffer f) {
-    final lsp = e.extensions?.getExtension<LspExtension>();
+    final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -20,7 +20,7 @@ class LspActions {
 
   /// Find all references (gr).
   static void findReferences(Editor e, FileBuffer f) {
-    final lsp = e.extensions?.getExtension<LspExtension>();
+    final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -30,7 +30,7 @@ class LspActions {
 
   /// Show hover info (K).
   static void hover(Editor e, FileBuffer f) {
-    final lsp = e.extensions?.getExtension<LspExtension>();
+    final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -40,7 +40,7 @@ class LspActions {
 
   /// Show LSP status.
   static void showStatus(Editor e, FileBuffer f) {
-    final lsp = e.extensions?.getExtension<LspExtension>();
+    final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null) {
       e.showMessage(.info('LSP: not loaded'));
       return;
@@ -68,7 +68,7 @@ class LspCommands {
   /// Restart LSP server (:lsp restart).
   static void restart(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    final lsp = e.extensions?.getExtension<LspExtension>();
+    final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -79,7 +79,7 @@ class LspCommands {
   /// Show LSP status (:lsp status).
   static void status(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    final lsp = e.extensions?.getExtension<LspExtension>();
+    final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null) {
       e.showMessage(.info('LSP: not loaded'));
       return;

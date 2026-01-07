@@ -1,7 +1,7 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../lsp/lsp_extension.dart';
-import '../lsp/lsp_protocol.dart';
+import '../features/lsp/lsp_feature.dart';
+import '../features/lsp/lsp_protocol.dart';
 import '../message.dart';
 import 'popup.dart';
 
@@ -22,8 +22,8 @@ class DiagnosticLocation {
 class DiagnosticsPopup {
   /// Show diagnostics popup for current file.
   static void show(Editor editor) {
-    final lspExtension = editor.extensions?.getExtension<LspExtension>();
-    if (lspExtension == null || !lspExtension.isConnected) {
+    final lsp = editor.featureRegistry?.get<LspFeature>();
+    if (lsp == null || !lsp.isConnected) {
       editor.showMessage(Message.error('LSP not connected'));
       return;
     }
@@ -35,7 +35,7 @@ class DiagnosticsPopup {
     }
 
     final uri = 'file://${file.absolutePath}';
-    final diagnostics = lspExtension.getDiagnostics(uri);
+    final diagnostics = lsp.getDiagnostics(uri);
 
     if (diagnostics.isEmpty) {
       editor.showMessage(Message.info('No diagnostics'));
@@ -56,8 +56,8 @@ class DiagnosticsPopup {
 
   /// Show diagnostics popup for all open files.
   static void showAll(Editor editor) {
-    final lspExtension = editor.extensions?.getExtension<LspExtension>();
-    if (lspExtension == null || !lspExtension.isConnected) {
+    final lsp = editor.featureRegistry?.get<LspFeature>();
+    if (lsp == null || !lsp.isConnected) {
       editor.showMessage(Message.error('LSP not connected'));
       return;
     }
@@ -69,7 +69,7 @@ class DiagnosticsPopup {
       if (buffer.absolutePath == null) continue;
 
       final uri = 'file://${buffer.absolutePath}';
-      final diagnostics = lspExtension.getDiagnostics(uri);
+      final diagnostics = lsp.getDiagnostics(uri);
 
       if (diagnostics.isNotEmpty) {
         items.addAll(_buildItems(diagnostics, buffer.absolutePath));

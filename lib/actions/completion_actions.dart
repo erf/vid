@@ -2,14 +2,14 @@ import 'dart:async';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../lsp/lsp_extension.dart';
+import '../features/lsp/lsp_feature.dart';
 import '../popup/popup.dart';
 
 /// Actions for word completion (CTRL-n in insert mode).
 class CompletionActions {
   /// Show word completion popup using LSP.
   static void showCompletion(Editor e, FileBuffer f) {
-    final lsp = e.extensions?.getExtension<LspExtension>();
+    final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null || !lsp.isConnected || f.absolutePath == null) {
       e.showMessage(.info('LSP not connected'));
       return;
@@ -42,7 +42,7 @@ class CompletionActions {
     FileBuffer f,
     int wordStart,
     int wordEnd,
-    LspExtension lsp,
+    LspFeature lsp,
   ) async {
     final uri = 'file://${f.absolutePath}';
     final line = f.lineNumber(f.cursor);

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:vid/config.dart';
-import 'package:vid/lsp/lsp_config_loader.dart';
-import 'package:vid/lsp/lsp_server_config.dart';
+import 'package:vid/features/lsp/lsp_config_loader.dart';
+import 'package:vid/features/lsp/lsp_server_config.dart';
 import 'package:yaml/yaml.dart';
 
 /// Loads configuration from YAML files at standard paths.

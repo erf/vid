@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
-import 'package:vid/lsp/lsp_config_loader.dart';
-import 'package:vid/lsp/lsp_server_config.dart';
-import 'package:vid/lsp/lsp_server_defaults.dart';
+import 'package:vid/features/lsp/lsp_config_loader.dart';
+import 'package:vid/features/lsp/lsp_server_config.dart';
+import 'package:vid/features/lsp/lsp_server_defaults.dart';
 
 void main() {
   group('LspConfig', () {

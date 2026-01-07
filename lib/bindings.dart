@@ -10,7 +10,7 @@ import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
 import 'commands/command.dart';
-import 'lsp/lsp_actions.dart';
+import 'features/lsp/lsp_actions.dart';
 import 'modes.dart';
 import 'popup/popup_actions.dart';
 
