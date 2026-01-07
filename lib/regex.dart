@@ -1,5 +1,18 @@
 class Regex {
-  static final word = RegExp(r'([\wæøå]+|[^\w\s]+|(?<=\n)\n)');
+  /// Matches vim "word" units for w, e, b motions.
+  /// A word is either:
+  ///   - A sequence of word characters (Unicode letters, numbers, underscore)
+  ///   - A sequence of other non-blank characters (punctuation, symbols)
+  ///   - An empty line
+  /// Emojis are treated as punctuation (separate word units), matching vim.
+  static final word = RegExp(
+    r'([\p{L}\p{N}_]+|[^\p{L}\p{N}_\s]+|(?<=\n)\n)',
+    unicode: true,
+  );
+
+  /// Matches vim "WORD" units for W, B motions.
+  /// A WORD is simply any sequence of non-whitespace characters.
+  /// Unlike [word], punctuation and letters are not separated.
   static final wordCap = RegExp(r'(\S+|(?<=\n)\n)');
   static final number = RegExp(r'((?:-)?\d+)');
   static final nonSpace = RegExp(r'\S');

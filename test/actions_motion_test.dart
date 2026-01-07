@@ -181,6 +181,62 @@ void main() {
     expect(Motions.wordCapPrev(e, f, 9), 4); // ghi -> def,
   });
 
+  test('motionWordNext with Unicode', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    // Test various Unicode scripts: Latin Extended, Cyrillic, CJK
+    // Dart strings use UTF-16 code units
+    f.text = 'café мир 你好\n';
+    // café (4) + space (1) = 5 -> мир starts at 5
+    expect(Motions.wordNext(e, f, 0), 5);
+    // мир (3) + space (1) = 4 -> 你好 starts at 9
+    expect(Motions.wordNext(e, f, 5), 9);
+  });
+
+  test('motionWordPrev with Unicode', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'café мир 你好\n';
+    // 你好 (at 9) -> мир (at 5)
+    expect(Motions.wordPrev(e, f, 9), 5);
+    // мир (at 5) -> café (at 0)
+    expect(Motions.wordPrev(e, f, 5), 0);
+  });
+
+  test('motionWordEnd with Unicode', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'café мир\n';
+    // café: 4 chars, end at index 3
+    expect(Motions.wordEnd(e, f, 0), 3);
+    // мир: starts at 5, 3 chars, end at index 7
+    expect(Motions.wordEnd(e, f, 5), 7);
+  });
+
+  test('motionWord treats emoji as separate word', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    // Emoji should be treated as punctuation (separate word unit)
+    // 🎉 is 2 UTF-16 code units (surrogate pair)
+    f.text = 'hello🎉world\n';
+    // hello (5) -> 🎉 at 5
+    expect(Motions.wordNext(e, f, 0), 5);
+    // 🎉 (2 code units) -> world at 7
+    expect(Motions.wordNext(e, f, 5), 7);
+  });
+
   test('motionWordEndPrev', () {
     final e = Editor(
       terminal: TestTerminal(width: 80, height: 24),
