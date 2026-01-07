@@ -1,6 +1,7 @@
 import 'package:vid/features/lsp/lsp_protocol.dart';
 import 'package:vid/highlighting/theme.dart';
 
+import 'languages/bash_tokenizer.dart';
 import 'languages/c_tokenizer.dart';
 import 'languages/dart_tokenizer.dart';
 import 'languages/json_tokenizer.dart';
@@ -19,6 +20,7 @@ import 'token.dart';
 /// When both are available, LSP tokens overlay regex tokens.
 class Highlighter {
   Theme theme;
+  final _bashTokenizer = BashTokenizer();
   final _cTokenizer = CTokenizer();
   final _dartTokenizer = DartTokenizer();
   final _jsonTokenizer = JsonTokenizer();
@@ -47,6 +49,7 @@ class Highlighter {
     if (dot == -1) return null;
     final ext = path.substring(dot + 1).toLowerCase();
     return switch (ext) {
+      'bash' || 'sh' || 'zsh' => 'bash',
       'c' || 'h' => 'c',
       'dart' => 'dart',
       'lua' => 'lua',
@@ -76,6 +79,7 @@ class Highlighter {
     }
 
     _regexTokens = switch (lang) {
+      'bash' => _bashTokenizer.tokenize(text, start, end),
       'c' => _cTokenizer.tokenize(text, start, end),
       'dart' => _dartTokenizer.tokenize(text, start, end),
       'lua' => _luaTokenizer.tokenize(text, start, end),
