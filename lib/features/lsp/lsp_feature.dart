@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import '../../editor.dart';
 import '../feature.dart';
@@ -37,8 +36,6 @@ class LspFeature extends Feature {
 
   /// Pending semantic token requests.
   final Map<String, Timer> _semanticTokenTimers = {};
-
-  String? _rootPath;
 
   LspFeature(super.editor);
 
@@ -160,11 +157,7 @@ class LspFeature extends Feature {
 
   @override
   void onInit() {
-    _rootPath = _findProjectRoot();
-
-    if (_rootPath != null) {
-      _startLspServers();
-    }
+    _startLspServers();
   }
 
   @override
@@ -483,26 +476,22 @@ class LspFeature extends Feature {
     }
     _semanticTokenTimers.clear();
 
-    if (_rootPath != null) {
-      await _startLspServers();
+    await _startLspServers();
 
-      // Re-open all buffers
-      for (final buffer in editor.buffers) {
-        onFileOpen(buffer);
-      }
+    // Re-open all buffers
+    for (final buffer in editor.buffers) {
+      onFileOpen(buffer);
+    }
 
-      final count = _clients.length;
-      if (count > 0) {
-        final names = _clients.values
-            .where((c) => c.isConnected)
-            .map((c) => c.serverConfig?.name.split(' ').first ?? '?')
-            .join(', ');
-        editor.showMessage(Message.info('LSP restarted ($names)'));
-      } else {
-        editor.showMessage(Message.info('No LSP servers started'));
-      }
+    final count = _clients.length;
+    if (count > 0) {
+      final names = _clients.values
+          .where((c) => c.isConnected)
+          .map((c) => c.serverConfig?.name.split(' ').first ?? '?')
+          .join(', ');
+      editor.showMessage(Message.info('LSP restarted ($names)'));
     } else {
-      editor.showMessage(Message.error('No project root found'));
+      editor.showMessage(Message.info('No LSP servers started'));
     }
     editor.draw();
   }
@@ -539,11 +528,12 @@ class LspFeature extends Feature {
 
   /// Start LSP servers for all relevant languages detected in the project.
   Future<void> _startLspServers() async {
-    if (_rootPath == null) return;
     if (!LspServerRegistry.enabled) return;
 
+    final rootPath = editor.workingDirectory;
+
     // Detect all servers that might be relevant for this project
-    final servers = LspServerRegistry.detectAllForProject(_rootPath!);
+    final servers = LspServerRegistry.detectAllForProject(rootPath);
 
     final startedServers = <String>[];
     for (final config in servers) {
@@ -573,8 +563,9 @@ class LspFeature extends Feature {
     LspServerConfig config, {
     bool showMessage = true,
   }) async {
-    if (_rootPath == null) return false;
     if (!LspServerRegistry.enabled) return false;
+
+    final rootPath = editor.workingDirectory;
 
     final serverKey = _serverKeyForConfig(config);
 
@@ -593,7 +584,7 @@ class LspFeature extends Feature {
       (notification) => _handleNotification(serverKey, notification),
     );
 
-    final success = await client.start(_rootPath!, config: config);
+    final success = await client.start(rootPath, config: config);
     if (success && showMessage) {
       final serverName = config.name;
       editor.showMessage(Message.info('LSP connected ($serverName)'));
@@ -674,31 +665,6 @@ class LspFeature extends Feature {
       editor.showMessage(Message.info(message));
     }
     editor.draw();
-  }
-
-  String? _findProjectRoot() {
-    String? startPath = editor.file.absolutePath;
-    if (startPath == null) {
-      startPath = Directory.current.path;
-    } else {
-      startPath = File(startPath).parent.path;
-    }
-
-    var dir = Directory(startPath);
-    while (dir.path != dir.parent.path) {
-      if (File('${dir.path}/pubspec.yaml').existsSync()) {
-        return dir.path;
-      }
-      if (File('${dir.path}/package.json').existsSync()) {
-        return dir.path;
-      }
-      if (File('${dir.path}/.git').existsSync()) {
-        return dir.path;
-      }
-      dir = dir.parent;
-    }
-
-    return startPath;
   }
 
   String _fileUri(String path) => Uri.file(path).toString();
