@@ -14,8 +14,14 @@ class Regex {
   /// A WORD is simply any sequence of non-whitespace characters.
   /// Unlike [word], punctuation and letters are not separated.
   static final wordCap = RegExp(r'(\S+|(?<=\n)\n)');
+
+  /// Matches decimal integers with optional leading minus for Ctrl+A/Ctrl+X.
   static final number = RegExp(r'((?:-)?\d+)');
+
+  /// Matches any non-whitespace character.
   static final nonSpace = RegExp(r'\S');
+
+  /// Matches vim substitute command syntax: s/pattern/replacement
   static final substitute = RegExp(r's/.+[/]?.*');
 
   /// Matches the start of an empty line (for } motion)
