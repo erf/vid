@@ -96,9 +96,4 @@ extension FileBufferIo on FileBuffer {
   static String toAbsolutePath(String path) {
     return File(path).absolute.path;
   }
-
-  static String get cacheDir {
-    return Platform.environment['XDG_CACHE_HOME'] ??
-        '${Platform.environment['HOME']}/.cache';
-  }
 }

@@ -56,7 +56,7 @@ class CursorPositionFeature extends Feature {
   }
 
   String get cursorPositionsPath {
-    return '${FileBufferIo.cacheDir}/vid_cursor_positions.csv';
+    return '${editor.cacheDir}/vid_cursor_positions.csv';
   }
 
   // load cursors positions from XDG_CACHE_HOME

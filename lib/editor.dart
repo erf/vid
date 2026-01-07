@@ -13,6 +13,7 @@ import 'package:vid/features/lsp/lsp_protocol.dart';
 import 'package:vid/popup/file_browser.dart';
 import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
+import 'package:vid/xdg_paths.dart';
 import 'package:vid/yank_buffer.dart';
 
 import 'bindings.dart';
@@ -31,6 +32,13 @@ class Editor {
   final TerminalBase terminal;
   final bool redraw;
   final String workingDirectory = Directory.current.path;
+
+  /// Cache directory for storing editor state (cursor positions, etc.)
+  String get cacheDir {
+    if (config.cacheDir.isNotEmpty) return config.cacheDir;
+    return XdgPaths.cacheHome;
+  }
+
   final List<FileBuffer> _buffers = [];
   int _currentBufferIndex = 0;
   YankBuffer? yankBuffer; // Shared across all buffers

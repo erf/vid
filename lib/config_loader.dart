@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:vid/config.dart';
 import 'package:vid/features/lsp/lsp_config_loader.dart';
 import 'package:vid/features/lsp/lsp_server_config.dart';
+import 'package:vid/xdg_paths.dart';
 import 'package:yaml/yaml.dart';
 
 /// Loads configuration from YAML files at standard paths.
@@ -16,43 +17,12 @@ class ConfigLoader {
   /// The name of the config file to search for.
   static const String configFileName = 'config.yaml';
 
-  /// The application config directory name.
-  static const String appDirName = 'vid';
-
   /// Returns the list of config file paths to search, in priority order.
-  static List<String> get configPaths {
-    final paths = <String>[];
-
-    // 1. Local project config
-    paths.add('${Directory.current.path}/$configFileName');
-
-    // 2. XDG_CONFIG_HOME
-    final xdgConfigHome = Platform.environment['XDG_CONFIG_HOME'];
-    if (xdgConfigHome != null && xdgConfigHome.isNotEmpty) {
-      paths.add('$xdgConfigHome/$appDirName/$configFileName');
-    }
-
-    // 3. HOME/.config (fallback for XDG)
-    final home = Platform.environment['HOME'];
-    if (home != null && home.isNotEmpty) {
-      paths.add('$home/.config/$appDirName/$configFileName');
-    }
-
-    return paths;
-  }
+  static List<String> get configPaths =>
+      XdgPaths.configFilePaths(configFileName);
 
   /// Returns the default user config directory path.
-  static String get defaultConfigDir {
-    final xdgConfigHome = Platform.environment['XDG_CONFIG_HOME'];
-    if (xdgConfigHome != null && xdgConfigHome.isNotEmpty) {
-      return '$xdgConfigHome/$appDirName';
-    }
-    final home = Platform.environment['HOME'];
-    if (home != null && home.isNotEmpty) {
-      return '$home/.config/$appDirName';
-    }
-    return '.';
-  }
+  static String get defaultConfigDir => XdgPaths.appConfigDir;
 
   /// Returns the default user config file path.
   static String get defaultConfigPath => '$defaultConfigDir/$configFileName';
