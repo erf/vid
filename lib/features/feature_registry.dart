@@ -1,12 +1,10 @@
-import 'package:vid/editor.dart';
 import 'package:vid/features/feature.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 
 class FeatureRegistry {
-  final Editor _editor;
   final List<Feature> _features;
 
-  const FeatureRegistry(this._editor, this._features);
+  const FeatureRegistry(this._features);
 
   /// Get an feature by type.
   T? get<T extends Feature>() {
@@ -18,31 +16,31 @@ class FeatureRegistry {
 
   void notifyInit() {
     for (final feature in _features) {
-      feature.onInit(_editor);
+      feature.onInit();
     }
   }
 
   void notifyQuit() {
     for (final feature in _features) {
-      feature.onQuit(_editor);
+      feature.onQuit();
     }
   }
 
   void notifyFileOpen(FileBuffer file) {
     for (final feature in _features) {
-      feature.onFileOpen(_editor, file);
+      feature.onFileOpen(file);
     }
   }
 
   void notifyBufferSwitch(FileBuffer previous, FileBuffer next) {
     for (final feature in _features) {
-      feature.onBufferSwitch(_editor, previous, next);
+      feature.onBufferSwitch(previous, next);
     }
   }
 
   void notifyBufferClose(FileBuffer file) {
     for (final feature in _features) {
-      feature.onBufferClose(_editor, file);
+      feature.onBufferClose(file);
     }
   }
 
@@ -54,7 +52,7 @@ class FeatureRegistry {
     String oldText,
   ) {
     for (final feature in _features) {
-      feature.onTextChange(_editor, file, start, end, newText, oldText);
+      feature.onTextChange(file, start, end, newText, oldText);
     }
   }
 }

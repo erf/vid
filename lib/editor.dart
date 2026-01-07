@@ -169,9 +169,9 @@ class Editor {
   }
 
   void _initFeatures() {
-    featureRegistry = FeatureRegistry(this, [
-      CursorPositionFeature(),
-      LspFeature(),
+    featureRegistry = FeatureRegistry([
+      CursorPositionFeature(this),
+      LspFeature(this),
     ]);
     featureRegistry?.notifyInit();
 

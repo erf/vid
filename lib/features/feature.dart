@@ -3,22 +3,25 @@ import '../file_buffer/file_buffer.dart';
 
 /// Feature interface that all features must implement
 abstract class Feature {
-  void onInit(Editor editor);
+  final Editor editor;
 
-  void onQuit(Editor editor);
+  Feature(this.editor);
 
-  void onFileOpen(Editor editor, FileBuffer file) {}
+  void onInit();
 
-  void onBufferSwitch(Editor editor, FileBuffer previous, FileBuffer next) {}
+  void onQuit();
 
-  void onBufferClose(Editor editor, FileBuffer file) {}
+  void onFileOpen(FileBuffer file) {}
+
+  void onBufferSwitch(FileBuffer previous, FileBuffer next) {}
+
+  void onBufferClose(FileBuffer file) {}
 
   /// Called when text changes in a buffer.
   /// [start] and [end] are byte offsets in the old text.
   /// [newText] is the replacement text.
   /// [oldText] is the text that was replaced.
   void onTextChange(
-    Editor editor,
     FileBuffer file,
     int start,
     int end,

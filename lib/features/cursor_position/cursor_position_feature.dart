@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:termio/termio.dart';
 
-import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../feature.dart';
 
@@ -10,15 +9,15 @@ import '../feature.dart';
 class CursorPositionFeature extends Feature {
   Map<String, int> cursorPerFile = {};
 
-  CursorPositionFeature();
+  CursorPositionFeature(super.editor);
 
   @override
-  void onInit(Editor editor) {
+  void onInit() {
     cursorPerFile = loadCursorPositions();
   }
 
   @override
-  void onFileOpen(Editor editor, FileBuffer file) {
+  void onFileOpen(FileBuffer file) {
     int? cursorPosition = cursorPerFile[file.absolutePath];
     if (cursorPosition != null) {
       file.cursor = cursorPosition;
@@ -28,19 +27,19 @@ class CursorPositionFeature extends Feature {
   }
 
   @override
-  void onBufferSwitch(Editor editor, FileBuffer previous, FileBuffer next) {
+  void onBufferSwitch(FileBuffer previous, FileBuffer next) {
     // Save cursor position when switching away from a buffer
     _saveCursorForBuffer(previous);
   }
 
   @override
-  void onBufferClose(Editor editor, FileBuffer file) {
+  void onBufferClose(FileBuffer file) {
     // Save cursor position when closing a buffer
     _saveCursorForBuffer(file);
   }
 
   @override
-  void onQuit(Editor editor) {
+  void onQuit() {
     // Save cursor position for current buffer and persist to disk
     _saveCursorForBuffer(editor.file);
     saveCursorPositions(cursorPerFile);

@@ -38,8 +38,9 @@ class LspFeature extends Feature {
   /// Pending semantic token requests.
   final Map<String, Timer> _semanticTokenTimers = {};
 
-  Editor? _editor;
   String? _rootPath;
+
+  LspFeature(super.editor);
 
   /// Get client for a specific file extension.
   LspClient? getClientForExtension(String ext) {
@@ -80,7 +81,7 @@ class LspFeature extends Feature {
 
   /// Legacy accessor - checks current file.
   bool get supportsSemanticTokens {
-    final path = _editor?.file.absolutePath;
+    final path = editor.file.absolutePath;
     return supportsSemanticTokensFor(path);
   }
 
@@ -126,7 +127,7 @@ class LspFeature extends Feature {
       if (result != null) {
         _semanticTokens[uri] = result.tokens;
         _previousTokens[uri] = result.tokens;
-        _editor?.draw();
+        editor.draw();
       }
     } catch (_) {
       // Ignore errors - semantic tokens are optional enhancement
@@ -158,9 +159,8 @@ class LspFeature extends Feature {
   }
 
   @override
-  void onInit(Editor editor) {
-    _editor = editor;
-    _rootPath = _findProjectRoot(editor);
+  void onInit() {
+    _rootPath = _findProjectRoot();
 
     if (_rootPath != null) {
       _startLspServers();
@@ -168,12 +168,12 @@ class LspFeature extends Feature {
   }
 
   @override
-  void onQuit(Editor editor) {
+  void onQuit() {
     _stopAllLspServers();
   }
 
   @override
-  void onFileOpen(Editor editor, FileBuffer file) {
+  void onFileOpen(FileBuffer file) {
     if (file.absolutePath == null) return;
 
     final uri = _fileUri(file.absolutePath!);
@@ -220,7 +220,7 @@ class LspFeature extends Feature {
   }
 
   @override
-  void onBufferClose(Editor editor, FileBuffer file) {
+  void onBufferClose(FileBuffer file) {
     if (file.absolutePath == null) return;
 
     final uri = _fileUri(file.absolutePath!);
@@ -238,7 +238,6 @@ class LspFeature extends Feature {
 
   @override
   void onTextChange(
-    Editor editor,
     FileBuffer file,
     int start,
     int end,
@@ -251,7 +250,7 @@ class LspFeature extends Feature {
 
     // Ensure document is open
     if (!_openDocuments.containsKey(uri)) {
-      onFileOpen(editor, file);
+      onFileOpen(file);
     }
 
     final serverKey = _openDocuments[uri];
@@ -489,7 +488,7 @@ class LspFeature extends Feature {
 
       // Re-open all buffers
       for (final buffer in editor.buffers) {
-        onFileOpen(editor, buffer);
+        onFileOpen(buffer);
       }
 
       final count = _clients.length;
@@ -555,16 +554,16 @@ class LspFeature extends Feature {
     }
 
     // Show consolidated message and open buffers
-    if (startedServers.isNotEmpty && _editor != null) {
+    if (startedServers.isNotEmpty) {
       final names = startedServers.join(', ');
-      _editor!.showMessage(Message.info('LSP connected ($names)'));
+      editor.showMessage(Message.info('LSP connected ($names)'));
 
       // Open all currently loaded buffers with their respective servers
-      for (final buffer in _editor!.buffers) {
-        onFileOpen(_editor!, buffer);
+      for (final buffer in editor.buffers) {
+        onFileOpen(buffer);
       }
 
-      _editor!.draw();
+      editor.draw();
     }
   }
 
@@ -595,10 +594,10 @@ class LspFeature extends Feature {
     );
 
     final success = await client.start(_rootPath!, config: config);
-    if (success && _editor != null && showMessage) {
+    if (success && showMessage) {
       final serverName = config.name;
-      _editor!.showMessage(Message.info('LSP connected ($serverName)'));
-      _editor!.draw();
+      editor.showMessage(Message.info('LSP connected ($serverName)'));
+      editor.draw();
     }
     if (!success) {
       // Clean up failed client
@@ -639,16 +638,16 @@ class LspFeature extends Feature {
       case 'window/logMessage':
         break;
       case 'error':
-        _editor?.showMessage(
+        editor.showMessage(
           Message.error(notification.params['message'] ?? 'LSP error'),
         );
-        _editor?.draw();
+        editor.draw();
         break;
       case 'disconnected':
         final client = _clients[serverKey];
         final name = client?.serverConfig?.name ?? serverKey;
-        _editor?.showMessage(Message.error('LSP disconnected ($name)'));
-        _editor?.draw();
+        editor.showMessage(Message.error('LSP disconnected ($name)'));
+        editor.draw();
         break;
     }
   }
@@ -661,7 +660,7 @@ class LspFeature extends Feature {
     _diagnostics[uri] = diags;
 
     // Just redraw to update diagnostic count in status bar
-    _editor?.draw();
+    editor.draw();
   }
 
   void _handleShowMessage(Map<String, dynamic> params) {
@@ -670,14 +669,14 @@ class LspFeature extends Feature {
     if (message == null) return;
 
     if (type == 1) {
-      _editor?.showMessage(Message.error(message));
+      editor.showMessage(Message.error(message));
     } else {
-      _editor?.showMessage(Message.info(message));
+      editor.showMessage(Message.info(message));
     }
-    _editor?.draw();
+    editor.draw();
   }
 
-  String? _findProjectRoot(Editor editor) {
+  String? _findProjectRoot() {
     String? startPath = editor.file.absolutePath;
     if (startPath == null) {
       startPath = Directory.current.path;
