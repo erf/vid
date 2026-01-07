@@ -299,4 +299,227 @@ void main() {
       expect(pos, 0); // should reach "firstword" at offset 0
     },
   );
+
+  group('paragraph motions', () {
+    test('paragraphNext moves to next empty line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\n\nghi\n';
+      // Text structure: 'abc\ndef\n\nghi\n'
+      // Offsets:         0123 4567 8 9...
+      // Empty line is at offset 8
+
+      // From start of file, should move to empty line
+      expect(Motions.paragraphNext(e, f, 0), 8);
+      // From middle of first paragraph
+      expect(Motions.paragraphNext(e, f, 5), 8);
+      // From end of line (the \n at offset 7)
+      expect(Motions.paragraphNext(e, f, 7), 8);
+    });
+
+    test('paragraphNext from empty line moves to next empty line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\n\ndef\n\nghi\n';
+      // Text structure: 'abc\n\ndef\n\nghi\n'
+      // Offsets:         0123 4 5678 9 ...
+      // First empty line at 4, second at 9
+
+      // From first empty line, should move to second
+      expect(Motions.paragraphNext(e, f, 4), 9);
+    });
+
+    test('paragraphNext treats consecutive empty lines as one boundary', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\n\n\n\ndef\n';
+      // Text structure: 'abc\n\n\n\ndef\n'
+      // Offsets:         0123 4 5 6 789...
+      // Empty lines at 4, 5, 6
+
+      // From start, should land on first empty line
+      int pos = Motions.paragraphNext(e, f, 0);
+      expect(pos, 4);
+
+      // Successive calls should move through each empty line
+      // until reaching the end or no more matches
+      pos = Motions.paragraphNext(e, f, pos);
+      expect(pos, 5);
+      pos = Motions.paragraphNext(e, f, pos);
+      expect(pos, 6);
+    });
+
+    test('paragraphNext stays at end when no more paragraphs', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\n';
+      // No empty lines, should stay at current position
+      expect(Motions.paragraphNext(e, f, 0), 0);
+    });
+
+    test('paragraphPrev moves to previous empty line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\n\ndef\n';
+      // Text structure: 'abc\n\ndef\n'
+      // Offsets:         0123 4 5678
+      // Empty line at 4
+
+      // From end of file, should move to empty line
+      expect(Motions.paragraphPrev(e, f, 8), 4);
+      // From 'def', should move to empty line
+      expect(Motions.paragraphPrev(e, f, 6), 4);
+    });
+
+    test('paragraphPrev from empty line moves to previous empty line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\n\ndef\n\nghi\n';
+      // First empty line at 4, second at 9
+
+      // From second empty line, should move to first
+      expect(Motions.paragraphPrev(e, f, 9), 4);
+    });
+
+    test('paragraphPrev moves to start of file when no empty line before', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\n';
+      // No empty lines, first paragraph starts at 0
+
+      // From middle of file, should move to start
+      expect(Motions.paragraphPrev(e, f, 5), 0);
+      // From first empty line, should move to start
+      f.text = 'abc\n\ndef\n';
+      expect(Motions.paragraphPrev(e, f, 4), 0);
+    });
+  });
+
+  group('sentence motions', () {
+    test('sentenceNext moves to next sentence after period', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'Hello world. This is next.\n';
+      // Text:    'Hello world. This is next.\n'
+      // Offsets:  0          11 13
+      // 'T' of "This" is at offset 13
+
+      // From start, should move to 'T' of "This"
+      expect(Motions.sentenceNext(e, f, 0), 13);
+    });
+
+    test('sentenceNext moves past end of line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'First sentence.\nSecond sentence.\n';
+      // 'S' of "Second" is at offset 16
+
+      // From end of first line (offset 15 = \n), should move to 'S'
+      expect(Motions.sentenceNext(e, f, 15), 16);
+      // From middle of first sentence, should move to 'S'
+      expect(Motions.sentenceNext(e, f, 5), 16);
+    });
+
+    test('sentenceNext with exclamation and question marks', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'What! Really? Yes.\n';
+      // 'R' at 6, 'Y' at 14
+
+      expect(Motions.sentenceNext(e, f, 0), 6); // What! -> Really
+      expect(Motions.sentenceNext(e, f, 6), 14); // Really? -> Yes
+    });
+
+    test('sentenceNext from sentence start moves to next sentence', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'One. Two. Three.\n';
+      // 'O' at 0, 'T' at 5, 'T' at 10
+
+      int pos = 0;
+      pos = Motions.sentenceNext(e, f, pos);
+      expect(pos, 5); // -> Two
+      pos = Motions.sentenceNext(e, f, pos);
+      expect(pos, 10); // -> Three
+    });
+
+    test('sentenceNext lands on empty line before next paragraph', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'First para.\n\nSecond para.\n';
+      // Text:    'First para.\n\nSecond para.\n'
+      // Offsets:  0          11 12 13
+      // Empty line at 12, 'S' at 13
+
+      // From start, should first land on empty line
+      expect(Motions.sentenceNext(e, f, 0), 12);
+      // From empty line, should move to 'S'
+      expect(Motions.sentenceNext(e, f, 12), 13);
+    });
+
+    test('sentencePrev moves to previous sentence', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'Hello world. This is next.\n';
+      // 'H' at 0, 'T' at 13
+
+      // From end, should move to 'T' of "This"
+      expect(Motions.sentencePrev(e, f, 25), 13);
+      // From 'T', should move to 'H'
+      expect(Motions.sentencePrev(e, f, 13), 0);
+    });
+
+    test('sentencePrev with multiple sentences', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'One. Two. Three.\n';
+      // 'O' at 0, 'T' at 5, 'T' at 10
+
+      expect(Motions.sentencePrev(e, f, 16), 10); // end -> Three
+      expect(Motions.sentencePrev(e, f, 10), 5); // Three -> Two
+      expect(Motions.sentencePrev(e, f, 5), 0); // Two -> One
+    });
+  });
 }

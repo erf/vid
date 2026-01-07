@@ -293,19 +293,19 @@ class Motions {
     return prev;
   }
 
-  /// Move to next paragraph ({)
+  /// Move to next paragraph (})
   static int paragraphNext(Editor e, FileBuffer f, int offset) {
-    return regexNext(f, offset, Regex.paragraph);
+    return regexNext(f, offset, Regex.paragraph, skip: 1);
   }
 
-  /// Move to previous paragraph (})
+  /// Move to previous paragraph ({)
   static int paragraphPrev(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.paragraphPrev);
   }
 
   /// Move to next sentence ())
   static int sentenceNext(Editor e, FileBuffer f, int offset) {
-    return regexNext(f, offset, Regex.sentence);
+    return regexNext(f, offset, Regex.sentence, skip: 1);
   }
 
   /// Move to previous sentence (()
