@@ -33,7 +33,7 @@ class Regex {
   ///   ^              - start of file
   static final paragraphPrev = RegExp(r'(?<=\n)(?=\n)|^');
 
-  /// Matches the start of a sentence (for ) and ( motions)
+  /// Matches the start of a sentence for ')' and '(' motions
   /// Parts:
   ///   (?<=[.!?][\s]+)\S  - first char after .!? and whitespace
   ///   ^\S                - first char at start of file

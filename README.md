@@ -17,11 +17,14 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 Requires the [Dart SDK](https://dart.dev/get-dart) (3.10+).
 
-```bash
-./build.sh
+For building `vid` run:
+
+```
+dart pub get
+dart compile exe bin/vid.dart -o build/vid
 ```
 
-This compiles vid to a native executable at `build/vid` and copies it to `~/bin/`.
+Or see [build.sh](build.sh), which also installs to `~/bin/`.
 
 ## Configuration
 
