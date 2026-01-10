@@ -15,7 +15,7 @@ void main() {
     f.text = 'abc\ndef\n';
     f.replaceAt(0, 'X', config: e.config);
     expect(f.text, 'Xbc\ndef\n');
-    final op = f.undoList.last;
+    final op = f.undoList.last.first;
     expect(op.prevText, 'a');
     expect(op.newText, 'X');
     expect(op.start, 0);
@@ -31,7 +31,7 @@ void main() {
     // Range from start (0) to 'd' at offset 5 (exclusive end)
     f.deleteRange(Range(0, 5), config: e.config);
     expect(f.text, 'ef\n');
-    final op = f.undoList.last;
+    final op = f.undoList.last.first;
     expect(op.prevText, 'abc\nd');
     expect(op.start, 0);
     // Note: deleteRange does not auto-yank anymore - operators handle yank explicitly
@@ -47,7 +47,7 @@ void main() {
     // Insert at start of 'def' line (offset 4)
     f.insertAt(4, 'X', config: e.config);
     expect(f.text, 'abc\nXdef\n');
-    final op = f.undoList.last;
+    final op = f.undoList.last.first;
     expect(op.prevText, '');
     expect(op.newText, 'X');
     expect(op.start, 4);
@@ -63,7 +63,7 @@ void main() {
     // Delete at start of 'def' line (offset 4)
     f.deleteAt(4, config: e.config);
     expect(f.text, 'abc\nef\n');
-    final op = f.undoList.last;
+    final op = f.undoList.last.first;
     expect(op.prevText, 'd');
     expect(op.newText, '');
     expect(op.start, 4);

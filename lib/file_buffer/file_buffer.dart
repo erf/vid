@@ -10,6 +10,7 @@ import '../text_op.dart';
 import '../error_or.dart';
 import 'file_buffer_io.dart';
 
+export 'file_buffer_edits.dart';
 export 'file_buffer_io.dart';
 export 'file_buffer_nav.dart';
 export 'file_buffer_text.dart';
@@ -89,11 +90,11 @@ class FileBuffer {
   // the previous edit operation (for repeat)
   EditOperation? prevEdit;
 
-  // list of undo operations
-  List<TextOp> undoList = [];
+  // list of undo operations (each entry is a group of TextOps)
+  List<List<TextOp>> undoList = [];
 
-  // list of redo operations
-  List<TextOp> redoList = [];
+  // list of redo operations (each entry is a group of TextOps)
+  List<List<TextOp>> redoList = [];
 
   // the savepoint for undo operations
   int savepoint = 0;

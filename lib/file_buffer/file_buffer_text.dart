@@ -44,7 +44,7 @@ extension FileBufferText on FileBuffer {
     updateText(start, actualEnd, newText);
   }
 
-  // add an undo operation
+  // add an undo operation (wraps single TextOp in a list for unified undo)
   void addUndo({
     required int start,
     required int end,
@@ -60,7 +60,7 @@ extension FileBufferText on FileBuffer {
       cursor: cursorOffset,
     );
 
-    undoList.add(textOp);
+    undoList.add([textOp]);
 
     // limit undo operations
     if (undoList.length > config.maxNumUndo) {
@@ -108,18 +108,38 @@ extension FileBufferText on FileBuffer {
 
   TextOp? undo() {
     if (undoList.isEmpty) return null;
-    TextOp op = undoList.removeLast();
-    updateText(op.start, op.endNew, op.prevText);
-    redoList.add(op);
-    return op;
+    final ops = undoList.removeLast();
+
+    // Apply ops in reverse order (from lowest position to highest)
+    // since they're stored in descending position order
+    for (final op in ops.reversed) {
+      updateText(op.start, op.endNew, op.prevText);
+    }
+
+    redoList.add(ops);
+
+    // Restore cursor from the first op
+    if (ops.isNotEmpty) {
+      cursor = ops.first.cursor;
+    }
+
+    // Return the first op for compatibility (most callers just check non-null)
+    return ops.firstOrNull;
   }
 
   TextOp? redo() {
     if (redoList.isEmpty) return null;
-    TextOp op = redoList.removeLast();
-    updateText(op.start, op.endPrev, op.newText);
-    undoList.add(op);
-    return op;
+    final ops = redoList.removeLast();
+
+    // Apply ops in forward order (from highest position to lowest)
+    for (final op in ops) {
+      updateText(op.start, op.endPrev, op.newText);
+    }
+
+    undoList.add(ops);
+
+    // Return the first op for compatibility
+    return ops.firstOrNull;
   }
 
   // Insert file contents at cursor position
