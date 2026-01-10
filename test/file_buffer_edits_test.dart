@@ -139,7 +139,7 @@ void main() {
       expect(f.text, 'XXYYcc\n');
     });
 
-    test('overlapping edits throws ArgumentError', () {
+    test('overlapping edits are merged', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -148,11 +148,26 @@ void main() {
       f.text = 'abcdef\n';
 
       // Overlapping: (0-3) and (2-5) both include offset 2
-      expect(
-        () =>
-            applyEdits(f, [TextEdit(0, 3, 'X'), TextEdit(2, 5, 'Y')], e.config),
-        throwsArgumentError,
+      // Should merge to (0-5) with combined text 'XY'
+      applyEdits(f, [TextEdit(0, 3, 'X'), TextEdit(2, 5, 'Y')], e.config);
+
+      // 'abcdef' -> delete 0-5 ('abcde'), insert 'XY' -> 'XYf\n'
+      expect(f.text, 'XYf\n');
+    });
+
+    test('overlapping deletions are merged', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
       );
+      final f = e.file;
+      f.text = 'abcdefghij\n';
+
+      // Overlapping deletions: (2-5) and (4-8) overlap at 4-5
+      applyEdits(f, [TextEdit.delete(2, 5), TextEdit.delete(4, 8)], e.config);
+
+      // Should merge to delete (2-8), leaving 'abij\n'
+      expect(f.text, 'abij\n');
     });
   });
 

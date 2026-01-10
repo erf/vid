@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:vid/config.dart';
+import 'package:vid/selection.dart';
 
 import '../text_op.dart';
 import 'file_buffer.dart';
@@ -24,13 +27,47 @@ class TextEdit {
   String toString() => 'TextEdit($start, $end, ${newText.length} chars)';
 }
 
+/// Merge overlapping edits into non-overlapping ones.
+///
+/// For deletions (empty newText), overlapping ranges are merged.
+/// For insertions at the same position, texts are concatenated.
+/// Mixed overlapping edits combine deletions and concatenate insertions.
+List<TextEdit> mergeOverlappingEdits(List<TextEdit> edits) {
+  if (edits.length <= 1) return edits;
+
+  // Sort by start position ascending
+  final sorted = edits.toList()..sort((a, b) => a.start.compareTo(b.start));
+
+  final merged = <TextEdit>[];
+  var current = sorted.first;
+
+  for (int i = 1; i < sorted.length; i++) {
+    final next = sorted[i];
+
+    // Check for overlap: next.start < current.end (or equal for adjacent)
+    if (next.start <= current.end) {
+      // Merge: extend range and combine newText
+      final newStart = current.start;
+      final newEnd = max(current.end, next.end);
+      // Concatenate insertion texts (for deletions both are empty)
+      final newText = current.newText + next.newText;
+      current = TextEdit(newStart, newEnd, newText);
+    } else {
+      // No overlap, add current and move to next
+      merged.add(current);
+      current = next;
+    }
+  }
+  merged.add(current);
+
+  return merged;
+}
+
 /// Apply multiple edits to a buffer as a single undo operation.
 ///
-/// Edits must not overlap. They are applied in reverse order by position
-/// to preserve offsets. Returns the list of [TextOp]s created (one per edit),
-/// which are grouped as a single undo entry.
-///
-/// Throws [ArgumentError] if edits overlap.
+/// Overlapping edits are automatically merged. Edits are applied in reverse
+/// order by position to preserve offsets. Returns the list of [TextOp]s
+/// created (one per edit), which are grouped as a single undo entry.
 List<TextOp> applyEdits(
   FileBuffer buffer,
   List<TextEdit> edits,
@@ -38,25 +75,15 @@ List<TextOp> applyEdits(
 ) {
   if (edits.isEmpty) return [];
 
+  // Merge overlapping edits first
+  final nonOverlapping = mergeOverlappingEdits(edits);
+
   // Sort by start position descending (apply from end to start)
-  final sorted = edits.toList()..sort((a, b) => b.start.compareTo(a.start));
+  final sorted = nonOverlapping.toList()
+    ..sort((a, b) => b.start.compareTo(a.start));
 
-  // Validate: no overlapping edits
-  for (int i = 0; i < sorted.length - 1; i++) {
-    final current = sorted[i];
-    final next = sorted[i + 1];
-    // current.start >= next.start (sorted descending)
-    // overlap if next.end > current.start
-    if (next.end > current.start) {
-      throw ArgumentError(
-        'Overlapping edits: ($next.start, $next.end) and '
-        '(${current.start}, ${current.end})',
-      );
-    }
-  }
-
-  // Capture cursor position before any edits
-  final cursorBefore = buffer.cursor;
+  // Capture selections before any edits
+  final selectionsBefore = List<Selection>.unmodifiable(buffer.selections);
 
   // Apply each edit in reverse order, collecting TextOps
   final textOps = <TextOp>[];
@@ -72,7 +99,7 @@ List<TextOp> applyEdits(
         newText: edit.newText,
         prevText: prevText,
         start: edit.start,
-        cursor: cursorBefore,
+        selections: selectionsBefore,
       ),
     );
   }

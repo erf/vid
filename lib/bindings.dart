@@ -62,6 +62,8 @@ const normalCommands = <String, Command>{
   'gi': ActionCommand(LspActions.jumpForward),
   'v': ActionCommand(Normal.enterVisualMode),
   'V': ActionCommand(Normal.enterVisualLineMode),
+  // Escape collapses multi-cursor to single cursor
+  Keys.escape: ActionCommand(Normal.escape),
 };
 
 const insertBindings = <String, Command>{

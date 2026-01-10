@@ -1,6 +1,7 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/actions/line_edit.dart';
+import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/modes.dart';
 import 'package:vid/selection.dart';
@@ -246,7 +247,7 @@ void main() {
       expect(f.cursor, 10); // cursor of first selection
     });
 
-    test('cursor setter replaces with single collapsed selection', () {
+    test('cursor setter updates first selection only', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -256,8 +257,10 @@ void main() {
 
       f.cursor = 25;
 
-      expect(f.selections.length, 1);
-      expect(f.selections.first, Selection.collapsed(25));
+      // Only first selection is updated; second remains
+      expect(f.selections.length, 2);
+      expect(f.selections.first, Selection(5, 25)); // cursor moved to 25
+      expect(f.selections[1], Selection(15, 20)); // unchanged
     });
   });
 
@@ -434,7 +437,7 @@ void main() {
   });
 
   group('select mode', () {
-    test('escape exits select mode with single cursor', () {
+    test('escape exits select mode with multiple collapsed cursors', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -447,8 +450,12 @@ void main() {
       e.input('\x1b'); // Escape
 
       expect(f.mode, Mode.normal);
-      expect(f.selections.length, 1);
-      expect(f.selections.first.isCollapsed, true);
+      // Now keeps multiple cursors (collapsed selections)
+      expect(f.selections.length, 2);
+      expect(f.selections[0].isCollapsed, true);
+      expect(f.selections[0].cursor, 3); // collapsed at cursor position
+      expect(f.selections[1].isCollapsed, true);
+      expect(f.selections[1].cursor, 11); // collapsed at cursor position
     });
 
     test('motions move all selection cursors', () {
@@ -979,6 +986,307 @@ void main() {
       e.input('p'); // Paste after
 
       expect(f.text, 'line one\nline two\nline three\nline one\n');
+    });
+  });
+
+  group('multi-cursor mode', () {
+    test('escape from select mode creates multiple collapsed cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo bar foo baz\n';
+      // Create selections at "foo" matches
+      f.selections = [Selection(0, 3), Selection(8, 11)];
+      f.mode = Mode.select;
+
+      e.input('\x1b'); // Escape
+
+      // Should now be in multi-cursor mode (normal with multiple collapsed selections)
+      expect(f.mode, Mode.normal);
+      expect(f.hasMultipleCursors, true);
+      expect(f.selections.length, 2);
+      expect(f.selections[0], Selection.collapsed(3));
+      expect(f.selections[1], Selection.collapsed(11));
+    });
+
+    test('motions in multi-cursor mode move all cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\nabcdef\n';
+      // Set up two collapsed cursors
+      f.selections = [Selection.collapsed(0), Selection.collapsed(7)];
+
+      // Move right (w - word motion)
+      e.input('l');
+
+      expect(f.hasMultipleCursors, true);
+      expect(f.selections.length, 2);
+      expect(f.selections[0].cursor, 1);
+      expect(f.selections[1].cursor, 8);
+    });
+
+    test('insert mode with multiple cursors inserts at all positions', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\nabc\n';
+      // Set up two collapsed cursors at start of each line
+      f.selections = [Selection.collapsed(0), Selection.collapsed(4)];
+
+      // Enter insert mode and type
+      e.input('i');
+      e.input('X');
+
+      expect(f.text, 'Xabc\nXabc\n');
+      // Cursors should be after the inserted char
+      expect(f.selections[0].cursor, 1);
+      expect(
+        f.selections[1].cursor,
+        6,
+      ); // +1 for 'X' at first cursor, +1 for own 'X'
+    });
+
+    test('escape in normal mode with multiple cursors collapses to single', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo bar foo baz\n';
+      f.selections = [Selection.collapsed(0), Selection.collapsed(8)];
+
+      e.input('\x1b'); // Escape
+
+      expect(f.selections.length, 1);
+      expect(f.selections.first, Selection.collapsed(0));
+    });
+
+    test('delete operator with multiple cursors deletes at all positions', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcXdef\nabcXdef\n';
+      // Cursors at 'X' positions
+      f.selections = [Selection.collapsed(3), Selection.collapsed(11)];
+
+      e.input('dl'); // Delete char under cursor
+
+      expect(f.text, 'abcdef\nabcdef\n');
+      // Cursors should remain at same positions (relative)
+      expect(f.selections.length, 2);
+    });
+
+    test(
+      'change operator with multiple cursors enters insert at all positions',
+      () {
+        final e = Editor(
+          terminal: TestTerminal(width: 80, height: 24),
+          redraw: false,
+        );
+        final f = e.file;
+        f.text = 'foo bar\nfoo bar\n';
+        // Cursors at start of "foo"
+        f.selections = [Selection.collapsed(0), Selection.collapsed(8)];
+
+        e.input('cw'); // Change word (deletes to start of next word)
+        expect(f.mode, Mode.insert);
+
+        e.input('baz '); // Insert "baz " to replace "foo "
+
+        expect(f.text, 'baz bar\nbaz bar\n');
+      },
+    );
+
+    test('backspace in multi-cursor insert mode deletes at all positions', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'ab\nab\n';
+      // Cursors after 'a'
+      f.selections = [Selection.collapsed(1), Selection.collapsed(4)];
+      f.mode = Mode.insert;
+
+      e.input('\x7f'); // Backspace
+
+      expect(f.text, 'b\nb\n');
+    });
+
+    test('hasMultipleCursors returns true only for multiple collapsed', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'test\n';
+
+      // Single collapsed - not multi-cursor
+      f.selections = [Selection.collapsed(0)];
+      expect(f.hasMultipleCursors, false);
+
+      // Multiple collapsed - is multi-cursor
+      f.selections = [Selection.collapsed(0), Selection.collapsed(2)];
+      expect(f.hasMultipleCursors, true);
+
+      // Multiple but one non-collapsed - not multi-cursor (visual selection)
+      f.selections = [Selection(0, 2), Selection.collapsed(3)];
+      expect(f.hasMultipleCursors, false);
+    });
+
+    test('collapseToPrimaryCursor reduces to single cursor', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'test\n';
+      f.selections = [Selection.collapsed(2), Selection.collapsed(4)];
+
+      f.collapseToPrimaryCursor();
+
+      expect(f.selections.length, 1);
+      expect(f.selections.first, Selection.collapsed(2));
+    });
+
+    test('collapseSelections collapses all selections', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'test text\n';
+      f.selections = [Selection(0, 4), Selection(5, 9)];
+
+      f.collapseSelections();
+
+      expect(f.selections.length, 2);
+      expect(f.selections[0], Selection.collapsed(4));
+      expect(f.selections[1], Selection.collapsed(9));
+    });
+
+    test('A (append at end of line) works with multiple cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\nhello world\nhello world\n';
+      // Cursors at 'w' in each "world" (positions 6, 18, 30)
+      f.selections = [
+        Selection.collapsed(6),
+        Selection.collapsed(18),
+        Selection.collapsed(30),
+      ];
+
+      e.input('A'); // A is aliased to $a - go to end of line and append
+      e.input('!');
+
+      expect(f.text, 'hello world!\nhello world!\nhello world!\n');
+    });
+
+    test('a (append after cursor) works with multiple cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\nabc\nabc\n';
+      // Cursors at 'b' (positions 1, 5, 9)
+      f.selections = [
+        Selection.collapsed(1),
+        Selection.collapsed(5),
+        Selection.collapsed(9),
+      ];
+
+      e.input('a'); // Append after cursor
+      e.input('X');
+
+      expect(f.text, 'abXc\nabXc\nabXc\n');
+    });
+
+    test('o (open line below) works with multiple cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+        config: const Config(autoIndent: false),
+      );
+      final f = e.file;
+      f.text = 'line1\nline2\nline3\n';
+      // Cursors on each line
+      f.selections = [
+        Selection.collapsed(0),
+        Selection.collapsed(6),
+        Selection.collapsed(12),
+      ];
+
+      e.input('o'); // Open line below
+      e.input('new');
+
+      expect(f.text, 'line1\nnew\nline2\nnew\nline3\nnew\n');
+    });
+
+    test('O (open line above) works with multiple cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+        config: const Config(autoIndent: false),
+      );
+      final f = e.file;
+      f.text = 'line1\nline2\nline3\n';
+      // Cursors on each line
+      f.selections = [
+        Selection.collapsed(0),
+        Selection.collapsed(6),
+        Selection.collapsed(12),
+      ];
+
+      e.input('O'); // Open line above
+      e.input('new');
+
+      expect(f.text, 'new\nline1\nnew\nline2\nnew\nline3\n');
+    });
+  });
+
+  group('visual to visual line mode transition', () {
+    test('V from visual mode expands selection to full lines', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('v'); // Enter visual mode
+      expect(f.mode, Mode.visual);
+      expect(f.selections[0].isCollapsed, true);
+
+      e.input('j'); // Move to next line
+      e.input('j'); // Move to third line
+
+      // Now we have a selection spanning from line 0 to line 2
+      expect(f.selections[0].isCollapsed, false);
+
+      e.input('V'); // Switch to visual line mode
+
+      expect(f.mode, Mode.visualLine);
+      // Selection should be expanded to full lines
+      final sel = f.selections[0];
+      expect(f.lineNumber(sel.start), 0); // First line
+      expect(sel.start, 0); // Start of first line
+      // End should be at end of third line (before newline)
+      expect(f.lineNumber(sel.end), 2);
+      expect(sel.end, f.lines[2].end); // End of third line
     });
   });
 }

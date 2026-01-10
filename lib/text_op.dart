@@ -1,15 +1,17 @@
+import 'package:vid/selection.dart';
+
 /// Represents a text operation consisting of an insertion or deletion.
 class TextOp {
   final String newText;
   final String prevText;
   final int start;
-  final int cursor; // cursor byte offset before the operation
+  final List<Selection> selections; // selections before the operation
 
   const TextOp({
     required this.newText,
     required this.prevText,
     required this.start,
-    required this.cursor,
+    required this.selections,
   });
 
   /// Byte offset where the previous text ends.

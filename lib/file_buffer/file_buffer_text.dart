@@ -32,13 +32,7 @@ extension FileBufferText on FileBuffer {
     }
 
     if (undo && config != null) {
-      addUndo(
-        start: start,
-        end: actualEnd,
-        newText: newText,
-        cursorOffset: cursor,
-        config: config,
-      );
+      addUndo(start: start, end: actualEnd, newText: newText, config: config);
     }
 
     updateText(start, actualEnd, newText);
@@ -49,7 +43,6 @@ extension FileBufferText on FileBuffer {
     required int start,
     required int end,
     required String newText,
-    required int cursorOffset,
     required Config config,
   }) {
     // text operation
@@ -57,7 +50,7 @@ extension FileBufferText on FileBuffer {
       newText: newText,
       prevText: text.substring(start, end),
       start: start,
-      cursor: cursorOffset,
+      selections: List.unmodifiable(selections),
     );
 
     undoList.add([textOp]);
@@ -118,9 +111,10 @@ extension FileBufferText on FileBuffer {
 
     redoList.add(ops);
 
-    // Restore cursor from the first op
+    // Restore selections from the first op
     if (ops.isNotEmpty) {
-      cursor = ops.first.cursor;
+      selections = ops.first.selections.toList();
+      clampCursor();
     }
 
     // Return the first op for compatibility (most callers just check non-null)
@@ -137,6 +131,13 @@ extension FileBufferText on FileBuffer {
     }
 
     undoList.add(ops);
+
+    // For redo, move cursor to end of last edit
+    // (selections are not preserved on redo - collapse to single cursor)
+    if (ops.isNotEmpty) {
+      cursor = ops.last.endNew;
+      clampCursor();
+    }
 
     // Return the first op for compatibility
     return ops.firstOrNull;
@@ -164,7 +165,6 @@ extension FileBufferText on FileBuffer {
       start: startOffset,
       end: startOffset,
       newText: str,
-      cursorOffset: startOffset,
       config: e.config,
     );
   }

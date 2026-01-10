@@ -77,15 +77,27 @@ class FileBuffer {
   List<Selection> selections = [Selection.collapsed(0)];
 
   // the cursor position (byte offset, always at grapheme cluster boundary)
-  // This is a convenience getter/setter for single-cursor mode.
+  // This is a convenience getter/setter for the primary cursor.
   int get cursor => selections.first.cursor;
   set cursor(int value) {
-    if (selections.length == 1 && selections.first.isCollapsed) {
-      selections[0] = Selection.collapsed(value);
-    } else {
-      // When setting cursor directly, collapse to single selection
-      selections = [Selection.collapsed(value)];
-    }
+    // Only update the first selection's cursor position
+    selections[0] = selections.first.isCollapsed
+        ? Selection.collapsed(value)
+        : selections.first.withCursor(value);
+  }
+
+  // whether we have multiple cursors (collapsed selections)
+  bool get hasMultipleCursors =>
+      selections.length > 1 && selections.every((s) => s.isCollapsed);
+
+  /// Collapse all selections to their cursor positions (multi-cursor mode).
+  void collapseSelections() {
+    selections = selections.map((s) => s.collapse()).toList();
+  }
+
+  /// Collapse to single cursor at first selection's cursor.
+  void collapseToPrimaryCursor() {
+    selections = [Selection.collapsed(selections.first.cursor)];
   }
 
   // the main selection (first in list)

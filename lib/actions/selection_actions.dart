@@ -5,10 +5,10 @@ import '../file_buffer/file_buffer.dart';
 
 /// Actions for selection mode (multi-cursor/multi-selection).
 class SelectionActions {
-  /// Exit selection mode, collapse to single cursor at first selection.
+  /// Exit selection mode, collapse selections to multiple cursors (collapsed selections).
+  /// This preserves cursor positions while removing visual selection ranges.
   static void escape(Editor e, FileBuffer f) {
-    final cursor = f.selections.first.cursor;
-    f.selections = [Selection.collapsed(cursor)];
+    f.selections = f.selections.map((s) => s.collapse()).toList();
     f.setMode(e, .normal);
   }
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:termio/termio.dart';
+import 'package:vid/actions/operators.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/features/cursor_position/cursor_position_feature.dart';
 import 'package:vid/features/feature_registry.dart';
@@ -630,6 +631,26 @@ class Editor {
       return;
     }
 
+    // In normal/operatorPending mode with multiple cursors, apply motion to all cursors
+    if ((file.mode == .normal || file.mode == .operatorPending) &&
+        file.hasMultipleCursors &&
+        op == null) {
+      _applyMotionToCollapsedSelections(motion, edit.count);
+      _saveForRepeat(edit);
+      file.edit.reset();
+      return;
+    }
+
+    // In normal/operatorPending mode with multiple cursors and an operator, apply to all cursors
+    if ((file.mode == .normal || file.mode == .operatorPending) &&
+        file.hasMultipleCursors &&
+        op != null) {
+      _applyOperatorToMultipleCursors(motion, edit.count, op, linewise);
+      _saveForRepeat(edit);
+      file.edit.reset();
+      return;
+    }
+
     // Calculate the end position by running motion count times
     final start = file.cursor;
     var end = start;
@@ -686,6 +707,92 @@ class Editor {
     // Merge any overlapping selections that result from the motion
     file.selections = mergeSelections(newSelections);
     file.clampCursor();
+  }
+
+  /// Apply motion to all collapsed selections (multi-cursor mode).
+  /// Keeps selections collapsed (cursor-only).
+  void _applyMotionToCollapsedSelections(Motion motion, int count) {
+    final newSelections = <Selection>[];
+    for (final sel in file.selections) {
+      var newCursor = sel.cursor;
+      for (int i = 0; i < count; i++) {
+        newCursor = motion.fn(this, file, newCursor);
+      }
+      // Keep selections collapsed
+      newSelections.add(Selection.collapsed(newCursor));
+    }
+    // Merge any overlapping selections (cursors at same position become one)
+    file.selections = mergeSelections(newSelections);
+    file.clampCursor();
+  }
+
+  /// Apply operator with motion to all collapsed selections (multi-cursor mode).
+  void _applyOperatorToMultipleCursors(
+    Motion motion,
+    int count,
+    OperatorFunction op,
+    bool linewise,
+  ) {
+    // Calculate ranges for each cursor position
+    final ranges = <Range>[];
+    for (final sel in file.selections) {
+      final start = sel.cursor;
+      var end = start;
+      for (int i = 0; i < count; i++) {
+        end = motion.fn(this, file, end);
+      }
+      // For inclusive motions, extend end to include the character under cursor
+      if (motion.inclusive && end < file.text.length) {
+        end = file.nextGrapheme(end);
+      }
+      var range = Range(start, end).norm;
+      if (linewise) {
+        range = _expandToFullLines(range);
+      }
+      ranges.add(range);
+    }
+
+    // Sort ranges by position (in document order)
+    ranges.sort((a, b) => a.start.compareTo(b.start));
+
+    // Yank all text first (for delete/change operations)
+    final allText = StringBuffer();
+    for (final range in ranges) {
+      allText.write(file.text.substring(range.start, range.end));
+    }
+    yankBuffer = YankBuffer(allText.toString(), linewise: linewise);
+    terminal.write(Ansi.copyToClipboard(yankBuffer!.text));
+
+    // For yank, we're done after copying
+    if (op == Operators.yank) {
+      file.setMode(this, .normal);
+      return;
+    }
+
+    // For delete/change, apply from end to start to preserve positions
+    // Build edit list
+    final edits = ranges.reversed
+        .map((r) => TextEdit.delete(r.start, r.end))
+        .toList();
+
+    // Apply the deletions
+    applyEdits(file, edits, config);
+
+    // Compute new collapsed selection positions, adjusted for deleted text
+    int offset = 0;
+    final newSelections = <Selection>[];
+    for (final r in ranges) {
+      newSelections.add(Selection.collapsed(r.start - offset));
+      offset += r.end - r.start;
+    }
+    file.selections = newSelections;
+    file.clampCursor();
+
+    if (op == Operators.change) {
+      file.setMode(this, .insert);
+    } else {
+      file.setMode(this, .normal);
+    }
   }
 
   /// Expand range to include full lines (for linewise operations).

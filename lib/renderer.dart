@@ -495,6 +495,15 @@ class Renderer {
           .where((s) => !s.isCollapsed)
           .map((s) => (s.start, s.end))
           .toList();
+    } else if (file.hasMultipleCursors) {
+      // Show secondary cursors as single-character highlights
+      // Skip first cursor (it's rendered as the actual terminal cursor)
+      selectionRanges = file.selections.skip(1).map((s) {
+        final end = s.cursor < file.text.length
+            ? file.nextGrapheme(s.cursor)
+            : s.cursor;
+        return (s.cursor, end);
+      }).toList();
     } else {
       selectionRanges = const <(int, int)>[];
     }
@@ -823,6 +832,10 @@ class Renderer {
 
     int cursorCol = file.columnInLine(file.cursor);
     String mode = file.mode.label;
+    // Show cursor count for multi-cursor mode
+    if (file.hasMultipleCursors) {
+      mode = '$mode[${file.selections.length}]';
+    }
     String path = file.relativePath ?? '[No Name]';
     String modified = file.modified ? '*' : '';
     String pathWithMod = '$path$modified';
