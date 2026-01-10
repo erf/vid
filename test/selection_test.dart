@@ -107,6 +107,59 @@ void main() {
     });
   });
 
+  group('mergeSelections', () {
+    test('returns empty list for empty input', () {
+      expect(mergeSelections([]), isEmpty);
+    });
+
+    test('returns single selection unchanged', () {
+      final result = mergeSelections([Selection(5, 10)]);
+      expect(result.length, 1);
+      expect(result[0], Selection(5, 10));
+    });
+
+    test('merges overlapping selections', () {
+      final result = mergeSelections([Selection(0, 10), Selection(5, 15)]);
+      expect(result.length, 1);
+      expect(result[0], Selection(0, 15));
+    });
+
+    test('merges adjacent selections', () {
+      final result = mergeSelections([Selection(0, 5), Selection(5, 10)]);
+      expect(result.length, 1);
+      expect(result[0], Selection(0, 10));
+    });
+
+    test('does not merge non-overlapping selections', () {
+      final result = mergeSelections([Selection(0, 5), Selection(10, 15)]);
+      expect(result.length, 2);
+      expect(result[0], Selection(0, 5));
+      expect(result[1], Selection(10, 15));
+    });
+
+    test('handles unsorted input', () {
+      final result = mergeSelections([
+        Selection(10, 15),
+        Selection(0, 5),
+        Selection(3, 12),
+      ]);
+      expect(result.length, 1);
+      expect(result[0], Selection(0, 15));
+    });
+
+    test('merges multiple groups correctly', () {
+      final result = mergeSelections([
+        Selection(0, 5),
+        Selection(3, 8),
+        Selection(20, 25),
+        Selection(22, 30),
+      ]);
+      expect(result.length, 2);
+      expect(result[0], Selection(0, 8));
+      expect(result[1], Selection(20, 30));
+    });
+  });
+
   group(':sel command', () {
     test('creates selections from regex matches and enters select mode', () {
       final e = Editor(

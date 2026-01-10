@@ -64,3 +64,33 @@ List<Selection> selectAllMatches(String text, RegExp pattern) {
   final matches = pattern.allMatches(text);
   return matches.map((m) => Selection(m.start, m.end)).toList();
 }
+
+/// Merge overlapping or adjacent selections into a single list.
+///
+/// Selections are sorted by start position and then merged if they overlap
+/// or touch. The resulting selections preserve forward direction (anchor < cursor).
+List<Selection> mergeSelections(List<Selection> selections) {
+  if (selections.length <= 1) return selections;
+
+  // Sort by start position
+  final sorted = selections.toList()
+    ..sort((a, b) => a.start.compareTo(b.start));
+
+  final merged = <Selection>[];
+  var current = sorted.first;
+
+  for (var i = 1; i < sorted.length; i++) {
+    final next = sorted[i];
+    if (next.start <= current.end) {
+      // Overlapping or adjacent - merge them
+      current = Selection(current.start, max(current.end, next.end));
+    } else {
+      // No overlap - add current and move on
+      merged.add(current);
+      current = next;
+    }
+  }
+  merged.add(current);
+
+  return merged;
+}

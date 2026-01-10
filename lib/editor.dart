@@ -675,7 +675,8 @@ class Editor {
       // Update selection cursor, keeping anchor for visual selections
       newSelections.add(sel.withCursor(newCursor));
     }
-    file.selections = newSelections;
+    // Merge any overlapping selections that result from the motion
+    file.selections = mergeSelections(newSelections);
     file.clampCursor();
   }
 
