@@ -199,7 +199,7 @@ class Editor {
     }
   }
 
-  ErrorOr<FileBuffer> loadFile(String path) {
+  ErrorOr<FileBuffer> loadFile(String path, {bool switchTo = true}) {
     // Check if file is already open
     final existingIndex = _buffers.indexWhere(
       (b) =>
@@ -207,7 +207,7 @@ class Editor {
           b.absolutePath == FileBufferIo.toAbsolutePath(path),
     );
     if (existingIndex != -1) {
-      switchBuffer(existingIndex);
+      if (switchTo) switchBuffer(existingIndex);
       return ErrorOr.value(_buffers[existingIndex]);
     }
 
@@ -221,10 +221,12 @@ class Editor {
     }
     final buffer = result.value!;
     _addBuffer(buffer);
-    _currentBufferIndex = _buffers.length - 1;
-    terminal.write(Ansi.setTitle('vid $path'));
-    featureRegistry?.notifyFileOpen(file);
-    draw();
+    if (switchTo) {
+      _currentBufferIndex = _buffers.length - 1;
+      terminal.write(Ansi.setTitle('vid $path'));
+      draw();
+    }
+    featureRegistry?.notifyFileOpen(buffer);
     return result;
   }
 

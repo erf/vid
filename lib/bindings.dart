@@ -54,6 +54,7 @@ const normalCommands = <String, Command>{
   // LSP commands
   'gd': ActionCommand(LspActions.goToDefinition),
   'gr': ActionCommand(LspActions.findReferences),
+  'gR': ActionCommand(LspActions.rename),
   Keys.ctrlR: ActionCommand(LspActions.findReferences),
   'gD': ActionCommand(Normal.openDiagnostics),
   'K': ActionCommand(LspActions.hover),
@@ -169,6 +170,7 @@ const lineEditCommands = <String, LineEditCommand>{
   'diagnostics': LineEditCommand(LspCommands.diagnostics),
   'd': LineEditCommand(LspCommands.diagnostics),
   'da': LineEditCommand(LspCommands.diagnosticsAll),
+  'rename': LineEditCommand(LspCommands.rename),
   // Selection commands
   'sel': LineEditCommand(LineEdit.select),
   'select': LineEditCommand(LineEdit.select),

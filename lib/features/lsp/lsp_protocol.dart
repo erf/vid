@@ -415,6 +415,100 @@ class LspProtocol {
     return items.map((item) => LspCompletionItem.fromJson(item)).toList();
   }
 
+  /// Prepare rename: validate rename is possible and get default text/range.
+  ///
+  /// Returns the range and placeholder text if rename is valid,
+  /// or null if rename is not possible at this location.
+  Future<PrepareRenameResult?> prepareRename(
+    String uri,
+    int line,
+    int char,
+  ) async {
+    final result = await client.sendRequest('textDocument/prepareRename', {
+      'textDocument': {'uri': uri},
+      'position': {'line': line, 'character': char},
+    });
+
+    if (result == null) return null;
+
+    // Check for error response
+    if (result.containsKey('error')) {
+      final error = result['error'];
+      final message = error['message'] as String? ?? 'Cannot rename here';
+      return PrepareRenameResult.error(message);
+    }
+
+    final resultData = result['result'];
+    if (resultData == null) return null;
+
+    // Result can be Range, { range, placeholder }, or { defaultBehavior: true }
+    if (resultData is Map) {
+      if (resultData.containsKey('defaultBehavior')) {
+        // Server supports rename but has no specific range
+        return PrepareRenameResult(placeholder: null, range: null);
+      }
+      if (resultData.containsKey('range')) {
+        final range = resultData['range'] as Map<String, dynamic>;
+        final placeholder = resultData['placeholder'] as String?;
+        return PrepareRenameResult(
+          placeholder: placeholder,
+          range: _parseRange(range),
+        );
+      }
+      // Just a Range
+      if (resultData.containsKey('start')) {
+        return PrepareRenameResult(
+          placeholder: null,
+          range: _parseRange(Map<String, dynamic>.from(resultData)),
+        );
+      }
+    }
+
+    return null;
+  }
+
+  /// Request a rename operation.
+  ///
+  /// Returns a [WorkspaceEdit] containing all the changes to apply,
+  /// or null if the rename failed.
+  Future<WorkspaceEdit?> rename(
+    String uri,
+    int line,
+    int char,
+    String newName,
+  ) async {
+    final result = await client.sendRequest('textDocument/rename', {
+      'textDocument': {'uri': uri},
+      'position': {'line': line, 'character': char},
+      'newName': newName,
+    });
+
+    if (result == null) return null;
+
+    // Check for error response
+    if (result.containsKey('error')) {
+      final error = result['error'];
+      throw Exception(error['message'] ?? 'Rename failed');
+    }
+
+    final resultData = result['result'];
+    if (resultData == null) return null;
+
+    return WorkspaceEdit.fromJson(resultData as Map<String, dynamic>);
+  }
+
+  /// Parse LSP Range to LspRange.
+  LspRange _parseRange(Map<String, dynamic> range) {
+    final start = range['start'] as Map<String, dynamic>;
+    final end = range['end'] as Map<String, dynamic>;
+    return LspRange(
+      startLine: start['line'] as int,
+      startChar: start['character'] as int,
+      endLine: end['line'] as int,
+      endChar: end['character'] as int,
+    );
+  }
+
   LspLocation _parseLocation(dynamic loc) {
     if (loc is! Map) return LspLocation.empty();
 
@@ -667,5 +761,117 @@ class LspCompletionItem {
       sortText: json['sortText'] as String?,
       filterText: json['filterText'] as String?,
     );
+  }
+}
+
+/// Result from prepareRename request.
+class PrepareRenameResult {
+  /// Placeholder text (current symbol name).
+  final String? placeholder;
+
+  /// Range of the symbol to be renamed.
+  final LspRange? range;
+
+  /// Error message if rename is not possible.
+  final String? errorMessage;
+
+  const PrepareRenameResult({this.placeholder, this.range, this.errorMessage});
+
+  factory PrepareRenameResult.error(String message) {
+    return PrepareRenameResult(errorMessage: message);
+  }
+
+  bool get isError => errorMessage != null;
+}
+
+/// A range in a document (0-based line and character offsets).
+class LspRange {
+  final int startLine;
+  final int startChar;
+  final int endLine;
+  final int endChar;
+
+  const LspRange({
+    required this.startLine,
+    required this.startChar,
+    required this.endLine,
+    required this.endChar,
+  });
+}
+
+/// A text edit from LSP WorkspaceEdit.
+class LspTextEdit {
+  final LspRange range;
+  final String newText;
+
+  const LspTextEdit({required this.range, required this.newText});
+
+  factory LspTextEdit.fromJson(Map<String, dynamic> json) {
+    final range = json['range'] as Map<String, dynamic>;
+    final start = range['start'] as Map<String, dynamic>;
+    final end = range['end'] as Map<String, dynamic>;
+    return LspTextEdit(
+      range: LspRange(
+        startLine: start['line'] as int,
+        startChar: start['character'] as int,
+        endLine: end['line'] as int,
+        endChar: end['character'] as int,
+      ),
+      newText: json['newText'] as String,
+    );
+  }
+}
+
+/// Workspace edit from LSP containing changes across files.
+class WorkspaceEdit {
+  /// Map of file URI to list of text edits.
+  final Map<String, List<LspTextEdit>> changes;
+
+  const WorkspaceEdit({required this.changes});
+
+  /// Total number of edits across all files.
+  int get totalEdits =>
+      changes.values.fold(0, (sum, edits) => sum + edits.length);
+
+  /// Number of files affected.
+  int get fileCount => changes.length;
+
+  /// Whether this edit is empty (no changes).
+  bool get isEmpty => changes.isEmpty;
+
+  factory WorkspaceEdit.fromJson(Map<String, dynamic> json) {
+    final changes = <String, List<LspTextEdit>>{};
+
+    // Handle 'changes' format: { uri: TextEdit[] }
+    if (json.containsKey('changes')) {
+      final changesMap = json['changes'] as Map<String, dynamic>;
+      for (final entry in changesMap.entries) {
+        final edits = (entry.value as List)
+            .map((e) => LspTextEdit.fromJson(e as Map<String, dynamic>))
+            .toList();
+        changes[entry.key] = edits;
+      }
+    }
+
+    // Handle 'documentChanges' format: TextDocumentEdit[]
+    if (json.containsKey('documentChanges')) {
+      final docChanges = json['documentChanges'] as List;
+      for (final docChange in docChanges) {
+        if (docChange is! Map) continue;
+
+        // TextDocumentEdit has textDocument and edits
+        if (docChange.containsKey('textDocument') &&
+            docChange.containsKey('edits')) {
+          final textDoc = docChange['textDocument'] as Map<String, dynamic>;
+          final uri = textDoc['uri'] as String;
+          final edits = (docChange['edits'] as List)
+              .map((e) => LspTextEdit.fromJson(e as Map<String, dynamic>))
+              .toList();
+          changes[uri] = [...(changes[uri] ?? []), ...edits];
+        }
+      }
+    }
+
+    return WorkspaceEdit(changes: changes);
   }
 }

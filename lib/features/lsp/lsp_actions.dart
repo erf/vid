@@ -2,6 +2,7 @@ import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../popup/diagnostics_popup.dart';
 import '../../popup/references_popup.dart';
+import '../../popup/rename_popup.dart';
 import 'lsp_feature.dart';
 
 /// LSP-related actions for keybindings.
@@ -36,6 +37,11 @@ class LspActions {
       return;
     }
     lsp.hover(e, f);
+  }
+
+  /// Rename symbol at cursor (gR).
+  static void rename(Editor e, FileBuffer f) {
+    RenamePopup.show(e, f);
   }
 
   /// Show LSP status.
@@ -116,5 +122,11 @@ class LspCommands {
   static void diagnosticsAll(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     DiagnosticsPopup.showAll(e);
+  }
+
+  /// Rename symbol at cursor (:rename).
+  static void rename(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    RenamePopup.show(e, f);
   }
 }
