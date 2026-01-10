@@ -477,12 +477,27 @@ class Renderer {
     int screenRow = 0;
 
     // Convert selections to (start, end) tuples for rendering
-    final selectionRanges = file.hasVisualSelection
-        ? file.selections
-              .where((s) => !s.isCollapsed)
-              .map((s) => (s.start, s.end))
-              .toList()
-        : const <(int, int)>[];
+    // In visual line mode, expand each selection to full lines
+    List<(int, int)> selectionRanges;
+    if (file.mode == .visualLine) {
+      selectionRanges = file.selections.map((s) {
+        final startLineNum = file.lineNumber(s.start);
+        final endLineNum = file.lineNumber(s.end);
+        final minLine = startLineNum < endLineNum ? startLineNum : endLineNum;
+        final maxLine = startLineNum < endLineNum ? endLineNum : startLineNum;
+        final start = file.lines[minLine].start;
+        var end = file.lines[maxLine].end + 1; // Include newline
+        if (end > file.text.length) end = file.text.length;
+        return (start, end);
+      }).toList();
+    } else if (file.hasVisualSelection) {
+      selectionRanges = file.selections
+          .where((s) => !s.isCollapsed)
+          .map((s) => (s.start, s.end))
+          .toList();
+    } else {
+      selectionRanges = const <(int, int)>[];
+    }
 
     while (screenRow < numLines) {
       // Past end of file - draw '~'

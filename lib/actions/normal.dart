@@ -258,4 +258,12 @@ class Normal {
     f.selections = [Selection.collapsed(f.cursor)];
     f.setMode(e, .visual);
   }
+
+  /// Enter visual line mode with the current line selected.
+  static void enterVisualLineMode(Editor e, FileBuffer f) {
+    // Store cursor at current position; line expansion happens in motion handling
+    // and operator handling. The anchor represents the "anchor line" via its position.
+    f.selections = [Selection.collapsed(f.cursor)];
+    f.setMode(e, .visualLine);
+  }
 }

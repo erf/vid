@@ -617,8 +617,11 @@ class Editor {
     // Motions may also write to this during execution (capturing char for repeat).
     file.edit.findStr = edit.findStr;
 
-    // In select/visual mode with no operator, apply motion to all selection cursors
-    if ((file.mode == .select || file.mode == .visual) && op == null) {
+    // In select/visual/visualLine mode with no operator, apply motion to all selection cursors
+    if ((file.mode == .select ||
+            file.mode == .visual ||
+            file.mode == .visualLine) &&
+        op == null) {
       _applyMotionToSelections(motion, edit.count);
       _saveForRepeat(edit);
       file.edit.reset();
@@ -668,7 +671,7 @@ class Editor {
         newCursor = motion.fn(this, file, newCursor);
       }
       // In select mode, extend for inclusive motions so selection includes cursor char.
-      // In visual mode, we handle extension in handleVisualSelections when operating,
+      // In visual mode and visual line mode, we handle extension at operator time,
       // so store the raw cursor position here.
       if (file.mode == .select &&
           motion.inclusive &&

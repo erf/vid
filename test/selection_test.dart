@@ -796,4 +796,189 @@ void main() {
       expect(e.yankBuffer?.text, 'hello'); // Includes 'o'
     });
   });
+
+  group('visual line mode', () {
+    test('V enters visual line mode with collapsed selection', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 5; // Middle of first line
+
+      e.input('V');
+
+      expect(f.mode, Mode.visualLine);
+      expect(f.selections.length, 1);
+      // Selection is collapsed at cursor, line expansion happens at render/operator time
+      expect(f.selections[0].isCollapsed, true);
+      expect(f.selections[0].cursor, 5);
+    });
+
+    test('j motion moves cursor to next line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V');
+      e.input('j'); // Move down one line
+
+      expect(f.mode, Mode.visualLine);
+      // Anchor stays on line 0, cursor moves to line 1
+      // Selection range spans anchor line (0) to cursor line (1)
+      expect(f.lineNumber(f.selections[0].anchor), 0);
+      expect(f.lineNumber(f.selections[0].cursor), 1);
+    });
+
+    test('k motion shrinks selection when moving back', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V');
+      e.input('j'); // Move to line 1
+      e.input('k'); // Move back to line 0
+
+      expect(f.mode, Mode.visualLine);
+      // Both anchor and cursor should be on line 0
+      expect(f.lineNumber(f.selections[0].anchor), 0);
+      expect(f.lineNumber(f.selections[0].cursor), 0);
+    });
+
+    test('escape exits visual line mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\n';
+      f.cursor = 5;
+
+      e.input('V');
+      e.input('\x1b'); // Escape
+
+      expect(f.mode, Mode.normal);
+      expect(f.selections.length, 1);
+      expect(f.selections[0].isCollapsed, true);
+    });
+
+    test('d deletes entire lines in visual line mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V');
+      e.input('j'); // Select 2 lines
+      e.input('d'); // Delete
+
+      expect(f.text, 'line three\n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('y yanks entire lines with linewise flag', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V');
+      e.input('j'); // Select 2 lines
+      e.input('y'); // Yank
+
+      expect(f.text, 'line one\nline two\nline three\n'); // Unchanged
+      expect(f.mode, Mode.normal);
+      expect(e.yankBuffer?.text, 'line one\nline two\n');
+      expect(e.yankBuffer?.linewise, true);
+    });
+
+    test('d on single line deletes that line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V');
+      e.input('d'); // Delete first line
+
+      expect(f.text, 'line two\nline three\n');
+      expect(f.mode, Mode.normal);
+      expect(f.cursor, 0);
+    });
+
+    test('G motion extends selection to last line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V');
+      e.input('G'); // Go to last line
+
+      expect(f.mode, Mode.visualLine);
+      // Anchor on line 0, cursor on last line
+      expect(f.lineNumber(f.selections[0].anchor), 0);
+      expect(f.lineNumber(f.selections[0].cursor), 2);
+    });
+
+    test('o swaps anchor and cursor direction', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V');
+      e.input('j'); // Select 2 lines
+
+      final anchorBefore = f.selections[0].anchor;
+      final cursorBefore = f.selections[0].cursor;
+
+      e.input('o'); // Swap
+
+      expect(f.selections[0].anchor, cursorBefore);
+      expect(f.selections[0].cursor, anchorBefore);
+    });
+
+    test('pasting after linewise yank pastes on next line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V'); // Select first line
+      e.input('y'); // Yank it
+
+      f.cursor = 18; // Go to third line
+      e.input('p'); // Paste after
+
+      expect(f.text, 'line one\nline two\nline three\nline one\n');
+    });
+  });
 }

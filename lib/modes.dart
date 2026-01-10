@@ -7,7 +7,8 @@ enum Mode {
   search,
   popup,
   select, // Multi-selection mode
-  visual; // Visual selection mode
+  visual, // Visual selection mode (character-wise)
+  visualLine; // Visual line mode (linewise)
 
   String get label => switch (this) {
     .normal => 'NOR',
@@ -19,5 +20,6 @@ enum Mode {
     .popup => 'POP',
     .select => 'SEL',
     .visual => 'VIS',
+    .visualLine => 'VLN',
   };
 }

@@ -60,6 +60,7 @@ const normalCommands = <String, Command>{
   'go': ActionCommand(LspActions.jumpBack),
   'gi': ActionCommand(LspActions.jumpForward),
   'v': ActionCommand(Normal.enterVisualMode),
+  'V': ActionCommand(Normal.enterVisualLineMode),
 };
 
 const insertBindings = <String, Command>{
@@ -221,6 +222,13 @@ const visualCommands = <String, Command>{
   'x': OperatorCommand(Operators.delete),
 };
 
+// Visual line mode bindings - linewise selection
+const visualLineCommands = <String, Command>{
+  Keys.escape: ActionCommand(SelectionActions.escapeVisualLine),
+  'o': ActionCommand(SelectionActions.swapEnds), // Swap anchor/cursor
+  'x': OperatorCommand(Operators.delete),
+};
+
 final keyBindings = <Mode, ModeBindings<Command>>{
   .normal: ModeBindings({
     ...countCommands,
@@ -258,5 +266,12 @@ final keyBindings = <Mode, ModeBindings<Command>>{
     ...motionCommands,
     ...operatorCommands,
     ...visualCommands, // Visual-specific overrides LAST (highest priority)
+  }),
+  .visualLine: ModeBindings({
+    ...countCommands,
+    ...normalCommands,
+    ...motionCommands,
+    ...operatorCommands,
+    ...visualLineCommands, // Visual line overrides LAST
   }),
 };

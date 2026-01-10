@@ -21,23 +21,44 @@ class Operators {
     OperatorFunction op, {
     bool linewise = false,
   }) {
-    if (!f.hasVisualSelection) return false;
+    // In visual line mode, always treat as having a selection (even if collapsed)
+    // since the current line is always selected
+    final isVisualLineMode = f.mode == .visualLine;
+    if (!f.hasVisualSelection && !isVisualLineMode) return false;
 
-    // Apply operator to each visual selection
-    // Collect non-collapsed selections, sorted by position
-    var visualSelections = f.selections.where((s) => !s.isCollapsed).toList()
-      ..sort((a, b) => a.start.compareTo(b.start));
+    // Visual line mode is always linewise
+    final isLinewise = linewise || isVisualLineMode;
 
-    if (visualSelections.isEmpty) return false;
+    // Collect selections, sorted by position
+    List<Selection> visualSelections;
 
-    // In visual mode, extend selections to include cursor character.
-    // Visual mode is always inclusive - the char under cursor is selected.
-    // The selection stores the raw cursor position, we extend here when operating.
-    if (f.mode == .visual) {
-      visualSelections = visualSelections.map((s) {
-        final newEnd = f.nextGrapheme(s.end);
-        return Selection(s.start, newEnd);
-      }).toList();
+    if (isVisualLineMode) {
+      // In visual line mode, expand each selection to full lines
+      visualSelections = f.selections.map((s) {
+        final startLineNum = f.lineNumber(s.start);
+        final endLineNum = f.lineNumber(s.end);
+        final minLine = startLineNum < endLineNum ? startLineNum : endLineNum;
+        final maxLine = startLineNum < endLineNum ? endLineNum : startLineNum;
+        final lineStart = f.lines[minLine].start;
+        var lineEnd = f.lines[maxLine].end + 1; // Include newline
+        if (lineEnd > f.text.length) lineEnd = f.text.length;
+        return Selection(lineStart, lineEnd);
+      }).toList()..sort((a, b) => a.start.compareTo(b.start));
+    } else {
+      // Non-line visual modes: filter to non-collapsed selections
+      visualSelections = f.selections.where((s) => !s.isCollapsed).toList()
+        ..sort((a, b) => a.start.compareTo(b.start));
+
+      if (visualSelections.isEmpty) return false;
+
+      // In visual mode (character-wise), extend selections to include cursor character.
+      // Visual mode is always inclusive - the char under cursor is selected.
+      if (f.mode == .visual) {
+        visualSelections = visualSelections.map((s) {
+          final newEnd = f.nextGrapheme(s.end);
+          return Selection(s.start, newEnd);
+        }).toList();
+      }
     }
 
     // Yank all selected text first (in document order)
@@ -45,7 +66,7 @@ class Operators {
     for (final sel in visualSelections) {
       allText.write(f.text.substring(sel.start, sel.end));
     }
-    e.yankBuffer = YankBuffer(allText.toString(), linewise: linewise);
+    e.yankBuffer = YankBuffer(allText.toString(), linewise: isLinewise);
 
     // For yank, we're done after copying
     if (op == yank) {
@@ -77,8 +98,8 @@ class Operators {
 
     if (op == change) {
       f.setMode(e, .insert);
-    } else if (f.mode == .visual) {
-      // Visual mode: return to normal after operator
+    } else if (f.mode == .visual || f.mode == .visualLine) {
+      // Visual modes: return to normal after operator
       f.setMode(e, .normal);
     }
     // Select mode: Stay in select mode (don't switch to normal) to keep multi-cursors

@@ -51,4 +51,12 @@ class SelectionActions {
     f.selections = [Selection.collapsed(cursor)];
     f.setMode(e, .normal);
   }
+
+  /// Exit visual line mode, collapse to first non-blank of first selected line.
+  static void escapeVisualLine(Editor e, FileBuffer f) {
+    // Move cursor to start of first selected line
+    final start = f.selections.first.start;
+    f.selections = [Selection.collapsed(start)];
+    f.setMode(e, .normal);
+  }
 }
