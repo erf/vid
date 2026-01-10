@@ -667,6 +667,11 @@ class Editor {
       for (int i = 0; i < count; i++) {
         newCursor = motion.fn(this, file, newCursor);
       }
+      // For inclusive motions (e, $, etc.), add 1 so the selection includes
+      // the character at the cursor position (selection end is exclusive)
+      if (motion.inclusive && newCursor < file.text.length) {
+        newCursor = file.nextGrapheme(newCursor);
+      }
       // Update selection cursor, keeping anchor for visual selections
       newSelections.add(sel.withCursor(newCursor));
     }
