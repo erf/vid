@@ -183,14 +183,36 @@ class LineEdit {
   static void writeAndQuit(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
 
-    String? path = f.path;
+    // If a path argument is provided, save current buffer to that path first
     if (args.length > 1) {
-      path = args[1];
+      final path = args[1];
+      final result = f.save(e, path);
+      if (result.hasError) {
+        e.showMessage(.error(result.error!));
+        return;
+      }
+      f.path = path;
     }
 
-    ErrorOr result = f.save(e, path);
-    if (result.hasError) {
-      e.showMessage(.error(result.error!));
+    // Save all modified buffers
+    final List<String> errors = [];
+    for (final buffer in e.buffers) {
+      if (!buffer.modified) continue;
+
+      if (buffer.path == null || buffer.path!.isEmpty) {
+        final name = buffer.relativePath ?? '[No Name]';
+        errors.add('No file name for buffer \'$name\'');
+        continue;
+      }
+
+      final result = buffer.save(e, buffer.path);
+      if (result.hasError) {
+        errors.add(result.error!);
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      e.showMessage(.error(errors.first));
     } else {
       e.quit();
     }
