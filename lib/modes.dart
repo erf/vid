@@ -5,7 +5,8 @@ enum Mode {
   replace,
   command,
   search,
-  popup;
+  popup,
+  select; // Multi-selection mode
 
   String get label => switch (this) {
     .normal => 'NOR',
@@ -15,5 +16,6 @@ enum Mode {
     .command => 'CMD',
     .search => 'SRC',
     .popup => 'POP',
+    .select => 'SEL',
   };
 }

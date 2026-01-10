@@ -33,12 +33,16 @@ class Theme {
   /// OSC 12 escape sequence to set terminal cursor color.
   final String? cursorColor;
 
+  /// ANSI code for selection background color.
+  final String? selectionBackground;
+
   const Theme._(
     this.name,
     this._colors, {
     this.background,
     this.foreground,
     this.cursorColor,
+    this.selectionBackground,
   });
 
   /// ANSI reset code for clearing styles.
@@ -92,6 +96,7 @@ class Theme {
     background: Ansi.bgRgb(250, 244, 237), // Base #faf4ed
     foreground: Ansi.fgRgb(87, 82, 121), // Text #575279
     cursorColor: Ansi.setCursorColor('#9893a5'), // Muted
+    selectionBackground: Ansi.bgRgb(223, 218, 228), // Highlight Med #dfdae4
   );
 
   // Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
@@ -130,6 +135,7 @@ class Theme {
     background: Ansi.bgRgb(25, 23, 36), // Base #191724
     foreground: Ansi.fgRgb(224, 222, 244), // Text #e0def4
     cursorColor: Ansi.setCursorColor('#e0def4'), // Text
+    selectionBackground: Ansi.bgRgb(57, 53, 82), // Highlight Med #393552
   );
 
   // Ayu Dark
@@ -168,6 +174,7 @@ class Theme {
     background: Ansi.bgRgb(16, 20, 28), // #10141C
     foreground: Ansi.fgRgb(191, 189, 182), // #BFBDB6
     cursorColor: Ansi.setCursorColor('#E6B450'),
+    selectionBackground: Ansi.bgRgb(49, 57, 68), // #313944
   );
 
   // Ayu Light
@@ -206,37 +213,42 @@ class Theme {
     background: Ansi.bgRgb(252, 252, 252), // #FCFCFC
     foreground: Ansi.fgRgb(92, 97, 102), // #5C6166
     cursorColor: Ansi.setCursorColor('#F29718'),
+    selectionBackground: Ansi.bgRgb(229, 237, 246), // #E5EDF6
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)
-  static final Theme _mono = Theme._('mono', {
-    // Basic token types
-    TokenType.keyword: Ansi.bold(),
-    TokenType.lineComment: Ansi.dim(),
-    TokenType.blockComment: Ansi.dim(),
-    TokenType.string: Ansi.italic(),
-    TokenType.number: '',
-    TokenType.literal: Ansi.bold(),
-    TokenType.type: Ansi.underline(),
-    TokenType.plain: reset,
-    // LSP semantic token types
-    TokenType.namespace: '',
-    TokenType.class_: Ansi.underline(),
-    TokenType.enum_: Ansi.underline(),
-    TokenType.interface: Ansi.underline(),
-    TokenType.struct: Ansi.underline(),
-    TokenType.typeParameter: Ansi.underline(),
-    TokenType.parameter: Ansi.italic(),
-    TokenType.variable: '',
-    TokenType.property: Ansi.italic(),
-    TokenType.enumMember: Ansi.bold(),
-    TokenType.event: '',
-    TokenType.function: Ansi.bold(),
-    TokenType.method: Ansi.bold(),
-    TokenType.macro: Ansi.bold(),
-    TokenType.modifier: Ansi.bold(),
-    TokenType.regexp: Ansi.italic(),
-    TokenType.operator: '',
-    TokenType.decorator: '${Ansi.dim()}${Ansi.italic()}',
-  });
+  static final Theme _mono = Theme._(
+    'mono',
+    {
+      // Basic token types
+      TokenType.keyword: Ansi.bold(),
+      TokenType.lineComment: Ansi.dim(),
+      TokenType.blockComment: Ansi.dim(),
+      TokenType.string: Ansi.italic(),
+      TokenType.number: '',
+      TokenType.literal: Ansi.bold(),
+      TokenType.type: Ansi.underline(),
+      TokenType.plain: reset,
+      // LSP semantic token types
+      TokenType.namespace: '',
+      TokenType.class_: Ansi.underline(),
+      TokenType.enum_: Ansi.underline(),
+      TokenType.interface: Ansi.underline(),
+      TokenType.struct: Ansi.underline(),
+      TokenType.typeParameter: Ansi.underline(),
+      TokenType.parameter: Ansi.italic(),
+      TokenType.variable: '',
+      TokenType.property: Ansi.italic(),
+      TokenType.enumMember: Ansi.bold(),
+      TokenType.event: '',
+      TokenType.function: Ansi.bold(),
+      TokenType.method: Ansi.bold(),
+      TokenType.macro: Ansi.bold(),
+      TokenType.modifier: Ansi.bold(),
+      TokenType.regexp: Ansi.italic(),
+      TokenType.operator: '',
+      TokenType.decorator: '${Ansi.dim()}${Ansi.italic()}',
+    },
+    selectionBackground: Ansi.inverse(true), // Use inverse video for mono
+  );
 }

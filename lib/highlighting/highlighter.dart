@@ -122,7 +122,14 @@ class Highlighter {
   /// [text] is the original text to style (may contain tabs).
   /// [start] is the byte offset where this text starts in the document.
   /// [tabWidth] is the number of spaces to use for tab expansion.
-  void style(StringBuffer buffer, String text, int start, {int tabWidth = 2}) {
+  /// [selectionRanges] is a list of (selStart, selEnd) pairs for highlighting.
+  void style(
+    StringBuffer buffer,
+    String text,
+    int start, {
+    int tabWidth = 2,
+    List<(int, int)> selectionRanges = const [],
+  }) {
     if (text.isEmpty) {
       buffer.write(text);
       return;
@@ -132,10 +139,13 @@ class Highlighter {
     final textEndByte = start + text.length;
     final tokens = _getOverlappingTokens(start, textEndByte);
 
-    if (tokens.isEmpty) {
+    if (tokens.isEmpty && selectionRanges.isEmpty) {
       buffer.write(_expandTabs(text, tabWidth));
       return;
     }
+
+    // Get selection background color for highlighting
+    final selBg = theme.selectionBackground;
 
     // Build styled output
     var pos = 0;
@@ -148,28 +158,137 @@ class Highlighter {
 
       // Add unstyled text before token
       if (tokenStart > pos) {
-        buffer.write(_expandTabs(text.substring(pos, tokenStart), tabWidth));
+        _writeWithSelections(
+          buffer,
+          _expandTabs(text.substring(pos, tokenStart), tabWidth),
+          start + pos,
+          selectionRanges,
+          selBg,
+          null, // no syntax color for plain text
+        );
       }
 
       // Add styled token
-      if (token.type != TokenType.plain) {
-        buffer.write(theme.colorFor(token.type));
-        buffer.write(
-          _expandTabs(text.substring(tokenStart, tokenEnd), tabWidth),
-        );
-        theme.resetCode(buffer);
-      } else {
-        buffer.write(
-          _expandTabs(text.substring(tokenStart, tokenEnd), tabWidth),
-        );
-      }
+      final syntaxColor = token.type != TokenType.plain
+          ? theme.colorFor(token.type)
+          : null;
+      _writeWithSelections(
+        buffer,
+        _expandTabs(text.substring(tokenStart, tokenEnd), tabWidth),
+        start + tokenStart,
+        selectionRanges,
+        selBg,
+        syntaxColor,
+      );
 
       pos = tokenEnd;
     }
 
     // Add remaining unstyled text
     if (pos < text.length) {
-      buffer.write(_expandTabs(text.substring(pos), tabWidth));
+      _writeWithSelections(
+        buffer,
+        _expandTabs(text.substring(pos), tabWidth),
+        start + pos,
+        selectionRanges,
+        selBg,
+        null,
+      );
+    }
+  }
+
+  /// Write text to buffer, applying selection highlighting where needed.
+  void _writeWithSelections(
+    StringBuffer buffer,
+    String text,
+    int byteOffset,
+    List<(int, int)> selectionRanges,
+    String? selBg,
+    String? syntaxColor,
+  ) {
+    if (selBg == null || selectionRanges.isEmpty) {
+      // No selection highlighting needed
+      if (syntaxColor != null) {
+        buffer.write(syntaxColor);
+        buffer.write(text);
+        theme.resetCode(buffer);
+      } else {
+        buffer.write(text);
+      }
+      return;
+    }
+
+    // Check if any part of this text is in a selection
+    final textEnd = byteOffset + text.length;
+    bool anySelection = false;
+    for (final (selStart, selEnd) in selectionRanges) {
+      if (selStart < textEnd && selEnd > byteOffset) {
+        anySelection = true;
+        break;
+      }
+    }
+
+    if (!anySelection) {
+      // No selection overlap, write normally
+      if (syntaxColor != null) {
+        buffer.write(syntaxColor);
+        buffer.write(text);
+        theme.resetCode(buffer);
+      } else {
+        buffer.write(text);
+      }
+      return;
+    }
+
+    // Need to handle character-by-character for selection boundaries
+    var pos = 0;
+    var currentByte = byteOffset;
+
+    while (pos < text.length) {
+      // Check if current byte is in any selection
+      bool nowInSelection = false;
+      for (final (selStart, selEnd) in selectionRanges) {
+        if (currentByte >= selStart && currentByte < selEnd) {
+          nowInSelection = true;
+          break;
+        }
+      }
+
+      // Find extent of current run (same selection state)
+      var runEnd = pos + 1;
+      var runByte = currentByte + 1;
+      while (runEnd < text.length) {
+        bool nextInSelection = false;
+        for (final (selStart, selEnd) in selectionRanges) {
+          if (runByte >= selStart && runByte < selEnd) {
+            nextInSelection = true;
+            break;
+          }
+        }
+        if (nextInSelection != nowInSelection) break;
+        runEnd++;
+        runByte++;
+      }
+
+      // Write this run with appropriate styling
+      final runText = text.substring(pos, runEnd);
+      if (nowInSelection) {
+        buffer.write(selBg);
+        if (syntaxColor != null) buffer.write(syntaxColor);
+        buffer.write(runText);
+        theme.resetCode(buffer);
+      } else {
+        if (syntaxColor != null) {
+          buffer.write(syntaxColor);
+          buffer.write(runText);
+          theme.resetCode(buffer);
+        } else {
+          buffer.write(runText);
+        }
+      }
+
+      pos = runEnd;
+      currentByte = runByte;
     }
   }
 

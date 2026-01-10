@@ -9,6 +9,7 @@ import 'actions/motions.dart';
 import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
+import 'actions/selection_actions.dart';
 import 'commands/command.dart';
 import 'features/lsp/lsp_actions.dart';
 import 'modes.dart';
@@ -166,6 +167,10 @@ const lineEditCommands = <String, LineEditCommand>{
   'diagnostics': LineEditCommand(LspCommands.diagnostics),
   'd': LineEditCommand(LspCommands.diagnostics),
   'da': LineEditCommand(LspCommands.diagnosticsAll),
+  // Selection commands
+  'sel': LineEditCommand(LineEdit.select),
+  'select': LineEditCommand(LineEdit.select),
+  'selclear': LineEditCommand(LineEdit.selectClear),
 };
 
 const lineEditInputBindings = <String, Command>{
@@ -195,6 +200,18 @@ const popupBindings = <String, Command>{
 };
 const popupFallback = InputCommand(PopupActions.filterInput);
 
+// Selection mode bindings - reuses normal mode but preserves multi-selections
+// Only override escape and add selection-specific actions on unused keys
+const selectCommands = <String, Command>{
+  Keys.escape: ActionCommand(SelectionActions.escape),
+  Keys.tab: ActionCommand(SelectionActions.nextSelection),
+  'o': ActionCommand(SelectionActions.swapEnds), // Like vim visual 'o'
+  // Use () for cycling - not used in normal mode
+  ')': ActionCommand(SelectionActions.nextSelection),
+  '(': ActionCommand(SelectionActions.prevSelection),
+  // Alt: remove primary selection with backspace? Or just delete with 'd'
+};
+
 final keyBindings = <Mode, ModeBindings<Command>>{
   .normal: ModeBindings({
     ...countCommands,
@@ -219,4 +236,11 @@ final keyBindings = <Mode, ModeBindings<Command>>{
     fallback: lineEditSearchFallback,
   ),
   .popup: ModeBindings(popupBindings, fallback: popupFallback),
+  .select: ModeBindings({
+    ...countCommands,
+    ...normalCommands, // Include all normal commands (x, p, u, etc.)
+    ...motionCommands,
+    ...operatorCommands,
+    ...selectCommands, // Selection-specific overrides LAST (highest priority)
+  }),
 };

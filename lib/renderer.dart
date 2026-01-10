@@ -476,6 +476,14 @@ class Renderer {
     int offset = file.viewport;
     int screenRow = 0;
 
+    // Convert selections to (start, end) tuples for rendering
+    final selectionRanges = file.hasVisualSelection
+        ? file.selections
+              .where((s) => !s.isCollapsed)
+              .map((s) => (s.start, s.end))
+              .toList()
+        : const <(int, int)>[];
+
     while (screenRow < numLines) {
       // Past end of file - draw '~'
       if (offset >= file.text.length) {
@@ -504,6 +512,7 @@ class Renderer {
           numLines: numLines,
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
+          selectionRanges: selectionRanges,
         ),
         .char => _renderLineCharWrap(
           original: lineText,
@@ -513,6 +522,7 @@ class Renderer {
           numLines: numLines,
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
+          selectionRanges: selectionRanges,
         ),
         .word => _renderLineWordWrap(
           original: lineText,
@@ -523,6 +533,7 @@ class Renderer {
           syntaxHighlighting: config.syntaxHighlighting,
           breakat: config.breakat,
           tabWidth: config.tabWidth,
+          selectionRanges: selectionRanges,
         ),
       };
 
@@ -540,6 +551,7 @@ class Renderer {
     required int numLines,
     required bool syntaxHighlighting,
     required int tabWidth,
+    required List<(int, int)> selectionRanges,
   }) {
     if (screenRow > 0) buffer.write(Keys.newline);
 
@@ -565,9 +577,21 @@ class Renderer {
           originalSlice,
           lineStartByte + byteOffset,
           tabWidth: tabWidth,
+          selectionRanges: selectionRanges,
         );
       } else {
-        buffer.write(visible);
+        // No syntax highlighting but may have selections
+        if (selectionRanges.isNotEmpty) {
+          highlighter.style(
+            buffer,
+            visible,
+            lineStartByte,
+            tabWidth: tabWidth,
+            selectionRanges: selectionRanges,
+          );
+        } else {
+          buffer.write(visible);
+        }
       }
     }
     return screenRow + 1;
@@ -582,6 +606,7 @@ class Renderer {
     required int numLines,
     required bool syntaxHighlighting,
     required int tabWidth,
+    required List<(int, int)> selectionRanges,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -609,9 +634,26 @@ class Renderer {
           originalSlice,
           lineStartByte + byteOffset,
           tabWidth: tabWidth,
+          selectionRanges: selectionRanges,
         );
       } else {
-        buffer.write(chunk);
+        // No syntax highlighting but may have selections
+        if (selectionRanges.isNotEmpty) {
+          final byteOffset = _renderedToOriginalOffset(
+            original,
+            wrapCol,
+            tabWidth,
+          );
+          highlighter.style(
+            buffer,
+            chunk,
+            lineStartByte + byteOffset,
+            tabWidth: tabWidth,
+            selectionRanges: selectionRanges,
+          );
+        } else {
+          buffer.write(chunk);
+        }
       }
 
       wrapCol += terminal.width;
@@ -634,6 +676,7 @@ class Renderer {
     required bool syntaxHighlighting,
     required String breakat,
     required int tabWidth,
+    required List<(int, int)> selectionRanges,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -678,9 +721,26 @@ class Renderer {
           originalSlice,
           lineStartByte + byteOffset,
           tabWidth: tabWidth,
+          selectionRanges: selectionRanges,
         );
       } else {
-        buffer.write(chunk);
+        // No syntax highlighting but may have selections
+        if (selectionRanges.isNotEmpty) {
+          final byteOffset = _renderedToOriginalOffset(
+            original,
+            wrapCol,
+            tabWidth,
+          );
+          highlighter.style(
+            buffer,
+            chunk,
+            lineStartByte + byteOffset,
+            tabWidth: tabWidth,
+            selectionRanges: selectionRanges,
+          );
+        } else {
+          buffer.write(chunk);
+        }
       }
 
       wrapCol = chunkEnd;

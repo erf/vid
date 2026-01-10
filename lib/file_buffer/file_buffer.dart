@@ -3,6 +3,7 @@ import 'package:termio/termio.dart';
 import 'package:vid/edit_builder.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/input_state.dart';
+import 'package:vid/selection.dart';
 
 import '../line_info.dart';
 import '../modes.dart';
@@ -72,8 +73,30 @@ class FileBuffer {
     return abs;
   }
 
+  // list of selections (always at least one; first is "main" selection)
+  List<Selection> selections = [Selection.collapsed(0)];
+
   // the cursor position (byte offset, always at grapheme cluster boundary)
-  int cursor = 0;
+  // This is a convenience getter/setter for single-cursor mode.
+  int get cursor => selections.first.cursor;
+  set cursor(int value) {
+    if (selections.length == 1 && selections.first.isCollapsed) {
+      selections[0] = Selection.collapsed(value);
+    } else {
+      // When setting cursor directly, collapse to single selection
+      selections = [Selection.collapsed(value)];
+    }
+  }
+
+  // the main selection (first in list)
+  Selection get selection => selections.first;
+  set selection(Selection value) => selections[0] = value;
+
+  // whether we have multiple selections active
+  bool get hasMultipleSelections => selections.length > 1;
+
+  // whether any selection is non-collapsed (visual selection)
+  bool get hasVisualSelection => selections.any((s) => !s.isCollapsed);
 
   // the viewport position (byte offset of first visible character)
   int viewport = 0;

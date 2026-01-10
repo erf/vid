@@ -3,6 +3,8 @@ import 'package:termio/termio.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../range.dart';
+import '../selection.dart';
+import '../yank_buffer.dart';
 
 /// Signature for operator functions (d, c, y, etc.).
 /// [range] is always normalized (start <= end).
@@ -11,6 +13,66 @@ typedef OperatorFunction =
     void Function(Editor e, FileBuffer f, Range range, {bool linewise});
 
 class Operators {
+  /// Check if there are visual selections and apply operator to them.
+  /// Returns true if selections were handled, false to fall through to motion.
+  static bool handleVisualSelections(
+    Editor e,
+    FileBuffer f,
+    OperatorFunction op, {
+    bool linewise = false,
+  }) {
+    if (!f.hasVisualSelection) return false;
+
+    // Apply operator to each visual selection
+    // Collect non-collapsed selections, sorted by position
+    final visualSelections = f.selections.where((s) => !s.isCollapsed).toList()
+      ..sort((a, b) => a.start.compareTo(b.start));
+
+    if (visualSelections.isEmpty) return false;
+
+    // Yank all selected text first (in document order)
+    final allText = StringBuffer();
+    for (final sel in visualSelections) {
+      allText.write(f.text.substring(sel.start, sel.end));
+    }
+    e.yankBuffer = YankBuffer(allText.toString(), linewise: linewise);
+
+    // For yank, we're done after copying
+    if (op == yank) {
+      e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
+      // Clear selections to collapsed at first selection's start
+      f.selections = [Selection.collapsed(visualSelections.first.start)];
+      f.setMode(e, .normal);
+      return true;
+    }
+
+    // For delete/change, use applyEdits for atomic operation
+    // Apply from end to start to preserve positions
+    final edits = visualSelections.reversed
+        .map((s) => TextEdit.delete(s.start, s.end))
+        .toList();
+
+    // Apply the deletions
+    applyEdits(f, edits, e.config);
+
+    // Compute new collapsed selection positions, adjusted for deleted text
+    int offset = 0;
+    final newSelections = <Selection>[];
+    for (final s in visualSelections) {
+      newSelections.add(Selection.collapsed(s.start - offset));
+      offset += s.end - s.start;
+    }
+    f.selections = newSelections;
+    f.clampCursor();
+
+    if (op == change) {
+      f.setMode(e, .insert);
+    }
+    // Stay in select mode (don't switch to normal) to keep multi-cursors
+
+    return true;
+  }
+
   static void change(
     Editor e,
     FileBuffer f,

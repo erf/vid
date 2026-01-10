@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
+import 'package:vid/selection.dart';
 import 'package:vid/string_ext.dart';
 
 import '../editor.dart';
@@ -75,12 +76,30 @@ extension FileBufferNav on FileBuffer {
   /// Clamp cursor to valid position in text.
   /// Ensures cursor is at start of a grapheme cluster and not on a newline (in normal mode)
   void clampCursor() {
-    // Clamp to text bounds
-    cursor = cursor.clamp(0, math.max(0, text.length - 1));
+    // Clamp all selections
+    selections = selections.map((sel) => _clampSelection(sel)).toList();
+  }
+
+  /// Clamp a single selection's cursor to valid position.
+  Selection _clampSelection(Selection sel) {
+    final maxPos = math.max(0, text.length - 1);
+
+    // Clamp both anchor and cursor to text bounds
+    int anchor = sel.anchor.clamp(0, maxPos);
+    int cursor = sel.cursor.clamp(0, maxPos);
+
+    // For visual selections (non-collapsed), the cursor can be at the newline
+    // position since selection end is exclusive
+    if (!sel.isCollapsed) {
+      // Allow cursor up to text.length for selections (exclusive end)
+      cursor = sel.cursor.clamp(0, text.length);
+      anchor = sel.anchor.clamp(0, text.length);
+      return Selection(anchor, cursor);
+    }
 
     // In insert mode, cursor can be on newline (inserting before it)
     if (mode == .insert || mode == .replace) {
-      return;
+      return Selection(anchor, cursor);
     }
 
     // Don't allow cursor on newline in normal mode - move to previous char
@@ -92,6 +111,8 @@ extension FileBufferNav on FileBuffer {
         cursor = prevGrapheme(cursor);
       }
     }
+
+    return Selection(anchor, cursor);
   }
 
   /// Clamp viewport so cursor is visible

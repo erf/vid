@@ -13,6 +13,7 @@ import 'package:vid/features/lsp/lsp_protocol.dart';
 import 'package:vid/popup/file_browser.dart';
 import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
+import 'package:vid/selection.dart';
 import 'package:vid/xdg_paths.dart';
 import 'package:vid/yank_buffer.dart';
 
@@ -24,6 +25,7 @@ import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
+import 'motions/motion.dart';
 import 'range.dart';
 
 class Editor {
@@ -615,6 +617,14 @@ class Editor {
     // Motions may also write to this during execution (capturing char for repeat).
     file.edit.findStr = edit.findStr;
 
+    // In select mode with no operator, apply motion to all selection cursors
+    if (file.mode == .select && op == null) {
+      _applyMotionToSelections(motion, edit.count);
+      _saveForRepeat(edit);
+      file.edit.reset();
+      return;
+    }
+
     // Calculate the end position by running motion count times
     final start = file.cursor;
     var end = start;
@@ -647,6 +657,21 @@ class Editor {
 
     _saveForRepeat(edit);
     file.edit.reset();
+  }
+
+  /// Apply motion to all selections, preserving them in select mode.
+  void _applyMotionToSelections(Motion motion, int count) {
+    final newSelections = <Selection>[];
+    for (final sel in file.selections) {
+      var newCursor = sel.cursor;
+      for (int i = 0; i < count; i++) {
+        newCursor = motion.fn(this, file, newCursor);
+      }
+      // Update selection cursor, keeping anchor for visual selections
+      newSelections.add(sel.withCursor(newCursor));
+    }
+    file.selections = newSelections;
+    file.clampCursor();
   }
 
   /// Expand range to include full lines (for linewise operations).

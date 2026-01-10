@@ -8,6 +8,7 @@ import '../motions/motion.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/file_browser.dart';
 import '../regex.dart';
+import '../selection.dart';
 import 'motions.dart';
 import 'normal.dart';
 
@@ -242,5 +243,39 @@ class LineEdit {
     f.setMode(e, .normal);
     e.setWrapMode(.word);
     e.showMessage(.info('Wrap: word'));
+  }
+
+  /// Select all matches of a regex pattern (:sel pattern)
+  /// Creates multiple selections from all regex matches.
+  static void select(Editor e, FileBuffer f, List<String> args) {
+    if (args.length < 2) {
+      f.setMode(e, .normal);
+      e.showMessage(.error('Pattern required: :sel <pattern>'));
+      return;
+    }
+    final pattern = args.skip(1).join(' ');
+    try {
+      final regex = RegExp(pattern);
+      final selections = selectAllMatches(f.text, regex);
+      if (selections.isEmpty) {
+        f.setMode(e, .normal);
+        e.showMessage(.info('No matches found'));
+        return;
+      }
+      f.selections = selections;
+      // Enter select mode for multiple visual selections
+      f.setMode(e, .select);
+      e.showMessage(.info('${selections.length} selection(s)'));
+    } on FormatException catch (ex) {
+      f.setMode(e, .normal);
+      e.showMessage(.error('Invalid regex: ${ex.message}'));
+    }
+  }
+
+  /// Clear all selections, keep only the main cursor (:selclear)
+  static void selectClear(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    f.selections = [f.selection.collapse()];
+    e.showMessage(.info('Selections cleared'));
   }
 }
