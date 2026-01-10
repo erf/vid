@@ -205,11 +205,11 @@ const popupFallback = InputCommand(PopupActions.filterInput);
 const selectCommands = <String, Command>{
   Keys.escape: ActionCommand(SelectionActions.escape),
   Keys.tab: ActionCommand(SelectionActions.nextSelection),
+  '\x1b[Z': ActionCommand(SelectionActions.prevSelection), // Shift+Tab
   'o': ActionCommand(SelectionActions.swapEnds), // Like vim visual 'o'
   // Use () for cycling - not used in normal mode
   ')': ActionCommand(SelectionActions.nextSelection),
   '(': ActionCommand(SelectionActions.prevSelection),
-  // Alt: remove primary selection with backspace? Or just delete with 'd'
 };
 
 final keyBindings = <Mode, ModeBindings<Command>>{
