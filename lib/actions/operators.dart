@@ -25,10 +25,20 @@ class Operators {
 
     // Apply operator to each visual selection
     // Collect non-collapsed selections, sorted by position
-    final visualSelections = f.selections.where((s) => !s.isCollapsed).toList()
+    var visualSelections = f.selections.where((s) => !s.isCollapsed).toList()
       ..sort((a, b) => a.start.compareTo(b.start));
 
     if (visualSelections.isEmpty) return false;
+
+    // In visual mode, extend selections to include cursor character.
+    // Visual mode is always inclusive - the char under cursor is selected.
+    // The selection stores the raw cursor position, we extend here when operating.
+    if (f.mode == .visual) {
+      visualSelections = visualSelections.map((s) {
+        final newEnd = f.nextGrapheme(s.end);
+        return Selection(s.start, newEnd);
+      }).toList();
+    }
 
     // Yank all selected text first (in document order)
     final allText = StringBuffer();
@@ -67,8 +77,11 @@ class Operators {
 
     if (op == change) {
       f.setMode(e, .insert);
+    } else if (f.mode == .visual) {
+      // Visual mode: return to normal after operator
+      f.setMode(e, .normal);
     }
-    // Stay in select mode (don't switch to normal) to keep multi-cursors
+    // Select mode: Stay in select mode (don't switch to normal) to keep multi-cursors
 
     return true;
   }

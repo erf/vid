@@ -59,6 +59,7 @@ const normalCommands = <String, Command>{
   'K': ActionCommand(LspActions.hover),
   'go': ActionCommand(LspActions.jumpBack),
   'gi': ActionCommand(LspActions.jumpForward),
+  'v': ActionCommand(Normal.enterVisualMode),
 };
 
 const insertBindings = <String, Command>{
@@ -212,6 +213,14 @@ const selectCommands = <String, Command>{
   '(': ActionCommand(SelectionActions.prevSelection),
 };
 
+// Visual mode bindings - single selection from cursor
+const visualCommands = <String, Command>{
+  Keys.escape: ActionCommand(SelectionActions.escapeVisual),
+  'o': ActionCommand(SelectionActions.swapEnds), // Swap anchor/cursor
+  // Override x to directly delete (normal mode x is 'dl' alias, which causes issues)
+  'x': OperatorCommand(Operators.delete),
+};
+
 final keyBindings = <Mode, ModeBindings<Command>>{
   .normal: ModeBindings({
     ...countCommands,
@@ -242,5 +251,12 @@ final keyBindings = <Mode, ModeBindings<Command>>{
     ...motionCommands,
     ...operatorCommands,
     ...selectCommands, // Selection-specific overrides LAST (highest priority)
+  }),
+  .visual: ModeBindings({
+    ...countCommands,
+    ...normalCommands, // Include all normal commands (x, p, u, etc.)
+    ...motionCommands,
+    ...operatorCommands,
+    ...visualCommands, // Visual-specific overrides LAST (highest priority)
   }),
 };

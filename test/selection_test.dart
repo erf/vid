@@ -548,4 +548,252 @@ void main() {
       expect(f.text, '  ccc\n');
     });
   });
+
+  group('visual mode', () {
+    test('v enters visual mode with collapsed selection at cursor', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 3;
+
+      e.input('v');
+
+      expect(f.mode, Mode.visual);
+      expect(f.selections.length, 1);
+      expect(f.selections[0].anchor, 3);
+      expect(f.selections[0].cursor, 3);
+      expect(f.selections[0].isCollapsed, true);
+    });
+
+    test('motion extends selection in visual mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v'); // Enter visual mode
+      e.input('w'); // Move word forward
+
+      expect(f.mode, Mode.visual);
+      expect(f.selections.length, 1);
+      expect(f.selections[0].anchor, 0); // Anchor stays at start
+      expect(f.selections[0].start, 0);
+      expect(f.selections[0].end, 6); // "hello " selected
+    });
+
+    test('escape exits visual mode and returns to normal', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('w');
+      e.input('\x1b'); // Escape
+
+      expect(f.mode, Mode.normal);
+      expect(f.selections.length, 1);
+      expect(f.selections[0].isCollapsed, true);
+    });
+
+    test('o swaps anchor and cursor in visual mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('w'); // Selection is anchor=0, cursor=6
+
+      expect(f.selections[0].anchor, 0);
+      expect(f.selections[0].cursor, 6);
+
+      e.input('o'); // Swap
+
+      expect(f.selections[0].anchor, 6);
+      expect(f.selections[0].cursor, 0);
+      // Range should be the same
+      expect(f.selections[0].start, 0);
+      expect(f.selections[0].end, 6);
+    });
+
+    test('d deletes visual selection and returns to normal mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('e'); // Select "hello" (e is inclusive, moves to 'o')
+      e.input('d'); // Delete
+
+      expect(f.text, ' world\n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('c changes visual selection and enters insert mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('e'); // Select "hello"
+      e.input('c'); // Change
+
+      expect(f.text, ' world\n');
+      expect(f.mode, Mode.insert);
+    });
+
+    test('y yanks visual selection and returns to normal mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('e'); // Select "hello"
+      e.input('y'); // Yank
+
+      expect(f.text, 'hello world\n'); // Text unchanged
+      expect(f.mode, Mode.normal);
+      expect(e.yankBuffer?.text, 'hello');
+    });
+
+    test('backward motion extends selection backward', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 6; // At 'w'
+
+      e.input('v');
+      e.input('b'); // Move word backward
+
+      expect(f.selections[0].anchor, 6);
+      expect(f.selections[0].cursor, 0);
+      expect(f.selections[0].start, 0);
+      expect(f.selections[0].end, 6);
+    });
+
+    test('e motion includes end character', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('e'); // Move to end of word (inclusive)
+
+      // 'e' moves cursor to 'o' (position 4). In visual mode, selection stores
+      // the raw cursor position. Extension happens when operating.
+      expect(f.selections[0].anchor, 0);
+      expect(f.selections[0].cursor, 4);
+
+      // When we delete, it should include the character at cursor (the 'o')
+      e.input('d');
+      expect(f.text, ' world\n'); // "hello" deleted
+    });
+
+    test('count works with motions in visual mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'one two three\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('2w'); // Move 2 words forward
+
+      expect(f.selections[0].anchor, 0);
+      expect(f.selections[0].start, 0);
+      // "one two " = 8 chars
+      expect(f.selections[0].end, 8);
+    });
+
+    test('x deletes inclusive of cursor character', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('llll'); // Move to 'o' in "hello" (position 4)
+
+      expect(f.selections[0].anchor, 0);
+      expect(f.selections[0].cursor, 4);
+
+      e.input('x'); // Delete - should include 'o'
+
+      // "hello" (positions 0-4 inclusive) should be deleted
+      expect(f.text, ' world\n');
+      expect(f.cursor, 0); // Cursor should be at start of deleted region
+      expect(f.mode, Mode.normal);
+    });
+
+    test('d with l motion deletes inclusive of cursor', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('llll'); // Move to 'o' (position 4)
+      e.input('d'); // Delete
+
+      expect(f.text, ' world\n');
+      expect(f.cursor, 0);
+    });
+
+    test('y yanks inclusive of cursor character', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v');
+      e.input('llll'); // Move to 'o' (position 4)
+      e.input('y'); // Yank
+
+      expect(f.text, 'hello world\n'); // Text unchanged
+      expect(e.yankBuffer?.text, 'hello'); // Includes 'o'
+    });
+  });
 }

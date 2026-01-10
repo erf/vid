@@ -13,6 +13,7 @@ import '../popup/diagnostics_popup.dart';
 import '../popup/file_browser.dart';
 import '../popup/theme_selector.dart';
 import '../regex.dart';
+import '../selection.dart';
 import '../text_op.dart';
 
 class Normal {
@@ -250,5 +251,11 @@ class Normal {
 
   static void openDiagnostics(Editor e, FileBuffer f) {
     DiagnosticsPopup.show(e);
+  }
+
+  /// Enter visual mode with a selection starting at the current cursor.
+  static void enterVisualMode(Editor e, FileBuffer f) {
+    f.selections = [Selection.collapsed(f.cursor)];
+    f.setMode(e, .visual);
   }
 }

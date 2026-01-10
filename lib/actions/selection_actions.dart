@@ -44,4 +44,11 @@ class SelectionActions {
     if (sel.isCollapsed) return;
     f.selections[0] = Selection(sel.cursor, sel.anchor);
   }
+
+  /// Exit visual mode, collapse to single cursor.
+  static void escapeVisual(Editor e, FileBuffer f) {
+    final cursor = f.selections.first.cursor;
+    f.selections = [Selection.collapsed(cursor)];
+    f.setMode(e, .normal);
+  }
 }
