@@ -867,7 +867,7 @@ void main() {
       expect(f.lineNumber(f.selections[0].cursor), 0);
     });
 
-    test('escape exits visual line mode', () {
+    test('escape exits visual line mode preserving cursor position', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -882,6 +882,27 @@ void main() {
       expect(f.mode, Mode.normal);
       expect(f.selections.length, 1);
       expect(f.selections[0].isCollapsed, true);
+      expect(f.cursor, 5); // Cursor stays at original position
+    });
+
+    test('escape from backward visual line selection preserves cursor', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 19; // 'line three'
+
+      e.input('V');
+      e.input('k'); // Move cursor up to line two (backward selection)
+      e.input('\x1b'); // Escape
+
+      expect(f.mode, Mode.normal);
+      expect(f.selections.length, 1);
+      expect(f.selections[0].isCollapsed, true);
+      // Cursor should be on line two where we moved it, not at the start
+      expect(f.lineNumber(f.cursor), 1); // Line two (0-indexed)
     });
 
     test('d deletes entire lines in visual line mode', () {

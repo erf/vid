@@ -50,11 +50,10 @@ class SelectionActions {
     f.selections[0] = Selection(sel.cursor, sel.anchor);
   }
 
-  /// Exit visual line mode, collapse to first non-blank of first selected line.
+  /// Exit visual line mode, collapse selections to cursor positions.
+  /// This preserves cursor positions while removing visual selection ranges.
   static void escapeVisualLine(Editor e, FileBuffer f) {
-    // Move cursor to start of first selected line
-    final start = f.selections.first.start;
-    f.selections = [Selection.collapsed(start)];
+    f.selections = f.selections.map((s) => s.collapse()).toList();
     f.setMode(e, .normal);
   }
 
