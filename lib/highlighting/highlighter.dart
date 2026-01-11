@@ -149,12 +149,17 @@ class Highlighter {
 
     // Build styled output
     var pos = 0;
+    final textLen = text.length;
 
     for (final token in tokens) {
-      final tokenStart = token.start <= start ? 0 : token.start - start;
-      final tokenEnd = token.end >= textEndByte
-          ? text.length
-          : token.end - start;
+      // Clamp token positions to valid range (tokens may be stale after edits)
+      final tokenStart = (token.start <= start ? 0 : token.start - start)
+          .clamp(0, textLen);
+      final tokenEnd = (token.end >= textEndByte ? textLen : token.end - start)
+          .clamp(0, textLen);
+
+      // Skip invalid tokens (can happen with stale LSP semantic tokens)
+      if (tokenStart >= tokenEnd) continue;
 
       // Add unstyled text before token
       if (tokenStart > pos) {
