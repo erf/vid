@@ -153,8 +153,10 @@ class Highlighter {
 
     for (final token in tokens) {
       // Clamp token positions to valid range (tokens may be stale after edits)
-      final tokenStart = (token.start <= start ? 0 : token.start - start)
-          .clamp(0, textLen);
+      final tokenStart = (token.start <= start ? 0 : token.start - start).clamp(
+        0,
+        textLen,
+      );
       final tokenEnd = (token.end >= textEndByte ? textLen : token.end - start)
           .clamp(0, textLen);
 
