@@ -389,19 +389,21 @@ class Highlighter {
       }
     }
 
-    // Add any semantic tokens that aren't covered by regex tokens
+    // Add any semantic tokens that don't overlap any regex token
+    // (these weren't handled in the merge loop above)
     for (final semantic in sortedSemantic) {
       if (!semantic.overlaps(start, end)) continue;
 
-      // Check if this semantic token is already covered
-      bool covered = false;
-      for (final r in result) {
-        if (r.start <= semantic.start && r.end >= semantic.end) {
-          covered = true;
+      // Check if this semantic token overlaps any regex token
+      // If it does, it was already processed in the merge loop
+      bool overlapsRegex = false;
+      for (final regex in regexTokens) {
+        if (semantic.overlaps(regex.start, regex.end)) {
+          overlapsRegex = true;
           break;
         }
       }
-      if (!covered) {
+      if (!overlapsRegex) {
         result.add(semantic);
       }
     }
