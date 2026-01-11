@@ -223,6 +223,7 @@ const lineEditCommands = <String, LineEditCommand>{
   'da': LineEditCommand(LspCommands.diagnosticsAll),
   'rename': LineEditCommand(LspCommands.rename),
   // Selection commands
+  's': LineEditCommand(LineEdit.select),
   'sel': LineEditCommand(LineEdit.select),
   'select': LineEditCommand(LineEdit.select),
   'selclear': LineEditCommand(LineEdit.selectClear),

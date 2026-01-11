@@ -36,4 +36,4 @@ Two config files are supported:
 
 ## Contributing
 
-I'm open to PR's that align with vid's minimal philosophy.
+I'm open to PR's that align with `vid`'s minimal philosophy.
