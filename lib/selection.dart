@@ -69,8 +69,16 @@ List<Selection> selectAllMatches(String text, RegExp pattern) {
 ///
 /// Selections are sorted by start position and then merged if they overlap
 /// or touch. The resulting selections preserve forward direction (anchor < cursor).
-List<Selection> mergeSelections(List<Selection> selections) {
+/// If [preserveMain] is true (default), the first selection in the input list
+/// is preserved as the first selection in the output (main cursor).
+List<Selection> mergeSelections(
+  List<Selection> selections, {
+  bool preserveMain = true,
+}) {
   if (selections.length <= 1) return selections;
+
+  // Remember the main cursor position before sorting
+  final mainCursor = selections.first.cursor;
 
   // Sort by start position
   final sorted = selections.toList()
@@ -91,6 +99,22 @@ List<Selection> mergeSelections(List<Selection> selections) {
     }
   }
   merged.add(current);
+
+  // Move the selection containing the main cursor to front
+  if (preserveMain && merged.length > 1) {
+    for (int i = 0; i < merged.length; i++) {
+      final sel = merged[i];
+      // Check if this selection contains or is at the main cursor position
+      if (sel.cursor == mainCursor ||
+          (sel.start <= mainCursor && mainCursor <= sel.end)) {
+        if (i != 0) {
+          merged.removeAt(i);
+          merged.insert(0, sel);
+        }
+        break;
+      }
+    }
+  }
 
   return merged;
 }

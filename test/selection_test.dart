@@ -1289,4 +1289,167 @@ void main() {
       expect(sel.end, f.lines[2].end); // End of third line
     });
   });
+
+  group('visual line mode I - insert at line starts', () {
+    test('I in visual line mode creates cursors at start of each line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 0;
+
+      e.input('V'); // Enter visual line mode
+      expect(f.mode, Mode.visualLine);
+
+      e.input('j'); // Extend to second line
+      e.input('j'); // Extend to third line
+
+      e.input('I'); // Press I to create cursors at line starts
+
+      expect(f.mode, Mode.normal);
+      expect(f.selections.length, 3);
+      // Check each cursor is at the start of each line
+      expect(f.selections[0].cursor, 0); // Start of line 1
+      expect(f.selections[1].cursor, 9); // Start of line 2 ("line two\n")
+      expect(f.selections[2].cursor, 18); // Start of line 3 ("line three\n")
+      // All should be collapsed
+      expect(f.selections.every((s) => s.isCollapsed), true);
+    });
+
+    test('I in visual line mode with backward selection', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+      f.cursor = 18; // Start at third line
+
+      e.input('V'); // Enter visual line mode
+      e.input('k'); // Move up to second line
+      e.input('k'); // Move up to first line
+
+      e.input('I'); // Press I
+
+      expect(f.mode, Mode.normal);
+      expect(f.selections.length, 3);
+      // Should still get cursors at start of each line regardless of direction
+      expect(f.selections[0].cursor, 0);
+      expect(f.selections[1].cursor, 9);
+      expect(f.selections[2].cursor, 18);
+    });
+  });
+
+  group('add cursor above/below', () {
+    test('Ctrl+J adds cursor on line below', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\nghi\n';
+      f.cursor = 1; // On 'b' (column 1)
+
+      e.input('\n'); // Ctrl+J (\x0a)
+
+      expect(f.selections.length, 2);
+      expect(
+        f.selections[0].cursor,
+        5,
+      ); // New cursor on 'e' (column 1 of line 2) - main cursor
+      expect(f.selections[1].cursor, 1); // Original cursor on 'b'
+    });
+
+    test('Ctrl+K adds cursor on line above', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\nghi\n';
+      f.cursor = 5; // On 'e' (column 1 of line 2)
+
+      e.input('\x0b'); // Ctrl+K
+
+      expect(f.selections.length, 2);
+      expect(
+        f.selections[0].cursor,
+        1,
+      ); // New cursor on 'b' (column 1 of line 1)
+      expect(f.selections[1].cursor, 5); // Original cursor on 'e'
+    });
+
+    test('Ctrl+J multiple times adds multiple cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\nghi\njkl\n';
+      f.cursor = 0;
+
+      e.input('\n'); // Add cursor on line 2
+      e.input('\n'); // Add cursor on line 3
+      e.input('\n'); // Add cursor on line 4
+
+      expect(f.selections.length, 4);
+      expect(f.selections[0].cursor, 12); // Line 4 - main cursor (newest)
+      // Previous main cursors follow, then rest sorted by position
+      expect(f.selections[1].cursor, 8); // Line 3
+      expect(f.selections[2].cursor, 0); // Line 1 (original)
+      expect(f.selections[3].cursor, 4); // Line 2
+    });
+
+    test('Ctrl+J keeps visual column with short line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\nxy\nqrstuv\n';
+      f.cursor = 4; // On 'e' (column 4)
+
+      e.input('\n'); // Add cursor on short line
+
+      expect(f.selections.length, 2);
+      // Short line only has 2 chars, so cursor should be at end (column 1)
+      expect(
+        f.selections[0].cursor,
+        8,
+      ); // On 'y' (last char of line 2) - main cursor
+      expect(f.selections[1].cursor, 4); // Original on 'e'
+    });
+
+    test('Ctrl+J does nothing at last line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\n';
+      f.cursor = 4; // On last line
+
+      e.input('\n'); // Try to add cursor below
+
+      expect(f.selections.length, 1); // No new cursor
+      expect(f.selections[0].cursor, 4);
+    });
+
+    test('Ctrl+K does nothing at first line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\n';
+      f.cursor = 1; // On first line
+
+      e.input('\x0b'); // Try to add cursor above
+
+      expect(f.selections.length, 1); // No new cursor
+      expect(f.selections[0].cursor, 1);
+    });
+  });
 }

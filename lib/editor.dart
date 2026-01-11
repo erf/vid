@@ -733,6 +733,9 @@ class Editor {
     OperatorFunction op,
     bool linewise,
   ) {
+    // Remember main cursor position before processing
+    final mainCursorPos = file.selections.first.cursor;
+
     // Calculate ranges for each cursor position
     final ranges = <Range>[];
     for (final sel in file.selections) {
@@ -752,12 +755,26 @@ class Editor {
       ranges.add(range);
     }
 
-    // Sort ranges by position (in document order)
-    ranges.sort((a, b) => a.start.compareTo(b.start));
+    // Sort ranges by position (in document order), keeping track of main cursor index
+    final rangesWithIndex = ranges.asMap().entries.toList();
+    rangesWithIndex.sort((a, b) => a.value.start.compareTo(b.value.start));
+    
+    // Find which sorted index corresponds to main cursor
+    int mainIndex = 0;
+    for (int i = 0; i < rangesWithIndex.length; i++) {
+      if (rangesWithIndex[i].value.start == mainCursorPos ||
+          (rangesWithIndex[i].value.start <= mainCursorPos &&
+           mainCursorPos < rangesWithIndex[i].value.end)) {
+        mainIndex = i;
+        break;
+      }
+    }
+    
+    final sortedRanges = rangesWithIndex.map((e) => e.value).toList();
 
     // Yank all text first (for delete/change operations)
     final allText = StringBuffer();
-    for (final range in ranges) {
+    for (final range in sortedRanges) {
       allText.write(file.text.substring(range.start, range.end));
     }
     yankBuffer = YankBuffer(allText.toString(), linewise: linewise);
@@ -771,7 +788,7 @@ class Editor {
 
     // For delete/change, apply from end to start to preserve positions
     // Build edit list
-    final edits = ranges.reversed
+    final edits = sortedRanges.reversed
         .map((r) => TextEdit.delete(r.start, r.end))
         .toList();
 
@@ -781,10 +798,18 @@ class Editor {
     // Compute new collapsed selection positions, adjusted for deleted text
     int offset = 0;
     final newSelections = <Selection>[];
-    for (final r in ranges) {
+    for (int i = 0; i < sortedRanges.length; i++) {
+      final r = sortedRanges[i];
       newSelections.add(Selection.collapsed(r.start - offset));
       offset += r.end - r.start;
     }
+    
+    // Move main cursor to front
+    if (mainIndex > 0 && mainIndex < newSelections.length) {
+      final mainSel = newSelections.removeAt(mainIndex);
+      newSelections.insert(0, mainSel);
+    }
+    
     file.selections = newSelections;
     file.clampCursor();
 
