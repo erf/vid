@@ -5,6 +5,9 @@ import 'lsp_server_defaults.dart';
 
 /// Configuration for a language server.
 class LspServerConfig {
+  /// Whether this server is enabled.
+  final bool enabled;
+
   /// Display name for the language server.
   final String name;
 
@@ -29,6 +32,7 @@ class LspServerConfig {
   final bool disableSemanticTokens;
 
   const LspServerConfig({
+    this.enabled = true,
     required this.name,
     required this.executable,
     required this.args,

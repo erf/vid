@@ -108,7 +108,11 @@ class LspConfigLoader {
         if (value is YamlMap) {
           final config = _parseServerConfig(key, value);
           if (config != null) {
-            servers[key] = config;
+            if (config.enabled) {
+              servers[key] = config;
+            } else {
+              servers.remove(key);
+            }
           }
         } else if (value == null || value == false) {
           // Allow disabling a default server by setting it to null or false
@@ -131,6 +135,7 @@ class LspConfigLoader {
     }
 
     return LspServerConfig(
+      enabled: yaml['enabled'] as bool? ?? true,
       name: name,
       executable: executable,
       args: _parseStringList(yaml['args']),

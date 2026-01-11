@@ -17,6 +17,7 @@ enabled: true
 # Set a server to `false` or `null` to disable it.
 #
 # Per-server options:
+#   enabled: false               # Disable this server (default: true)
 #   disableSemanticTokens: true  # Use built-in regex highlighting instead of
 #                                # LSP semantic tokens (useful when the built-in
 #                                # highlighter produces better results)
@@ -86,5 +87,7 @@ servers:
   #   languageIds: [python]
   #   projectMarkers: [pyproject.toml, setup.py, requirements.txt]
 
-  # Example: Disable a built-in server
+  # Example: Disable a built-in server (two equivalent ways)
   # lua: false
+  # lua:
+  #   enabled: false
