@@ -19,11 +19,11 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 Requires the [Dart SDK](https://dart.dev/get-dart) (3.10+).
 
-For building see [build.sh](build.sh).
+See [build.sh](build.sh).
 
 ## Configuration
 
-vid loads configuration from YAML files at these locations (first found wins):
+`vid` loads configuration from YAML files at these locations (in order):
 
 1. `./` — local project config
 2. `$XDG_CONFIG_HOME/vid/`
@@ -33,18 +33,8 @@ Two config files are supported:
 - **config.yaml** — editor settings (see [config.example.yaml](config.example.yaml))
 - **lsp_servers.yaml** — LSP server configs (see [lsp_servers.example.yaml](lsp_servers.example.yaml))
 
-Copy the example configs to get started:
-
-```bash
-mkdir -p ~/.config/vid
-cp config.example.yaml ~/.config/vid/config.yaml
-cp lsp_servers.example.yaml ~/.config/vid/lsp_servers.yaml
-```
-
 All settings are optional — missing values use sensible defaults.
 
 ## Contributing
 
 I'm open to PR's that align with vid's minimal philosophy.
-
-I don't accept issues solely for suggestions.
