@@ -2,6 +2,7 @@ import 'package:vid/edit_builder.dart';
 
 import '../actions/motions.dart';
 import '../actions/operators.dart';
+import '../actions/text_objects.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../modes.dart';
@@ -146,5 +147,44 @@ class LineEditCommand extends Command {
     List<String> args = command.split(' ');
     action(e, f, args);
     f.input.lineEdit = '';
+  }
+}
+
+/// Command for text objects (i(, a{, iw, etc.) used in operator-pending mode.
+/// Returns a Range for the operator to act on.
+class TextObjectCommand extends Command {
+  final TextObjectFunction func;
+
+  const TextObjectCommand(this.func);
+
+  @override
+  void execute(Editor e, FileBuffer f, String s) {
+    // Text objects only work in operator-pending mode
+    if (f.mode != .operatorPending) return;
+
+    final op = f.edit.op;
+    if (op == null) {
+      f.setMode(e, .normal);
+      f.edit.reset();
+      return;
+    }
+
+    // Get the range from the text object
+    final range = func(e, f, f.cursor);
+
+    // If range is empty (no match found), cancel
+    if (range.start == range.end) {
+      f.setMode(e, .normal);
+      f.edit.reset();
+      return;
+    }
+
+    // Apply count by expanding range (for text objects, count usually means
+    // include more levels of nesting, but for simplicity we just apply once)
+    // TODO: Support count for nested brackets
+
+    // Execute the operator on the range
+    op(e, f, range.norm, linewise: false);
+    f.edit.reset();
   }
 }

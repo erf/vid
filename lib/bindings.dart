@@ -10,6 +10,7 @@ import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
 import 'actions/selection_actions.dart';
+import 'actions/text_objects.dart';
 import 'commands/command.dart';
 import 'features/lsp/lsp_actions.dart';
 import 'modes.dart';
@@ -135,6 +136,52 @@ const operatorPendingSameCommands = <String, Command>{
   'y': OperatorPendingSameCommand(Operators.yank),
 };
 
+// Text objects for use in operator-pending mode (di(, da{, ciw, etc.)
+const textObjectCommands = <String, Command>{
+  // Parentheses
+  'i(': TextObjectCommand(TextObjects.insideParens),
+  'i)': TextObjectCommand(TextObjects.insideParens),
+  'ib': TextObjectCommand(TextObjects.insideParens),
+  'a(': TextObjectCommand(TextObjects.aroundParens),
+  'a)': TextObjectCommand(TextObjects.aroundParens),
+  'ab': TextObjectCommand(TextObjects.aroundParens),
+  // Braces
+  'i{': TextObjectCommand(TextObjects.insideBraces),
+  'i}': TextObjectCommand(TextObjects.insideBraces),
+  'iB': TextObjectCommand(TextObjects.insideBraces),
+  'a{': TextObjectCommand(TextObjects.aroundBraces),
+  'a}': TextObjectCommand(TextObjects.aroundBraces),
+  'aB': TextObjectCommand(TextObjects.aroundBraces),
+  // Brackets
+  'i[': TextObjectCommand(TextObjects.insideBrackets),
+  'i]': TextObjectCommand(TextObjects.insideBrackets),
+  'a[': TextObjectCommand(TextObjects.aroundBrackets),
+  'a]': TextObjectCommand(TextObjects.aroundBrackets),
+  // Angle brackets
+  'i<': TextObjectCommand(TextObjects.insideAngleBrackets),
+  'i>': TextObjectCommand(TextObjects.insideAngleBrackets),
+  'a<': TextObjectCommand(TextObjects.aroundAngleBrackets),
+  'a>': TextObjectCommand(TextObjects.aroundAngleBrackets),
+  // Quotes
+  'i"': TextObjectCommand(TextObjects.insideDoubleQuote),
+  'a"': TextObjectCommand(TextObjects.aroundDoubleQuote),
+  "i'": TextObjectCommand(TextObjects.insideSingleQuote),
+  "a'": TextObjectCommand(TextObjects.aroundSingleQuote),
+  'i`': TextObjectCommand(TextObjects.insideBacktick),
+  'a`': TextObjectCommand(TextObjects.aroundBacktick),
+  // Word
+  'iw': TextObjectCommand(TextObjects.insideWord),
+  'aw': TextObjectCommand(TextObjects.aroundWord),
+  'iW': TextObjectCommand(TextObjects.insideWORD),
+  'aW': TextObjectCommand(TextObjects.aroundWORD),
+  // Sentence
+  'is': TextObjectCommand(TextObjects.insideSentence),
+  'as': TextObjectCommand(TextObjects.aroundSentence),
+  // Paragraph
+  'ip': TextObjectCommand(TextObjects.insideParagraph),
+  'ap': TextObjectCommand(TextObjects.aroundParagraph),
+};
+
 const lineEditCommands = <String, LineEditCommand>{
   '': LineEditCommand(LineEdit.noop),
   'q': LineEditCommand(LineEdit.quit),
@@ -240,6 +287,7 @@ final keyBindings = <Mode, ModeBindings<Command>>{
     ...countCommands,
     ...motionCommands,
     ...operatorPendingSameCommands,
+    ...textObjectCommands,
   }),
   .insert: ModeBindings(insertBindings, fallback: insertFallback),
   .replace: ModeBindings(replaceBindings, fallback: replaceFallback),
