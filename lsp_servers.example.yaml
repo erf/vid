@@ -15,6 +15,11 @@ enabled: true
 #
 # You can override built-in servers or add new ones.
 # Set a server to `false` or `null` to disable it.
+#
+# Per-server options:
+#   disableSemanticTokens: true  # Use built-in regex highlighting instead of
+#                                # LSP semantic tokens (useful when the built-in
+#                                # highlighter produces better results)
 servers:
   # Dart Analysis Server
   dart:
@@ -24,7 +29,6 @@ servers:
     extensions: [dart]
     languageIds: [dart]
     projectMarkers: [pubspec.yaml, pubspec.lock]
-    supportsSemanticTokens: true
 
   # Lua Language Server
   lua:
@@ -34,7 +38,6 @@ servers:
     extensions: [lua]
     languageIds: [lua]
     projectMarkers: [".luarc.json", ".luarc.jsonc", ".luacheckrc", "init.lua"]
-    supportsSemanticTokens: true
 
   # clangd (C/C++)
   clangd:
@@ -49,9 +52,9 @@ servers:
       - .clangd
       - CMakeLists.txt
       - Makefile
-    supportsSemanticTokens: true
 
   # SourceKit-LSP (Swift)
+  # Uses built-in highlighting because it produces better results than LSP
   swift:
     name: "SourceKit-LSP"
     executable: "sourcekit-lsp"
@@ -63,8 +66,7 @@ servers:
       - Podfile
       - "*.xcworkspace"
       - "*.xcodeproj"
-    supportsSemanticTokens: true
-    preferBuiltInHighlighting: true
+    disableSemanticTokens: true
 
   # Example: Add rust-analyzer
   # rust:
@@ -74,7 +76,6 @@ servers:
   #   extensions: [rs]
   #   languageIds: [rust]
   #   projectMarkers: [Cargo.toml]
-  #   supportsSemanticTokens: true
 
   # Example: Add Python LSP (pylsp or pyright)
   # python:
@@ -84,7 +85,6 @@ servers:
   #   extensions: [py]
   #   languageIds: [python]
   #   projectMarkers: [pyproject.toml, setup.py, requirements.txt]
-  #   supportsSemanticTokens: true
 
   # Example: Disable a built-in server
   # lua: false

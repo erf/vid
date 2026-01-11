@@ -24,12 +24,9 @@ class LspServerConfig {
   /// e.g., 'pubspec.yaml' for Dart, '.luarc.json' for Lua
   final List<String> projectMarkers;
 
-  /// Whether this server supports semantic tokens.
-  final bool supportsSemanticTokens;
-
-  /// Whether to prefer built-in syntax highlighting over LSP semantic tokens.
-  /// Useful when the built-in highlighter produces better results.
-  final bool preferBuiltInHighlighting;
+  /// Whether to disable LSP semantic tokens for this server.
+  /// Use when the built-in regex highlighter produces better results.
+  final bool disableSemanticTokens;
 
   const LspServerConfig({
     required this.name,
@@ -38,8 +35,7 @@ class LspServerConfig {
     required this.extensions,
     required this.languageIds,
     required this.projectMarkers,
-    this.supportsSemanticTokens = false,
-    this.preferBuiltInHighlighting = false,
+    this.disableSemanticTokens = false,
   });
 
   /// Check if this server handles a given file extension.

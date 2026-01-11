@@ -66,7 +66,6 @@ servers:
     extensions: [rs]
     languageIds: [rust]
     projectMarkers: [Cargo.toml]
-    supportsSemanticTokens: true
 ''');
       expect(config.servers, hasLength(5)); // 4 defaults + 1 custom
       expect(config.servers['rust'], isNotNull);
@@ -150,7 +149,6 @@ servers:
       expect(dart.extensions, contains('dart'));
       expect(dart.languageIds, contains('dart'));
       expect(dart.projectMarkers, contains('pubspec.yaml'));
-      expect(dart.supportsSemanticTokens, isTrue);
     });
 
     test('clangd server handles multiple C/C++ extensions', () {
@@ -163,10 +161,10 @@ servers:
       expect(clangd.languageIds, containsAll(['c', 'cpp']));
     });
 
-    test('swift server prefers built-in highlighting', () {
+    test('swift server disables semantic tokens', () {
       final swift = LspServerDefaults.swift;
 
-      expect(swift.preferBuiltInHighlighting, isTrue);
+      expect(swift.disableSemanticTokens, isTrue);
     });
 
     test('fallbackLanguageIds covers common languages', () {

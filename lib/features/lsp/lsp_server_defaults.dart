@@ -13,7 +13,6 @@ class LspServerDefaults {
     extensions: {'dart'},
     languageIds: {'dart'},
     projectMarkers: ['pubspec.yaml', 'pubspec.lock'],
-    supportsSemanticTokens: true,
   );
 
   /// Lua language server configuration (lua-language-server).
@@ -24,7 +23,6 @@ class LspServerDefaults {
     extensions: {'lua'},
     languageIds: {'lua'},
     projectMarkers: ['.luarc.json', '.luarc.jsonc', '.luacheckrc', 'init.lua'],
-    supportsSemanticTokens: true,
   );
 
   /// C/C++ language server configuration (clangd).
@@ -41,7 +39,6 @@ class LspServerDefaults {
       'CMakeLists.txt',
       'Makefile',
     ],
-    supportsSemanticTokens: true,
   );
 
   /// Swift language server configuration (SourceKit-LSP).
@@ -57,8 +54,7 @@ class LspServerDefaults {
       '*.xcworkspace',
       '*.xcodeproj',
     ],
-    supportsSemanticTokens: true,
-    preferBuiltInHighlighting: true,
+    disableSemanticTokens: true,
   );
 
   /// All default server configurations, keyed by identifier.

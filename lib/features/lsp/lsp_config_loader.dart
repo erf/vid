@@ -137,9 +137,7 @@ class LspConfigLoader {
       extensions: _parseStringSet(yaml['extensions']),
       languageIds: _parseStringSet(yaml['languageIds']),
       projectMarkers: _parseStringList(yaml['projectMarkers']),
-      supportsSemanticTokens: yaml['supportsSemanticTokens'] as bool? ?? false,
-      preferBuiltInHighlighting:
-          yaml['preferBuiltInHighlighting'] as bool? ?? false,
+      disableSemanticTokens: yaml['disableSemanticTokens'] as bool? ?? false,
     );
   }
 

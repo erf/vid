@@ -73,7 +73,7 @@ class LspFeature extends Feature {
     final client = getClientForPath(path);
     if (client == null || !client.isConnected) return false;
     if (!client.supportsSemanticTokens) return false;
-    return !(client.serverConfig?.preferBuiltInHighlighting ?? false);
+    return !(client.serverConfig?.disableSemanticTokens ?? false);
   }
 
   /// Legacy accessor - checks current file.
