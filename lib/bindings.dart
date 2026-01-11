@@ -23,8 +23,7 @@ const normalCommands = <String, Command>{
   'a': ActionCommand(Normal.appendCharNext),
   'A': AliasCommand('\$a'),
   'I': AliasCommand('^i'),
-  // Multi-cursor: Ctrl+J/K to add cursor below/above
-  Keys.newline: ActionCommand(SelectionActions.addCursorBelow), // Ctrl+J (\x0a)
+  Keys.newline: ActionCommand(SelectionActions.addCursorBelow),
   Keys.ctrlK: ActionCommand(SelectionActions.addCursorAbove),
   'o': ActionCommand(Normal.openLineBelow),
   'O': ActionCommand(Normal.openLineAbove),

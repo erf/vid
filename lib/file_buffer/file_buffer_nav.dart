@@ -99,7 +99,7 @@ extension FileBufferNav on FileBuffer {
 
     // In insert mode, cursor can be on newline (inserting before it)
     if (mode == .insert || mode == .replace) {
-      return Selection(anchor, cursor);
+      return Selection.collapsed(cursor);
     }
 
     // Don't allow cursor on newline in normal mode - move to previous char
@@ -112,7 +112,9 @@ extension FileBufferNav on FileBuffer {
       }
     }
 
-    return Selection(anchor, cursor);
+    // For collapsed selections, always return collapsed to prevent
+    // anchor/cursor divergence during clamping
+    return Selection.collapsed(cursor);
   }
 
   /// Clamp viewport so cursor is visible
@@ -144,6 +146,11 @@ extension FileBufferNav on FileBuffer {
 
   /// Set editor mode and update cursor style
   void setMode(Editor e, Mode mode) {
+    // When entering or staying in normal mode, collapse all selections to prevent
+    // lingering non-collapsed state from affecting subsequent motions
+    if (mode == Mode.normal) {
+      selections = selections.map((s) => s.collapse()).toList();
+    }
     if (e.file.mode == mode) {
       return;
     }

@@ -201,4 +201,75 @@ void main() {
     expect(f.text, '\n', reason: 'Should preserve trailing newline');
     expect(f.cursor, 0);
   });
+
+  test('dd followed by motion should not extend selection', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\ndef\nghi\n';
+    f.cursor = 4; // start of 'def' line
+    e.input('dd');
+    expect(f.text, 'abc\nghi\n');
+    expect(f.mode, Mode.normal);
+    // After dd, selection should be collapsed
+    expect(f.selections.first.isCollapsed, true);
+    // Now move with a motion - selection should stay collapsed
+    e.input('w');
+    expect(
+      f.selections.first.isCollapsed,
+      true,
+      reason: 'Motion in normal mode should not extend selection',
+    );
+    expect(f.mode, Mode.normal);
+  });
+
+  test('insert then dd then h should not extend selection', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = '\n';
+    f.cursor = 0;
+    // Type "abc\n" in insert mode
+    e.input('iabc\n');
+    expect(f.text, 'abc\n\n');
+    expect(f.mode, Mode.insert);
+    // Escape to normal mode
+    e.input('\x1b'); // Escape
+    expect(f.mode, Mode.normal);
+    expect(
+      f.selections.first.isCollapsed,
+      true,
+      reason: 'Should be collapsed after escape',
+    );
+    // Delete current line
+    e.input('dd');
+    expect(
+      f.selections.first.isCollapsed,
+      true,
+      reason: 'Should be collapsed after dd',
+    );
+    // Move left - this should NOT extend selection
+    e.input('h');
+    expect(
+      f.selections.first.isCollapsed,
+      true,
+      reason: 'h motion should not extend selection in normal mode',
+    );
+    e.input('h');
+    expect(
+      f.selections.first.isCollapsed,
+      true,
+      reason: 'h motion should not extend selection in normal mode',
+    );
+    e.input('h');
+    expect(
+      f.selections.first.isCollapsed,
+      true,
+      reason: 'h motion should not extend selection in normal mode',
+    );
+  });
 }
