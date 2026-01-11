@@ -309,27 +309,45 @@ class Normal {
   }
 
   /// Enter visual mode with a selection starting at the current cursor.
+  /// If multiple cursors exist, preserve them all as visual selections.
   static void enterVisualMode(Editor e, FileBuffer f) {
-    f.selections = [Selection.collapsed(f.cursor)];
+    // If we have multiple collapsed cursors, keep them all
+    // Each collapsed cursor becomes a collapsed selection that can be extended
+    // If already in visual mode (single cursor), this is a no-op
+    if (f.mode == .visual) return;
+    // Keep existing selections (whether single or multiple collapsed cursors)
+    // They will be extended by motions in visual mode
     f.setMode(e, .visual);
   }
 
   /// Enter visual line mode with the current line selected.
-  /// If there's already a selection (from visual mode), expand it to full lines.
+  /// Preserves the cursor's column position - only the line highlighting changes.
+  /// If there's already a selection (from visual mode), expand it to full lines
+  /// but keep the cursor at its current position.
   static void enterVisualLineMode(Editor e, FileBuffer f) {
     final sel = f.selection;
+    final cursorPos = sel.cursor;
+
     if (sel.isCollapsed) {
-      // No existing selection - just use cursor position
-      // Line expansion happens in motion handling and operator handling
-      f.selections = [Selection.collapsed(f.cursor)];
+      // No existing selection - keep cursor position, anchor at same spot
+      // Line expansion happens in rendering and operator handling
+      f.selections = [Selection.collapsed(cursorPos)];
     } else {
-      // Expand existing selection to cover full lines
+      // Expand existing selection to cover full lines, but keep cursor position
       final startLine = f.lineNumber(sel.start);
       final endLine = f.lineNumber(sel.end);
       final lineStart = f.lines[startLine].start;
       final lineEnd = f.lines[endLine].end;
-      // Anchor at start, cursor at end (can swap with 'o')
-      f.selections = [Selection(lineStart, lineEnd)];
+
+      // Determine anchor based on cursor position relative to anchor
+      // If cursor was at end, anchor at line start; if cursor was at start, anchor at line end
+      if (sel.cursor >= sel.anchor) {
+        // Forward selection: anchor at line start, cursor stays where it is
+        f.selections = [Selection(lineStart, cursorPos)];
+      } else {
+        // Backward selection: anchor at line end, cursor stays where it is
+        f.selections = [Selection(lineEnd, cursorPos)];
+      }
     }
     f.setMode(e, .visualLine);
   }

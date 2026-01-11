@@ -78,9 +78,10 @@ void main() {
       final text = 'foo bar foo baz foo\n';
       final selections = selectAllMatches(text, RegExp('foo'));
       expect(selections.length, 3);
-      expect(selections[0], Selection(0, 3));
-      expect(selections[1], Selection(8, 11));
-      expect(selections[2], Selection(16, 19));
+      // Cursor-based: cursor on last char of match (end - 1)
+      expect(selections[0], Selection(0, 2));
+      expect(selections[1], Selection(8, 10));
+      expect(selections[2], Selection(16, 18));
     });
 
     test('returns empty list for no matches', () {
@@ -93,9 +94,10 @@ void main() {
       final text = 'a1b2c3\n';
       final selections = selectAllMatches(text, RegExp(r'\d'));
       expect(selections.length, 3);
-      expect(selections[0], Selection(1, 2)); // '1'
-      expect(selections[1], Selection(3, 4)); // '2'
-      expect(selections[2], Selection(5, 6)); // '3'
+      // Single char matches: cursor on same char (collapsed-like but still a selection)
+      expect(selections[0], Selection(1, 1)); // '1' - single char at position 1
+      expect(selections[1], Selection(3, 3)); // '2' - single char at position 3
+      expect(selections[2], Selection(5, 5)); // '3' - single char at position 5
     });
 
     test('handles overlapping potential matches', () {
@@ -103,8 +105,9 @@ void main() {
       // Non-overlapping matches only
       final selections = selectAllMatches(text, RegExp('aa'));
       expect(selections.length, 2);
-      expect(selections[0], Selection(0, 2));
-      expect(selections[1], Selection(2, 4));
+      // Cursor-based: cursor on last char of match
+      expect(selections[0], Selection(0, 1));
+      expect(selections[1], Selection(2, 3));
     });
   });
 
@@ -162,7 +165,7 @@ void main() {
   });
 
   group(':sel command', () {
-    test('creates selections from regex matches and enters select mode', () {
+    test('creates selections from regex matches and enters visual mode', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -173,11 +176,12 @@ void main() {
       LineEdit.select(e, f, ['sel', 'foo']);
 
       expect(f.selections.length, 2);
+      // Cursor-based: cursor on last char of match
       expect(f.selections[0].start, 0);
-      expect(f.selections[0].end, 3);
+      expect(f.selections[0].end, 2); // cursor on 'o' at position 2
       expect(f.selections[1].start, 8);
-      expect(f.selections[1].end, 11);
-      expect(f.mode, Mode.select);
+      expect(f.selections[1].end, 10); // cursor on 'o' at position 10
+      expect(f.mode, Mode.visual);
     });
 
     test(':sel world selects full word including last char', () {
@@ -191,15 +195,16 @@ void main() {
       LineEdit.select(e, f, ['sel', 'world']);
 
       expect(f.selections.length, 1);
-      // "world" is at positions 6-10 (inclusive), so end should be 11 (exclusive)
+      // "world" at positions 6-10, cursor on last char 'd' at position 10
       expect(f.selections[0].start, 6);
-      expect(f.selections[0].end, 11);
-      // The selected text should be "world"
+      expect(f.selections[0].end, 10); // cursor on 'd'
+      // The selected text (with extension) should be "world"
+      // In cursor-based model, need to add 1 to get the full range
       expect(
-        f.text.substring(f.selections[0].start, f.selections[0].end),
+        f.text.substring(f.selections[0].start, f.selections[0].end + 1),
         'world',
       );
-      expect(f.mode, Mode.select);
+      expect(f.mode, Mode.visual);
     });
 
     test('shows message for no matches', () {
@@ -273,9 +278,9 @@ void main() {
       final f = e.file;
       f.text = 'foo bar foo baz\n';
 
-      // Create visual selections for both "foo"s
-      f.selections = [Selection(0, 3), Selection(8, 11)];
-      f.mode = Mode.select;
+      // Create visual selections for both "foo"s (cursor-based: cursor on last char)
+      f.selections = [Selection(0, 2), Selection(8, 10)];
+      f.mode = Mode.visual;
 
       // Press 'd' to delete
       e.input('d');
@@ -289,8 +294,8 @@ void main() {
         f.selections[1],
         Selection.collapsed(5),
       ); // Second "foo" was at 8, now 8-3=5
-      // Should stay in select mode
-      expect(f.mode, Mode.select);
+      // Returns to normal mode (preserving multi-cursors)
+      expect(f.mode, Mode.normal);
     });
 
     test('d keeps all collapsed cursors at adjusted positions', () {
@@ -304,7 +309,7 @@ void main() {
       // Select all "wor" matches
       f.selections = selectAllMatches(f.text, RegExp('wor'));
       expect(f.selections.length, 4);
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
       // Delete with 'd'
       e.input('d');
@@ -334,7 +339,7 @@ void main() {
 
       // Select all "wor" matches
       f.selections = selectAllMatches(f.text, RegExp('wor'));
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
       // Simulate cycling selections (Tab rotates to end)
       f.selections = [
@@ -422,9 +427,9 @@ void main() {
       final f = e.file;
       f.text = 'AAA BBB AAA CCC\n';
 
-      // Create visual selections for both "AAA"s and enter select mode
-      f.selections = [Selection(0, 3), Selection(8, 11)];
-      f.mode = Mode.select;
+      // Create visual selections for both "AAA"s (cursor-based: cursor on last char)
+      f.selections = [Selection(0, 2), Selection(8, 10)];
+      f.mode = Mode.visual;
 
       // Delete
       e.input('d');
@@ -436,8 +441,8 @@ void main() {
     });
   });
 
-  group('select mode', () {
-    test('escape exits select mode with multiple collapsed cursors', () {
+  group('visual mode multi-selection', () {
+    test('escape exits visual mode with multiple collapsed cursors', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -445,7 +450,7 @@ void main() {
       final f = e.file;
       f.text = 'foo bar foo baz\n';
       f.selections = [Selection(0, 3), Selection(8, 11)];
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
       e.input('\x1b'); // Escape
 
@@ -467,12 +472,12 @@ void main() {
       f.text = 'foo bar foo baz\n';
       // Create selections at start of each "foo"
       f.selections = [Selection.collapsed(0), Selection.collapsed(8)];
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
       // Move right with 'l'
       e.input('l');
 
-      expect(f.mode, Mode.select); // Still in select mode
+      expect(f.mode, Mode.visual); // Still in visual mode
       expect(f.selections.length, 2);
       expect(f.selections[0].cursor, 1);
       expect(f.selections[1].cursor, 9);
@@ -487,7 +492,7 @@ void main() {
       f.text = 'foo bar foo baz\n';
       // Create visual selections for "foo"
       f.selections = [Selection(0, 3), Selection(8, 11)];
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
       // Move right with 'l' - extends selection
       e.input('l');
@@ -508,7 +513,7 @@ void main() {
       final f = e.file;
       f.text = 'aaa bbb ccc\n';
       f.selections = [Selection(0, 3), Selection(4, 7), Selection(8, 11)];
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
       // Primary is first
       expect(f.selections[0].start, 0);
@@ -521,7 +526,7 @@ void main() {
       expect(f.selections[2].start, 0);
     });
 
-    test('() cycles through selections', () {
+    test('Shift+Tab cycles to previous selection', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -529,12 +534,12 @@ void main() {
       final f = e.file;
       f.text = 'aaa bbb ccc\n';
       f.selections = [Selection(0, 3), Selection(4, 7), Selection(8, 11)];
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
-      e.input(')'); // Next
+      e.input('\t'); // Tab - next
       expect(f.selections[0].start, 4);
 
-      e.input('('); // Previous
+      e.input('\x1b[Z'); // Shift+Tab - previous
       expect(f.selections[0].start, 0);
     });
 
@@ -545,8 +550,9 @@ void main() {
       );
       final f = e.file;
       f.text = 'aaa bbb ccc\n';
-      f.selections = [Selection(0, 3), Selection(4, 7)];
-      f.mode = Mode.select;
+      // Cursor-based: "aaa" is 0-2, "bbb" is 4-6
+      f.selections = [Selection(0, 2), Selection(4, 6)];
+      f.mode = Mode.visual;
 
       // x should delete selections (via operator), not remove selection from list
       e.input('x');
@@ -990,7 +996,7 @@ void main() {
   });
 
   group('multi-cursor mode', () {
-    test('escape from select mode creates multiple collapsed cursors', () {
+    test('escape from visual mode creates multiple collapsed cursors', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -999,7 +1005,7 @@ void main() {
       f.text = 'foo bar foo baz\n';
       // Create selections at "foo" matches
       f.selections = [Selection(0, 3), Selection(8, 11)];
-      f.mode = Mode.select;
+      f.mode = Mode.visual;
 
       e.input('\x1b'); // Escape
 
@@ -1280,13 +1286,13 @@ void main() {
       e.input('V'); // Switch to visual line mode
 
       expect(f.mode, Mode.visualLine);
-      // Selection should be expanded to full lines
+      // Selection should expand to full lines for highlighting, but cursor stays at current position
       final sel = f.selections[0];
-      expect(f.lineNumber(sel.start), 0); // First line
+      expect(f.lineNumber(sel.start), 0); // Anchor at first line
       expect(sel.start, 0); // Start of first line
-      // End should be at end of third line (before newline)
-      expect(f.lineNumber(sel.end), 2);
-      expect(sel.end, f.lines[2].end); // End of third line
+      // Cursor (end) stays at current position, not moved to line end
+      // Line expansion for operators/rendering happens dynamically
+      expect(sel.cursor, 18); // Cursor stayed at position 18 (start of line 3)
     });
   });
 
@@ -1310,10 +1316,13 @@ void main() {
 
       expect(f.mode, Mode.normal);
       expect(f.selections.length, 3);
-      // Check each cursor is at the start of each line
-      expect(f.selections[0].cursor, 0); // Start of line 1
-      expect(f.selections[1].cursor, 9); // Start of line 2 ("line two\n")
-      expect(f.selections[2].cursor, 18); // Start of line 3 ("line three\n")
+      // Main cursor stays at current cursor position (line 3)
+      expect(
+        f.selections[0].cursor,
+        18,
+      ); // Start of line 3 (current cursor line)
+      expect(f.selections[1].cursor, 0); // Start of line 1
+      expect(f.selections[2].cursor, 9); // Start of line 2
       // All should be collapsed
       expect(f.selections.every((s) => s.isCollapsed), true);
     });
@@ -1335,10 +1344,13 @@ void main() {
 
       expect(f.mode, Mode.normal);
       expect(f.selections.length, 3);
-      // Should still get cursors at start of each line regardless of direction
-      expect(f.selections[0].cursor, 0);
-      expect(f.selections[1].cursor, 9);
-      expect(f.selections[2].cursor, 18);
+      // Main cursor stays at current cursor position (line 1)
+      expect(
+        f.selections[0].cursor,
+        0,
+      ); // Start of line 1 (current cursor line)
+      expect(f.selections[1].cursor, 9); // Start of line 2
+      expect(f.selections[2].cursor, 18); // Start of line 3
     });
   });
 

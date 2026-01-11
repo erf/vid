@@ -285,8 +285,8 @@ class LineEdit {
         return;
       }
       f.selections = selections;
-      // Enter select mode for multiple visual selections
-      f.setMode(e, .select);
+      // Enter visual mode for multiple visual selections
+      f.setMode(e, .visual);
       e.showMessage(.info('${selections.length} selection(s)'));
     } on FormatException catch (ex) {
       f.setMode(e, .normal);

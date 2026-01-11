@@ -149,6 +149,8 @@ extension FileBufferNav on FileBuffer {
     }
     switch (mode) {
       case .normal:
+      case .visual:
+      case .visualLine:
         e.terminal.write(Ansi.cursorStyle(.steadyBlock));
       case .insert:
         e.terminal.write(Ansi.cursorStyle(.steadyBar));

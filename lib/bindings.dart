@@ -24,7 +24,7 @@ const normalCommands = <String, Command>{
   'A': AliasCommand('\$a'),
   'I': AliasCommand('^i'),
   // Multi-cursor: Ctrl+J/K to add cursor below/above
-  '\n': ActionCommand(SelectionActions.addCursorBelow), // Ctrl+J (\x0a)
+  Keys.newline: ActionCommand(SelectionActions.addCursorBelow), // Ctrl+J (\x0a)
   Keys.ctrlK: ActionCommand(SelectionActions.addCursorAbove),
   'o': ActionCommand(Normal.openLineBelow),
   'O': ActionCommand(Normal.openLineAbove),
@@ -209,24 +209,16 @@ const popupBindings = <String, Command>{
 };
 const popupFallback = InputCommand(PopupActions.filterInput);
 
-// Selection mode bindings - reuses normal mode but preserves multi-selections
-// Only override escape and add selection-specific actions on unused keys
-const selectCommands = <String, Command>{
-  Keys.escape: ActionCommand(SelectionActions.escape),
-  Keys.tab: ActionCommand(SelectionActions.nextSelection),
-  Keys.shiftTab: ActionCommand(SelectionActions.prevSelection),
-  'o': ActionCommand(SelectionActions.swapEnds), // Like vim visual 'o'
-  // Use () for cycling - not used in normal mode
-  ')': ActionCommand(SelectionActions.nextSelection),
-  '(': ActionCommand(SelectionActions.prevSelection),
-};
-
-// Visual mode bindings - single selection from cursor
+// Visual mode bindings - single or multiple selections from cursor
+// Supports multi-cursor workflow with Tab/Shift+Tab to cycle selections
 const visualCommands = <String, Command>{
   Keys.escape: ActionCommand(SelectionActions.escapeVisual),
   'o': ActionCommand(SelectionActions.swapEnds), // Swap anchor/cursor
   // Override x to directly delete (normal mode x is 'dl' alias, which causes issues)
   'x': OperatorCommand(Operators.delete),
+  // Selection cycling (for multi-cursor)
+  Keys.tab: ActionCommand(SelectionActions.nextSelection),
+  Keys.shiftTab: ActionCommand(SelectionActions.prevSelection),
 };
 
 // Visual line mode bindings - linewise selection
@@ -261,13 +253,6 @@ final keyBindings = <Mode, ModeBindings<Command>>{
     fallback: lineEditSearchFallback,
   ),
   .popup: ModeBindings(popupBindings, fallback: popupFallback),
-  .select: ModeBindings({
-    ...countCommands,
-    ...normalCommands, // Include all normal commands (x, p, u, etc.)
-    ...motionCommands,
-    ...operatorCommands,
-    ...selectCommands, // Selection-specific overrides LAST (highest priority)
-  }),
   .visual: ModeBindings({
     ...countCommands,
     ...normalCommands, // Include all normal commands (x, p, u, etc.)

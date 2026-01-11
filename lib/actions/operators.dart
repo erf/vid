@@ -51,7 +51,7 @@ class Operators {
 
       if (visualSelections.isEmpty) return false;
 
-      // In visual mode (character-wise), extend selections to include cursor character.
+      // In visual mode, extend each selection by one grapheme to include cursor char.
       // Visual mode is always inclusive - the char under cursor is selected.
       if (f.mode == .visual) {
         visualSelections = visualSelections.map((s) {
@@ -98,11 +98,10 @@ class Operators {
 
     if (op == change) {
       f.setMode(e, .insert);
-    } else if (f.mode == .visual || f.mode == .visualLine) {
-      // Visual modes: return to normal after operator
+    } else {
+      // Return to normal mode after delete/yank, preserving multi-cursors
       f.setMode(e, .normal);
     }
-    // Select mode: Stay in select mode (don't switch to normal) to keep multi-cursors
 
     return true;
   }

@@ -491,10 +491,12 @@ class Renderer {
         return (start, end);
       }).toList();
     } else if (file.hasVisualSelection) {
-      selectionRanges = file.selections
-          .where((s) => !s.isCollapsed)
-          .map((s) => (s.start, s.end))
-          .toList();
+      // Visual mode selections are cursor-based: end is the cursor position (last char)
+      // Extend by 1 to include the cursor character in the visual highlight
+      selectionRanges = file.selections.where((s) => !s.isCollapsed).map((s) {
+        final end = s.end < file.text.length ? file.nextGrapheme(s.end) : s.end;
+        return (s.start, end);
+      }).toList();
     } else if (file.hasMultipleCursors) {
       // Show secondary cursors as single-character highlights
       // Skip first cursor (it's rendered as the actual terminal cursor)

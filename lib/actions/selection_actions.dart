@@ -8,11 +8,11 @@ import 'package:vid/utils.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 
-/// Actions for selection mode (multi-cursor/multi-selection).
+/// Actions for visual mode (single or multi-selection).
 class SelectionActions {
-  /// Exit selection mode, collapse selections to multiple cursors (collapsed selections).
+  /// Exit visual mode, collapse selections to multiple cursors (collapsed selections).
   /// This preserves cursor positions while removing visual selection ranges.
-  static void escape(Editor e, FileBuffer f) {
+  static void escapeVisual(Editor e, FileBuffer f) {
     f.selections = f.selections.map((s) => s.collapse()).toList();
     f.setMode(e, .normal);
   }
@@ -37,7 +37,7 @@ class SelectionActions {
   static void removeSelection(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) {
       // Can't remove last selection, just escape
-      escape(e, f);
+      escapeVisual(e, f);
       return;
     }
     f.selections.removeAt(0);
@@ -50,13 +50,6 @@ class SelectionActions {
     f.selections[0] = Selection(sel.cursor, sel.anchor);
   }
 
-  /// Exit visual mode, collapse to single cursor.
-  static void escapeVisual(Editor e, FileBuffer f) {
-    final cursor = f.selections.first.cursor;
-    f.selections = [Selection.collapsed(cursor)];
-    f.setMode(e, .normal);
-  }
-
   /// Exit visual line mode, collapse to first non-blank of first selected line.
   static void escapeVisualLine(Editor e, FileBuffer f) {
     // Move cursor to start of first selected line
@@ -67,15 +60,24 @@ class SelectionActions {
 
   /// In visual line mode, 'I' converts each line in the selection to a cursor
   /// at the start of each line (multi-cursor mode).
+  /// The main cursor stays on the line where the cursor currently is.
   static void visualLineInsertAtLineStarts(Editor e, FileBuffer f) {
     final sel = f.selections.first;
     final startLine = f.lineNumber(sel.start);
-    // For visual line mode, include the line where the cursor is
     final endLine = f.lineNumber(sel.end);
+    final cursorLine = f.lineNumber(sel.cursor);
 
     // Create collapsed selection at start of each line
+    // Put the cursor's line first (main cursor), then others in order
     final newSelections = <Selection>[];
+
+    // Main cursor at current cursor's line
+    final mainLineStart = f.lines[cursorLine].start;
+    newSelections.add(Selection.collapsed(mainLineStart));
+
+    // Add other lines
     for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
+      if (lineNum == cursorLine) continue; // Skip main cursor line
       final lineStart = f.lines[lineNum].start;
       newSelections.add(Selection.collapsed(lineStart));
     }

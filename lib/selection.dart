@@ -59,10 +59,17 @@ class Selection {
 /// Find all matches of a regex pattern and return as selections.
 ///
 /// Each match becomes a selection with anchor at match.start and cursor
-/// at match.end (so the entire match is selected).
+/// at the last character of the match (match.end - 1). This creates
+/// cursor-based selections consistent with visual mode motions.
+/// For empty matches, creates a collapsed selection.
 List<Selection> selectAllMatches(String text, RegExp pattern) {
   final matches = pattern.allMatches(text);
-  return matches.map((m) => Selection(m.start, m.end)).toList();
+  return matches.map((m) {
+    // For non-empty matches, cursor is on last char (end - 1)
+    // For empty matches, create collapsed selection
+    final cursor = m.end > m.start ? m.end - 1 : m.start;
+    return Selection(m.start, cursor);
+  }).toList();
 }
 
 /// Merge overlapping or adjacent selections into a single list.

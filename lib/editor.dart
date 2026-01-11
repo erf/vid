@@ -620,11 +620,8 @@ class Editor {
     // Motions may also write to this during execution (capturing char for repeat).
     file.edit.findStr = edit.findStr;
 
-    // In select/visual/visualLine mode with no operator, apply motion to all selection cursors
-    if ((file.mode == .select ||
-            file.mode == .visual ||
-            file.mode == .visualLine) &&
-        op == null) {
+    // In visual/visualLine mode with no operator, apply motion to all selection cursors
+    if ((file.mode == .visual || file.mode == .visualLine) && op == null) {
       _applyMotionToSelections(motion, edit.count);
       _saveForRepeat(edit);
       file.edit.reset();
@@ -685,7 +682,7 @@ class Editor {
     file.edit.reset();
   }
 
-  /// Apply motion to all selections, preserving them in select mode.
+  /// Apply motion to all selections, preserving them in visual mode.
   void _applyMotionToSelections(Motion motion, int count) {
     final newSelections = <Selection>[];
     for (final sel in file.selections) {
@@ -693,15 +690,8 @@ class Editor {
       for (int i = 0; i < count; i++) {
         newCursor = motion.fn(this, file, newCursor);
       }
-      // In select mode, extend for inclusive motions so selection includes cursor char.
-      // In visual mode and visual line mode, we handle extension at operator time,
-      // so store the raw cursor position here.
-      if (file.mode == .select &&
-          motion.inclusive &&
-          newCursor < file.text.length) {
-        newCursor = file.nextGrapheme(newCursor);
-      }
       // Update selection cursor, keeping anchor for visual selections
+      // Extension for inclusive behavior happens at operator time
       newSelections.add(sel.withCursor(newCursor));
     }
     // Merge any overlapping selections that result from the motion
@@ -758,18 +748,18 @@ class Editor {
     // Sort ranges by position (in document order), keeping track of main cursor index
     final rangesWithIndex = ranges.asMap().entries.toList();
     rangesWithIndex.sort((a, b) => a.value.start.compareTo(b.value.start));
-    
+
     // Find which sorted index corresponds to main cursor
     int mainIndex = 0;
     for (int i = 0; i < rangesWithIndex.length; i++) {
       if (rangesWithIndex[i].value.start == mainCursorPos ||
           (rangesWithIndex[i].value.start <= mainCursorPos &&
-           mainCursorPos < rangesWithIndex[i].value.end)) {
+              mainCursorPos < rangesWithIndex[i].value.end)) {
         mainIndex = i;
         break;
       }
     }
-    
+
     final sortedRanges = rangesWithIndex.map((e) => e.value).toList();
 
     // Yank all text first (for delete/change operations)
@@ -803,13 +793,13 @@ class Editor {
       newSelections.add(Selection.collapsed(r.start - offset));
       offset += r.end - r.start;
     }
-    
+
     // Move main cursor to front
     if (mainIndex > 0 && mainIndex < newSelections.length) {
       final mainSel = newSelections.removeAt(mainIndex);
       newSelections.insert(0, mainSel);
     }
-    
+
     file.selections = newSelections;
     file.clampCursor();
 
