@@ -30,10 +30,9 @@ See [build.sh](build.sh).
 3. `~/.config/vid/`
 
 Two config files are supported:
+
 - **config.yaml** — editor settings (see [config.example.yaml](config.example.yaml))
 - **lsp_servers.yaml** — LSP server configs (see [lsp_servers.example.yaml](lsp_servers.example.yaml))
-
-All settings are optional — missing values use sensible defaults.
 
 ## Contributing
 
