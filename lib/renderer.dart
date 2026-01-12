@@ -909,7 +909,7 @@ class Renderer {
     final contentWidth = popupWidth - (innerPadding * 2);
     final maxVisible =
         popupHeight -
-        (popup.showFilter ? 4 : 3); // Account for footer + top/bottom padding
+        (popup.showFilter ? 4 : 3); // Account for header + footer padding
     final items = popup.items;
 
     // Center the popup
@@ -922,15 +922,29 @@ class Renderer {
     popupRight = left + popupWidth;
     popupBottom = top + popupHeight;
 
-    // Draw top padding row
+    // Draw header with title and count (contrasting background)
     buffer.write(Ansi.cursor(x: left + 1, y: top + 1));
-    buffer.write(' ' * popupWidth);
+    buffer.write(Ansi.inverse(true));
+    buffer.write(' ' * innerPadding);
+    final totalItems = popup.allItems.length;
+    final countStr = totalItems != items.length
+        ? '${items.length}/$totalItems'
+        : '${items.length}';
+    var header = '${popup.title} ($countStr)';
+    if (header.length > contentWidth) {
+      header = '${header.substring(0, contentWidth - 1)}…';
+    }
+    buffer.write(header.padRight(contentWidth));
+    buffer.write(' ' * innerPadding);
+    buffer.write(Ansi.inverse(false));
 
     // Draw items (fixed height, fill empty rows)
     final scrollOffset = popup.scrollOffset;
+    final selectionBg =
+        highlighter.theme.selectionBackground ?? Ansi.bg(Color.brightBlack);
     for (int i = 0; i < maxVisible; i++) {
       final itemIndex = scrollOffset + i;
-      final row = top + 2 + i; // +2 for top padding
+      final row = top + 2 + i; // +2 for header row
 
       buffer.write(Ansi.cursor(x: left + 1, y: row));
       buffer.write(' ' * innerPadding); // Left padding
@@ -939,9 +953,9 @@ class Renderer {
         final item = items[itemIndex];
         final isSelected = itemIndex == popup.selectedIndex;
 
-        // Highlight selected item
+        // Highlight selected item with theme selection background
         if (isSelected) {
-          buffer.write(Ansi.inverse(true));
+          buffer.write(selectionBg);
         }
 
         // Build item content
@@ -959,7 +973,7 @@ class Renderer {
         buffer.write(content);
 
         if (isSelected) {
-          buffer.write(Ansi.inverse(false));
+          highlighter.theme.resetCode(buffer);
         }
 
         // Map row to item index for mouse clicks
@@ -973,26 +987,9 @@ class Renderer {
       buffer.write(' ' * innerPadding); // Right padding
     }
 
-    // Draw footer with title and count
-    final footerRow = top + 2 + maxVisible;
-    buffer.write(Ansi.cursor(x: left + 1, y: footerRow));
-    buffer.write(' ' * innerPadding);
-    final totalItems = popup.allItems.length;
-    final countStr = totalItems != items.length
-        ? '${items.length}/$totalItems'
-        : '${items.length}';
-    var footer = '${popup.title} ($countStr)';
-    if (footer.length > contentWidth) {
-      footer = '${footer.substring(0, contentWidth - 1)}…';
-    }
-    buffer.write(Ansi.dim());
-    buffer.write(footer.padRight(contentWidth));
-    highlighter.theme.resetCode(buffer);
-    buffer.write(' ' * innerPadding);
-
     // Draw filter input line if shown
     if (popup.showFilter) {
-      final filterRow = top + 3 + maxVisible;
+      final filterRow = top + 2 + maxVisible;
       buffer.write(Ansi.cursor(x: left + 1, y: filterRow));
       buffer.write(' ' * innerPadding);
       final filterContent = '> ${popup.filterText}';
@@ -1002,7 +999,7 @@ class Renderer {
     }
 
     // Draw bottom padding row
-    final bottomPadRow = top + 3 + maxVisible + (popup.showFilter ? 1 : 0);
+    final bottomPadRow = top + 2 + maxVisible + (popup.showFilter ? 1 : 0);
     buffer.write(Ansi.cursor(x: left + 1, y: bottomPadRow));
     buffer.write(' ' * popupWidth);
 
@@ -1014,7 +1011,7 @@ class Renderer {
           innerPadding +
           2 +
           popup.filterText.length; // after padding + "> "
-      final cursorY = top + 3 + maxVisible;
+      final cursorY = top + 2 + maxVisible;
       buffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
       buffer.write(Ansi.cursor(x: cursorX, y: cursorY));
     } else {
