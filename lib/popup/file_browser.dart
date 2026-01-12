@@ -7,31 +7,6 @@ import 'popup.dart';
 
 /// File picker popup that lists all files recursively.
 class FileBrowser {
-  /// Directories to always exclude from scanning.
-  static const Set<String> _excludeDirs = {
-    '.git',
-    'node_modules',
-    '.dart_tool',
-    'build',
-    'target',
-    'vendor',
-    '.pub-cache',
-    '__pycache__',
-    '.venv',
-    'venv',
-    '.gradle',
-    '.idea',
-    '.vs',
-    'dist',
-    'out',
-    '.next',
-    '.nuxt',
-    'coverage',
-    '.cache',
-    'tmp',
-    'temp',
-  };
-
   /// Show file picker popup starting at the given path.
   static void show(Editor editor, [String? path]) {
     final rootPath = _resolvePath(path);
@@ -97,7 +72,7 @@ class FileBrowser {
 
           if (entry is Directory) {
             // Skip excluded directories
-            if (_excludeDirs.contains(name)) continue;
+            if (editor.config.fileBrowserExcludeDirs.contains(name)) continue;
             await scanDir(entry, depth + 1);
           } else if (entry is File) {
             items.add(PopupItem(label: relativePath, value: entry.path));

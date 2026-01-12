@@ -1,4 +1,5 @@
 import 'package:vid/highlighting/theme.dart';
+import 'package:yaml/yaml.dart';
 
 /// Text wrapping mode for the editor.
 enum WrapMode {
@@ -77,6 +78,35 @@ class Config {
   /// Whether to show hidden files (starting with '.') in the file browser.
   final bool fileBrowserShowHidden;
 
+  /// Directories to exclude from file browser scanning.
+  /// If not set in config, uses built-in defaults.
+  final Set<String> fileBrowserExcludeDirs;
+
+  /// Default directories to exclude from file browser scanning.
+  static const Set<String> defaultExcludeDirs = {
+    '.git',
+    'node_modules',
+    '.dart_tool',
+    'build',
+    'target',
+    'vendor',
+    '.pub-cache',
+    '__pycache__',
+    '.venv',
+    'venv',
+    '.gradle',
+    '.idea',
+    '.vs',
+    'dist',
+    'out',
+    '.next',
+    '.nuxt',
+    'coverage',
+    '.cache',
+    'tmp',
+    'temp',
+  };
+
   /// Returns the wrap symbol for the current [wrapMode].
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
@@ -98,6 +128,7 @@ class Config {
     this.fileBrowserMaxFiles = 5000,
     this.fileBrowserMaxDepth = 4,
     this.fileBrowserShowHidden = false,
+    this.fileBrowserExcludeDirs = defaultExcludeDirs,
     this.popupMaxWidth,
   });
 
@@ -128,6 +159,7 @@ class Config {
       fileBrowserMaxFiles: _parseInt(map['fileBrowserMaxFiles']),
       fileBrowserMaxDepth: _parseInt(map['fileBrowserMaxDepth']),
       fileBrowserShowHidden: _parseBool(map['fileBrowserShowHidden']),
+      fileBrowserExcludeDirs: _parseStringSet(map['fileBrowserExcludeDirs']),
       popupMaxWidth: _parseInt(map['popupMaxWidth']),
     );
   }
@@ -156,6 +188,23 @@ class Config {
     return null;
   }
 
+  static Set<String>? _parseStringSet(dynamic value) {
+    if (value is YamlList) {
+      return value.map((e) => e.toString()).toSet();
+    }
+    if (value is List) {
+      return value.map((e) => e.toString()).toSet();
+    }
+    if (value is String) {
+      return value
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toSet();
+    }
+    return null;
+  }
+
   Config copyWith({
     int? messageTime,
     int? tabWidth,
@@ -174,6 +223,7 @@ class Config {
     int? fileBrowserMaxFiles,
     int? fileBrowserMaxDepth,
     bool? fileBrowserShowHidden,
+    Set<String>? fileBrowserExcludeDirs,
     int? popupMaxWidth,
   }) {
     return Config(
@@ -195,6 +245,8 @@ class Config {
       fileBrowserMaxDepth: fileBrowserMaxDepth ?? this.fileBrowserMaxDepth,
       fileBrowserShowHidden:
           fileBrowserShowHidden ?? this.fileBrowserShowHidden,
+      fileBrowserExcludeDirs:
+          fileBrowserExcludeDirs ?? this.fileBrowserExcludeDirs,
       popupMaxWidth: popupMaxWidth ?? this.popupMaxWidth,
     );
   }
