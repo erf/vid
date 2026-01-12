@@ -31,7 +31,7 @@ syntaxHighlighting: true
 # Enable LSP semantic highlighting (richer token info from language server)
 semanticHighlighting: true
 
-# Syntax theme: mono, rosePineDawn, rosePine, ayuLight, ayuDark
+# Syntax theme: mono, rosePineDawn, rosePine, ayuLight, ayuDark, unicornDark, unicornLight
 # If not set, vid auto-detects based on terminal light/dark mode
 # syntaxTheme: rosePine
 

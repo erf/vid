@@ -7,7 +7,9 @@ enum ThemeType {
   rosePineDawn,
   rosePine,
   ayuLight,
-  ayuDark;
+  ayuDark,
+  unicornDark,
+  unicornLight;
 
   /// Get the [Theme] instance for this type.
   Theme get theme => switch (this) {
@@ -16,6 +18,8 @@ enum ThemeType {
     .rosePine => Theme._rosePine,
     .ayuLight => Theme._ayuLight,
     .ayuDark => Theme._ayuDark,
+    .unicornDark => Theme._unicornDark,
+    .unicornLight => Theme._unicornLight,
   };
 }
 
@@ -214,6 +218,84 @@ class Theme {
     foreground: Ansi.fgRgb(92, 97, 102), // #5C6166
     cursorColor: Ansi.setCursorColor('#F29718'),
     selectionBackground: Ansi.bgRgb(229, 237, 246), // #E5EDF6
+  );
+
+  // Unicorn Dark - soft pastel theme
+  static final Theme _unicornDark = Theme._(
+    'unicorn-dark',
+    {
+      // Basic token types
+      TokenType.keyword: Ansi.fgRgb(198, 146, 233), // Soft purple #C692E9
+      TokenType.lineComment: Ansi.fgRgb(122, 129, 150), // Muted gray #7A8196
+      TokenType.blockComment: Ansi.fgRgb(122, 129, 150), // Muted gray #7A8196
+      TokenType.string: Ansi.fgRgb(152, 219, 169), // Mint green #98DBA9
+      TokenType.number: Ansi.fgRgb(255, 183, 178), // Soft coral #FFB7B2
+      TokenType.literal: Ansi.fgRgb(255, 183, 178), // Soft coral #FFB7B2
+      TokenType.type: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+      TokenType.plain: reset,
+      // LSP semantic token types
+      TokenType.namespace: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+      TokenType.class_: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+      TokenType.enum_: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+      TokenType.interface: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+      TokenType.struct: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+      TokenType.typeParameter: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+      TokenType.parameter: Ansi.fgRgb(255, 209, 220), // Soft pink #FFD1DC
+      TokenType.variable: Ansi.fgRgb(224, 224, 235), // Light gray #E0E0EB
+      TokenType.property: Ansi.fgRgb(255, 209, 220), // Soft pink #FFD1DC
+      TokenType.enumMember: Ansi.fgRgb(255, 183, 178), // Soft coral #FFB7B2
+      TokenType.event: Ansi.fgRgb(255, 218, 185), // Peach #FFDAB9
+      TokenType.function: Ansi.fgRgb(255, 218, 185), // Peach #FFDAB9
+      TokenType.method: Ansi.fgRgb(255, 218, 185), // Peach #FFDAB9
+      TokenType.macro: Ansi.fgRgb(198, 146, 233), // Soft purple #C692E9
+      TokenType.modifier: Ansi.fgRgb(198, 146, 233), // Soft purple #C692E9
+      TokenType.regexp: Ansi.fgRgb(152, 219, 169), // Mint green #98DBA9
+      TokenType.operator: Ansi.fgRgb(179, 179, 204), // Lavender gray #B3B3CC
+      TokenType.decorator: Ansi.fgRgb(255, 209, 220), // Soft pink #FFD1DC
+    },
+    background: Ansi.bgRgb(40, 42, 54), // Dark purple-gray #282A36
+    foreground: Ansi.fgRgb(224, 224, 235), // Light gray #E0E0EB
+    cursorColor: Ansi.setCursorColor('#C692E9'), // Soft purple
+    selectionBackground: Ansi.bgRgb(68, 71, 90), // Selection #44475A
+  );
+
+  // Unicorn Light - soft pastel theme
+  static final Theme _unicornLight = Theme._(
+    'unicorn-light',
+    {
+      // Basic token types
+      TokenType.keyword: Ansi.fgRgb(155, 89, 182), // Purple #9B59B6
+      TokenType.lineComment: Ansi.fgRgb(149, 165, 166), // Gray #95A5A6
+      TokenType.blockComment: Ansi.fgRgb(149, 165, 166), // Gray #95A5A6
+      TokenType.string: Ansi.fgRgb(39, 174, 96), // Green #27AE60
+      TokenType.number: Ansi.fgRgb(231, 76, 60), // Soft red #E74C3C
+      TokenType.literal: Ansi.fgRgb(231, 76, 60), // Soft red #E74C3C
+      TokenType.type: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+      TokenType.plain: reset,
+      // LSP semantic token types
+      TokenType.namespace: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+      TokenType.class_: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+      TokenType.enum_: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+      TokenType.interface: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+      TokenType.struct: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+      TokenType.typeParameter: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+      TokenType.parameter: Ansi.fgRgb(199, 125, 159), // Dusty pink #C77D9F
+      TokenType.variable: Ansi.fgRgb(68, 68, 85), // Dark gray #444455
+      TokenType.property: Ansi.fgRgb(199, 125, 159), // Dusty pink #C77D9F
+      TokenType.enumMember: Ansi.fgRgb(231, 76, 60), // Soft red #E74C3C
+      TokenType.event: Ansi.fgRgb(230, 126, 34), // Orange #E67E22
+      TokenType.function: Ansi.fgRgb(230, 126, 34), // Orange #E67E22
+      TokenType.method: Ansi.fgRgb(230, 126, 34), // Orange #E67E22
+      TokenType.macro: Ansi.fgRgb(155, 89, 182), // Purple #9B59B6
+      TokenType.modifier: Ansi.fgRgb(155, 89, 182), // Purple #9B59B6
+      TokenType.regexp: Ansi.fgRgb(39, 174, 96), // Green #27AE60
+      TokenType.operator: Ansi.fgRgb(127, 140, 141), // Gray #7F8C8D
+      TokenType.decorator: Ansi.fgRgb(199, 125, 159), // Dusty pink #C77D9F
+    },
+    background: Ansi.bgRgb(253, 245, 250), // Soft pink-white #FDF5FA
+    foreground: Ansi.fgRgb(68, 68, 85), // Dark gray #444455
+    cursorColor: Ansi.setCursorColor('#9B59B6'), // Purple
+    selectionBackground: Ansi.bgRgb(243, 226, 238), // Light pink #F3E2EE
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)
