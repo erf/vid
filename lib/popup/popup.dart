@@ -192,25 +192,31 @@ class PopupState<T> {
     );
   }
 
-  /// Move selection down.
+  /// Move selection down (wraps to top when at bottom).
   PopupState<T> moveDown() {
     if (items.isEmpty) return this;
-    final newIndex = (selectedIndex + 1).clamp(0, items.length - 1);
+    final newIndex = (selectedIndex + 1) % items.length;
     var newScroll = scrollOffset;
-    // Scroll down if selection goes below visible area
-    if (newIndex >= scrollOffset + maxVisibleItems) {
+    if (newIndex == 0) {
+      // Wrapped to top
+      newScroll = 0;
+    } else if (newIndex >= scrollOffset + maxVisibleItems) {
+      // Scroll down if selection goes below visible area
       newScroll = newIndex - maxVisibleItems + 1;
     }
     return copyWith(selectedIndex: newIndex, scrollOffset: newScroll);
   }
 
-  /// Move selection up.
+  /// Move selection up (wraps to bottom when at top).
   PopupState<T> moveUp() {
     if (items.isEmpty) return this;
-    final newIndex = (selectedIndex - 1).clamp(0, items.length - 1);
+    final newIndex = (selectedIndex - 1 + items.length) % items.length;
     var newScroll = scrollOffset;
-    // Scroll up if selection goes above visible area
-    if (newIndex < scrollOffset) {
+    if (newIndex == items.length - 1 && selectedIndex == 0) {
+      // Wrapped to bottom
+      newScroll = (newIndex - maxVisibleItems + 1).clamp(0, newIndex);
+    } else if (newIndex < scrollOffset) {
+      // Scroll up if selection goes above visible area
       newScroll = newIndex;
     }
     return copyWith(selectedIndex: newIndex, scrollOffset: newScroll);
