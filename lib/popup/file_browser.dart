@@ -9,6 +9,7 @@ import 'popup.dart';
 class FileBrowser {
   /// Directories to always exclude from scanning.
   static const Set<String> _excludeDirs = {
+    '.git',
     'node_modules',
     '.dart_tool',
     'build',
