@@ -897,24 +897,28 @@ class Renderer {
   void _drawPopup(PopupState popup, Config config) {
     popupRowMap.clear();
 
-    // Use most of terminal space with comfortable padding, respecting maxWidth
-    var popupWidth = terminal.width - 12;
+    // Use percentage-based margins for better scaling
+    // ~12% margin on each side, so popup takes ~76% of terminal
+    final horizontalMargin = (terminal.width * 0.12).round().clamp(6, 24);
+    final verticalMargin = (terminal.height * 0.12).round().clamp(3, 12);
+
+    // Calculate popup size with margins
+    var popupWidth = terminal.width - (horizontalMargin * 2);
     // Config takes precedence, then popup's own maxWidth
     final maxWidth = config.popupMaxWidth ?? popup.maxWidth;
     if (maxWidth != null && popupWidth > maxWidth) {
       popupWidth = maxWidth;
     }
-    final popupHeight = terminal.height - 8;
-    final innerPadding = 1; // Empty space inside the popup box
+    final popupHeight = terminal.height - (verticalMargin * 2);
+    const innerPadding = 1; // Space inside popup on left and right
     final contentWidth = popupWidth - (innerPadding * 2);
     final maxVisible =
-        popupHeight -
-        (popup.showFilter ? 4 : 3); // Account for header + footer padding
+        popupHeight - (popup.showFilter ? 3 : 2); // Account for header + footer
     final items = popup.items;
 
     // Center the popup
     final left = (terminal.width - popupWidth) ~/ 2;
-    final top = 4;
+    final top = verticalMargin;
 
     // Store bounds for mouse detection
     popupLeft = left;
@@ -997,11 +1001,6 @@ class Renderer {
       buffer.write(padded.substring(0, contentWidth));
       buffer.write(' ' * innerPadding);
     }
-
-    // Draw bottom padding row
-    final bottomPadRow = top + 2 + maxVisible + (popup.showFilter ? 1 : 0);
-    buffer.write(Ansi.cursor(x: left + 1, y: bottomPadRow));
-    buffer.write(' ' * popupWidth);
 
     // Position cursor in filter input if shown
     if (popup.showFilter) {
