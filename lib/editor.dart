@@ -18,6 +18,7 @@ import 'package:vid/selection.dart';
 import 'package:vid/yank_buffer.dart';
 
 import 'bindings.dart';
+import 'jump_list.dart';
 import 'commands/command.dart';
 import 'config.dart';
 import 'error_or.dart';
@@ -53,13 +54,11 @@ class Editor {
   /// Mode to restore when popup is closed.
   Mode? _popupPreviousMode;
 
-  /// Jump list for Ctrl-o navigation (stores file path + cursor offset)
-  final List<_JumpLocation> _jumpList = [];
-  int _jumpListIndex = -1;
+  /// Jump list for Ctrl-o / Ctrl-i navigation.
+  final JumpList jumpList = JumpList();
 
   // Static fields
   static final _emptyBuffer = FileBuffer(); // Fallback for empty buffer list
-  static const _maxJumpListSize = 100;
 
   // Getters and setters
   FileBuffer get file =>
@@ -831,67 +830,30 @@ class Editor {
 
   /// Push current location to jump list (call before jumping).
   void pushJumpLocation() {
-    final path = file.absolutePath;
-    if (path == null) return;
-
-    final loc = _JumpLocation(path, file.cursor);
-
-    // Remove any forward history when pushing new location
-    if (_jumpListIndex >= 0 && _jumpListIndex < _jumpList.length - 1) {
-      _jumpList.removeRange(_jumpListIndex + 1, _jumpList.length);
-    }
-
-    // Don't add duplicate of current position
-    if (_jumpList.isNotEmpty && _jumpList.last == loc) {
-      return;
-    }
-
-    _jumpList.add(loc);
-    if (_jumpList.length > _maxJumpListSize) {
-      _jumpList.removeAt(0);
-    }
-    _jumpListIndex = _jumpList.length - 1;
+    jumpList.push(file.absolutePath, file.cursor);
   }
 
   /// Go back in jump list (Ctrl-o).
   bool jumpBack() {
-    if (_jumpList.isEmpty || _jumpListIndex < 0) {
-      return false;
-    }
-
-    // Save current position if we're at the end
-    if (_jumpListIndex == _jumpList.length - 1) {
-      final path = file.absolutePath;
-      if (path != null) {
-        final currentLoc = _JumpLocation(path, file.cursor);
-        if (_jumpList.isEmpty || _jumpList.last != currentLoc) {
-          _jumpList.add(currentLoc);
-          _jumpListIndex = _jumpList.length - 1;
-        }
-      }
-    }
-
-    if (_jumpListIndex > 0) {
-      _jumpListIndex--;
-      final loc = _jumpList[_jumpListIndex];
+    final loc = jumpList.back(file.absolutePath, file.cursor);
+    if (loc != null) {
       _goToJumpLocation(loc);
       return true;
     }
     return false;
   }
 
-  /// Go forward in jump list (Ctrl-i, if we add it).
+  /// Go forward in jump list (Ctrl-i).
   bool jumpForward() {
-    if (_jumpListIndex < _jumpList.length - 1) {
-      _jumpListIndex++;
-      final loc = _jumpList[_jumpListIndex];
+    final loc = jumpList.forward();
+    if (loc != null) {
       _goToJumpLocation(loc);
       return true;
     }
     return false;
   }
 
-  void _goToJumpLocation(_JumpLocation loc) {
+  void _goToJumpLocation(JumpLocation loc) {
     // Switch to file if different
     if (file.absolutePath != loc.path) {
       final result = loadFile(loc.path);
@@ -901,21 +863,6 @@ class Editor {
     file.clampCursor();
     file.centerViewport(terminal);
   }
-}
-
-/// A saved jump location (file + cursor position).
-class _JumpLocation {
-  final String path;
-  final int cursor;
-
-  const _JumpLocation(this.path, this.cursor);
-
-  @override
-  bool operator ==(Object other) =>
-      other is _JumpLocation && other.path == path && other.cursor == cursor;
-
-  @override
-  int get hashCode => Object.hash(path, cursor);
 }
 
 /// A parsed file argument from the command line.
