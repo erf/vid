@@ -74,6 +74,9 @@ class Config {
   /// Maximum width for popup windows (null for auto-sizing based on terminal).
   final int? popupMaxWidth;
 
+  /// Whether to show hidden files (starting with '.') in the file browser.
+  final bool fileBrowserShowHidden;
+
   /// Returns the wrap symbol for the current [wrapMode].
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
@@ -94,6 +97,7 @@ class Config {
     this.preferredDarkTheme = .rosePine,
     this.fileBrowserMaxFiles = 5000,
     this.fileBrowserMaxDepth = 4,
+    this.fileBrowserShowHidden = false,
     this.popupMaxWidth,
   });
 
@@ -123,6 +127,7 @@ class Config {
       ),
       fileBrowserMaxFiles: _parseInt(map['fileBrowserMaxFiles']),
       fileBrowserMaxDepth: _parseInt(map['fileBrowserMaxDepth']),
+      fileBrowserShowHidden: _parseBool(map['fileBrowserShowHidden']),
       popupMaxWidth: _parseInt(map['popupMaxWidth']),
     );
   }
@@ -168,6 +173,7 @@ class Config {
     ThemeType? preferredDarkTheme,
     int? fileBrowserMaxFiles,
     int? fileBrowserMaxDepth,
+    bool? fileBrowserShowHidden,
     int? popupMaxWidth,
   }) {
     return Config(
@@ -187,6 +193,8 @@ class Config {
       preferredDarkTheme: preferredDarkTheme ?? this.preferredDarkTheme,
       fileBrowserMaxFiles: fileBrowserMaxFiles ?? this.fileBrowserMaxFiles,
       fileBrowserMaxDepth: fileBrowserMaxDepth ?? this.fileBrowserMaxDepth,
+      fileBrowserShowHidden:
+          fileBrowserShowHidden ?? this.fileBrowserShowHidden,
       popupMaxWidth: popupMaxWidth ?? this.popupMaxWidth,
     );
   }

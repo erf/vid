@@ -82,8 +82,10 @@ class FileBrowser {
 
           final name = entry.path.split(Platform.pathSeparator).last;
 
-          // Skip hidden files/directories
-          if (name.startsWith('.')) continue;
+          // Skip hidden files/directories unless configured to show them
+          if (!editor.config.fileBrowserShowHidden && name.startsWith('.')) {
+            continue;
+          }
 
           final relativePath = entry.path.length > rootLen
               ? entry.path.substring(rootLen)
