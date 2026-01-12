@@ -74,10 +74,6 @@ class Config {
   /// Maximum width for popup windows (null for auto-sizing based on terminal).
   final int? popupMaxWidth;
 
-  /// Cache directory for storing editor state (cursor positions, etc.).
-  /// Defaults to XDG_CACHE_HOME or ~/.cache.
-  final String cacheDir;
-
   /// Returns the wrap symbol for the current [wrapMode].
   String get wrapSymbol => wrapSymbols[wrapMode.index];
 
@@ -99,7 +95,6 @@ class Config {
     this.fileBrowserMaxFiles = 5000,
     this.fileBrowserMaxDepth = 4,
     this.popupMaxWidth,
-    this.cacheDir = '',
   });
 
   /// Creates a [Config] from a map (typically parsed from YAML).
@@ -129,7 +124,6 @@ class Config {
       fileBrowserMaxFiles: _parseInt(map['fileBrowserMaxFiles']),
       fileBrowserMaxDepth: _parseInt(map['fileBrowserMaxDepth']),
       popupMaxWidth: _parseInt(map['popupMaxWidth']),
-      cacheDir: map['cacheDir'] as String?,
     );
   }
 
@@ -175,7 +169,6 @@ class Config {
     int? fileBrowserMaxFiles,
     int? fileBrowserMaxDepth,
     int? popupMaxWidth,
-    String? cacheDir,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -195,7 +188,6 @@ class Config {
       fileBrowserMaxFiles: fileBrowserMaxFiles ?? this.fileBrowserMaxFiles,
       fileBrowserMaxDepth: fileBrowserMaxDepth ?? this.fileBrowserMaxDepth,
       popupMaxWidth: popupMaxWidth ?? this.popupMaxWidth,
-      cacheDir: cacheDir ?? this.cacheDir,
     );
   }
 }

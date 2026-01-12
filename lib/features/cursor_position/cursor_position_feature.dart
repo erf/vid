@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:termio/termio.dart';
+import 'package:vid/xdg_paths.dart';
 
 import '../../file_buffer/file_buffer.dart';
 import '../feature.dart';
@@ -56,7 +57,7 @@ class CursorPositionFeature extends Feature {
   }
 
   String get cursorPositionsPath {
-    return '${editor.cacheDir}/vid_cursor_positions.csv';
+    return '${XdgPaths.appCacheDir}/cursor_positions.csv';
   }
 
   // load cursors positions from XDG_CACHE_HOME
@@ -79,6 +80,7 @@ class CursorPositionFeature extends Feature {
   }
 
   void saveCursorPositions(Map<String, int> cursorPositionsPerFile) {
+    XdgPaths.ensureDir(XdgPaths.appCacheDir);
     final file = File(cursorPositionsPath);
     final lines = cursorPositionsPerFile.entries
         .map((entry) => '${entry.key},${entry.value}')

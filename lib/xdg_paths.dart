@@ -8,14 +8,26 @@ class XdgPaths {
   /// The application directory name.
   static const String appName = 'vid';
 
+  // Environment variable names
+  static const String _envHome = 'HOME';
+  static const String _envXdgConfigHome = 'XDG_CONFIG_HOME';
+  static const String _envXdgCacheHome = 'XDG_CACHE_HOME';
+  static const String _envXdgDataHome = 'XDG_DATA_HOME';
+
+  // Common environment variable getters
+  static String? get _home => Platform.environment[_envHome];
+  static String? get _xdgConfigHome => Platform.environment[_envXdgConfigHome];
+  static String? get _xdgCacheHome => Platform.environment[_envXdgCacheHome];
+  static String? get _xdgDataHome => Platform.environment[_envXdgDataHome];
+
   /// Returns the XDG config home directory.
   /// Falls back to `~/.config` if XDG_CONFIG_HOME is not set.
   static String get configHome {
-    final xdgConfigHome = Platform.environment['XDG_CONFIG_HOME'];
+    final xdgConfigHome = _xdgConfigHome;
     if (xdgConfigHome != null && xdgConfigHome.isNotEmpty) {
       return xdgConfigHome;
     }
-    final home = Platform.environment['HOME'];
+    final home = _home;
     if (home != null && home.isNotEmpty) {
       return '$home/.config';
     }
@@ -25,11 +37,11 @@ class XdgPaths {
   /// Returns the XDG cache home directory.
   /// Falls back to `~/.cache` if XDG_CACHE_HOME is not set.
   static String get cacheHome {
-    final xdgCacheHome = Platform.environment['XDG_CACHE_HOME'];
+    final xdgCacheHome = _xdgCacheHome;
     if (xdgCacheHome != null && xdgCacheHome.isNotEmpty) {
       return xdgCacheHome;
     }
-    final home = Platform.environment['HOME'];
+    final home = _home;
     if (home != null && home.isNotEmpty) {
       return '$home/.cache';
     }
@@ -39,11 +51,11 @@ class XdgPaths {
   /// Returns the XDG data home directory.
   /// Falls back to `~/.local/share` if XDG_DATA_HOME is not set.
   static String get dataHome {
-    final xdgDataHome = Platform.environment['XDG_DATA_HOME'];
+    final xdgDataHome = _xdgDataHome;
     if (xdgDataHome != null && xdgDataHome.isNotEmpty) {
       return xdgDataHome;
     }
-    final home = Platform.environment['HOME'];
+    final home = _home;
     if (home != null && home.isNotEmpty) {
       return '$home/.local/share';
     }
@@ -59,6 +71,16 @@ class XdgPaths {
   /// Returns the application data directory (`$dataHome/vid`).
   static String get appDataDir => '$dataHome/$appName';
 
+  /// Ensures a directory exists, creating it if necessary.
+  /// Returns the directory path.
+  static String ensureDir(String path) {
+    final dir = Directory(path);
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
+    return path;
+  }
+
   /// Returns a list of config file paths to search, in priority order.
   ///
   /// 1. `./[fileName]` (local project config)
@@ -71,13 +93,13 @@ class XdgPaths {
     paths.add('${Directory.current.path}/$fileName');
 
     // 2. XDG_CONFIG_HOME (explicit)
-    final xdgConfigHome = Platform.environment['XDG_CONFIG_HOME'];
+    final xdgConfigHome = _xdgConfigHome;
     if (xdgConfigHome != null && xdgConfigHome.isNotEmpty) {
       paths.add('$xdgConfigHome/$appName/$fileName');
     }
 
     // 3. HOME/.config (fallback for XDG)
-    final home = Platform.environment['HOME'];
+    final home = _home;
     if (home != null && home.isNotEmpty) {
       paths.add('$home/.config/$appName/$fileName');
     }

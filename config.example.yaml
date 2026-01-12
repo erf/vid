@@ -52,7 +52,3 @@ fileBrowserMaxDepth: 4
 
 # Maximum width for popup windows (unset for auto-sizing based on terminal)
 # popupMaxWidth: 80
-
-# Cache directory for storing editor state (cursor positions, etc.)
-# Defaults to $XDG_CACHE_HOME or ~/.cache
-# cacheDir: ~/.cache
