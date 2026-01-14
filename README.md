@@ -25,14 +25,16 @@ See [build.sh](build.sh).
 
 `vid` loads configuration from YAML files at these locations (in order):
 
-1. `./` — local project config
+1. `./` — local project config (hidden dotfiles)
 2. `$XDG_CONFIG_HOME/vid/`
 3. `~/.config/vid/`
 
 Two config files are supported:
 
-- **config.yaml** — editor settings (see [config.example.yaml](config.example.yaml))
-- **lsp_servers.yaml** — LSP server configs (see [lsp_servers.example.yaml](lsp_servers.example.yaml))
+| Local (project) | Global (~/.config/vid/) | Purpose |
+|-----------------|-------------------------|--------|
+| `.vid.yaml` | `config.yaml` | Editor settings (see [config.example.yaml](config.example.yaml)) |
+| `.vid-lsp.yaml` | `lsp_servers.yaml` | LSP server configs (see [lsp_servers.example.yaml](lsp_servers.example.yaml)) |
 
 ## Contributing
 

@@ -29,7 +29,12 @@ void main() {
       final paths = LspConfigLoader.configPaths;
 
       expect(paths.length, greaterThanOrEqualTo(1));
-      expect(paths.first, endsWith('/lsp_servers.yaml'));
+      // Local project config uses hidden dotfile
+      expect(paths.first, endsWith('/.vid-lsp.yaml'));
+      // Global configs use lsp_servers.yaml
+      if (paths.length > 1) {
+        expect(paths[1], endsWith('/lsp_servers.yaml'));
+      }
     });
 
     test('parseConfig parses enabled flag', () {

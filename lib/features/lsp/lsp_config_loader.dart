@@ -25,18 +25,21 @@ class LspConfig {
 /// Loads LSP server configuration from YAML files at standard paths.
 ///
 /// Search order (first found wins):
-/// 1. `./lsp_servers.yaml` (local project config)
+/// 1. `./.vid-lsp.yaml` (local project config)
 /// 2. `$XDG_CONFIG_HOME/vid/lsp_servers.yaml`
 /// 3. `$HOME/.config/vid/lsp_servers.yaml`
 ///
 /// Falls back to hardcoded defaults if no config file is found.
 class LspConfigLoader {
-  /// The name of the LSP config file to search for.
+  /// The name of the global LSP config file (in ~/.config/vid/).
   static const String configFileName = 'lsp_servers.yaml';
+
+  /// The name of the local project LSP config file (hidden dotfile).
+  static const String localConfigFileName = '.vid-lsp.yaml';
 
   /// Returns the list of config file paths to search, in priority order.
   static List<String> get configPaths =>
-      XdgPaths.configFilePaths(configFileName);
+      XdgPaths.configFilePaths(configFileName, localConfigFileName);
 
   /// Returns the default user config directory path.
   static String get defaultConfigDir => XdgPaths.appConfigDir;

@@ -11,6 +11,6 @@ build/
 data
 sample-data
 
-# config
-config.yaml
-lsp_servers.yaml
+# Local project config (global configs live in ~/.config/vid/)
+.vid.yaml
+.vid-lsp.yaml

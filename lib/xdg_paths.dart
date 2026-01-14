@@ -83,25 +83,31 @@ class XdgPaths {
 
   /// Returns a list of config file paths to search, in priority order.
   ///
-  /// 1. `./[fileName]` (local project config)
-  /// 2. `$XDG_CONFIG_HOME/vid/[fileName]`
-  /// 3. `~/.config/vid/[fileName]`
-  static List<String> configFilePaths(String fileName) {
+  /// 1. `./[localFileName]` (local project config, hidden dotfile)
+  /// 2. `$XDG_CONFIG_HOME/vid/[globalFileName]`
+  /// 3. `~/.config/vid/[globalFileName]`
+  ///
+  /// If [localFileName] is not provided, [globalFileName] is used for all paths.
+  static List<String> configFilePaths(
+    String globalFileName, [
+    String? localFileName,
+  ]) {
+    localFileName ??= globalFileName;
     final paths = <String>[];
 
-    // 1. Local project config
-    paths.add('${Directory.current.path}/$fileName');
+    // 1. Local project config (hidden dotfile)
+    paths.add('${Directory.current.path}/$localFileName');
 
     // 2. XDG_CONFIG_HOME (explicit)
     final xdgConfigHome = _xdgConfigHome;
     if (xdgConfigHome != null && xdgConfigHome.isNotEmpty) {
-      paths.add('$xdgConfigHome/$appName/$fileName');
+      paths.add('$xdgConfigHome/$appName/$globalFileName');
     }
 
     // 3. HOME/.config (fallback for XDG)
     final home = _home;
     if (home != null && home.isNotEmpty) {
-      paths.add('$home/.config/$appName/$fileName');
+      paths.add('$home/.config/$appName/$globalFileName');
     }
 
     return paths;

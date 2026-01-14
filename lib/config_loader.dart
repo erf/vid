@@ -10,16 +10,19 @@ import 'package:yaml/yaml.dart';
 /// Loads configuration from YAML files at standard paths.
 ///
 /// Search order (first found wins):
-/// 1. `./config.yaml` (local project config)
+/// 1. `./.vid.yaml` (local project config)
 /// 2. `$XDG_CONFIG_HOME/vid/config.yaml`
 /// 3. `~/.config/vid/config.yaml`
 class ConfigLoader {
-  /// The name of the config file to search for.
+  /// The name of the global config file (in ~/.config/vid/).
   static const String configFileName = 'config.yaml';
+
+  /// The name of the local project config file (hidden dotfile).
+  static const String localConfigFileName = '.vid.yaml';
 
   /// Returns the list of config file paths to search, in priority order.
   static List<String> get configPaths =>
-      XdgPaths.configFilePaths(configFileName);
+      XdgPaths.configFilePaths(configFileName, localConfigFileName);
 
   /// Returns the default user config directory path.
   static String get defaultConfigDir => XdgPaths.appConfigDir;
