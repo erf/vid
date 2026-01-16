@@ -143,7 +143,7 @@ class Renderer {
 
     _renderLines(file: file, config: config, viewportCol: viewportCol);
 
-    if (file.mode case .command || .search) {
+    if (file.mode case .command || .search || .searchBackward) {
       _drawLineEdit(file);
     } else if (file.mode == .popup && popup != null) {
       _drawStatus(
@@ -812,6 +812,8 @@ class Renderer {
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
     if (file.mode == .search) {
       buffer.write('/$lineEdit ');
+    } else if (file.mode == .searchBackward) {
+      buffer.write('?$lineEdit ');
     } else {
       buffer.write(':$lineEdit ');
     }

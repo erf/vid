@@ -5,6 +5,7 @@ enum Mode {
   replace,
   command,
   search,
+  searchBackward,
   popup,
   visual, // Visual selection mode (character-wise, supports multi-selection)
   visualLine; // Visual line mode (linewise)
@@ -16,6 +17,7 @@ enum Mode {
     .replace => 'REP',
     .command => 'CMD',
     .search => 'SRC',
+    .searchBackward => 'SRC',
     .popup => 'POP',
     .visual => 'VIS',
     .visualLine => 'VIL',

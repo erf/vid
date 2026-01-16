@@ -114,6 +114,15 @@ class LineEditInput {
     f.input.lineEdit = '';
     e.commitEdit(f.edit.build());
   }
+
+  /// Execute backward search with the pattern in line edit buffer.
+  static void executeSearchBackward(Editor e, FileBuffer f) {
+    f.setMode(e, .normal);
+    f.edit.motion = Motion(.searchPrev);
+    f.edit.findStr = f.input.lineEdit;
+    f.input.lineEdit = '';
+    e.commitEdit(f.edit.build());
+  }
 }
 
 /// Command handlers for :commands (executed after Enter).

@@ -46,6 +46,7 @@ const normalCommands = <String, Command>{
   Keys.ctrlX: ActionCommand(Normal.decrease),
   ':': ModeCommand(.command),
   '/': ModeCommand(.search),
+  '?': ModeCommand(.searchBackward),
   Keys.ctrlW: ActionCommand(Normal.toggleWrap),
   Keys.ctrlP: ActionCommand(Normal.openFilePicker),
   Keys.ctrlF: ActionCommand(Normal.openBufferSelector),
@@ -244,6 +245,13 @@ const lineEditSearchBindings = <String, Command>{
 };
 const lineEditSearchFallback = InputCommand(LineEditInput.input);
 
+const lineEditSearchBackwardBindings = <String, Command>{
+  Keys.escape: ModeCommand(.normal),
+  Keys.backspace: ActionCommand(LineEditInput.backspace),
+  Keys.newline: ActionCommand(LineEditInput.executeSearchBackward),
+};
+const lineEditSearchBackwardFallback = InputCommand(LineEditInput.input);
+
 const popupBindings = <String, Command>{
   Keys.escape: ActionCommand(PopupActions.cancel),
   Keys.newline: ActionCommand(PopupActions.select),
@@ -300,6 +308,10 @@ final keyBindings = <Mode, ModeBindings<Command>>{
   .search: ModeBindings(
     lineEditSearchBindings,
     fallback: lineEditSearchFallback,
+  ),
+  .searchBackward: ModeBindings(
+    lineEditSearchBackwardBindings,
+    fallback: lineEditSearchBackwardFallback,
   ),
   .popup: ModeBindings(popupBindings, fallback: popupFallback),
   .visual: ModeBindings({
