@@ -1,6 +1,5 @@
 import 'package:vid/edit_builder.dart';
 
-import '../actions/motions.dart';
 import '../actions/operators.dart';
 import '../actions/text_objects.dart';
 import '../editor.dart';
@@ -67,7 +66,7 @@ class CountCommand extends Command {
   void execute(Editor e, FileBuffer f, String s) {
     final EditBuilder edit = f.edit;
     if (edit.count == null && count == 0) {
-      edit.motion = Motion(Motions.lineStart, linewise: true);
+      edit.motion = Motion(.lineStart, linewise: true);
       e.commitEdit(edit.build());
     } else {
       edit.count = (edit.count ?? 0) * 10 + count;
@@ -115,7 +114,7 @@ class OperatorPendingSameCommand extends OperatorCommand {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     if (f.edit.op == func) {
-      f.edit.motion = Motion(Motions.linewise, linewise: true);
+      f.edit.motion = Motion(.linewise, linewise: true);
       e.commitEdit(f.edit.build());
     } else {
       f.setMode(e, .normal);

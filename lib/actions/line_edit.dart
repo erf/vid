@@ -9,7 +9,6 @@ import '../popup/buffer_selector.dart';
 import '../popup/file_browser.dart';
 import '../regex.dart';
 import '../selection.dart';
-import 'motions.dart';
 import 'normal.dart';
 
 /// Buffer navigation and management commands.
@@ -110,7 +109,7 @@ class LineEditInput {
   /// Execute search with the pattern in line edit buffer.
   static void executeSearch(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
-    f.edit.motion = Motion(Motions.searchNext);
+    f.edit.motion = Motion(.searchNext);
     f.edit.findStr = f.input.lineEdit;
     e.commitEdit(f.edit.build());
   }

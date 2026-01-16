@@ -5,7 +5,6 @@ import 'package:vid/motions/motion.dart';
 import 'actions/completion_actions.dart';
 import 'actions/insert_actions.dart';
 import 'actions/line_edit.dart';
-import 'actions/motions.dart';
 import 'actions/normal.dart';
 import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
@@ -97,31 +96,31 @@ const countCommands = <String, Command>{
 };
 
 final motionCommands = <String, Command>{
-  'h': MotionCommand(Motion(Motions.charPrev)),
-  'l': MotionCommand(Motion(Motions.charNext)),
-  ' ': MotionCommand(Motion(Motions.charNext)),
-  'k': MotionCommand(Motion(Motions.lineUp, linewise: true)),
-  'j': MotionCommand(Motion(Motions.lineDown, linewise: true)),
-  'w': MotionCommand(Motion(Motions.wordNext)),
-  'W': MotionCommand(Motion(Motions.wordCapNext)),
-  'b': MotionCommand(Motion(Motions.wordPrev)),
-  'B': MotionCommand(Motion(Motions.wordCapPrev)),
-  'e': MotionCommand(Motion(Motions.wordEnd, inclusive: true)),
-  'ge': MotionCommand(Motion(Motions.wordEndPrev, inclusive: true)),
-  '#': MotionCommand(Motion(Motions.sameWordPrev)),
-  '*': MotionCommand(Motion(Motions.sameWordNext)),
-  '^': MotionCommand(Motion(Motions.firstNonBlank, linewise: true)),
-  '\$': MotionCommand(Motion(Motions.lineEnd, inclusive: true)),
-  'gg': MotionCommand(Motion(Motions.fileStart, linewise: true)),
-  'G': MotionCommand(Motion(Motions.fileEnd, linewise: true)),
-  'f': MotionCommand(Motion(Motions.findNextChar, inclusive: true)),
-  'F': MotionCommand(Motion(Motions.findPrevChar, inclusive: true)),
-  't': MotionCommand(Motion(Motions.findTillNextChar, inclusive: true)),
-  'T': MotionCommand(Motion(Motions.findTillPrevChar, inclusive: true)),
-  '{': MotionCommand(Motion(Motions.paragraphPrev)),
-  '}': MotionCommand(Motion(Motions.paragraphNext)),
-  '(': MotionCommand(Motion(Motions.sentencePrev)),
-  ')': MotionCommand(Motion(Motions.sentenceNext)),
+  'h': MotionCommand(Motion(.charPrev)),
+  'l': MotionCommand(Motion(.charNext)),
+  ' ': MotionCommand(Motion(.charNext)),
+  'k': MotionCommand(Motion(.lineUp, linewise: true)),
+  'j': MotionCommand(Motion(.lineDown, linewise: true)),
+  'w': MotionCommand(Motion(.wordNext)),
+  'W': MotionCommand(Motion(.wordCapNext)),
+  'b': MotionCommand(Motion(.wordPrev)),
+  'B': MotionCommand(Motion(.wordCapPrev)),
+  'e': MotionCommand(Motion(.wordEnd, inclusive: true)),
+  'ge': MotionCommand(Motion(.wordEndPrev, inclusive: true)),
+  '#': MotionCommand(Motion(.sameWordPrev)),
+  '*': MotionCommand(Motion(.sameWordNext)),
+  '^': MotionCommand(Motion(.firstNonBlank, linewise: true)),
+  '\$': MotionCommand(Motion(.lineEnd, inclusive: true)),
+  'gg': MotionCommand(Motion(.fileStart, linewise: true)),
+  'G': MotionCommand(Motion(.fileEnd, linewise: true)),
+  'f': MotionCommand(Motion(.findNextChar, inclusive: true)),
+  'F': MotionCommand(Motion(.findPrevChar, inclusive: true)),
+  't': MotionCommand(Motion(.findTillNextChar, inclusive: true)),
+  'T': MotionCommand(Motion(.findTillPrevChar, inclusive: true)),
+  '{': MotionCommand(Motion(.paragraphPrev)),
+  '}': MotionCommand(Motion(.paragraphNext)),
+  '(': MotionCommand(Motion(.sentencePrev)),
+  ')': MotionCommand(Motion(.sentenceNext)),
 };
 
 const operatorCommands = <String, Command>{

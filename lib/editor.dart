@@ -644,7 +644,7 @@ class Editor {
     final start = file.cursor;
     var end = start;
     for (int i = 0; i < edit.count; i++) {
-      end = motion.fn(this, file, end);
+      end = motion(this, file, end);
     }
 
     if (op == null) {
@@ -680,7 +680,7 @@ class Editor {
     for (final sel in file.selections) {
       var newCursor = sel.cursor;
       for (int i = 0; i < count; i++) {
-        newCursor = motion.fn(this, file, newCursor);
+        newCursor = motion(this, file, newCursor);
       }
       // Update selection cursor, keeping anchor for visual selections
       // Extension for inclusive behavior happens at operator time
@@ -698,7 +698,7 @@ class Editor {
     for (final sel in file.selections) {
       var newCursor = sel.cursor;
       for (int i = 0; i < count; i++) {
-        newCursor = motion.fn(this, file, newCursor);
+        newCursor = motion(this, file, newCursor);
       }
       // Keep selections collapsed
       newSelections.add(Selection.collapsed(newCursor));
@@ -724,7 +724,7 @@ class Editor {
       final start = sel.cursor;
       var end = start;
       for (int i = 0; i < count; i++) {
-        end = motion.fn(this, file, end);
+        end = motion(this, file, end);
       }
       // For inclusive motions, extend end to include the character under cursor
       if (motion.inclusive && end < file.text.length) {
