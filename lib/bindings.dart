@@ -32,6 +32,7 @@ const normalCommands = <String, Command>{
   'x': AliasCommand('dl'),
   'p': ActionCommand(Normal.pasteAfter),
   'P': ActionCommand(Normal.pasteBefore),
+  'Y': AliasCommand('yy'),
   Keys.ctrlD: ActionCommand(Normal.moveDownHalfPage),
   Keys.ctrlU: ActionCommand(Normal.moveUpHalfPage),
   'J': ActionCommand(Normal.joinLines),
