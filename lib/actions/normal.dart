@@ -16,16 +16,58 @@ import '../regex.dart';
 import '../selection.dart';
 
 class Normal {
+  /// Scroll viewport down by half page (vim Ctrl-D behavior).
+  /// Both viewport and cursor move by the same number of lines.
   static void moveDownHalfPage(Editor e, FileBuffer f) {
-    int targetLine = f.lineNumber(f.cursor) + e.terminal.height ~/ 2;
-    targetLine = min(targetLine, f.totalLines - 1);
-    f.cursor = f.lineOffset(targetLine);
+    final halfPage = e.terminal.height ~/ 2;
+    final cursorLine = f.lineNumber(f.cursor);
+
+    // Do nothing if cursor is already on the last line
+    if (cursorLine >= f.totalLines - 1) return;
+
+    // Calculate current cursor column for preservation
+    final cursorCol = f.cursor - f.lines[cursorLine].start;
+
+    // Calculate new cursor line (clamped to last line)
+    final newCursorLine = min(cursorLine + halfPage, f.totalLines - 1);
+
+    // Move cursor, preserving column
+    final lineInfo = f.lines[newCursorLine];
+    f.cursor = min(lineInfo.start + cursorCol, lineInfo.end);
+    f.clampCursor();
+
+    // Scroll viewport by same amount (clamped to valid range)
+    final viewportLine = f.lineNumber(f.viewport);
+    final visibleLines = e.terminal.height - 1;
+    final maxViewportLine = max(0, f.totalLines - visibleLines);
+    final newViewportLine = min(viewportLine + halfPage, maxViewportLine);
+    f.viewport = f.lineOffset(newViewportLine);
   }
 
+  /// Scroll viewport up by half page (vim Ctrl-U behavior).
+  /// Both viewport and cursor move by the same number of lines.
   static void moveUpHalfPage(Editor e, FileBuffer f) {
-    int targetLine = f.lineNumber(f.cursor) - e.terminal.height ~/ 2;
-    targetLine = max(targetLine, 0);
-    f.cursor = f.lineOffset(targetLine);
+    final halfPage = e.terminal.height ~/ 2;
+    final cursorLine = f.lineNumber(f.cursor);
+
+    // Do nothing if cursor is already on the first line
+    if (cursorLine <= 0) return;
+
+    // Calculate current cursor column for preservation
+    final cursorCol = f.cursor - f.lines[cursorLine].start;
+
+    // Calculate new cursor line (clamped to first line)
+    final newCursorLine = max(cursorLine - halfPage, 0);
+
+    // Move cursor, preserving column
+    final lineInfo = f.lines[newCursorLine];
+    f.cursor = min(lineInfo.start + cursorCol, lineInfo.end);
+    f.clampCursor();
+
+    // Scroll viewport by same amount (clamped to valid range)
+    final viewportLine = f.lineNumber(f.viewport);
+    final newViewportLine = max(viewportLine - halfPage, 0);
+    f.viewport = f.lineOffset(newViewportLine);
   }
 
   static void pasteAfter(Editor e, FileBuffer f) {

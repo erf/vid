@@ -473,4 +473,139 @@ void main() {
     // cursor should be on the new empty line (line 1), not on 'abc' (line 0)
     expect(f.lineNumber(f.cursor), 1);
   });
+
+  group('half-page scrolling', () {
+    // Helper to create a buffer with many lines
+    String manyLines(int count) => List.generate(count, (i) => 'line$i').join('\n') + '\n';
+
+    test('Ctrl-D moves cursor and viewport down by half page', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(10); // start at line 10
+      f.viewport = 0;
+
+      e.input('\x04'); // Ctrl-D
+
+      // Half page = 24 ~/ 2 = 12 lines
+      expect(f.lineNumber(f.cursor), 22); // 10 + 12
+      expect(f.lineNumber(f.viewport), 12); // 0 + 12
+    });
+
+    test('Ctrl-U moves cursor and viewport up by half page', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(30); // start at line 30
+      f.viewport = f.lineOffset(20);
+
+      e.input('\x15'); // Ctrl-U
+
+      // Half page = 24 ~/ 2 = 12 lines
+      expect(f.lineNumber(f.cursor), 18); // 30 - 12
+      expect(f.lineNumber(f.viewport), 8); // 20 - 12
+    });
+
+    test('Ctrl-D clamps cursor at last line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(20);
+      f.cursor = f.lineOffset(15); // near end
+      f.viewport = f.lineOffset(5);
+
+      e.input('\x04'); // Ctrl-D
+
+      // Cursor should clamp to last line (19)
+      expect(f.lineNumber(f.cursor), 19);
+    });
+
+    test('Ctrl-U clamps cursor at first line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(5); // near start
+      f.viewport = 0;
+
+      e.input('\x15'); // Ctrl-U
+
+      // Cursor should clamp to first line
+      expect(f.lineNumber(f.cursor), 0);
+    });
+
+    test('Ctrl-D does nothing when cursor on last line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(10);
+      f.cursor = f.lineOffset(9); // last line
+      final origCursor = f.cursor;
+
+      e.input('\x04'); // Ctrl-D
+
+      expect(f.cursor, origCursor);
+    });
+
+    test('Ctrl-U does nothing when cursor on first line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(10);
+      f.cursor = 0; // first line
+
+      e.input('\x15'); // Ctrl-U
+
+      expect(f.cursor, 0);
+    });
+
+    test('Ctrl-D preserves column position', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      // line10 = 'line10\n', cursor at 'n' (col 2)
+      f.cursor = f.lineOffset(10) + 2;
+      f.viewport = 0;
+
+      e.input('\x04'); // Ctrl-D
+
+      // Should be at line 22, column 2
+      expect(f.lineNumber(f.cursor), 22);
+      expect(f.cursor - f.lineOffset(22), 2);
+    });
+
+    test('Ctrl-U still moves cursor when viewport already at top', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(20);
+      f.viewport = 0; // already at top
+
+      e.input('\x15'); // Ctrl-U
+
+      // Cursor should move up, viewport stays at 0
+      expect(f.lineNumber(f.cursor), 8); // 20 - 12
+      expect(f.lineNumber(f.viewport), 0);
+    });
+  });
 }
