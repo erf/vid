@@ -2,7 +2,8 @@ enum Mode {
   normal,
   operatorPending,
   insert,
-  replace,
+  replace, // R - keeps replacing until Escape
+  replaceSingle, // r - replaces single char then returns to normal
   command,
   search,
   searchBackward,
@@ -15,6 +16,7 @@ enum Mode {
     .operatorPending => 'PEN',
     .insert => 'INS',
     .replace => 'REP',
+    .replaceSingle => 'REP',
     .command => 'CMD',
     .search => 'SRC',
     .searchBackward => 'SRC',

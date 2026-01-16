@@ -2,6 +2,7 @@ import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
+import 'package:vid/modes.dart';
 
 void main() {
   test('actionDeleteLineEnd', () {
@@ -698,6 +699,131 @@ void main() {
 
       // 5 - 22 + 1 = -16, clamped to 0
       expect(f.lineNumber(f.viewport), 0);
+    });
+  });
+
+  group('replace mode', () {
+    test('r replaces single character and stays in normal mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\n';
+      f.cursor = 0;
+
+      e.input('rx');
+
+      expect(f.text, 'xbc\n');
+      expect(f.cursor, 0); // cursor stays in place for 'r'
+      expect(f.mode, Mode.normal); // stays in normal mode
+    });
+
+    test('R enters replace mode and replaces continuously until Escape', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\n';
+      f.cursor = 0;
+
+      e.input('R');
+      expect(f.mode, Mode.replace);
+
+      e.input('xyz');
+      expect(f.text, 'xyzdef\n');
+      expect(f.cursor, 3);
+      expect(f.mode, Mode.replace); // still in replace mode
+
+      e.input('\x1b'); // Escape
+      expect(f.mode, Mode.normal);
+    });
+
+    test('R replaces characters one at a time', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello\n';
+      f.cursor = 1; // at 'e'
+
+      e.input('RXXXX\x1b');
+
+      expect(f.text, 'hXXXX\n');
+      // After replacing 4 chars (e,l,l,o), cursor is at position 5 (the newline)
+      // Clamped to last char before newline = 4
+      expect(f.cursor, 4);
+    });
+
+    test('R can extend past end of line by inserting at newline', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'ab\n';
+      f.cursor = 0;
+
+      e.input('RXXXX\x1b');
+
+      // Replace a, b, then insert X, X at newline position
+      expect(f.text, 'XXXX\n');
+      expect(f.cursor, 3);
+    });
+
+    test('R inserts when starting at newline', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'ab\ncd\n';
+      f.cursor = 2; // at newline after 'ab'
+
+      e.input('RXX\x1b');
+
+      expect(f.text, 'abXX\ncd\n');
+      expect(f.cursor, 3);
+    });
+
+    test('backspace in replace mode deletes previous character', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\n';
+      f.cursor = 0;
+
+      e.input('R');
+      e.input('XYZ'); // replace a, b, c with X, Y, Z
+      expect(f.text, 'XYZdef\n');
+      expect(f.cursor, 3);
+
+      e.input('\x7f'); // backspace
+      expect(f.text, 'XYdef\n');
+      expect(f.cursor, 2);
+
+      e.input('\x1b'); // Escape
+      expect(f.mode, Mode.normal);
+    });
+
+    test('backspace at start of file does nothing', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\n';
+      f.cursor = 0;
+
+      e.input('R');
+      e.input('\x7f'); // backspace at position 0
+
+      expect(f.text, 'abc\n');
+      expect(f.cursor, 0);
     });
   });
 }

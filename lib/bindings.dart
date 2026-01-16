@@ -27,7 +27,8 @@ const normalCommands = <String, Command>{
   Keys.ctrlK: ActionCommand(SelectionActions.addCursorAbove),
   'o': ActionCommand(Normal.openLineBelow),
   'O': ActionCommand(Normal.openLineAbove),
-  'r': ModeCommand(.replace),
+  'r': ModeCommand(.replaceSingle),
+  'R': ModeCommand(.replace),
   'D': AliasCommand('d\$'),
   'x': AliasCommand('dl'),
   'p': ActionCommand(Normal.pasteAfter),
@@ -82,8 +83,16 @@ const insertBindings = <String, Command>{
 };
 const insertFallback = InputCommand(InsertActions.insert);
 
-const replaceBindings = <String, Command>{Keys.escape: ModeCommand(.normal)};
+const replaceBindings = <String, Command>{
+  Keys.escape: ActionCommand(ReplaceActions.escape),
+  Keys.backspace: ActionCommand(ReplaceActions.backspace),
+};
 const replaceFallback = InputCommand(ReplaceActions.replace);
+
+const replaceSingleBindings = <String, Command>{
+  Keys.escape: ModeCommand(.normal),
+};
+const replaceSingleFallback = InputCommand(ReplaceActions.replaceSingle);
 
 const countCommands = <String, Command>{
   '0': CountCommand(0),
@@ -306,6 +315,10 @@ final keyBindings = <Mode, ModeBindings<Command>>{
   }),
   .insert: ModeBindings(insertBindings, fallback: insertFallback),
   .replace: ModeBindings(replaceBindings, fallback: replaceFallback),
+  .replaceSingle: ModeBindings(
+    replaceSingleBindings,
+    fallback: replaceSingleFallback,
+  ),
   .command: ModeBindings(
     lineEditInputBindings,
     fallback: lineEditInputFallback,

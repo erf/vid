@@ -97,7 +97,7 @@ extension FileBufferNav on FileBuffer {
       return Selection(anchor, cursor);
     }
 
-    // In insert mode, cursor can be on newline (inserting before it)
+    // In insert/replace mode, cursor can be on newline (inserting before it)
     if (mode == .insert || mode == .replace) {
       return Selection.collapsed(cursor);
     }
