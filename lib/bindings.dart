@@ -243,6 +243,15 @@ const lineEditCommands = <String, LineEditCommand>{
   'sel': LineEditCommand(LineEdit.select),
   'select': LineEditCommand(LineEdit.select),
   'selclear': LineEditCommand(LineEdit.selectClear),
+  // Popup commands
+  'themes': LineEditCommand(PopupCommands.themes),
+  'theme': LineEditCommand(PopupCommands.themes),
+  'th': LineEditCommand(PopupCommands.themes),
+  'files': LineEditCommand(PopupCommands.files),
+  'browse': LineEditCommand(PopupCommands.files),
+  'f': LineEditCommand(PopupCommands.files),
+  'ref': LineEditCommand(PopupCommands.references),
+  'references': LineEditCommand(PopupCommands.references),
 };
 
 const lineEditInputBindings = <String, Command>{

@@ -7,6 +7,8 @@ import '../file_buffer/file_buffer.dart';
 import '../motions/motion.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/file_browser.dart';
+import '../popup/references_popup.dart';
+import '../popup/theme_selector.dart';
 import '../regex.dart';
 import '../selection.dart';
 import 'normal.dart';
@@ -308,5 +310,26 @@ class LineEdit {
     f.setMode(e, .normal);
     f.selections = [f.selection.collapse()];
     e.showMessage(.info('Selections cleared'));
+  }
+}
+
+/// Popup commands - open various popup dialogs.
+class PopupCommands {
+  /// Open theme selector (:themes, :theme, :th)
+  static void themes(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    ThemeSelector.show(e);
+  }
+
+  /// Open file browser (:files, :browse, :f)
+  static void files(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    FileBrowser.show(e);
+  }
+
+  /// Open references popup (:ref, :references)
+  static void references(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    ReferencesPopup.show(e, f);
   }
 }
