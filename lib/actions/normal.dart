@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
 import 'package:vid/yank_buffer.dart';
 
@@ -35,7 +36,67 @@ class Normal {
   /// Applies to collapsed selections only. Respects a numeric count prefix.
   /// Cursor advances one grapheme per toggle and clamps at line end.
   static void toggleCaseUnderCursor(Editor e, FileBuffer f) {
-    // Keep this minimal: we only support toggling under cursors.
+    // Visual mode: toggle within selection(s) and return to normal mode.
+    if (f.mode == .visual || f.mode == .visualLine) {
+      final isVisualLineMode = f.mode == .visualLine;
+
+      // Collect selections, sorted by position.
+      List<Selection> selections;
+      if (isVisualLineMode) {
+        // In visual line mode, expand each selection to full lines.
+        selections = f.selections.map((s) {
+          final startLineNum = f.lineNumber(s.start);
+          final endLineNum = f.lineNumber(s.end);
+          final minLine = startLineNum < endLineNum ? startLineNum : endLineNum;
+          final maxLine = startLineNum < endLineNum ? endLineNum : startLineNum;
+          final lineStart = f.lines[minLine].start;
+          var lineEnd = f.lines[maxLine].end + 1; // include newline
+          if (lineEnd > f.text.length) lineEnd = f.text.length;
+          return Selection(lineStart, lineEnd);
+        }).toList()..sort((a, b) => a.start.compareTo(b.start));
+      } else {
+        // Visual mode: make selections inclusive (include char under cursor).
+        // Collapsed selections become single-char selections.
+        selections = f.selections.toList()
+          ..sort((a, b) => a.start.compareTo(b.start));
+
+        selections = selections.map((s) {
+          final end = s.isCollapsed
+              ? f.nextGrapheme(s.cursor)
+              : f.nextGrapheme(s.end);
+          return Selection(s.start, end);
+        }).toList();
+      }
+
+      final edits = <TextEdit>[];
+      final deltas = <int>[];
+      for (final sel in selections) {
+        final start = sel.start;
+        final end = sel.end;
+        final prevText = f.text.substring(start, end);
+        final replacement = prevText.characters.map(_toggleCase).join();
+        edits.add(TextEdit(start, end, replacement));
+        deltas.add(replacement.length - (end - start));
+      }
+
+      applyEdits(f, edits, e.config);
+
+      // Collapse selections to their starts, adjusted for length changes.
+      var offset = 0;
+      final newSelections = <Selection>[];
+      for (int i = 0; i < selections.length; i++) {
+        newSelections.add(Selection.collapsed(selections[i].start + offset));
+        offset += deltas[i];
+      }
+
+      f.selections = newSelections;
+      f.setMode(e, .normal);
+      f.clampCursor();
+      f.edit.reset();
+      return;
+    }
+
+    // Normal mode: toggle under cursors (multi-cursor supported).
     if (!f.selections.every((s) => s.isCollapsed)) return;
 
     final count = f.edit.count ?? 1;

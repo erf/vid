@@ -142,6 +142,38 @@ void main() {
     expect(f.cursor, 1); // would move to newline, then clamp back
   });
 
+  test('toggleCaseUnderCursor ~ in visual mode', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aBc\n';
+    f.cursor = 0;
+
+    e.input('vll~');
+
+    expect(f.text, 'AbC\n');
+    expect(f.mode, Mode.normal);
+    expect(f.cursor, 0);
+  });
+
+  test('toggleCaseUnderCursor ~ in visual line mode', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aB\ncD\n';
+    f.cursor = 0;
+
+    e.input('V~');
+
+    expect(f.text, 'Ab\ncD\n');
+    expect(f.mode, Mode.normal);
+    expect(f.cursor, 0);
+  });
+
   test('cursorLineBottomOrCount G', () {
     final e = Editor(
       terminal: TestTerminal(width: 80, height: 24),
