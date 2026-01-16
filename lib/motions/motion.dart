@@ -56,6 +56,9 @@ enum MotionType {
   searchNext,
   searchPrev,
 
+  // Match bracket (%)
+  matchBracket,
+
   // Special - for dd/yy/cc
   linewise,
 }
@@ -92,6 +95,7 @@ extension MotionTypeExt on MotionType {
     .sameWordPrev => Motions.sameWordPrev,
     .searchNext => Motions.searchNext,
     .searchPrev => Motions.searchPrev,
+    .matchBracket => Motions.matchBracket,
     .linewise => Motions.linewise,
   };
 

@@ -395,4 +395,88 @@ class Motions {
     final String pattern = f.edit.findStr ?? '';
     return regexPrev(f, offset, RegExp(RegExp.escape(pattern)));
   }
+
+  /// Match bracket (%) - jump to matching (), {}, []
+  /// If cursor is on a bracket, jump to its match.
+  /// If cursor is not on a bracket, search forward on the current line
+  /// for a bracket and jump to its match.
+  static int matchBracket(Editor e, FileBuffer f, int offset) {
+    final text = f.text;
+    if (offset >= text.length) return offset;
+
+    const brackets = {
+      '(': ')',
+      ')': '(',
+      '{': '}',
+      '}': '{',
+      '[': ']',
+      ']': '[',
+    };
+    const openBrackets = {'(', '{', '['};
+    const closeBrackets = {')', '}', ']'};
+
+    // Check if cursor is on a bracket
+    String charAtCursor = text[offset];
+    int searchPos = offset;
+
+    // If not on a bracket, search forward on current line
+    if (!brackets.containsKey(charAtCursor)) {
+      int lineEnd = offset;
+      while (lineEnd < text.length && text[lineEnd] != '\n') {
+        lineEnd++;
+      }
+      searchPos = offset;
+      while (searchPos < lineEnd) {
+        if (brackets.containsKey(text[searchPos])) {
+          charAtCursor = text[searchPos];
+          break;
+        }
+        searchPos++;
+      }
+      // No bracket found on line
+      if (!brackets.containsKey(charAtCursor)) {
+        return offset;
+      }
+    }
+
+    final isOpen = openBrackets.contains(charAtCursor);
+    final matchChar = brackets[charAtCursor]!;
+
+    if (isOpen) {
+      // Search forward for matching close bracket
+      int depth = 1;
+      int pos = searchPos + 1;
+      while (pos < text.length) {
+        final c = text[pos];
+        if (c == charAtCursor) {
+          depth++;
+        } else if (c == matchChar) {
+          depth--;
+          if (depth == 0) {
+            return pos;
+          }
+        }
+        pos++;
+      }
+    } else {
+      // Search backward for matching open bracket
+      int depth = 1;
+      int pos = searchPos - 1;
+      while (pos >= 0) {
+        final c = text[pos];
+        if (c == charAtCursor) {
+          depth++;
+        } else if (c == matchChar) {
+          depth--;
+          if (depth == 0) {
+            return pos;
+          }
+        }
+        pos--;
+      }
+    }
+
+    // No match found
+    return offset;
+  }
 }

@@ -578,4 +578,137 @@ void main() {
       expect(Motions.sentencePrev(e, f, 5), 0); // Two -> One
     });
   });
+
+  group('matchBracket motions', () {
+    test('matchBracket from opening paren to closing', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo(bar)\n';
+      // Offsets: f=0, o=1, o=2, (=3, b=4, a=5, r=6, )=7
+      expect(Motions.matchBracket(e, f, 3), 7); // ( -> )
+    });
+
+    test('matchBracket from closing paren to opening', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo(bar)\n';
+      expect(Motions.matchBracket(e, f, 7), 3); // ) -> (
+    });
+
+    test('matchBracket with nested parens', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo(a(b)c)\n';
+      // Offsets: f=0, o=1, o=2, (=3, a=4, (=5, b=6, )=7, c=8, )=9
+      expect(Motions.matchBracket(e, f, 3), 9); // outer ( -> outer )
+      expect(Motions.matchBracket(e, f, 5), 7); // inner ( -> inner )
+      expect(Motions.matchBracket(e, f, 7), 5); // inner ) -> inner (
+      expect(Motions.matchBracket(e, f, 9), 3); // outer ) -> outer (
+    });
+
+    test('matchBracket with curly braces', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'if {foo}\n';
+      // Offsets: i=0, f=1, space=2, {=3, f=4, o=5, o=6, }=7
+      expect(Motions.matchBracket(e, f, 3), 7); // { -> }
+      expect(Motions.matchBracket(e, f, 7), 3); // } -> {
+    });
+
+    test('matchBracket with square brackets', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'arr[0]\n';
+      // Offsets: a=0, r=1, r=2, [=3, 0=4, ]=5
+      expect(Motions.matchBracket(e, f, 3), 5); // [ -> ]
+      expect(Motions.matchBracket(e, f, 5), 3); // ] -> [
+    });
+
+    test('matchBracket searches forward on line when not on bracket', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo(bar)\n';
+      // From 'f', should find '(' and jump to ')'
+      expect(Motions.matchBracket(e, f, 0), 7); // f -> )
+      expect(Motions.matchBracket(e, f, 1), 7); // first o -> )
+    });
+
+    test('matchBracket stays when no bracket found on line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'no brackets here\n';
+      expect(Motions.matchBracket(e, f, 0), 0); // stays at 0
+      expect(Motions.matchBracket(e, f, 5), 5); // stays at 5
+    });
+
+    test('matchBracket stays when no matching bracket', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'unmatched(\n';
+      expect(Motions.matchBracket(e, f, 9), 9); // stays at (
+    });
+
+    test('matchBracket with mixed bracket types', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo([{bar}])\n';
+      // Offsets: f=0, o=1, o=2, (=3, [=4, {=5, b=6, a=7, r=8, }=9, ]=10, )=11
+      expect(Motions.matchBracket(e, f, 3), 11); // ( -> )
+      expect(Motions.matchBracket(e, f, 4), 10); // [ -> ]
+      expect(Motions.matchBracket(e, f, 5), 9); // { -> }
+    });
+
+    test('matchBracket via keybinding', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo(bar)\n';
+      f.cursor = 3; // at (
+      e.input('%');
+      expect(f.cursor, 7); // now at )
+      e.input('%');
+      expect(f.cursor, 3); // back to (
+    });
+
+    test('matchBracket multiline', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo(\n  bar\n)\n';
+      // Offsets: f=0, o=1, o=2, (=3, \n=4, space=5,6, b=7, a=8, r=9, \n=10, )=11
+      expect(Motions.matchBracket(e, f, 3), 11); // ( -> )
+      expect(Motions.matchBracket(e, f, 11), 3); // ) -> (
+    });
+  });
 }

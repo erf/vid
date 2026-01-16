@@ -125,6 +125,7 @@ final motionCommands = <String, Command>{
   '}': MotionCommand(Motion(.paragraphNext)),
   '(': MotionCommand(Motion(.sentencePrev)),
   ')': MotionCommand(Motion(.sentenceNext)),
+  '%': MotionCommand(Motion(.matchBracket, inclusive: true)),
 };
 
 const operatorCommands = <String, Command>{
