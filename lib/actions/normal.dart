@@ -4,7 +4,6 @@ import 'package:termio/termio.dart';
 import 'package:vid/yank_buffer.dart';
 
 import '../config.dart';
-import '../edit_operation.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';

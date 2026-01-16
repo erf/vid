@@ -413,7 +413,6 @@ class Motions {
       ']': '[',
     };
     const openBrackets = {'(', '{', '['};
-    const closeBrackets = {')', '}', ']'};
 
     // Check if cursor is on a bracket
     String charAtCursor = text[offset];
