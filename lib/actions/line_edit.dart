@@ -111,6 +111,7 @@ class LineEditInput {
     f.setMode(e, .normal);
     f.edit.motion = Motion(.searchNext);
     f.edit.findStr = f.input.lineEdit;
+    f.input.lineEdit = '';
     e.commitEdit(f.edit.build());
   }
 }
