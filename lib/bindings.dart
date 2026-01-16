@@ -40,6 +40,7 @@ const normalCommands = <String, Command>{
   'U': ActionCommand(Normal.redo),
   '.': ActionCommand(Normal.repeat),
   ';': ActionCommand(Normal.repeatFindStr),
+  ',': ActionCommand(Normal.repeatFindStrReverse),
   'n': ActionCommand(Normal.repeatFindStr),
   'N': ActionCommand(Normal.repeatFindStrReverse),
   Keys.ctrlA: ActionCommand(Normal.increase),
