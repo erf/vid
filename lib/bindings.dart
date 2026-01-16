@@ -232,6 +232,7 @@ const lineEditCommands = <String, LineEditCommand>{
   'bdelete!': LineEditCommand(BufferCommands.forceCloseBuffer),
   'ls': LineEditCommand(BufferCommands.listBuffers),
   'buffers': LineEditCommand(BufferCommands.listBuffers),
+  'buf': LineEditCommand(BufferCommands.listBuffers),
   // LSP commands
   'lsp': LineEditCommand(LspCommands.lsp),
   'diagnostics': LineEditCommand(LspCommands.diagnostics),

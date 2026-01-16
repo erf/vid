@@ -37,11 +37,12 @@ class BufferCommands {
     e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
   }
 
-  /// Switch to buffer by number (:b <n>)
+  /// Switch to buffer by number (:b <n>) or show buffer selector (:b)
   static void switchToBuffer(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     if (args.length < 2) {
-      e.showMessage(.error('Buffer number required'));
+      // No argument - show buffer selector
+      BufferSelector.show(e);
       return;
     }
     final num = int.tryParse(args[1]);
