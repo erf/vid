@@ -8,8 +8,8 @@ enum ThemeType {
   rosePine,
   ayuLight,
   ayuDark,
-  unicornDark,
-  unicornLight;
+  unicornLight,
+  unicornDark;
 
   /// Get the [Theme] instance for this type.
   Theme get theme => switch (this) {
@@ -18,8 +18,8 @@ enum ThemeType {
     .rosePine => Theme._rosePine,
     .ayuLight => Theme._ayuLight,
     .ayuDark => Theme._ayuDark,
-    .unicornDark => Theme._unicornDark,
     .unicornLight => Theme._unicornLight,
+    .unicornDark => Theme._unicornDark,
   };
 }
 
