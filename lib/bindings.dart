@@ -52,8 +52,9 @@ const normalCommands = <String, Command>{
   Keys.ctrlT: ActionCommand(Normal.openThemeSelector),
   Keys.ctrlE: ActionCommand(Normal.openDiagnostics),
   'zz': ActionCommand(Normal.centerView),
+  'zt': ActionCommand(Normal.topView),
+  'zb': ActionCommand(Normal.bottomView),
   'zh': ActionCommand(Normal.toggleSyntax),
-  'zt': ActionCommand(Normal.cycleTheme),
   // LSP commands
   'gd': ActionCommand(LspActions.goToDefinition),
   'gr': ActionCommand(LspActions.findReferences),

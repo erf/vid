@@ -144,6 +144,20 @@ extension FileBufferNav on FileBuffer {
     viewport = lineOffset(targetLine);
   }
 
+  /// Move viewport so cursor line is at top
+  void topViewport() {
+    int targetLine = lineNumber(cursor);
+    viewport = lineOffset(targetLine);
+  }
+
+  /// Move viewport so cursor line is at bottom
+  void bottomViewport(TerminalBase term) {
+    int cursorLine = lineNumber(cursor);
+    int visibleLines = term.height - 2; // status bar + command line
+    int targetLine = math.max(0, cursorLine - visibleLines + 1);
+    viewport = lineOffset(targetLine);
+  }
+
   /// Set editor mode and update cursor style
   void setMode(Editor e, Mode mode) {
     // When entering or staying in normal mode, collapse all selections to prevent

@@ -326,12 +326,16 @@ class Normal {
     f.centerViewport(e.terminal);
   }
 
-  static void toggleSyntax(Editor e, FileBuffer f) {
-    e.toggleSyntax();
+  static void topView(Editor e, FileBuffer f) {
+    f.topViewport();
   }
 
-  static void cycleTheme(Editor e, FileBuffer f) {
-    e.cycleTheme();
+  static void bottomView(Editor e, FileBuffer f) {
+    f.bottomViewport(e.terminal);
+  }
+
+  static void toggleSyntax(Editor e, FileBuffer f) {
+    e.toggleSyntax();
   }
 
   static void openFilePicker(Editor e, FileBuffer f) {

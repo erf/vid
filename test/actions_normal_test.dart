@@ -476,7 +476,8 @@ void main() {
 
   group('half-page scrolling', () {
     // Helper to create a buffer with many lines
-    String manyLines(int count) => List.generate(count, (i) => 'line$i').join('\n') + '\n';
+    String manyLines(int count) =>
+        '${List.generate(count, (i) => 'line$i').join('\n')}\n';
 
     test('Ctrl-D moves cursor and viewport down by half page', () {
       final e = Editor(
@@ -605,6 +606,97 @@ void main() {
 
       // Cursor should move up, viewport stays at 0
       expect(f.lineNumber(f.cursor), 8); // 20 - 12
+      expect(f.lineNumber(f.viewport), 0);
+    });
+  });
+
+  group('viewport positioning (zz, zt, zb)', () {
+    String manyLines(int count) =>
+        List.generate(count, (i) => 'line$i').join('\n') + '\n';
+
+    test('zz centers viewport on cursor line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(50);
+      f.viewport = 0;
+
+      e.input('zz');
+
+      // height=24, visible=22 (minus status+command), center offset = 11
+      // viewport should be at line 50 - 11 = 39
+      expect(f.lineNumber(f.viewport), 39);
+      // cursor unchanged
+      expect(f.lineNumber(f.cursor), 50);
+    });
+
+    test('zt moves current line to top of viewport', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(30);
+      f.viewport = 0;
+
+      e.input('zt');
+
+      // viewport should be at cursor line
+      expect(f.lineNumber(f.viewport), 30);
+      // cursor unchanged
+      expect(f.lineNumber(f.cursor), 30);
+    });
+
+    test('zb moves current line to bottom of viewport', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(50);
+      f.viewport = f.lineOffset(50); // cursor at top initially
+
+      e.input('zb');
+
+      // height=24, visible=22, so viewport = 50 - 22 + 1 = 29
+      expect(f.lineNumber(f.viewport), 29);
+      // cursor unchanged
+      expect(f.lineNumber(f.cursor), 50);
+    });
+
+    test('zt at start of file sets viewport to 0', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = 0;
+      f.viewport = f.lineOffset(10);
+
+      e.input('zt');
+
+      expect(f.lineNumber(f.viewport), 0);
+    });
+
+    test('zb near start clamps viewport to 0', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = manyLines(100);
+      f.cursor = f.lineOffset(5); // line 5, less than visible height
+      f.viewport = f.lineOffset(10);
+
+      e.input('zb');
+
+      // 5 - 22 + 1 = -16, clamped to 0
       expect(f.lineNumber(f.viewport), 0);
     });
   });
