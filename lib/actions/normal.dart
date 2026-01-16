@@ -4,9 +4,11 @@ import 'package:termio/termio.dart';
 import 'package:vid/yank_buffer.dart';
 
 import '../config.dart';
+import '../edit_operation.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
+import '../motions/motion.dart';
 import 'insert_actions.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/diagnostics_popup.dart';
@@ -14,6 +16,7 @@ import '../popup/file_browser.dart';
 import '../popup/theme_selector.dart';
 import '../regex.dart';
 import '../selection.dart';
+import 'motions.dart';
 
 class Normal {
   /// Scroll viewport down by half page (vim Ctrl-D behavior).
@@ -270,6 +273,45 @@ class Normal {
       return;
     }
     e.commitEdit(f.prevEdit!);
+  }
+
+  static void repeatFindStrReverse(Editor e, FileBuffer f) {
+    if (f.prevEdit == null || !f.prevEdit!.canRepeatFind) {
+      return;
+    }
+    // Execute reversed motion directly without updating prevEdit
+    final prev = f.prevEdit!;
+    final reversedMotion = _reverseMotion(prev.motion);
+
+    // Set findStr for the motion to use
+    f.edit.findStr = prev.findStr;
+
+    // Execute the motion count times
+    var newPos = f.cursor;
+    for (int i = 0; i < prev.count; i++) {
+      newPos = reversedMotion.fn(e, f, newPos);
+    }
+    f.cursor = newPos;
+    f.edit.reset();
+  }
+
+  /// Get the reverse motion for search operations
+  static Motion _reverseMotion(Motion m) {
+    if (m.fn == Motions.searchNext) {
+      return Motion(Motions.searchPrev);
+    } else if (m.fn == Motions.searchPrev) {
+      return Motion(Motions.searchNext);
+    } else if (m.fn == Motions.findNextChar) {
+      return Motion(Motions.findPrevChar, inclusive: m.inclusive);
+    } else if (m.fn == Motions.findPrevChar) {
+      return Motion(Motions.findNextChar, inclusive: m.inclusive);
+    } else if (m.fn == Motions.findTillNextChar) {
+      return Motion(Motions.findTillPrevChar, inclusive: m.inclusive);
+    } else if (m.fn == Motions.findTillPrevChar) {
+      return Motion(Motions.findTillNextChar, inclusive: m.inclusive);
+    }
+    // For other motions, return as-is
+    return m;
   }
 
   static void increaseNextWord(Editor e, FileBuffer f, int count) {

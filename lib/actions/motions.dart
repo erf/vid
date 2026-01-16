@@ -353,4 +353,10 @@ class Motions {
     final String pattern = f.edit.findStr ?? '';
     return regexNext(f, offset, RegExp(RegExp.escape(pattern)), skip: 1);
   }
+
+  /// Search previous (N)
+  static int searchPrev(Editor e, FileBuffer f, int offset) {
+    final String pattern = f.edit.findStr ?? '';
+    return regexPrev(f, offset, RegExp(RegExp.escape(pattern)));
+  }
 }

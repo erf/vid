@@ -42,6 +42,7 @@ const normalCommands = <String, Command>{
   '.': ActionCommand(Normal.repeat),
   ';': ActionCommand(Normal.repeatFindStr),
   'n': ActionCommand(Normal.repeatFindStr),
+  'N': ActionCommand(Normal.repeatFindStrReverse),
   Keys.ctrlA: ActionCommand(Normal.increase),
   Keys.ctrlX: ActionCommand(Normal.decrease),
   ':': ModeCommand(.command),
