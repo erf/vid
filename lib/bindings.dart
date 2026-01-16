@@ -31,6 +31,7 @@ const normalCommands = <String, Command>{
   'R': ModeCommand(.replace),
   'D': AliasCommand('d\$'),
   'x': AliasCommand('dl'),
+  'X': AliasCommand('dh'),
   'p': ActionCommand(Normal.pasteAfter),
   'P': ActionCommand(Normal.pasteBefore),
   'Y': AliasCommand('yy'),
