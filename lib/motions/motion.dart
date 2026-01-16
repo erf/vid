@@ -29,6 +29,8 @@ enum MotionType {
   wordEndPrev,
   wordCapNext,
   wordCapPrev,
+  wordCapEnd,
+  wordCapEndPrev,
 
   // File motions
   fileStart,
@@ -74,6 +76,8 @@ extension MotionTypeExt on MotionType {
     .wordEndPrev => Motions.wordEndPrev,
     .wordCapNext => Motions.wordCapNext,
     .wordCapPrev => Motions.wordCapPrev,
+    .wordCapEnd => Motions.wordCapEnd,
+    .wordCapEndPrev => Motions.wordCapEndPrev,
     .fileStart => Motions.fileStart,
     .fileEnd => Motions.fileEnd,
     .findNextChar => Motions.findNextChar,
@@ -103,6 +107,8 @@ extension MotionTypeExt on MotionType {
     .wordEndPrev => .wordEnd,
     .wordCapNext => .wordCapPrev,
     .wordCapPrev => .wordCapNext,
+    .wordCapEnd => .wordCapEndPrev,
+    .wordCapEndPrev => .wordCapEnd,
     .fileStart => .fileEnd,
     .fileEnd => .fileStart,
     .findNextChar => .findPrevChar,

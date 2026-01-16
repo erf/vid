@@ -240,6 +240,42 @@ class Motions {
     return regexPrev(f, offset, Regex.wordCap);
   }
 
+  /// Move to end of WORD (E) - inclusive
+  /// Returns the position of the last character of the WORD.
+  static int wordCapEnd(Editor e, FileBuffer f, int offset) {
+    final matches = Regex.wordCap.allMatches(f.text, offset);
+    if (matches.isEmpty) return offset;
+    final match = matches.firstWhere(
+      (m) => offset < m.end - 1,
+      orElse: () => matches.first,
+    );
+    return match.end - 1; // Position ON the last char
+  }
+
+  /// Move to end of previous WORD (gE) - inclusive
+  static int wordCapEndPrev(
+    Editor e,
+    FileBuffer f,
+    int offset, {
+    int chunkSize = 1000,
+  }) {
+    int searchStart = max(0, offset - chunkSize);
+
+    while (true) {
+      final matches = Regex.wordCap.allMatches(f.text, searchStart);
+      Match? lastMatch;
+      for (final m in matches) {
+        if (m.end >= offset) break;
+        lastMatch = m;
+      }
+      if (lastMatch != null) return lastMatch.end - 1;
+
+      // No match found - expand search or give up
+      if (searchStart == 0) return offset;
+      searchStart = max(0, searchStart - chunkSize);
+    }
+  }
+
   /// Move to start of file or line number (gg) - linewise
   static int fileStart(Editor e, FileBuffer f, int offset) {
     int targetLine = 0;
