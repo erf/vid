@@ -112,6 +112,36 @@ void main() {
     expect(f.text, 'abcx\ndef\n');
   });
 
+  test('toggleCaseUnderCursor ~', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aB\n';
+    f.cursor = 0;
+
+    e.input('~');
+
+    expect(f.text, 'AB\n');
+    expect(f.cursor, 1); // moved right to next char
+  });
+
+  test('toggleCaseUnderCursor count 2~ clamps at line end', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aB\n';
+    f.cursor = 0;
+
+    e.input('2~');
+
+    expect(f.text, 'Ab\n');
+    expect(f.cursor, 1); // would move to newline, then clamp back
+  });
+
   test('cursorLineBottomOrCount G', () {
     final e = Editor(
       terminal: TestTerminal(width: 80, height: 24),

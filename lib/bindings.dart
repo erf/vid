@@ -41,6 +41,7 @@ const normalCommands = <String, Command>{
   'C': AliasCommand('c\$'),
   'u': ActionCommand(Normal.undo),
   'U': ActionCommand(Normal.redo),
+  '~': ActionCommand(Normal.toggleCaseUnderCursor),
   '.': ActionCommand(Normal.repeat),
   ';': ActionCommand(Normal.repeatFindStr),
   ',': ActionCommand(Normal.repeatFindStrReverse),

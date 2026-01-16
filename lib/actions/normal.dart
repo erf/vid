@@ -7,6 +7,7 @@ import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
+import '../text_op.dart';
 import 'insert_actions.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/diagnostics_popup.dart';
@@ -16,6 +17,113 @@ import '../regex.dart';
 import '../selection.dart';
 
 class Normal {
+  static String _toggleCase(String s) {
+    if (s.isEmpty) return s;
+
+    final upper = s.toUpperCase();
+    final lower = s.toLowerCase();
+
+    // If the string changes when uppercased, and it's currently equal to that
+    // uppercased form, toggle to lower. Otherwise toggle to upper.
+    // If upper/lower are identical (no case mapping), leave it unchanged.
+    if (upper == lower) return s;
+    return s == upper ? lower : upper;
+  }
+
+  /// Toggle case of the grapheme under each cursor (vim-like `~`).
+  ///
+  /// Applies to collapsed selections only. Respects a numeric count prefix.
+  /// Cursor advances one grapheme per toggle and clamps at line end.
+  static void toggleCaseUnderCursor(Editor e, FileBuffer f) {
+    // Keep this minimal: we only support toggling under cursors.
+    if (!f.selections.every((s) => s.isCollapsed)) return;
+
+    final count = f.edit.count ?? 1;
+    if (count <= 0) {
+      f.edit.reset();
+      return;
+    }
+
+    // Sort cursors by position ascending so we can adjust subsequent offsets
+    // as text length changes.
+    final indexed = f.selections.asMap().entries.toList()
+      ..sort((a, b) => a.value.cursor.compareTo(b.value.cursor));
+
+    final cursorByIndex = <int, int>{
+      for (final entry in indexed) entry.key: entry.value.cursor,
+    };
+
+    final selectionsBefore = List<Selection>.unmodifiable(f.selections);
+    final textOps = <TextOp>[];
+
+    void shiftCursorsAfterEdit(int start, int end, int delta) {
+      if (delta == 0) return;
+      cursorByIndex.updateAll((idx, cur) {
+        if (cur <= start) return cur;
+        if (cur >= end) return cur + delta;
+        // Cursor was inside the replaced range: move to end of inserted text.
+        return end + delta;
+      });
+    }
+
+    for (final entry in indexed) {
+      final idx = entry.key;
+      var pos = cursorByIndex[idx]!;
+
+      for (int i = 0; i < count; i++) {
+        if (pos < 0 || pos >= f.text.length) break;
+        if (f.text[pos] == Keys.newline) break;
+
+        final end = f.nextGrapheme(pos);
+        if (end <= pos) break;
+
+        final prevText = f.text.substring(pos, end);
+        final newText = _toggleCase(prevText);
+
+        if (newText != prevText) {
+          // Apply without per-edit undo entries; we group them below.
+          f.replace(pos, end, newText, undo: false);
+          textOps.add(
+            TextOp(
+              newText: newText,
+              prevText: prevText,
+              start: pos,
+              selections: selectionsBefore,
+            ),
+          );
+
+          final delta = newText.length - (end - pos);
+          shiftCursorsAfterEdit(pos, end, delta);
+
+          // Adjust our local position to account for any length change.
+          pos = pos + newText.length;
+        } else {
+          pos = end;
+        }
+      }
+
+      // Vim-like behavior: cursor advances as toggles are applied.
+      cursorByIndex[idx] = pos;
+    }
+
+    if (textOps.isNotEmpty) {
+      f.undoList.add(textOps);
+      if (f.undoList.length > e.config.maxNumUndo) {
+        final removeEnd = f.undoList.length - e.config.maxNumUndo;
+        f.undoList.removeRange(0, removeEnd);
+      }
+      f.redoList.clear();
+    }
+
+    // Write back updated cursor positions, preserving original selection order.
+    f.selections = List.generate(
+      f.selections.length,
+      (i) => Selection.collapsed(cursorByIndex[i] ?? f.selections[i].cursor),
+    );
+    f.clampCursor();
+    f.edit.reset();
+  }
+
   /// Scroll viewport down by half page (vim Ctrl-D behavior).
   /// Both viewport and cursor move by the same number of lines.
   static void moveDownHalfPage(Editor e, FileBuffer f) {
