@@ -829,6 +829,31 @@ void main() {
       expect(f.selections[0].cursor, 5);
     });
 
+    test('V enters visual line mode preserving multiple cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+
+      // Multi-cursor (collapsed selections) across multiple lines.
+      f.selections = [
+        Selection.collapsed(0),
+        Selection.collapsed(9),
+        Selection.collapsed(18),
+      ];
+
+      e.input('V');
+
+      expect(f.mode, Mode.visualLine);
+      expect(f.selections.length, 3);
+      expect(f.selections.every((s) => s.isCollapsed), true);
+      expect(f.selections[0].cursor, 0);
+      expect(f.selections[1].cursor, 9);
+      expect(f.selections[2].cursor, 18);
+    });
+
     test('j motion moves cursor to next line', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
@@ -1314,6 +1339,32 @@ void main() {
       // Cursor (end) stays at current position, not moved to line end
       // Line expansion for operators/rendering happens dynamically
       expect(sel.cursor, 18); // Cursor stayed at position 18 (start of line 3)
+    });
+
+    test('V from visual mode preserves multiple selections', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
+
+      // Two visual selections on different lines. One forward, one backward.
+      f.selections = [Selection(0, 2), Selection(16, 9)];
+      f.mode = Mode.visual;
+
+      e.input('V');
+
+      expect(f.mode, Mode.visualLine);
+      expect(f.selections.length, 2);
+
+      // Cursors stay where they were.
+      expect(f.selections[0].cursor, 2);
+      expect(f.selections[1].cursor, 9);
+
+      // Anchors are normalized to the relevant line boundary.
+      expect(f.selections[0].anchor, 0); // start of line 1
+      expect(f.selections[1].anchor, 17); // end of line 2 (newline offset)
     });
   });
 

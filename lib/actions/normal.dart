@@ -561,30 +561,39 @@ class Normal {
   /// If there's already a selection (from visual mode), expand it to full lines
   /// but keep the cursor at its current position.
   static void enterVisualLineMode(Editor e, FileBuffer f) {
-    final sel = f.selection;
-    final cursorPos = sel.cursor;
+    // Preserve all selections/cursors (multi-cursor + multi-selection).
+    // Visual line expansion happens at render/operator time, but we normalize
+    // anchors so the selection direction stays consistent.
+    final newSelections = <Selection>[];
 
-    if (sel.isCollapsed) {
-      // No existing selection - keep cursor position, anchor at same spot
-      // Line expansion happens in rendering and operator handling
-      f.selections = [Selection.collapsed(cursorPos)];
-    } else {
-      // Expand existing selection to cover full lines, but keep cursor position
+    for (final sel in f.selections) {
+      final cursorPos = sel.cursor;
+
+      if (sel.isCollapsed) {
+        // No existing selection - keep cursor position, anchor at same spot.
+        newSelections.add(Selection.collapsed(cursorPos));
+        continue;
+      }
+
+      // Expand existing selection to cover full lines, but keep cursor position.
       final startLine = f.lineNumber(sel.start);
       final endLine = f.lineNumber(sel.end);
       final lineStart = f.lines[startLine].start;
       final lineEnd = f.lines[endLine].end;
 
-      // Determine anchor based on cursor position relative to anchor
-      // If cursor was at end, anchor at line start; if cursor was at start, anchor at line end
+      // Determine anchor based on cursor position relative to anchor.
+      // If cursor was at end, anchor at line start; if cursor was at start,
+      // anchor at line end.
       if (sel.cursor >= sel.anchor) {
-        // Forward selection: anchor at line start, cursor stays where it is
-        f.selections = [Selection(lineStart, cursorPos)];
+        // Forward selection: anchor at line start, cursor stays where it is.
+        newSelections.add(Selection(lineStart, cursorPos));
       } else {
-        // Backward selection: anchor at line end, cursor stays where it is
-        f.selections = [Selection(lineEnd, cursorPos)];
+        // Backward selection: anchor at line end, cursor stays where it is.
+        newSelections.add(Selection(lineEnd, cursorPos));
       }
     }
+
+    f.selections = newSelections;
     f.setMode(e, .visualLine);
   }
 
