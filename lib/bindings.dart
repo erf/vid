@@ -241,6 +241,8 @@ const lineEditCommands = <String, LineEditCommand>{
   'd': LineEditCommand(.diagnostics),
   'da': LineEditCommand(.diagnosticsAll),
   'rename': LineEditCommand(.lspRename),
+  'format': LineEditCommand(.format),
+  'fmt': LineEditCommand(.format),
   // Selection commands
   's': LineEditCommand(.select),
   'sel': LineEditCommand(.select),

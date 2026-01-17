@@ -497,6 +497,40 @@ class LspProtocol {
     return WorkspaceEdit.fromJson(resultData as Map<String, dynamic>);
   }
 
+  /// Request document formatting.
+  ///
+  /// Returns a list of [LspTextEdit]s to apply, or null if formatting failed.
+  Future<List<LspTextEdit>?> formatting(
+    String uri, {
+    int tabSize = 2,
+    bool insertSpaces = true,
+  }) async {
+    final result = await client.sendRequest('textDocument/formatting', {
+      'textDocument': {'uri': uri},
+      'options': {'tabSize': tabSize, 'insertSpaces': insertSpaces},
+    });
+
+    if (result == null) return null;
+
+    // Check for error response
+    if (result.containsKey('error')) {
+      final error = result['error'];
+      throw Exception(error['message'] ?? 'Formatting failed');
+    }
+
+    final resultData = result['result'];
+    if (resultData == null) return null;
+
+    // Returns TextEdit[] or null
+    if (resultData is List) {
+      return resultData
+          .map((e) => LspTextEdit.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    return null;
+  }
+
   /// Parse LSP Range to LspRange.
   LspRange _parseRange(Map<String, dynamic> range) {
     final start = range['start'] as Map<String, dynamic>;

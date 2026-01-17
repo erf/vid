@@ -27,6 +27,7 @@ enum LineEditType {
   diagnostics,
   diagnosticsAll,
   lspRename,
+  format,
 
   // Selection commands
   select,

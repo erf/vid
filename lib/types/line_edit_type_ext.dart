@@ -35,6 +35,7 @@ extension LineEditTypeExt on LineEditType {
     .diagnostics => const CmdDiagnostics(),
     .diagnosticsAll => const CmdDiagnosticsAll(),
     .lspRename => const CmdLspRename(),
+    .format => const CmdFormat(),
 
     // Selection commands
     .select => const CmdSelect(),
