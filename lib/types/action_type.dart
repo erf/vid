@@ -63,6 +63,7 @@ enum ActionType {
   findReferences,
   lspRename,
   hover,
+  showLineDiagnostic,
   jumpBack,
   jumpForward,
 

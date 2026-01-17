@@ -75,6 +75,7 @@ extension ActionTypeExt on ActionType {
     .findReferences => const FindReferences(),
     .lspRename => const LspRename(),
     .hover => const Hover(),
+    .showLineDiagnostic => const ShowLineDiagnostic(),
     .jumpBack => const JumpBack(),
     .jumpForward => const JumpForward(),
 

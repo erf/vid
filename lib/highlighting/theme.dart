@@ -49,6 +49,15 @@ class Theme {
   /// ANSI code for active line number color (current cursor line).
   final String? gutterActiveLine;
 
+  /// ANSI code for diagnostic error signs in gutter.
+  final String? diagnosticError;
+
+  /// ANSI code for diagnostic warning signs in gutter.
+  final String? diagnosticWarning;
+
+  /// ANSI code for diagnostic hint/info signs in gutter.
+  final String? diagnosticHint;
+
   const Theme._(
     this.name,
     this._colors, {
@@ -59,6 +68,9 @@ class Theme {
     this.gutterBackground,
     this.gutterForeground,
     this.gutterActiveLine,
+    this.diagnosticError,
+    this.diagnosticWarning,
+    this.diagnosticHint,
   });
 
   /// ANSI reset code for clearing styles.
@@ -116,6 +128,9 @@ class Theme {
     gutterBackground: Ansi.bgRgb(242, 233, 222), // Surface #f2e9de
     gutterForeground: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
     gutterActiveLine: Ansi.fgRgb(87, 82, 121), // Text #575279
+    diagnosticError: Ansi.fgRgb(180, 99, 122), // Love #b4637a
+    diagnosticWarning: Ansi.fgRgb(234, 157, 52), // Gold #ea9d34
+    diagnosticHint: Ansi.fgRgb(86, 148, 159), // Foam #56949f
   );
 
   // Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
@@ -158,6 +173,9 @@ class Theme {
     gutterBackground: Ansi.bgRgb(30, 28, 45), // Surface #1e1c2d
     gutterForeground: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
     gutterActiveLine: Ansi.fgRgb(224, 222, 244), // Text #e0def4
+    diagnosticError: Ansi.fgRgb(235, 111, 146), // Love #eb6f92
+    diagnosticWarning: Ansi.fgRgb(246, 193, 119), // Gold #f6c177
+    diagnosticHint: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
   );
 
   // Ayu Dark
@@ -200,6 +218,9 @@ class Theme {
     gutterBackground: Ansi.bgRgb(22, 27, 37), // Slightly lighter than base
     gutterForeground: Ansi.fgRgb(106, 115, 125), // #6A737D
     gutterActiveLine: Ansi.fgRgb(191, 189, 182), // #BFBDB6
+    diagnosticError: Ansi.fgRgb(240, 113, 120), // #F07178
+    diagnosticWarning: Ansi.fgRgb(255, 180, 84), // #FFB454
+    diagnosticHint: Ansi.fgRgb(89, 194, 255), // #59C2FF
   );
 
   // Ayu Light
@@ -242,6 +263,9 @@ class Theme {
     gutterBackground: Ansi.bgRgb(242, 242, 242), // Slightly darker than base
     gutterForeground: Ansi.fgRgb(150, 155, 160), // #969BA0
     gutterActiveLine: Ansi.fgRgb(92, 97, 102), // #5C6166
+    diagnosticError: Ansi.fgRgb(240, 113, 113), // #F07171
+    diagnosticWarning: Ansi.fgRgb(242, 163, 0), // #F2A300
+    diagnosticHint: Ansi.fgRgb(57, 158, 230), // #399EE6
   );
 
   // Unicorn Dark - soft pastel theme
@@ -284,6 +308,9 @@ class Theme {
     gutterBackground: Ansi.bgRgb(48, 50, 64), // Slightly lighter than base
     gutterForeground: Ansi.fgRgb(122, 129, 150), // Muted #7A8196
     gutterActiveLine: Ansi.fgRgb(224, 224, 235), // Light gray #E0E0EB
+    diagnosticError: Ansi.fgRgb(255, 121, 121), // Soft red #FF7979
+    diagnosticWarning: Ansi.fgRgb(255, 218, 185), // Peach #FFDAB9
+    diagnosticHint: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
   );
 
   // Unicorn Light - soft pastel theme
@@ -326,6 +353,9 @@ class Theme {
     gutterBackground: Ansi.bgRgb(243, 235, 240), // Slightly darker than base
     gutterForeground: Ansi.fgRgb(149, 165, 166), // Gray #95A5A6
     gutterActiveLine: Ansi.fgRgb(68, 68, 85), // Dark gray #444455
+    diagnosticError: Ansi.fgRgb(231, 76, 60), // Soft red #E74C3C
+    diagnosticWarning: Ansi.fgRgb(230, 126, 34), // Orange #E67E22
+    diagnosticHint: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)

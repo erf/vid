@@ -2,6 +2,7 @@ import '../../types/action_base.dart';
 import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import 'lsp_feature.dart';
+import 'lsp_protocol.dart';
 import 'references_popup.dart';
 import 'rename_popup.dart';
 
@@ -48,6 +49,57 @@ class Hover extends Action {
       return;
     }
     lsp.hover(e, f);
+  }
+}
+
+/// Show diagnostic message for current line (gl).
+class ShowLineDiagnostic extends Action {
+  const ShowLineDiagnostic();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    final lsp = e.featureRegistry?.get<LspFeature>();
+    if (lsp == null) {
+      e.showMessage(.error('LSP not available'));
+      return;
+    }
+
+    if (f.absolutePath == null) {
+      e.showMessage(.error('File not saved'));
+      return;
+    }
+
+    final uri = 'file://${f.absolutePath}';
+    final diagnostics = lsp.getDiagnostics(uri);
+
+    if (diagnostics.isEmpty) {
+      e.showMessage(.info('No diagnostics'));
+      return;
+    }
+
+    // Find diagnostics for current line
+    final cursorLine = f.lineNumber(f.cursor);
+    final lineDiags = diagnostics
+        .where((d) => d.startLine == cursorLine)
+        .toList();
+
+    if (lineDiags.isEmpty) {
+      e.showMessage(.info('No diagnostics on this line'));
+      return;
+    }
+
+    // Sort by severity (errors first)
+    lineDiags.sort((a, b) => a.severity.value.compareTo(b.severity.value));
+
+    // Show the most severe diagnostic message
+    final diag = lineDiags.first;
+    final prefix = switch (diag.severity) {
+      DiagnosticSeverity.error => 'Error',
+      DiagnosticSeverity.warning => 'Warning',
+      DiagnosticSeverity.information => 'Info',
+      DiagnosticSeverity.hint => 'Hint',
+    };
+    e.showMessage(.info('$prefix: ${diag.message}'));
   }
 }
 

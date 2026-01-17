@@ -1,6 +1,7 @@
 import 'package:termio/termio.dart';
 import 'config.dart';
 import 'file_buffer/file_buffer.dart';
+import 'gutter.dart';
 import 'highlighting/highlighter.dart';
 import 'features/lsp/lsp_protocol.dart';
 import 'message.dart';
@@ -81,6 +82,7 @@ class Renderer {
     PopupState? popup,
     int diagnosticCount = 0,
     List<SemanticToken>? semanticTokens,
+    GutterSigns? gutterSigns,
   }) {
     file.clampCursor();
 
@@ -103,9 +105,12 @@ class Renderer {
     );
 
     // Calculate gutter width early (needed for horizontal scroll calculation)
+    // Always reserve sign column space when showDiagnosticSigns is enabled
+    // to prevent view shifting when diagnostics appear
     gutterWidth = _calculateGutterWidth(
       file.totalLines,
       config.showLineNumbers,
+      config.showDiagnosticSigns,
     );
 
     // Horizontal scrolling (disabled when word wrap is on)
@@ -156,6 +161,7 @@ class Renderer {
       config: config,
       viewportCol: viewportCol,
       cursorLine: cursorLine,
+      gutterSigns: gutterSigns,
     );
 
     if (file.mode case .command || .search || .searchBackward) {
@@ -192,14 +198,21 @@ class Renderer {
     terminal.write(buffer);
   }
 
-  /// Calculate gutter width based on total line count.
-  /// Format: " 123 " where 123 is the line number (right-aligned).
+  /// Calculate gutter width based on total line count and sign column.
+  /// Format: "● 123 " where ● is optional sign, 123 is line number.
   /// Returns 0 if gutter is disabled.
-  int _calculateGutterWidth(int totalLines, bool showLineNumbers) {
-    if (!showLineNumbers) return 0;
+  /// Can show signs only (no line numbers) with width of 2 (sign + space).
+  int _calculateGutterWidth(
+    int totalLines,
+    bool showLineNumbers,
+    bool showSigns,
+  ) {
+    if (!showLineNumbers && !showSigns) return 0;
+    final signWidth = showSigns ? 2 : 0; // 1 char for sign + 1 space
+    if (!showLineNumbers) return signWidth;
     // Digits + 1 space before + 1 space after = digits + 2
     final digits = totalLines.toString().length;
-    return digits + 2; // e.g., " 42 " = 4 chars for 2-digit line numbers
+    return signWidth + digits + 2; // e.g., "● 42 " = 5 chars with sign
   }
 
   /// Get the available content width (terminal width minus gutter).
@@ -500,11 +513,13 @@ class Renderer {
     required Config config,
     required int viewportCol,
     required int cursorLine,
+    GutterSigns? gutterSigns,
   }) {
     int numLines = terminal.height - 1;
     int offset = file.viewport;
     int screenRow = 0;
     int currentLineNum = file.lineNumber(file.viewport);
+    final showSigns = config.showDiagnosticSigns;
 
     // Convert selections to (start, end) tuples for rendering
     // In visual line mode, expand each selection to full lines
@@ -544,7 +559,13 @@ class Renderer {
       // Past end of file - draw '~' with empty gutter
       if (offset >= file.text.length) {
         if (screenRow > 0) buffer.write(Keys.newline);
-        _renderGutter(-1, cursorLine, file.totalLines);
+        _renderGutter(
+          -1,
+          cursorLine,
+          file.totalLines,
+          showSigns: showSigns,
+          showLineNumbers: config.showLineNumbers,
+        );
         buffer.write('~');
         screenRow++;
         continue;
@@ -573,6 +594,9 @@ class Renderer {
           lineNum: currentLineNum,
           cursorLine: cursorLine,
           totalLines: file.totalLines,
+          sign: gutterSigns?[currentLineNum],
+          showSigns: showSigns,
+          showLineNumbers: config.showLineNumbers,
         ),
         .char => _renderLineCharWrap(
           original: lineText,
@@ -586,6 +610,9 @@ class Renderer {
           lineNum: currentLineNum,
           cursorLine: cursorLine,
           totalLines: file.totalLines,
+          sign: gutterSigns?[currentLineNum],
+          showSigns: showSigns,
+          showLineNumbers: config.showLineNumbers,
         ),
         .word => _renderLineWordWrap(
           original: lineText,
@@ -600,6 +627,9 @@ class Renderer {
           lineNum: currentLineNum,
           cursorLine: cursorLine,
           totalLines: file.totalLines,
+          sign: gutterSigns?[currentLineNum],
+          showSigns: showSigns,
+          showLineNumbers: config.showLineNumbers,
         ),
       };
 
@@ -611,46 +641,66 @@ class Renderer {
   /// Render the gutter (line number column) for a screen row.
   /// [lineNum] is 0-based, -1 for empty rows (past end of file).
   /// [isFirstWrap] indicates if this is the first row of a wrapped line.
+  /// [sign] is an optional gutter sign to display (e.g., diagnostic indicator).
+  /// [showSigns] indicates whether sign column is enabled.
   void _renderGutter(
     int lineNum,
     int cursorLine,
     int totalLines, {
     bool isFirstWrap = true,
+    GutterSign? sign,
+    bool showSigns = false,
+    bool showLineNumbers = true,
   }) {
     if (gutterWidth == 0) return;
 
     final theme = highlighter.theme;
-    final digits = totalLines.toString().length;
 
-    String gutterContent;
-    if (lineNum < 0 || !isFirstWrap) {
-      // Empty line or wrapped continuation - just spaces
-      gutterContent = ' ' * (digits + 1);
-    } else {
-      // Format line number (1-based for display)
-      final numStr = (lineNum + 1).toString().padLeft(digits);
-      gutterContent = ' $numStr';
-
-      // Apply active line highlight or muted color
-      if (lineNum == cursorLine) {
-        if (theme.gutterActiveLine != null) {
-          buffer.write(theme.gutterActiveLine);
-        }
+    // Render sign column if enabled
+    if (showSigns) {
+      if (sign != null && isFirstWrap) {
+        buffer.write(sign.colorCode(theme));
+        buffer.write(sign.char);
+        theme.resetCode(buffer);
       } else {
-        if (theme.gutterForeground != null) {
-          buffer.write(theme.gutterForeground);
-        } else {
-          // Fallback: use dim for non-active lines
-          buffer.write(Ansi.dim());
-        }
+        buffer.write(' ');
       }
+      buffer.write(' ');
     }
 
-    buffer.write(gutterContent);
-    buffer.write(' ');
+    // Render line numbers if enabled
+    if (showLineNumbers) {
+      final digits = totalLines.toString().length;
+      String gutterContent;
+      if (lineNum < 0 || !isFirstWrap) {
+        // Empty line or wrapped continuation - just spaces
+        gutterContent = ' ' * (digits + 1);
+      } else {
+        // Format line number (1-based for display)
+        final numStr = (lineNum + 1).toString().padLeft(digits);
+        gutterContent = ' $numStr';
 
-    // Reset colors back to theme defaults
-    theme.resetCode(buffer);
+        // Apply active line highlight or muted color
+        if (lineNum == cursorLine) {
+          if (theme.gutterActiveLine != null) {
+            buffer.write(theme.gutterActiveLine);
+          }
+        } else {
+          if (theme.gutterForeground != null) {
+            buffer.write(theme.gutterForeground);
+          } else {
+            // Fallback: use dim for non-active lines
+            buffer.write(Ansi.dim());
+          }
+        }
+      }
+
+      buffer.write(gutterContent);
+      buffer.write(' ');
+
+      // Reset colors back to theme defaults
+      theme.resetCode(buffer);
+    }
   }
 
   /// Render line without wrapping
@@ -667,11 +717,21 @@ class Renderer {
     required int lineNum,
     required int cursorLine,
     required int totalLines,
+    GutterSign? sign,
+    bool showSigns = false,
+    bool showLineNumbers = true,
   }) {
     if (screenRow > 0) buffer.write(Keys.newline);
 
     // Render gutter first
-    _renderGutter(lineNum, cursorLine, totalLines);
+    _renderGutter(
+      lineNum,
+      cursorLine,
+      totalLines,
+      sign: sign,
+      showSigns: showSigns,
+      showLineNumbers: showLineNumbers,
+    );
 
     if (rendered.isNotEmpty) {
       final visible = rendered.renderLine(viewportCol, contentWidth);
@@ -728,6 +788,9 @@ class Renderer {
     required int lineNum,
     required int cursorLine,
     required int totalLines,
+    GutterSign? sign,
+    bool showSigns = false,
+    bool showLineNumbers = true,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -737,7 +800,15 @@ class Renderer {
       if (screenRow > 0) buffer.write(Keys.newline);
 
       // Render gutter (only show line number on first wrap)
-      _renderGutter(lineNum, cursorLine, totalLines, isFirstWrap: firstWrap);
+      _renderGutter(
+        lineNum,
+        cursorLine,
+        totalLines,
+        isFirstWrap: firstWrap,
+        sign: sign,
+        showSigns: showSigns,
+        showLineNumbers: showLineNumbers,
+      );
 
       String chunk = rendered.ch.skip(wrapCol).take(contentWidth).string;
 
@@ -804,6 +875,9 @@ class Renderer {
     required int lineNum,
     required int cursorLine,
     required int totalLines,
+    GutterSign? sign,
+    bool showSigns = false,
+    bool showLineNumbers = true,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -813,7 +887,15 @@ class Renderer {
       if (screenRow > 0) buffer.write(Keys.newline);
 
       // Render gutter (only show line number on first wrap)
-      _renderGutter(lineNum, cursorLine, totalLines, isFirstWrap: firstWrap);
+      _renderGutter(
+        lineNum,
+        cursorLine,
+        totalLines,
+        isFirstWrap: firstWrap,
+        sign: sign,
+        showSigns: showSigns,
+        showLineNumbers: showLineNumbers,
+      );
 
       // Find wrap point
       int chunkEnd = wrapCol + contentWidth;

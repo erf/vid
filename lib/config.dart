@@ -90,6 +90,9 @@ class Config {
   /// Whether to show line numbers in the gutter.
   final bool showLineNumbers;
 
+  /// Whether to show diagnostic signs (errors/warnings) in the gutter.
+  final bool showDiagnosticSigns;
+
   /// Default directories to exclude from file browser scanning.
   static const Set<String> defaultExcludeDirs = {
     '.git',
@@ -140,6 +143,7 @@ class Config {
     this.popupMaxWidth,
     this.preserveColumnOnVerticalMove = true,
     this.showLineNumbers = false,
+    this.showDiagnosticSigns = true,
   });
 
   /// Creates a [Config] from a map (typically parsed from YAML).
@@ -175,6 +179,7 @@ class Config {
         map['preserveColumnOnVerticalMove'],
       ),
       showLineNumbers: _parseBool(map['showLineNumbers']),
+      showDiagnosticSigns: _parseBool(map['showDiagnosticSigns']),
     );
   }
 
@@ -241,6 +246,7 @@ class Config {
     int? popupMaxWidth,
     bool? preserveColumnOnVerticalMove,
     bool? showLineNumbers,
+    bool? showDiagnosticSigns,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -267,6 +273,7 @@ class Config {
       preserveColumnOnVerticalMove:
           preserveColumnOnVerticalMove ?? this.preserveColumnOnVerticalMove,
       showLineNumbers: showLineNumbers ?? this.showLineNumbers,
+      showDiagnosticSigns: showDiagnosticSigns ?? this.showDiagnosticSigns,
     );
   }
 }

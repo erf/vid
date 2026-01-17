@@ -65,3 +65,6 @@ fileBrowserShowHidden: false
 
 # Show line numbers in the gutter
 showLineNumbers: false
+
+# Show diagnostic signs (errors, warnings) in the gutter (reserve gutter space for signs)
+showDiagnosticSigns: true

@@ -8,6 +8,7 @@ import 'package:vid/actions/operator_actions.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/features/cursor_position/cursor_position_feature.dart';
 import 'package:vid/features/feature_registry.dart';
+import 'package:vid/gutter.dart';
 import 'package:vid/highlighting/theme.dart';
 import 'package:vid/input_state.dart';
 import 'package:vid/features/lsp/lsp_feature.dart';
@@ -369,10 +370,17 @@ class Editor {
     // Get diagnostic count and semantic tokens for current file from LSP
     int diagnosticCount = 0;
     List<SemanticToken>? semanticTokens;
+    GutterSigns? gutterSigns;
     final lsp = featureRegistry?.get<LspFeature>();
     if (lsp != null && lsp.isConnected && file.absolutePath != null) {
       final uri = 'file://${file.absolutePath}';
-      diagnosticCount = lsp.getDiagnostics(uri).length;
+      final diagnostics = lsp.getDiagnostics(uri);
+      diagnosticCount = diagnostics.length;
+
+      // Build gutter signs from diagnostics
+      if (config.showDiagnosticSigns && diagnostics.isNotEmpty) {
+        gutterSigns = _buildGutterSigns(diagnostics);
+      }
 
       // Get cached semantic tokens if available
       if (config.semanticHighlighting && lsp.supportsSemanticTokens) {
@@ -389,7 +397,25 @@ class Editor {
       popup: popup,
       diagnosticCount: diagnosticCount,
       semanticTokens: semanticTokens,
+      gutterSigns: gutterSigns,
     );
+  }
+
+  /// Build gutter signs from LSP diagnostics.
+  GutterSigns _buildGutterSigns(List<LspDiagnostic> diagnostics) {
+    final signs = GutterSigns();
+    for (final diag in diagnostics) {
+      final signType = switch (diag.severity) {
+        DiagnosticSeverity.error => GutterSignType.error,
+        DiagnosticSeverity.warning => GutterSignType.warning,
+        _ => GutterSignType.hint,
+      };
+      signs.add(
+        diag.startLine,
+        GutterSign(type: signType, message: diag.message),
+      );
+    }
+    return signs;
   }
 
   /// Show a popup menu.
