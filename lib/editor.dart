@@ -616,6 +616,7 @@ class Editor {
     if ((file.mode == .visual || file.mode == .visualLine) && op == null) {
       _applyMotionToSelections(motion, edit.count);
       _saveForRepeat(edit);
+      _clearDesiredColumnIfNeeded(motion.type);
       file.edit.reset();
       return;
     }
@@ -626,6 +627,7 @@ class Editor {
         op == null) {
       _applyMotionToCollapsedSelections(motion, edit.count);
       _saveForRepeat(edit);
+      _clearDesiredColumnIfNeeded(motion.type);
       file.edit.reset();
       return;
     }
@@ -636,6 +638,7 @@ class Editor {
         op != null) {
       _applyOperatorToMultipleCursors(motion, edit.count, op, linewise);
       _saveForRepeat(edit);
+      _clearDesiredColumnIfNeeded(motion.type);
       file.edit.reset();
       return;
     }
@@ -671,7 +674,16 @@ class Editor {
     }
 
     _saveForRepeat(edit);
+    _clearDesiredColumnIfNeeded(motion.type);
     file.edit.reset();
+  }
+
+  /// Clear desiredColumn if motion is not vertical (j/k).
+  /// Vertical motions set their own desiredColumn; others should reset it.
+  void _clearDesiredColumnIfNeeded(MotionType type) {
+    if (type != .lineUp && type != .lineDown) {
+      file.desiredColumn = null;
+    }
   }
 
   /// Apply motion to all selections, preserving them in visual mode.

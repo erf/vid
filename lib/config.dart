@@ -78,6 +78,11 @@ class Config {
   /// Whether to show hidden files (starting with '.') in the file browser.
   final bool fileBrowserShowHidden;
 
+  /// Whether to preserve column position when moving vertically (j/k).
+  /// When true (vim-like), cursor "remembers" its column through short lines.
+  /// When false, column is recalculated from cursor position each time.
+  final bool preserveColumnOnVerticalMove;
+
   /// Directories to exclude from file browser scanning.
   /// If not set in config, uses built-in defaults.
   final Set<String> fileBrowserExcludeDirs;
@@ -130,6 +135,7 @@ class Config {
     this.fileBrowserShowHidden = false,
     this.fileBrowserExcludeDirs = defaultExcludeDirs,
     this.popupMaxWidth,
+    this.preserveColumnOnVerticalMove = true,
   });
 
   /// Creates a [Config] from a map (typically parsed from YAML).
@@ -161,6 +167,9 @@ class Config {
       fileBrowserShowHidden: _parseBool(map['fileBrowserShowHidden']),
       fileBrowserExcludeDirs: _parseStringSet(map['fileBrowserExcludeDirs']),
       popupMaxWidth: _parseInt(map['popupMaxWidth']),
+      preserveColumnOnVerticalMove: _parseBool(
+        map['preserveColumnOnVerticalMove'],
+      ),
     );
   }
 
@@ -225,6 +234,7 @@ class Config {
     bool? fileBrowserShowHidden,
     Set<String>? fileBrowserExcludeDirs,
     int? popupMaxWidth,
+    bool? preserveColumnOnVerticalMove,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -248,6 +258,8 @@ class Config {
       fileBrowserExcludeDirs:
           fileBrowserExcludeDirs ?? this.fileBrowserExcludeDirs,
       popupMaxWidth: popupMaxWidth ?? this.popupMaxWidth,
+      preserveColumnOnVerticalMove:
+          preserveColumnOnVerticalMove ?? this.preserveColumnOnVerticalMove,
     );
   }
 }

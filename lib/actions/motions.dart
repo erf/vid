@@ -9,20 +9,25 @@ import '../string_ext.dart';
 import '../utils.dart';
 
 class Motions {
-  /// Move to a different line, maintaining approximate visual column position
-  static int _moveToLineKeepColumn(
-    Editor e,
-    FileBuffer f,
-    int offset,
-    int currentLine,
-    int targetLine,
-  ) {
-    // Get current visual column position
+  /// Sentinel value for desiredColumn meaning "end of line".
+  static const int endOfLineColumn = 0x7FFFFFFF;
+
+  /// Compute the visual column for the cursor at the given offset.
+  static int _computeVisualColumn(Editor e, FileBuffer f, int offset) {
+    int currentLine = f.lineNumber(offset);
     int lineStartOff = f.lines[currentLine].start;
     String beforeCursor = f.text.substring(lineStartOff, offset);
-    int curVisualCol = beforeCursor.renderLength(e.config.tabWidth);
+    return beforeCursor.renderLength(e.config.tabWidth);
+  }
 
-    // Get target line using direct array access
+  /// Move to a specific visual column on the target line.
+  /// Returns the byte offset of the resulting cursor position.
+  static int _moveToLineWithColumn(
+    Editor e,
+    FileBuffer f,
+    int targetLine,
+    int targetCol,
+  ) {
     int targetLineStart = f.lines[targetLine].start;
     int targetLineEnd = f.lines[targetLine].end;
     String targetLineText = f.text.substring(targetLineStart, targetLineEnd);
@@ -31,7 +36,7 @@ class Motions {
     int nextlen = 0;
     Characters chars = targetLineText.characters.takeWhile((c) {
       nextlen += c.charWidth(e.config.tabWidth);
-      return nextlen <= curVisualCol;
+      return nextlen <= targetCol;
     });
 
     // Clamp to valid position in target line
@@ -41,6 +46,19 @@ class Motions {
     // Convert char index to byte offset
     return targetLineStart +
         targetLineText.characters.take(charIndex).string.length;
+  }
+
+  /// Move to a different line, maintaining approximate visual column position.
+  /// Legacy helper that computes column from offset (used when sticky column disabled).
+  static int _moveToLineKeepColumn(
+    Editor e,
+    FileBuffer f,
+    int offset,
+    int currentLine,
+    int targetLine,
+  ) {
+    int curVisualCol = _computeVisualColumn(e, f, offset);
+    return _moveToLineWithColumn(e, f, targetLine, curVisualCol);
   }
 
   /// Find the first match after the given byte offset
@@ -146,6 +164,15 @@ class Motions {
     int currentLine = f.lineNumber(offset);
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
+
+    if (e.config.preserveColumnOnVerticalMove) {
+      // Use desired column if set, otherwise compute from current position
+      int targetCol = f.desiredColumn ?? _computeVisualColumn(e, f, offset);
+      int newOffset = _moveToLineWithColumn(e, f, currentLine + 1, targetCol);
+      // Preserve desiredColumn for subsequent vertical moves
+      f.desiredColumn = targetCol;
+      return newOffset;
+    }
     return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine + 1);
   }
 
@@ -153,6 +180,15 @@ class Motions {
   static int lineUp(Editor e, FileBuffer f, int offset) {
     int currentLine = f.lineNumber(offset);
     if (currentLine == 0) return offset;
+
+    if (e.config.preserveColumnOnVerticalMove) {
+      // Use desired column if set, otherwise compute from current position
+      int targetCol = f.desiredColumn ?? _computeVisualColumn(e, f, offset);
+      int newOffset = _moveToLineWithColumn(e, f, currentLine - 1, targetCol);
+      // Preserve desiredColumn for subsequent vertical moves
+      f.desiredColumn = targetCol;
+      return newOffset;
+    }
     return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine - 1);
   }
 
@@ -166,6 +202,12 @@ class Motions {
   static int lineEnd(Editor e, FileBuffer f, int offset) {
     int lineNum = f.lineNumber(offset);
     int lineEndOff = f.lines[lineNum].end;
+
+    // Set desiredColumn to end-of-line sentinel for sticky column
+    if (e.config.preserveColumnOnVerticalMove) {
+      f.desiredColumn = endOfLineColumn;
+    }
+
     // Go to last char before newline (or stay if empty line)
     if (lineEndOff > f.lines[lineNum].start) {
       return f.prevGrapheme(lineEndOff);

@@ -1,6 +1,7 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/actions/motions.dart';
+import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 
 void main() {
@@ -41,9 +42,12 @@ void main() {
     f.text = 'abc\ndef\n';
     // From line 0, stay at line 0
     expect(Motions.lineUp(e, f, 0), 0);
+    f.desiredColumn = null; // Reset between independent tests
     expect(Motions.lineUp(e, f, 2), 2);
+    f.desiredColumn = null;
     // From line 1, go to line 0
     expect(Motions.lineUp(e, f, 4), 0); // d -> a (same column)
+    f.desiredColumn = null;
     expect(Motions.lineUp(e, f, 6), 2); // f -> c (same column)
   });
 
@@ -71,9 +75,12 @@ void main() {
     f.text = 'abc\ndef\n';
     // From line 0, go to line 1
     expect(Motions.lineDown(e, f, 0), 4); // a -> d
+    f.desiredColumn = null; // Reset between independent tests
     expect(Motions.lineDown(e, f, 2), 6); // c -> f
+    f.desiredColumn = null;
     // From line 1, stay at line 1 (last line)
     expect(Motions.lineDown(e, f, 4), 4);
+    f.desiredColumn = null;
     expect(Motions.lineDown(e, f, 6), 6);
   });
 
@@ -87,6 +94,79 @@ void main() {
     // From line 0 col 2 -> line 1 (should land on appropriate grapheme)
     int result = Motions.lineDown(e, f, 2);
     expect(f.lineNumber(result), 1);
+  });
+
+  test('sticky column preserves column through short lines', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    // Line 0: 'abcdefgh' (8 chars), Line 1: 'xy' (2 chars), Line 2: '12345678' (8 chars)
+    f.text = 'abcdefgh\nxy\n12345678\n';
+
+    // Start at column 6 ('g' at offset 6)
+    f.cursor = 6;
+    f.desiredColumn = null;
+
+    // Move down - should go to end of short line (offset 9, 'x' at col 0 or 'y' at col 1)
+    // but remember column 6
+    int pos1 = Motions.lineDown(e, f, 6);
+    expect(f.lineNumber(pos1), 1);
+    expect(f.desiredColumn, 6); // Column 6 is remembered
+
+    // Move down again - should restore to column 6 on line 2 (offset 12 + 6 = 18)
+    int pos2 = Motions.lineDown(e, f, pos1);
+    expect(f.lineNumber(pos2), 2);
+    expect(pos2, 12 + 6); // '7' at offset 18
+  });
+
+  test('sticky column with line end motion', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\ndefgh\nij\n';
+
+    // Use $ to go to end of line 0 ('c' at offset 2)
+    f.cursor = 0;
+    int endPos = Motions.lineEnd(e, f, 0);
+    expect(endPos, 2); // 'c'
+    expect(f.desiredColumn, Motions.endOfLineColumn); // End-of-line sentinel
+
+    // Move down - should go to end of line 1 ('h' at offset 8)
+    int pos1 = Motions.lineDown(e, f, endPos);
+    expect(pos1, 8); // 'h' (last char before newline on line 1)
+
+    // Move down again - should go to end of line 2 ('j' at offset 11)
+    int pos2 = Motions.lineDown(e, f, pos1);
+    expect(pos2, 11); // 'j' (last char before newline on line 2)
+  });
+
+  test('sticky column disabled via config', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+      config: const Config(preserveColumnOnVerticalMove: false),
+    );
+    final f = e.file;
+    f.text = 'abcdefgh\nxy\n12345678\n';
+
+    // Start at column 6
+    f.cursor = 6;
+    f.desiredColumn = null;
+
+    // Move down - should go to end of short line
+    int pos1 = Motions.lineDown(e, f, 6);
+    expect(f.lineNumber(pos1), 1);
+    expect(f.desiredColumn, isNull); // Not set when disabled
+
+    // Move down again - should use current column (1), not remembered column
+    int pos2 = Motions.lineDown(e, f, pos1);
+    expect(f.lineNumber(pos2), 2);
+    // pos1 is at 'y' (col 1), so next line should be at col 1 ('2' at offset 13)
+    expect(pos2, 12 + 1); // '2' at offset 13
   });
 
   test('motionFileStart', () {

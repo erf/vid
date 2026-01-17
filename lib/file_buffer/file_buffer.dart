@@ -125,6 +125,11 @@ class FileBuffer {
   // the previous edit operation (for repeat)
   EditOperation? prevEdit;
 
+  /// The desired visual column for vertical cursor movements.
+  /// Used to implement vim-like sticky column behavior where j/k preserve
+  /// horizontal position through short lines. null means compute from cursor.
+  int? desiredColumn;
+
   // list of undo operations (each entry is a group of TextOps)
   List<List<TextOp>> undoList = [];
 
