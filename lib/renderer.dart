@@ -175,6 +175,7 @@ class Renderer {
         bufferIndex,
         bufferCount,
         diagnosticCount,
+        cursorScreenRow: layout.cursorScreenRow,
       );
       _drawPopup(popup, config);
     } else {
@@ -186,6 +187,7 @@ class Renderer {
         bufferIndex,
         bufferCount,
         diagnosticCount,
+        cursorScreenRow: layout.cursorScreenRow,
       );
       _drawCursor(
         config,
@@ -1018,8 +1020,30 @@ class Renderer {
     Message? message,
     int bufferIndex,
     int bufferCount,
-    int diagnosticCount,
-  ) {
+    int diagnosticCount, {
+    int cursorScreenRow = 1,
+  }) {
+    // Draw message above status bar
+    if (message != null) {
+      final msgText = ' ${message.text} ';
+      final msgLines = (msgText.length / terminal.width).ceil().clamp(1, 5);
+      final msgRow = terminal.height - msgLines;
+
+      // Set message color with background
+      buffer.write(Ansi.cursor(x: 1, y: msgRow));
+      switch (message.type) {
+        case .info:
+          buffer.write(Ansi.fg(Color.green));
+        case .error:
+          buffer.write(Ansi.fg(Color.red));
+      }
+      buffer.write(Ansi.inverse(true));
+      buffer.write(msgText);
+      buffer.write(Ansi.inverse(false));
+      highlighter.theme.resetCode(buffer);
+    }
+
+    // Draw status bar last (always visible at bottom)
     buffer.write(Ansi.inverse(true));
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
 
@@ -1067,20 +1091,6 @@ class Renderer {
     String padding = right.padLeft(padLeft);
 
     buffer.write(' $left$bufferPart$diagPart $padding');
-
-    // draw message
-    if (message != null) {
-      switch (message.type) {
-        case .info:
-          buffer.write(Ansi.fg(Color.green));
-        case .error:
-          buffer.write(Ansi.fg(Color.red));
-      }
-      buffer.write(Ansi.cursor(x: 1, y: terminal.height - 1));
-      buffer.write(' ${message.text} ');
-      highlighter.theme.resetCode(buffer);
-    }
-
     buffer.write(Ansi.inverse(false));
   }
 
