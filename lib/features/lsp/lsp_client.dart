@@ -23,6 +23,9 @@ class LspClient {
   /// Semantic token modifier legend from server capabilities.
   List<String> _semanticTokenModifiers = [];
 
+  /// Whether the server supports incremental text sync.
+  bool _supportsIncrementalSync = false;
+
   /// Stream of notifications from the server (diagnostics, log messages, etc.)
   Stream<LspNotification> get notifications => _notificationController.stream;
 
@@ -40,6 +43,9 @@ class LspClient {
 
   /// Semantic token modifier legend for decoding responses.
   List<String> get semanticTokenModifiers => _semanticTokenModifiers;
+
+  /// Whether the server supports incremental text document sync.
+  bool get supportsIncrementalSync => _supportsIncrementalSync;
 
   /// Start the LSP server process and initialize the connection.
   ///
@@ -71,8 +77,9 @@ class LspClient {
       final result = await initialize(rootPath);
       if (result != null) {
         _initialized = true;
-        // Extract semantic token legend from server capabilities
+        // Extract server capabilities
         _extractSemanticTokenLegend(result);
+        _extractTextDocumentSync(result);
         // Send initialized notification
         sendNotification('initialized', {});
         return true;
@@ -109,6 +116,29 @@ class LspClient {
       }
     } catch (_) {
       // Ignore parsing errors
+    }
+  }
+
+  /// Extract textDocumentSync capability from initialize response.
+  void _extractTextDocumentSync(Map<String, dynamic> result) {
+    try {
+      final capabilities = result['result']?['capabilities'];
+      if (capabilities == null) return;
+
+      final textDocumentSync = capabilities['textDocumentSync'];
+      if (textDocumentSync == null) return;
+
+      // textDocumentSync can be a number (TextDocumentSyncKind) or an object
+      // TextDocumentSyncKind: 0 = None, 1 = Full, 2 = Incremental
+      if (textDocumentSync is int) {
+        _supportsIncrementalSync = textDocumentSync == 2;
+      } else if (textDocumentSync is Map) {
+        final change = textDocumentSync['change'];
+        _supportsIncrementalSync = change == 2;
+      }
+    } catch (_) {
+      // Default to full sync on error
+      _supportsIncrementalSync = false;
     }
   }
 
@@ -198,6 +228,7 @@ class LspClient {
       'capabilities': {
         'textDocument': {
           'synchronization': {
+            'dynamicRegistration': false,
             'didSave': true,
             'willSave': false,
             'willSaveWaitUntil': false,

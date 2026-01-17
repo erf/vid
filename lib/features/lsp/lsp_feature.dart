@@ -8,6 +8,16 @@ import 'lsp_client.dart';
 import 'lsp_protocol.dart';
 import 'lsp_server_config.dart';
 
+/// Helper class to hold LSP range positions for incremental sync.
+class _RangePositions {
+  final int startLine;
+  final int startChar;
+  final int endLine;
+  final int endChar;
+
+  _RangePositions(this.startLine, this.startChar, this.endLine, this.endChar);
+}
+
 /// Feature that manages multiple LSP clients for different languages.
 class LspFeature extends Feature {
   /// Map of server key to LSP client (e.g., 'dart' -> LspClient).
@@ -249,21 +259,74 @@ class LspFeature extends Feature {
     final serverKey = _openDocuments[uri];
     if (serverKey == null) return;
 
+    final client = _clients[serverKey];
     final protocol = _protocols[serverKey];
-    if (protocol == null) return;
+    if (client == null || protocol == null) return;
 
     // Increment version
     final version = (_documentVersions[uri] ?? 0) + 1;
     _documentVersions[uri] = version;
 
-    // Use full sync (simpler, always correct)
-    protocol.didChangeFull(uri, version, file.text);
+    // Use incremental sync if server supports it, otherwise full sync
+    if (client.supportsIncrementalSync) {
+      // Calculate positions for the replaced range (in old text coordinates)
+      final pos = _calculateRangePositions(file, start, oldText);
+      protocol.didChangeIncremental(
+        uri,
+        version,
+        pos.startLine,
+        pos.startChar,
+        pos.endLine,
+        pos.endChar,
+        newText,
+      );
+    } else {
+      protocol.didChangeFull(uri, version, file.text);
+    }
 
     // Only invalidate tokens on affected lines, keep the rest
     _invalidateTokensForEdit(uri, file, start, oldText, newText);
 
     // Re-fetch semantic tokens (debounced)
     requestSemanticTokens(uri);
+  }
+
+  /// Calculate LSP range positions for an edit.
+  ///
+  /// Returns start and end positions (line, character) for the range that was
+  /// replaced. The positions are in the old text coordinates (before the edit).
+  /// Since the buffer is already modified, we reconstruct the old positions by:
+  /// - Finding start position using current buffer state (unchanged prefix)
+  /// - Computing end position relative to start using oldText
+  _RangePositions _calculateRangePositions(
+    FileBuffer file,
+    int start,
+    String oldText,
+  ) {
+    // Start line: count newlines in unchanged prefix (text before start)
+    // This works because the prefix hasn't changed
+    final prefixText = start > 0 ? file.text.substring(0, start) : '';
+    final startLine = '\n'.allMatches(prefixText).length;
+
+    // Start character: bytes from last newline in prefix to start
+    final lastNewlineInPrefix = prefixText.lastIndexOf('\n');
+    final startChar = start - (lastNewlineInPrefix + 1);
+
+    // End position: start position + walk through oldText
+    final oldLines = oldText.split('\n');
+    int endLine = startLine;
+    int endChar = startChar;
+
+    if (oldLines.length == 1) {
+      // Single line replacement - just add the length
+      endChar += oldText.length;
+    } else {
+      // Multi-line replacement
+      endLine += oldLines.length - 1;
+      endChar = oldLines.last.length;
+    }
+
+    return _RangePositions(startLine, startChar, endLine, endChar);
   }
 
   /// Invalidate only tokens on lines affected by an edit.
