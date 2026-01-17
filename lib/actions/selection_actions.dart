@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:characters/characters.dart';
+import 'package:vid/actions/text_objects.dart';
 import 'package:vid/selection.dart';
 import 'package:vid/string_ext.dart';
 import 'package:vid/utils.dart';
@@ -43,6 +44,52 @@ class SelectionActions {
     f.selections.removeAt(0);
   }
 
+  /// Select the word under cursor and enter visual mode.
+  /// If cursor is on whitespace, selects the whitespace.
+  static void selectWordUnderCursor(Editor e, FileBuffer f) {
+    final cursor = f.cursor;
+    final wordRange = TextObjects.insideWord(e, f, cursor);
+
+    // Create selection from word range
+    // anchor at start, cursor at end-1 (last char of word)
+    final newCursor = wordRange.end > wordRange.start
+        ? wordRange.end - 1
+        : wordRange.start;
+    f.selections[0] = Selection(wordRange.start, newCursor);
+    f.setMode(e, .visual);
+  }
+
+  /// Select all occurrences of the current selection text.
+  /// If selection is collapsed, selects word under cursor first.
+  /// Works in visual mode.
+  static void selectAllMatchesOfSelection(Editor e, FileBuffer f) {
+    var sel = f.selections.first;
+
+    // If collapsed, select word under cursor first
+    if (sel.isCollapsed) {
+      final wordRange = TextObjects.insideWord(e, f, sel.cursor);
+      if (wordRange.start == wordRange.end) return; // Empty word
+      sel = Selection(
+        wordRange.start,
+        wordRange.end > wordRange.start ? wordRange.end - 1 : wordRange.start,
+      );
+    }
+
+    // Get the selected text
+    final selectedText = f.text.substring(sel.start, sel.end + 1);
+    if (selectedText.isEmpty) return;
+
+    // Find all matches using literal string (escaped for regex)
+    final escaped = RegExp.escape(selectedText);
+    final pattern = RegExp(escaped);
+    final matches = selectAllMatches(f.text, pattern);
+
+    if (matches.isEmpty) return;
+
+    f.selections = matches;
+    f.setMode(e, .visual);
+  }
+
   /// Swap anchor and cursor of primary selection (like 'o' in visual mode).
   static void swapEnds(Editor e, FileBuffer f) {
     final sel = f.selections.first;
@@ -79,6 +126,41 @@ class SelectionActions {
       if (lineNum == cursorLine) continue; // Skip main cursor line
       final lineStart = f.lines[lineNum].start;
       newSelections.add(Selection.collapsed(lineStart));
+    }
+
+    f.selections = newSelections;
+    f.setMode(e, .normal);
+  }
+
+  /// In visual line mode, 'A' converts each line in the selection to a cursor
+  /// at the end of each line (multi-cursor mode).
+  /// The main cursor stays on the line where the cursor currently is.
+  static void visualLineInsertAtLineEnds(Editor e, FileBuffer f) {
+    final sel = f.selections.first;
+    final startLine = f.lineNumber(sel.start);
+    final endLine = f.lineNumber(sel.end);
+    final cursorLine = f.lineNumber(sel.cursor);
+
+    // Create collapsed selection at end of each line (before newline)
+    // Put the cursor's line first (main cursor), then others in order
+    final newSelections = <Selection>[];
+
+    // Main cursor at current cursor's line
+    final mainLine = f.lines[cursorLine];
+    // Position at end of content (before newline), or line start if empty
+    final mainLineEnd = mainLine.end > mainLine.start
+        ? f.prevGrapheme(mainLine.end)
+        : mainLine.start;
+    newSelections.add(Selection.collapsed(mainLineEnd));
+
+    // Add other lines
+    for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
+      if (lineNum == cursorLine) continue; // Skip main cursor line
+      final line = f.lines[lineNum];
+      final lineEnd = line.end > line.start
+          ? f.prevGrapheme(line.end)
+          : line.start;
+      newSelections.add(Selection.collapsed(lineEnd));
     }
 
     f.selections = newSelections;

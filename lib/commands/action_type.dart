@@ -63,7 +63,11 @@ enum ActionType {
   swapEnds,
   nextSelection,
   prevSelection,
+  removeSelection,
+  selectWordUnderCursor,
+  selectAllMatchesOfSelection,
   visualLineInsertAtLineStarts,
+  visualLineInsertAtLineEnds,
 
   // LSP actions
   goToDefinition,
@@ -144,8 +148,13 @@ extension ActionTypeExt on ActionType {
     .swapEnds => SelectionActions.swapEnds,
     .nextSelection => SelectionActions.nextSelection,
     .prevSelection => SelectionActions.prevSelection,
+    .removeSelection => SelectionActions.removeSelection,
+    .selectWordUnderCursor => SelectionActions.selectWordUnderCursor,
+    .selectAllMatchesOfSelection =>
+      SelectionActions.selectAllMatchesOfSelection,
     .visualLineInsertAtLineStarts =>
       SelectionActions.visualLineInsertAtLineStarts,
+    .visualLineInsertAtLineEnds => SelectionActions.visualLineInsertAtLineEnds,
 
     // LSP
     .goToDefinition => LspActions.goToDefinition,

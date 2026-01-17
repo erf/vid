@@ -1536,4 +1536,216 @@ void main() {
       expect(f.selections[0].cursor, 1);
     });
   });
+
+  group('selectWordUnderCursor', () {
+    test('selects word under cursor and enters visual mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 6; // On 'w' of 'world'
+
+      e.input('\x0e'); // Ctrl+N
+
+      expect(f.mode, Mode.visual);
+      expect(f.selections.length, 1);
+      // 'world' is at bytes 6-10, cursor on last char 'd' at 10
+      expect(f.selections[0].anchor, 6);
+      expect(f.selections[0].cursor, 10);
+    });
+
+    test('selects word when cursor is in middle of word', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'testing\n';
+      f.cursor = 3; // On 't' in 'testing'
+
+      e.input('\x0e'); // Ctrl+N
+
+      expect(f.mode, Mode.visual);
+      // 'testing' is at bytes 0-6
+      expect(f.selections[0].anchor, 0);
+      expect(f.selections[0].cursor, 6);
+    });
+
+    test('selects whitespace if cursor is on whitespace', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello   world\n';
+      f.cursor = 6; // On first space
+
+      e.input('\x0e'); // Ctrl+N
+
+      expect(f.mode, Mode.visual);
+      // Whitespace '   ' is at bytes 5-7
+      expect(f.selections[0].anchor, 5);
+      expect(f.selections[0].cursor, 7);
+    });
+  });
+
+  group('selectAllMatchesOfSelection', () {
+    test('selects all matches of current selection in visual mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo bar foo baz foo\n';
+      f.cursor = 0;
+
+      // First select 'foo' manually
+      e.input('v'); // Enter visual mode
+      e.input('ll'); // Select 'foo' (cursor on last 'o')
+      expect(f.mode, Mode.visual);
+      expect(
+        f.text.substring(f.selections[0].start, f.selections[0].end + 1),
+        'foo',
+      );
+
+      e.input('\x01'); // Ctrl+A to select all matches
+
+      expect(f.mode, Mode.visual);
+      expect(f.selections.length, 3);
+      // All 'foo' occurrences
+      expect(f.selections[0], Selection(0, 2));
+      expect(f.selections[1], Selection(8, 10));
+      expect(f.selections[2], Selection(16, 18));
+    });
+
+    test('selects word under cursor first if selection is collapsed', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo bar foo baz foo\n';
+      f.cursor = 0; // On 'f' of first 'foo'
+
+      e.input('v'); // Enter visual mode (collapsed selection)
+      e.input('\x01'); // Ctrl+A
+
+      expect(f.mode, Mode.visual);
+      expect(f.selections.length, 3);
+      // All 'foo' occurrences
+      expect(f.selections[0], Selection(0, 2));
+      expect(f.selections[1], Selection(8, 10));
+      expect(f.selections[2], Selection(16, 18));
+    });
+  });
+
+  group('visualLineInsertAtLineEnds', () {
+    test('creates cursors at end of each selected line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndefgh\nij\n';
+      f.cursor = 0;
+
+      // Select all three lines
+      e.input('V'); // Enter visual line mode
+      e.input('jj'); // Select to third line
+      e.input('A'); // Create cursors at line ends
+
+      expect(f.mode, Mode.normal);
+      expect(f.selections.length, 3);
+      // Cursor positions should be at end of each line (before newline)
+      // Line 0: 'abc' -> cursor on 'c' at offset 2
+      // Line 1: 'defgh' -> cursor on 'h' at offset 8
+      // Line 2: 'ij' -> cursor on 'j' at offset 11
+      // Main cursor should be on line 2 (where cursor ended up)
+      expect(f.selections[0].cursor, 11); // Main cursor on 'j' (line 2)
+      expect(f.selections[1].cursor, 2); // On 'c' (line 0)
+      expect(f.selections[2].cursor, 8); // On 'h' (line 1)
+    });
+
+    test('handles empty lines', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\n\nxyz\n';
+      f.cursor = 0;
+
+      e.input('V'); // Enter visual line mode
+      e.input('jj'); // Select all three lines
+      e.input('A'); // Create cursors at line ends
+
+      expect(f.mode, Mode.normal);
+      expect(f.selections.length, 3);
+      // Line 0: 'abc' -> cursor on 'c' at offset 2
+      // Line 1: '' (empty) -> cursor at line start (offset 4)
+      // Line 2: 'xyz' -> cursor on 'z' at offset 7
+      expect(f.selections[0].cursor, 7); // Main cursor on 'z' (line 2)
+      expect(f.selections[1].cursor, 2); // On 'c' (line 0)
+      expect(f.selections[2].cursor, 4); // Empty line - at line start
+    });
+  });
+
+  group('selection cycling in normal mode', () {
+    test('Tab cycles to next selection in normal mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\nghi\n';
+      f.cursor = 0;
+
+      // Create multiple cursors
+      e.input('\n'); // Add cursor below
+      e.input('\n'); // Add cursor below again
+
+      expect(f.selections.length, 3);
+      final firstCursor = f.selections[0].cursor;
+      final secondCursor = f.selections[1].cursor;
+
+      e.input('\t'); // Tab to cycle
+
+      // First selection should now be at back, second is now first
+      expect(f.selections[0].cursor, secondCursor);
+      expect(f.selections[2].cursor, firstCursor);
+    });
+
+    test('[s and ]s cycle selections in normal mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\nghi\n';
+      f.cursor = 0;
+
+      // Create multiple cursors
+      e.input('\n'); // Add cursor below
+      e.input('\n'); // Add cursor below again
+
+      expect(f.selections.length, 3);
+      final cursors = f.selections.map((s) => s.cursor).toList();
+
+      e.input(']s'); // Next selection
+
+      // Rotated: [1, 2, 0]
+      expect(f.selections[0].cursor, cursors[1]);
+      expect(f.selections[1].cursor, cursors[2]);
+      expect(f.selections[2].cursor, cursors[0]);
+
+      e.input('[s'); // Previous selection
+
+      // Rotated back: [0, 1, 2]
+      expect(f.selections[0].cursor, cursors[0]);
+      expect(f.selections[1].cursor, cursors[1]);
+      expect(f.selections[2].cursor, cursors[2]);
+    });
+  });
 }

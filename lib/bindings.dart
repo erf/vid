@@ -67,6 +67,13 @@ const normalCommands = <String, Command>{
   'V': ActionCommand(.enterVisualLineMode),
   // Escape collapses multi-cursor to single cursor
   Keys.escape: ActionCommand(.escape),
+  // Selection cycling (for multi-cursor) - vim bracket convention
+  ']s': ActionCommand(.nextSelection),
+  '[s': ActionCommand(.prevSelection),
+  Keys.tab: ActionCommand(.nextSelection),
+  Keys.shiftTab: ActionCommand(.prevSelection),
+  // Select word under cursor and enter visual mode
+  Keys.ctrlN: ActionCommand(.selectWordUnderCursor),
 };
 
 const insertBindings = <String, Command>{
@@ -294,6 +301,10 @@ const visualCommands = <String, Command>{
   // Selection cycling (for multi-cursor)
   Keys.tab: ActionCommand(.nextSelection),
   Keys.shiftTab: ActionCommand(.prevSelection),
+  ']s': ActionCommand(.nextSelection),
+  '[s': ActionCommand(.prevSelection),
+  // Select all matches of current selection
+  Keys.ctrlA: ActionCommand(.selectAllMatchesOfSelection),
 };
 
 // Visual line mode bindings - linewise selection
@@ -302,6 +313,14 @@ const visualLineCommands = <String, Command>{
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   'x': OperatorCommand(.delete),
   'I': ActionCommand(.visualLineInsertAtLineStarts),
+  'A': ActionCommand(.visualLineInsertAtLineEnds),
+  // Selection cycling
+  Keys.tab: ActionCommand(.nextSelection),
+  Keys.shiftTab: ActionCommand(.prevSelection),
+  ']s': ActionCommand(.nextSelection),
+  '[s': ActionCommand(.prevSelection),
+  // Select all matches of current selection
+  Keys.ctrlA: ActionCommand(.selectAllMatchesOfSelection),
 };
 
 final keyBindings = <Mode, ModeBindings<Command>>{
