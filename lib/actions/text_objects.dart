@@ -2,10 +2,6 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../range.dart';
 
-/// Text object functions return a Range for operators to act on.
-/// Used for commands like di(, da{, diw, etc.
-typedef TextObjectFunction = Range Function(Editor e, FileBuffer f, int offset);
-
 /// Standard vim text objects: inner/around brackets, quotes, words, etc.
 class TextObjects {
   /// Find matching bracket pair containing offset.

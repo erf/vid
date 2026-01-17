@@ -1,11 +1,14 @@
 import 'package:vid/edit_builder.dart';
 
 import '../actions/operators.dart';
-import '../actions/text_objects.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../modes.dart';
 import '../motions/motion.dart';
+import 'action_type.dart';
+import 'line_edit_type.dart';
+import 'operator_type.dart';
+import 'text_object_type.dart';
 
 abstract class Command {
   const Command();
@@ -16,12 +19,12 @@ abstract class Command {
 /// Command that executes an action without needing the input character.
 /// Use for actions like escape, backspace, enter, etc.
 class ActionCommand extends Command {
-  final void Function(Editor, FileBuffer) action;
+  final ActionType type;
 
-  const ActionCommand(this.action);
+  const ActionCommand(this.type);
 
   @override
-  void execute(Editor e, FileBuffer f, String s) => action(e, f);
+  void execute(Editor e, FileBuffer f, String s) => type.fn(e, f);
 }
 
 /// Command that executes an action with the input character.
@@ -90,30 +93,30 @@ class MotionCommand extends Command {
 
 /// Command that starts an operator (d, c, y, etc.).
 class OperatorCommand extends Command {
-  final OperatorFunction func;
+  final OperatorType type;
 
-  const OperatorCommand(this.func);
+  const OperatorCommand(this.type);
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
     // If there are visual selections, operate on them immediately
-    if (Operators.handleVisualSelections(e, f, func)) {
+    if (Operators.handleVisualSelections(e, f, type.fn)) {
       return;
     }
     // Otherwise, enter operator-pending mode to wait for a motion
     f.setMode(e, .operatorPending);
-    f.edit.op = func;
+    f.edit.op = type.fn;
   }
 }
 
 /// Command that handles repeated operator (dd, yy, cc).
 /// Applies the operator to the current line.
 class OperatorPendingSameCommand extends OperatorCommand {
-  const OperatorPendingSameCommand(super.func);
+  const OperatorPendingSameCommand(super.type);
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
-    if (f.edit.op == func) {
+    if (f.edit.op == type.fn) {
       f.edit.motion = Motion(.linewise, linewise: true);
       e.commitEdit(f.edit.build());
     } else {
@@ -136,15 +139,15 @@ class OperatorEscapeCommand extends Command {
 
 /// Command that executes a line edit command with parsed arguments.
 class LineEditCommand extends Command {
-  final void Function(Editor, FileBuffer, List<String>) action;
+  final LineEditType type;
 
-  const LineEditCommand(this.action);
+  const LineEditCommand(this.type);
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
     final String command = f.input.lineEdit;
     List<String> args = command.split(' ');
-    action(e, f, args);
+    type.fn(e, f, args);
     f.input.lineEdit = '';
   }
 }
@@ -152,9 +155,9 @@ class LineEditCommand extends Command {
 /// Command for text objects (i(, a{, iw, etc.) used in operator-pending mode.
 /// Returns a Range for the operator to act on.
 class TextObjectCommand extends Command {
-  final TextObjectFunction func;
+  final TextObjectType type;
 
-  const TextObjectCommand(this.func);
+  const TextObjectCommand(this.type);
 
   @override
   void execute(Editor e, FileBuffer f, String s) {
@@ -169,7 +172,7 @@ class TextObjectCommand extends Command {
     }
 
     // Get the range from the text object
-    final range = func(e, f, f.cursor);
+    final range = type.fn(e, f, f.cursor);
 
     // If range is empty (no match found), cancel
     if (range.start == range.end) {

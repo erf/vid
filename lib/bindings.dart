@@ -2,91 +2,85 @@ import 'package:termio/termio.dart';
 import 'package:vid/mode_bindings.dart';
 import 'package:vid/motions/motion.dart';
 
-import 'actions/completion_actions.dart';
 import 'actions/insert_actions.dart';
 import 'actions/line_edit.dart';
-import 'actions/normal.dart';
-import 'actions/operators.dart';
 import 'actions/replace_actions.dart';
-import 'actions/selection_actions.dart';
-import 'actions/text_objects.dart';
 import 'commands/command.dart';
-import 'features/lsp/lsp_actions.dart';
 import 'modes.dart';
 import 'popup/popup_actions.dart';
 
 const normalCommands = <String, Command>{
-  'q': ActionCommand(Normal.quit),
+  'q': ActionCommand(.quit),
   'S': AliasCommand('^C'),
-  's': ActionCommand(Normal.save),
+  's': ActionCommand(.save),
   'i': ModeCommand(.insert),
-  'a': ActionCommand(Normal.appendCharNext),
+  'a': ActionCommand(.appendCharNext),
   'A': AliasCommand('\$a'),
   'I': AliasCommand('^i'),
-  Keys.newline: ActionCommand(SelectionActions.addCursorBelow),
-  Keys.ctrlK: ActionCommand(SelectionActions.addCursorAbove),
-  'o': ActionCommand(Normal.openLineBelow),
-  'O': ActionCommand(Normal.openLineAbove),
+  Keys.newline: ActionCommand(.addCursorBelow),
+  Keys.ctrlK: ActionCommand(.addCursorAbove),
+  'o': ActionCommand(.openLineBelow),
+  'O': ActionCommand(.openLineAbove),
   'r': ModeCommand(.replaceSingle),
   'R': ModeCommand(.replace),
   'D': AliasCommand('d\$'),
   'x': AliasCommand('dl'),
   'X': AliasCommand('dh'),
-  'p': ActionCommand(Normal.pasteAfter),
-  'P': ActionCommand(Normal.pasteBefore),
+  'p': ActionCommand(.pasteAfter),
+  'P': ActionCommand(.pasteBefore),
   'Y': AliasCommand('yy'),
-  Keys.ctrlD: ActionCommand(Normal.moveDownHalfPage),
-  Keys.ctrlU: ActionCommand(Normal.moveUpHalfPage),
-  'J': ActionCommand(Normal.joinLines),
+  Keys.ctrlD: ActionCommand(.moveDownHalfPage),
+  Keys.ctrlU: ActionCommand(.moveUpHalfPage),
+  'J': ActionCommand(.joinLines),
   'C': AliasCommand('c\$'),
-  'u': ActionCommand(Normal.undo),
-  'U': ActionCommand(Normal.redo),
-  '~': ActionCommand(Normal.toggleCaseUnderCursor),
-  '.': ActionCommand(Normal.repeat),
-  ';': ActionCommand(Normal.repeatFindStr),
-  ',': ActionCommand(Normal.repeatFindStrReverse),
-  'n': ActionCommand(Normal.repeatFindStr),
-  'N': ActionCommand(Normal.repeatFindStrReverse),
-  Keys.ctrlA: ActionCommand(Normal.increase),
-  Keys.ctrlX: ActionCommand(Normal.decrease),
+  'u': ActionCommand(.undo),
+  'U': ActionCommand(.redo),
+  '~': ActionCommand(.toggleCaseUnderCursor),
+  '.': ActionCommand(.repeat),
+  ';': ActionCommand(.repeatFindStr),
+  ',': ActionCommand(.repeatFindStrReverse),
+  'n': ActionCommand(.repeatFindStr),
+  'N': ActionCommand(.repeatFindStrReverse),
+  Keys.ctrlA: ActionCommand(.increase),
+  Keys.ctrlX: ActionCommand(.decrease),
   ':': ModeCommand(.command),
   '/': ModeCommand(.search),
   '?': ModeCommand(.searchBackward),
-  Keys.ctrlW: ActionCommand(Normal.toggleWrap),
-  Keys.ctrlP: ActionCommand(Normal.openFilePicker),
-  Keys.ctrlF: ActionCommand(Normal.openBufferSelector),
-  Keys.ctrlT: ActionCommand(Normal.openThemeSelector),
-  Keys.ctrlE: ActionCommand(Normal.openDiagnostics),
-  'zz': ActionCommand(Normal.centerView),
-  'zt': ActionCommand(Normal.topView),
-  'zb': ActionCommand(Normal.bottomView),
-  'zh': ActionCommand(Normal.toggleSyntax),
+  Keys.ctrlW: ActionCommand(.toggleWrap),
+  Keys.ctrlP: ActionCommand(.openFilePicker),
+  Keys.ctrlF: ActionCommand(.openBufferSelector),
+  Keys.ctrlT: ActionCommand(.openThemeSelector),
+  Keys.ctrlE: ActionCommand(.openDiagnostics),
+  'zz': ActionCommand(.centerView),
+  'zt': ActionCommand(.topView),
+  'zb': ActionCommand(.bottomView),
+  'zh': ActionCommand(.toggleSyntax),
   // LSP commands
-  'gd': ActionCommand(LspActions.goToDefinition),
-  'gr': ActionCommand(LspActions.findReferences),
-  'gR': ActionCommand(LspActions.rename),
-  Keys.ctrlR: ActionCommand(LspActions.findReferences),
-  'K': ActionCommand(LspActions.hover),
-  'go': ActionCommand(LspActions.jumpBack),
-  'gi': ActionCommand(LspActions.jumpForward),
-  'v': ActionCommand(Normal.enterVisualMode),
-  'V': ActionCommand(Normal.enterVisualLineMode),
+  'gd': ActionCommand(.goToDefinition),
+  'gr': ActionCommand(.findReferences),
+  'gR': ActionCommand(.lspRename),
+  Keys.ctrlR: ActionCommand(.findReferences),
+  'K': ActionCommand(.hover),
+  'go': ActionCommand(.jumpBack),
+  'gi': ActionCommand(.jumpForward),
+  'v': ActionCommand(.enterVisualMode),
+  'V': ActionCommand(.enterVisualLineMode),
   // Escape collapses multi-cursor to single cursor
-  Keys.escape: ActionCommand(Normal.escape),
+  Keys.escape: ActionCommand(.escape),
 };
 
 const insertBindings = <String, Command>{
-  Keys.backspace: ActionCommand(InsertActions.backspace),
-  Keys.newline: ActionCommand(InsertActions.enter),
-  Keys.escape: ActionCommand(InsertActions.escape),
-  Keys.ctrlN: ActionCommand(CompletionActions.showCompletion),
-  Keys.ctrlP: ActionCommand(CompletionActions.showCompletion),
+  Keys.backspace: ActionCommand(.insertBackspace),
+  Keys.newline: ActionCommand(.insertEnter),
+  Keys.escape: ActionCommand(.insertEscape),
+  Keys.ctrlN: ActionCommand(.showCompletion),
+  Keys.ctrlP: ActionCommand(.showCompletion),
 };
 const insertFallback = InputCommand(InsertActions.insert);
 
 const replaceBindings = <String, Command>{
-  Keys.escape: ActionCommand(ReplaceActions.escape),
-  Keys.backspace: ActionCommand(ReplaceActions.backspace),
+  Keys.escape: ActionCommand(.replaceEscape),
+  Keys.backspace: ActionCommand(.replaceBackspace),
 };
 const replaceFallback = InputCommand(ReplaceActions.replace);
 
@@ -140,174 +134,174 @@ final motionCommands = <String, Command>{
 };
 
 const operatorCommands = <String, Command>{
-  'c': OperatorCommand(Operators.change),
-  'd': OperatorCommand(Operators.delete),
-  'y': OperatorCommand(Operators.yank),
-  'gu': OperatorCommand(Operators.lowerCase),
-  'gU': OperatorCommand(Operators.upperCase),
+  'c': OperatorCommand(.change),
+  'd': OperatorCommand(.delete),
+  'y': OperatorCommand(.yank),
+  'gu': OperatorCommand(.lowerCase),
+  'gU': OperatorCommand(.upperCase),
 };
 
 const operatorPendingSameCommands = <String, Command>{
-  'c': OperatorPendingSameCommand(Operators.change),
-  'd': OperatorPendingSameCommand(Operators.delete),
-  'y': OperatorPendingSameCommand(Operators.yank),
+  'c': OperatorPendingSameCommand(.change),
+  'd': OperatorPendingSameCommand(.delete),
+  'y': OperatorPendingSameCommand(.yank),
 };
 
 // Text objects for use in operator-pending mode (di(, da{, ciw, etc.)
 const textObjectCommands = <String, Command>{
   // Parentheses
-  'i(': TextObjectCommand(TextObjects.insideParens),
-  'i)': TextObjectCommand(TextObjects.insideParens),
-  'ib': TextObjectCommand(TextObjects.insideParens),
-  'a(': TextObjectCommand(TextObjects.aroundParens),
-  'a)': TextObjectCommand(TextObjects.aroundParens),
-  'ab': TextObjectCommand(TextObjects.aroundParens),
+  'i(': TextObjectCommand(.insideParens),
+  'i)': TextObjectCommand(.insideParens),
+  'ib': TextObjectCommand(.insideParens),
+  'a(': TextObjectCommand(.aroundParens),
+  'a)': TextObjectCommand(.aroundParens),
+  'ab': TextObjectCommand(.aroundParens),
   // Braces
-  'i{': TextObjectCommand(TextObjects.insideBraces),
-  'i}': TextObjectCommand(TextObjects.insideBraces),
-  'iB': TextObjectCommand(TextObjects.insideBraces),
-  'a{': TextObjectCommand(TextObjects.aroundBraces),
-  'a}': TextObjectCommand(TextObjects.aroundBraces),
-  'aB': TextObjectCommand(TextObjects.aroundBraces),
+  'i{': TextObjectCommand(.insideBraces),
+  'i}': TextObjectCommand(.insideBraces),
+  'iB': TextObjectCommand(.insideBraces),
+  'a{': TextObjectCommand(.aroundBraces),
+  'a}': TextObjectCommand(.aroundBraces),
+  'aB': TextObjectCommand(.aroundBraces),
   // Brackets
-  'i[': TextObjectCommand(TextObjects.insideBrackets),
-  'i]': TextObjectCommand(TextObjects.insideBrackets),
-  'a[': TextObjectCommand(TextObjects.aroundBrackets),
-  'a]': TextObjectCommand(TextObjects.aroundBrackets),
+  'i[': TextObjectCommand(.insideBrackets),
+  'i]': TextObjectCommand(.insideBrackets),
+  'a[': TextObjectCommand(.aroundBrackets),
+  'a]': TextObjectCommand(.aroundBrackets),
   // Angle brackets
-  'i<': TextObjectCommand(TextObjects.insideAngleBrackets),
-  'i>': TextObjectCommand(TextObjects.insideAngleBrackets),
-  'a<': TextObjectCommand(TextObjects.aroundAngleBrackets),
-  'a>': TextObjectCommand(TextObjects.aroundAngleBrackets),
+  'i<': TextObjectCommand(.insideAngleBrackets),
+  'i>': TextObjectCommand(.insideAngleBrackets),
+  'a<': TextObjectCommand(.aroundAngleBrackets),
+  'a>': TextObjectCommand(.aroundAngleBrackets),
   // Quotes
-  'i"': TextObjectCommand(TextObjects.insideDoubleQuote),
-  'a"': TextObjectCommand(TextObjects.aroundDoubleQuote),
-  "i'": TextObjectCommand(TextObjects.insideSingleQuote),
-  "a'": TextObjectCommand(TextObjects.aroundSingleQuote),
-  'i`': TextObjectCommand(TextObjects.insideBacktick),
-  'a`': TextObjectCommand(TextObjects.aroundBacktick),
+  'i"': TextObjectCommand(.insideDoubleQuote),
+  'a"': TextObjectCommand(.aroundDoubleQuote),
+  "i'": TextObjectCommand(.insideSingleQuote),
+  "a'": TextObjectCommand(.aroundSingleQuote),
+  'i`': TextObjectCommand(.insideBacktick),
+  'a`': TextObjectCommand(.aroundBacktick),
   // Word
-  'iw': TextObjectCommand(TextObjects.insideWord),
-  'aw': TextObjectCommand(TextObjects.aroundWord),
-  'iW': TextObjectCommand(TextObjects.insideWORD),
-  'aW': TextObjectCommand(TextObjects.aroundWORD),
+  'iw': TextObjectCommand(.insideWord),
+  'aw': TextObjectCommand(.aroundWord),
+  'iW': TextObjectCommand(.insideWORD),
+  'aW': TextObjectCommand(.aroundWORD),
   // Sentence
-  'is': TextObjectCommand(TextObjects.insideSentence),
-  'as': TextObjectCommand(TextObjects.aroundSentence),
+  'is': TextObjectCommand(.insideSentence),
+  'as': TextObjectCommand(.aroundSentence),
   // Paragraph
-  'ip': TextObjectCommand(TextObjects.insideParagraph),
-  'ap': TextObjectCommand(TextObjects.aroundParagraph),
+  'ip': TextObjectCommand(.insideParagraph),
+  'ap': TextObjectCommand(.aroundParagraph),
 };
 
 const lineEditCommands = <String, LineEditCommand>{
-  '': LineEditCommand(LineEdit.noop),
-  'q': LineEditCommand(LineEdit.quit),
-  'quit': LineEditCommand(LineEdit.quit),
-  'q!': LineEditCommand(LineEdit.forceQuit),
-  'quit!': LineEditCommand(LineEdit.forceQuit),
-  'o': LineEditCommand(LineEdit.open),
-  'open': LineEditCommand(LineEdit.open),
-  'e': LineEditCommand(LineEdit.open),
-  'edit': LineEditCommand(LineEdit.open),
-  'r': LineEditCommand(LineEdit.read),
-  'read': LineEditCommand(LineEdit.read),
-  'w': LineEditCommand(LineEdit.write),
-  'write': LineEditCommand(LineEdit.write),
-  'wq': LineEditCommand(LineEdit.writeAndQuit),
-  'x': LineEditCommand(LineEdit.writeAndQuit),
-  'exit': LineEditCommand(LineEdit.writeAndQuit),
-  'nowrap': LineEditCommand(LineEdit.setNoWrap),
-  'charwrap': LineEditCommand(LineEdit.setCharWrap),
-  'wordwrap': LineEditCommand(LineEdit.setWordWrap),
+  '': LineEditCommand(.noop),
+  'q': LineEditCommand(.quit),
+  'quit': LineEditCommand(.quit),
+  'q!': LineEditCommand(.forceQuit),
+  'quit!': LineEditCommand(.forceQuit),
+  'o': LineEditCommand(.open),
+  'open': LineEditCommand(.open),
+  'e': LineEditCommand(.open),
+  'edit': LineEditCommand(.open),
+  'r': LineEditCommand(.read),
+  'read': LineEditCommand(.read),
+  'w': LineEditCommand(.write),
+  'write': LineEditCommand(.write),
+  'wq': LineEditCommand(.writeAndQuit),
+  'x': LineEditCommand(.writeAndQuit),
+  'exit': LineEditCommand(.writeAndQuit),
+  'nowrap': LineEditCommand(.setNoWrap),
+  'charwrap': LineEditCommand(.setCharWrap),
+  'wordwrap': LineEditCommand(.setWordWrap),
   // Buffer commands
-  'bn': LineEditCommand(BufferCommands.nextBuffer),
-  'bnext': LineEditCommand(BufferCommands.nextBuffer),
-  'bp': LineEditCommand(BufferCommands.prevBuffer),
-  'bprev': LineEditCommand(BufferCommands.prevBuffer),
-  'bprevious': LineEditCommand(BufferCommands.prevBuffer),
-  'b': LineEditCommand(BufferCommands.switchToBuffer),
-  'buffer': LineEditCommand(BufferCommands.switchToBuffer),
-  'bd': LineEditCommand(BufferCommands.closeBuffer),
-  'bdelete': LineEditCommand(BufferCommands.closeBuffer),
-  'bd!': LineEditCommand(BufferCommands.forceCloseBuffer),
-  'bdelete!': LineEditCommand(BufferCommands.forceCloseBuffer),
-  'ls': LineEditCommand(BufferCommands.listBuffers),
-  'buffers': LineEditCommand(BufferCommands.listBuffers),
-  'buf': LineEditCommand(BufferCommands.listBuffers),
+  'bn': LineEditCommand(.nextBuffer),
+  'bnext': LineEditCommand(.nextBuffer),
+  'bp': LineEditCommand(.prevBuffer),
+  'bprev': LineEditCommand(.prevBuffer),
+  'bprevious': LineEditCommand(.prevBuffer),
+  'b': LineEditCommand(.switchToBuffer),
+  'buffer': LineEditCommand(.switchToBuffer),
+  'bd': LineEditCommand(.closeBuffer),
+  'bdelete': LineEditCommand(.closeBuffer),
+  'bd!': LineEditCommand(.forceCloseBuffer),
+  'bdelete!': LineEditCommand(.forceCloseBuffer),
+  'ls': LineEditCommand(.listBuffers),
+  'buffers': LineEditCommand(.listBuffers),
+  'buf': LineEditCommand(.listBuffers),
   // LSP commands
-  'lsp': LineEditCommand(LspCommands.lsp),
-  'diagnostics': LineEditCommand(LspCommands.diagnostics),
-  'd': LineEditCommand(LspCommands.diagnostics),
-  'da': LineEditCommand(LspCommands.diagnosticsAll),
-  'rename': LineEditCommand(LspCommands.rename),
+  'lsp': LineEditCommand(.lsp),
+  'diagnostics': LineEditCommand(.diagnostics),
+  'd': LineEditCommand(.diagnostics),
+  'da': LineEditCommand(.diagnosticsAll),
+  'rename': LineEditCommand(.lspRename),
   // Selection commands
-  's': LineEditCommand(LineEdit.select),
-  'sel': LineEditCommand(LineEdit.select),
-  'select': LineEditCommand(LineEdit.select),
-  'selclear': LineEditCommand(LineEdit.selectClear),
+  's': LineEditCommand(.select),
+  'sel': LineEditCommand(.select),
+  'select': LineEditCommand(.select),
+  'selclear': LineEditCommand(.selectClear),
   // Popup commands
-  'themes': LineEditCommand(PopupCommands.themes),
-  'theme': LineEditCommand(PopupCommands.themes),
-  'th': LineEditCommand(PopupCommands.themes),
-  'files': LineEditCommand(PopupCommands.files),
-  'browse': LineEditCommand(PopupCommands.files),
-  'f': LineEditCommand(PopupCommands.files),
-  'ref': LineEditCommand(PopupCommands.references),
-  'references': LineEditCommand(PopupCommands.references),
+  'themes': LineEditCommand(.themes),
+  'theme': LineEditCommand(.themes),
+  'th': LineEditCommand(.themes),
+  'files': LineEditCommand(.files),
+  'browse': LineEditCommand(.files),
+  'f': LineEditCommand(.files),
+  'ref': LineEditCommand(.references),
+  'references': LineEditCommand(.references),
 };
 
 const lineEditInputBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
-  Keys.backspace: ActionCommand(LineEditInput.backspace),
-  Keys.newline: ActionCommand(LineEditInput.executeCommand),
+  Keys.backspace: ActionCommand(.lineEditBackspace),
+  Keys.newline: ActionCommand(.lineEditExecuteCommand),
 };
 const lineEditInputFallback = InputCommand(LineEditInput.input);
 
 const lineEditSearchBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
-  Keys.backspace: ActionCommand(LineEditInput.backspace),
-  Keys.newline: ActionCommand(LineEditInput.executeSearch),
+  Keys.backspace: ActionCommand(.lineEditBackspace),
+  Keys.newline: ActionCommand(.lineEditExecuteSearch),
 };
 const lineEditSearchFallback = InputCommand(LineEditInput.input);
 
 const lineEditSearchBackwardBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
-  Keys.backspace: ActionCommand(LineEditInput.backspace),
-  Keys.newline: ActionCommand(LineEditInput.executeSearchBackward),
+  Keys.backspace: ActionCommand(.lineEditBackspace),
+  Keys.newline: ActionCommand(.lineEditExecuteSearchBackward),
 };
 const lineEditSearchBackwardFallback = InputCommand(LineEditInput.input);
 
 const popupBindings = <String, Command>{
-  Keys.escape: ActionCommand(PopupActions.cancel),
-  Keys.newline: ActionCommand(PopupActions.select),
-  Keys.ctrlN: ActionCommand(PopupActions.moveDown),
-  Keys.ctrlP: ActionCommand(PopupActions.moveUp),
-  Keys.arrowDown: ActionCommand(PopupActions.moveDown),
-  Keys.arrowUp: ActionCommand(PopupActions.moveUp),
-  Keys.backspace: ActionCommand(PopupActions.filterBackspace),
-  Keys.ctrlD: ActionCommand(PopupActions.pageDown),
-  Keys.ctrlU: ActionCommand(PopupActions.pageUp),
+  Keys.escape: ActionCommand(.popupCancel),
+  Keys.newline: ActionCommand(.popupSelect),
+  Keys.ctrlN: ActionCommand(.popupMoveDown),
+  Keys.ctrlP: ActionCommand(.popupMoveUp),
+  Keys.arrowDown: ActionCommand(.popupMoveDown),
+  Keys.arrowUp: ActionCommand(.popupMoveUp),
+  Keys.backspace: ActionCommand(.popupFilterBackspace),
+  Keys.ctrlD: ActionCommand(.popupPageDown),
+  Keys.ctrlU: ActionCommand(.popupPageUp),
 };
 const popupFallback = InputCommand(PopupActions.filterInput);
 
 // Visual mode bindings - single or multiple selections from cursor
 // Supports multi-cursor workflow with Tab/Shift+Tab to cycle selections
 const visualCommands = <String, Command>{
-  Keys.escape: ActionCommand(SelectionActions.escapeVisual),
-  'o': ActionCommand(SelectionActions.swapEnds), // Swap anchor/cursor
+  Keys.escape: ActionCommand(.escapeVisual),
+  'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   // Override x to directly delete (normal mode x is 'dl' alias, which causes issues)
-  'x': OperatorCommand(Operators.delete),
+  'x': OperatorCommand(.delete),
   // Selection cycling (for multi-cursor)
-  Keys.tab: ActionCommand(SelectionActions.nextSelection),
-  Keys.shiftTab: ActionCommand(SelectionActions.prevSelection),
+  Keys.tab: ActionCommand(.nextSelection),
+  Keys.shiftTab: ActionCommand(.prevSelection),
 };
 
 // Visual line mode bindings - linewise selection
 const visualLineCommands = <String, Command>{
-  Keys.escape: ActionCommand(SelectionActions.escapeVisualLine),
-  'o': ActionCommand(SelectionActions.swapEnds), // Swap anchor/cursor
-  'x': OperatorCommand(Operators.delete),
-  'I': ActionCommand(SelectionActions.visualLineInsertAtLineStarts),
+  Keys.escape: ActionCommand(.escapeVisualLine),
+  'o': ActionCommand(.swapEnds), // Swap anchor/cursor
+  'x': OperatorCommand(.delete),
+  'I': ActionCommand(.visualLineInsertAtLineStarts),
 };
 
 final keyBindings = <Mode, ModeBindings<Command>>{
