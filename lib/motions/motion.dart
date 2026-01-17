@@ -150,8 +150,8 @@ class Motion {
   /// Whether this motion operates on whole lines (e.g., j, k, gg, G).
   final bool linewise;
 
-  /// Execute this motion - makes Motion callable
-  int call(Editor e, FileBuffer f, int offset) => type.fn(e, f, offset);
+  /// Execute this motion
+  MotionFunction get fn => type.fn;
 
   /// Returns the reversed motion, or null if not reversible
   Motion? get reversed {

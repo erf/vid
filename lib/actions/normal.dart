@@ -456,7 +456,7 @@ class Normal {
     // Execute the motion count times
     var newPos = f.cursor;
     for (int i = 0; i < prev.count; i++) {
-      newPos = reversedMotion(e, f, newPos);
+      newPos = reversedMotion.fn(e, f, newPos);
     }
     f.cursor = newPos;
     f.edit.reset();
