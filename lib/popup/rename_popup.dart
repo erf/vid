@@ -149,6 +149,7 @@ class RenamePopup {
         allItems: items,
         items: items, // All items always visible
         filterText: currentName, // Pre-fill with current name
+        filterCursor: currentName.length, // Cursor at end of pre-filled text
         showFilter: true,
         customFilter: noFilter,
         onSelect: (item) {

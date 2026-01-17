@@ -107,4 +107,28 @@ class PopupActions {
       _notifyHighlight(e);
     }
   }
+
+  /// Move filter cursor left (Left arrow).
+  static void filterCursorLeft(Editor e, FileBuffer f) {
+    if (e.popup == null) return;
+    e.popup = e.popup!.moveFilterCursorLeft();
+  }
+
+  /// Move filter cursor right (Right arrow).
+  static void filterCursorRight(Editor e, FileBuffer f) {
+    if (e.popup == null) return;
+    e.popup = e.popup!.moveFilterCursorRight();
+  }
+
+  /// Move filter cursor to start (Home, Ctrl+A).
+  static void filterCursorToStart(Editor e, FileBuffer f) {
+    if (e.popup == null) return;
+    e.popup = e.popup!.moveFilterCursorToStart();
+  }
+
+  /// Move filter cursor to end (End, Ctrl+E).
+  static void filterCursorToEnd(Editor e, FileBuffer f) {
+    if (e.popup == null) return;
+    e.popup = e.popup!.moveFilterCursorToEnd();
+  }
 }

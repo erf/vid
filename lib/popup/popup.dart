@@ -71,6 +71,9 @@ class PopupState<T> {
   /// Current filter text.
   final String filterText;
 
+  /// Cursor position within filter text (byte offset).
+  final int filterCursor;
+
   /// Callback when an item is selected.
   final PopupSelectCallback<T>? onSelect;
 
@@ -99,6 +102,7 @@ class PopupState<T> {
     this.selectedIndex = 0,
     this.scrollOffset = 0,
     this.filterText = '',
+    this.filterCursor = 0,
     this.onSelect,
     this.onHighlight,
     this.onCancel,
@@ -127,6 +131,7 @@ class PopupState<T> {
       selectedIndex: 0,
       scrollOffset: 0,
       filterText: '',
+      filterCursor: 0,
       onSelect: onSelect,
       onHighlight: onHighlight,
       onCancel: onCancel,
@@ -167,6 +172,7 @@ class PopupState<T> {
     int? selectedIndex,
     int? scrollOffset,
     String? filterText,
+    int? filterCursor,
     PopupSelectCallback<T>? onSelect,
     PopupSelectCallback<T>? onHighlight,
     PopupCancelCallback? onCancel,
@@ -182,6 +188,7 @@ class PopupState<T> {
       selectedIndex: selectedIndex ?? this.selectedIndex,
       scrollOffset: scrollOffset ?? this.scrollOffset,
       filterText: filterText ?? this.filterText,
+      filterCursor: filterCursor ?? this.filterCursor,
       onSelect: onSelect ?? this.onSelect,
       onHighlight: onHighlight ?? this.onHighlight,
       onCancel: onCancel ?? this.onCancel,
@@ -263,25 +270,57 @@ class PopupState<T> {
   }
 
   /// Update filter and re-filter items.
-  PopupState<T> setFilter(String newFilter) {
+  PopupState<T> setFilter(String newFilter, {int? cursor}) {
     final filteredItems = _filterItems(newFilter);
     return copyWith(
       filterText: newFilter,
+      filterCursor: cursor ?? newFilter.length,
       items: filteredItems,
       selectedIndex: 0,
       scrollOffset: 0,
     );
   }
 
-  /// Add character to filter.
+  /// Add character to filter at cursor position.
   PopupState<T> addFilterChar(String char) {
-    return setFilter(filterText + char);
+    final newText =
+        filterText.substring(0, filterCursor) +
+        char +
+        filterText.substring(filterCursor);
+    return setFilter(newText, cursor: filterCursor + char.length);
   }
 
-  /// Remove last character from filter.
+  /// Remove character before cursor from filter.
   PopupState<T> removeFilterChar() {
-    if (filterText.isEmpty) return this;
-    return setFilter(filterText.substring(0, filterText.length - 1));
+    if (filterText.isEmpty || filterCursor == 0) return this;
+    final newText =
+        filterText.substring(0, filterCursor - 1) +
+        filterText.substring(filterCursor);
+    return setFilter(newText, cursor: filterCursor - 1);
+  }
+
+  /// Move filter cursor left.
+  PopupState<T> moveFilterCursorLeft() {
+    if (filterCursor == 0) return this;
+    return copyWith(filterCursor: filterCursor - 1);
+  }
+
+  /// Move filter cursor right.
+  PopupState<T> moveFilterCursorRight() {
+    if (filterCursor >= filterText.length) return this;
+    return copyWith(filterCursor: filterCursor + 1);
+  }
+
+  /// Move filter cursor to start.
+  PopupState<T> moveFilterCursorToStart() {
+    if (filterCursor == 0) return this;
+    return copyWith(filterCursor: 0);
+  }
+
+  /// Move filter cursor to end.
+  PopupState<T> moveFilterCursorToEnd() {
+    if (filterCursor >= filterText.length) return this;
+    return copyWith(filterCursor: filterText.length);
   }
 
   /// Filter items based on filter text.

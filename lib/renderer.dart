@@ -1011,7 +1011,7 @@ class Renderer {
           1 +
           innerPadding +
           2 +
-          popup.filterText.length; // after padding + "> "
+          popup.filterCursor; // after padding + "> "
       final cursorY = top + 2 + maxVisible;
       buffer.write(Ansi.cursorStyle(CursorStyle.steadyBar));
       buffer.write(Ansi.cursor(x: cursorX, y: cursorY));

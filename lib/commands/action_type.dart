@@ -89,6 +89,10 @@ enum ActionType {
   popupMoveDown,
   popupMoveUp,
   popupFilterBackspace,
+  popupFilterCursorLeft,
+  popupFilterCursorRight,
+  popupFilterCursorToStart,
+  popupFilterCursorToEnd,
   popupPageDown,
   popupPageUp,
 }
@@ -176,6 +180,10 @@ extension ActionTypeExt on ActionType {
     .popupMoveDown => PopupActions.moveDown,
     .popupMoveUp => PopupActions.moveUp,
     .popupFilterBackspace => PopupActions.filterBackspace,
+    .popupFilterCursorLeft => PopupActions.filterCursorLeft,
+    .popupFilterCursorRight => PopupActions.filterCursorRight,
+    .popupFilterCursorToStart => PopupActions.filterCursorToStart,
+    .popupFilterCursorToEnd => PopupActions.filterCursorToEnd,
     .popupPageDown => PopupActions.pageDown,
     .popupPageUp => PopupActions.pageUp,
   };
