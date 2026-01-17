@@ -167,27 +167,25 @@ class Renderer {
     if (file.mode case .command || .search || .searchBackward) {
       _drawLineEdit(file);
     } else if (file.mode == .popup && popup != null) {
-      _drawStatus(
+      if (message != null) _drawMessage(message);
+      _drawStatusBar(
         file,
         config,
         cursorLine,
-        message,
         bufferIndex,
         bufferCount,
         diagnosticCount,
-        cursorScreenRow: layout.cursorScreenRow,
       );
       _drawPopup(popup, config);
     } else {
-      _drawStatus(
+      if (message != null) _drawMessage(message);
+      _drawStatusBar(
         file,
         config,
         cursorLine,
-        message,
         bufferIndex,
         bufferCount,
         diagnosticCount,
-        cursorScreenRow: layout.cursorScreenRow,
       );
       _drawCursor(
         config,
@@ -1013,37 +1011,34 @@ class Renderer {
     buffer.write(Ansi.cursor(x: cursor, y: terminal.height));
   }
 
-  void _drawStatus(
+  /// Draw message above status bar.
+  void _drawMessage(Message message) {
+    final msgText = ' ${message.text} ';
+    final msgLines = (msgText.length / terminal.width).ceil().clamp(1, 5);
+    final msgRow = terminal.height - msgLines;
+
+    buffer.write(Ansi.cursor(x: 1, y: msgRow));
+    switch (message.type) {
+      case .info:
+        buffer.write(Ansi.fg(Color.green));
+      case .error:
+        buffer.write(Ansi.fg(Color.red));
+    }
+    buffer.write(Ansi.inverse(true));
+    buffer.write(msgText);
+    buffer.write(Ansi.inverse(false));
+    highlighter.theme.resetCode(buffer);
+  }
+
+  /// Draw status bar at bottom of screen.
+  void _drawStatusBar(
     FileBuffer file,
     Config config,
     int cursorLine,
-    Message? message,
     int bufferIndex,
     int bufferCount,
-    int diagnosticCount, {
-    int cursorScreenRow = 1,
-  }) {
-    // Draw message above status bar
-    if (message != null) {
-      final msgText = ' ${message.text} ';
-      final msgLines = (msgText.length / terminal.width).ceil().clamp(1, 5);
-      final msgRow = terminal.height - msgLines;
-
-      // Set message color with background
-      buffer.write(Ansi.cursor(x: 1, y: msgRow));
-      switch (message.type) {
-        case .info:
-          buffer.write(Ansi.fg(Color.green));
-        case .error:
-          buffer.write(Ansi.fg(Color.red));
-      }
-      buffer.write(Ansi.inverse(true));
-      buffer.write(msgText);
-      buffer.write(Ansi.inverse(false));
-      highlighter.theme.resetCode(buffer);
-    }
-
-    // Draw status bar last (always visible at bottom)
+    int diagnosticCount,
+  ) {
     buffer.write(Ansi.inverse(true));
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
 
