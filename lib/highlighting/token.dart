@@ -110,6 +110,9 @@ class SemanticTokenTypes {
       regexp => TokenType.regexp,
       operator => TokenType.operator,
       decorator => TokenType.decorator,
+      // Dart Analysis Server custom types
+      'boolean' => TokenType.literal,
+      'annotation' => TokenType.decorator,
       _ => TokenType.plain,
     };
   }
