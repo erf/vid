@@ -121,13 +121,13 @@ void main() {
     f.deleteAt(0, config: e.config); // removes emoji (👩‍👩‍👦‍👦)
     f.replaceAt(0, 'X', config: e.config); // replaces 'f'
     expect(f.text, 'X\nghi\n');
-    NormalActions.undo(e, f);
+    const Undo()(e, f);
     expect(f.text, 'f\nghi\n');
-    NormalActions.undo(e, f);
+    const Undo()(e, f);
     expect(f.text, '👩‍👩‍👦‍👦f\nghi\n');
-    NormalActions.undo(e, f);
+    const Undo()(e, f);
     expect(f.text, 'd👩‍👩‍👦‍👦f\nghi\n');
-    NormalActions.undo(e, f);
+    const Undo()(e, f);
     expect(f.text, 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
   });
 

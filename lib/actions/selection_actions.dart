@@ -1,54 +1,71 @@
-import 'dart:math';
-
-import 'package:characters/characters.dart';
 import 'package:vid/actions/text_object_actions.dart';
 import 'package:vid/selection.dart';
-import 'package:vid/string_ext.dart';
-import 'package:vid/utils.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../types/action_base.dart';
 
-/// Actions for visual mode (single or multi-selection).
-class SelectionActions {
-  /// Exit visual mode, collapse selections to multiple cursors (collapsed selections).
-  /// This preserves cursor positions while removing visual selection ranges.
-  static void escapeVisual(Editor e, FileBuffer f) {
+/// Exit visual mode, collapse selections to multiple cursors (collapsed selections).
+class EscapeVisual extends Action {
+  const EscapeVisual();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     f.selections = f.selections.map((s) => s.collapse()).toList();
     f.setMode(e, .normal);
   }
+}
 
-  /// Cycle to next selection (make it primary).
-  static void nextSelection(Editor e, FileBuffer f) {
+/// Cycle to next selection (make it primary).
+class NextSelection extends Action {
+  const NextSelection();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) return;
     // Rotate list: move first to end
     final first = f.selections.removeAt(0);
     f.selections.add(first);
   }
+}
 
-  /// Cycle to previous selection (make it primary).
-  static void prevSelection(Editor e, FileBuffer f) {
+/// Cycle to previous selection (make it primary).
+class PrevSelection extends Action {
+  const PrevSelection();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) return;
     // Rotate list: move last to front
     final last = f.selections.removeLast();
     f.selections.insert(0, last);
   }
+}
 
-  /// Remove the primary (first) selection.
-  static void removeSelection(Editor e, FileBuffer f) {
+/// Remove the primary (first) selection.
+class RemoveSelection extends Action {
+  const RemoveSelection();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) {
       // Can't remove last selection, just escape
-      escapeVisual(e, f);
+      const EscapeVisual()(e, f);
       return;
     }
     f.selections.removeAt(0);
   }
+}
 
-  /// Select the word under cursor and enter visual mode.
-  /// If cursor is on whitespace, selects the whitespace.
-  static void selectWordUnderCursor(Editor e, FileBuffer f) {
+/// Select the word under cursor and enter visual mode.
+/// If cursor is on whitespace, selects the whitespace.
+class SelectWordUnderCursor extends Action {
+  const SelectWordUnderCursor();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final cursor = f.cursor;
-    final wordRange = TextObjectActions.insideWord(e, f, cursor);
+    final wordRange = const InsideWord()(e, f, cursor);
 
     // Create selection from word range
     // anchor at start, cursor at end-1 (last char of word)
@@ -58,16 +75,21 @@ class SelectionActions {
     f.selections[0] = Selection(wordRange.start, newCursor);
     f.setMode(e, .visual);
   }
+}
 
-  /// Select all occurrences of the current selection text.
-  /// If selection is collapsed, selects word under cursor first.
-  /// Works in visual mode.
-  static void selectAllMatchesOfSelection(Editor e, FileBuffer f) {
+/// Select all occurrences of the current selection text.
+/// If selection is collapsed, selects word under cursor first.
+/// Works in visual mode.
+class SelectAllMatchesOfSelection extends Action {
+  const SelectAllMatchesOfSelection();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     var sel = f.selections.first;
 
     // If collapsed, select word under cursor first
     if (sel.isCollapsed) {
-      final wordRange = TextObjectActions.insideWord(e, f, sel.cursor);
+      final wordRange = const InsideWord()(e, f, sel.cursor);
       if (wordRange.start == wordRange.end) return; // Empty word
       sel = Selection(
         wordRange.start,
@@ -89,25 +111,38 @@ class SelectionActions {
     f.selections = matches;
     f.setMode(e, .visual);
   }
+}
 
-  /// Swap anchor and cursor of primary selection (like 'o' in visual mode).
-  static void swapEnds(Editor e, FileBuffer f) {
+/// Swap anchor and cursor of primary selection (like 'o' in visual mode).
+class SwapEnds extends Action {
+  const SwapEnds();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final sel = f.selections.first;
     if (sel.isCollapsed) return;
     f.selections[0] = Selection(sel.cursor, sel.anchor);
   }
+}
 
-  /// Exit visual line mode, collapse selections to cursor positions.
-  /// This preserves cursor positions while removing visual selection ranges.
-  static void escapeVisualLine(Editor e, FileBuffer f) {
+/// Exit visual line mode, collapse selections to cursor positions.
+class EscapeVisualLine extends Action {
+  const EscapeVisualLine();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     f.selections = f.selections.map((s) => s.collapse()).toList();
     f.setMode(e, .normal);
   }
+}
 
-  /// In visual line mode, 'I' converts each line in the selection to a cursor
-  /// at the start of each line (multi-cursor mode).
-  /// The main cursor stays on the line where the cursor currently is.
-  static void visualLineInsertAtLineStarts(Editor e, FileBuffer f) {
+/// In visual line mode, 'I' converts each line in the selection to a cursor
+/// at the start of each line (multi-cursor mode).
+class VisualLineInsertAtLineStarts extends Action {
+  const VisualLineInsertAtLineStarts();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final sel = f.selections.first;
     final startLine = f.lineNumber(sel.start);
     final endLine = f.lineNumber(sel.end);
@@ -131,11 +166,15 @@ class SelectionActions {
     f.selections = newSelections;
     f.setMode(e, .normal);
   }
+}
 
-  /// In visual line mode, 'A' converts each line in the selection to a cursor
-  /// at the end of each line (multi-cursor mode).
-  /// The main cursor stays on the line where the cursor currently is.
-  static void visualLineInsertAtLineEnds(Editor e, FileBuffer f) {
+/// In visual line mode, 'A' converts each line in the selection to a cursor
+/// at the end of each line (multi-cursor mode).
+class VisualLineInsertAtLineEnds extends Action {
+  const VisualLineInsertAtLineEnds();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final sel = f.selections.first;
     final startLine = f.lineNumber(sel.start);
     final endLine = f.lineNumber(sel.end);
@@ -166,10 +205,14 @@ class SelectionActions {
     f.selections = newSelections;
     f.setMode(e, .normal);
   }
+}
 
-  /// Add a new cursor on the line below the bottommost cursor.
-  /// The new cursor becomes the main cursor (first in list).
-  static void addCursorBelow(Editor e, FileBuffer f) {
+/// Add a new cursor on the line below the bottommost cursor.
+class AddCursorBelow extends Action {
+  const AddCursorBelow();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // Find the bottommost cursor (highest line number)
     int maxLineNum = -1;
     Selection? bottomSel;
@@ -185,10 +228,14 @@ class SelectionActions {
     if (maxLineNum >= f.totalLines - 1) return; // Already at last line
 
     // Get current visual column position
-    final curVisualCol = _visualColumn(f, bottomSel.cursor, e.config.tabWidth);
+    final curVisualCol = Action.visualColumn(
+      f,
+      bottomSel.cursor,
+      e.config.tabWidth,
+    );
 
     // Get position on next line at same visual column
-    final newPos = _offsetAtVisualColumn(
+    final newPos = offsetAtVisualColumn(
       f,
       maxLineNum + 1,
       curVisualCol,
@@ -198,12 +245,16 @@ class SelectionActions {
     f.selections.add(newCursor);
     f.selections = mergeSelections(f.selections);
     // Move new cursor to front (main cursor)
-    _moveToFront(f.selections, newPos);
+    moveToFront(f.selections, newPos);
   }
+}
 
-  /// Add a new cursor on the line above the topmost cursor.
-  /// The new cursor becomes the main cursor (first in list).
-  static void addCursorAbove(Editor e, FileBuffer f) {
+/// Add a new cursor on the line above the topmost cursor.
+class AddCursorAbove extends Action {
+  const AddCursorAbove();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // Find the topmost cursor (lowest line number)
     int minLineNum = f.totalLines;
     Selection? topSel;
@@ -219,10 +270,14 @@ class SelectionActions {
     if (minLineNum <= 0) return; // Already at first line
 
     // Get current visual column position
-    final curVisualCol = _visualColumn(f, topSel.cursor, e.config.tabWidth);
+    final curVisualCol = Action.visualColumn(
+      f,
+      topSel.cursor,
+      e.config.tabWidth,
+    );
 
     // Get position on previous line at same visual column
-    final newPos = _offsetAtVisualColumn(
+    final newPos = offsetAtVisualColumn(
       f,
       minLineNum - 1,
       curVisualCol,
@@ -232,51 +287,6 @@ class SelectionActions {
     f.selections.add(newCursor);
     f.selections = mergeSelections(f.selections);
     // Move new cursor to front (main cursor)
-    _moveToFront(f.selections, newPos);
-  }
-
-  /// Move the selection with cursor at [cursorPos] to front of list.
-  static void _moveToFront(List<Selection> selections, int cursorPos) {
-    for (int i = 0; i < selections.length; i++) {
-      if (selections[i].cursor == cursorPos) {
-        final sel = selections.removeAt(i);
-        selections.insert(0, sel);
-        return;
-      }
-    }
-  }
-
-  /// Get visual column of offset (similar to Motions._moveToLineKeepColumn)
-  static int _visualColumn(FileBuffer f, int offset, int tabWidth) {
-    final lineStart = f.lineStart(offset);
-    final beforeCursor = f.text.substring(lineStart, offset);
-    return beforeCursor.renderLength(tabWidth);
-  }
-
-  /// Get byte offset at target visual column on a line
-  static int _offsetAtVisualColumn(
-    FileBuffer f,
-    int targetLine,
-    int targetVisualCol,
-    int tabWidth,
-  ) {
-    final targetLineStart = f.lines[targetLine].start;
-    final targetLineEnd = f.lines[targetLine].end;
-    final targetLineText = f.text.substring(targetLineStart, targetLineEnd);
-
-    // Find position in target line with similar visual column
-    int nextLen = 0;
-    final chars = targetLineText.characters.takeWhile((c) {
-      nextLen += c.charWidth(tabWidth);
-      return nextLen <= targetVisualCol;
-    });
-
-    // Clamp to valid position in target line
-    final targetCharLen = targetLineText.characters.length;
-    final charIndex = clamp(chars.length, 0, max(0, targetCharLen - 1));
-
-    // Convert char index to byte offset
-    return targetLineStart +
-        targetLineText.characters.take(charIndex).string.length;
+    moveToFront(f.selections, newPos);
   }
 }

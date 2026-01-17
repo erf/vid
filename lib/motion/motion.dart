@@ -1,4 +1,4 @@
-import 'package:vid/motion/motion_function.dart';
+import 'package:vid/types/motion_action_base.dart';
 import 'package:vid/motion/motion_type.dart';
 import 'package:vid/motion/motion_type_ext.dart';
 
@@ -22,7 +22,7 @@ class Motion {
   final bool linewise;
 
   /// Execute this motion
-  MotionFunction get fn => type.fn;
+  MotionAction get fn => type.fn;
 
   /// Returns the reversed motion, or null if not reversible
   Motion? get reversed {

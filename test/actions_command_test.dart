@@ -12,7 +12,7 @@ void main() {
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = 0;
-    LineEditActions.substitute(e, f, ['s/l//']);
+    const CmdSubstitute()(e, f, ['s/l//']);
     expect(f.text, equals('helo world\n'));
   });
 
@@ -24,7 +24,7 @@ void main() {
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = 0;
-    LineEditActions.substitute(e, f, ['s/world/friend/']);
+    const CmdSubstitute()(e, f, ['s/world/friend/']);
     expect(f.text, equals('hello friend\n'));
   });
 
@@ -36,7 +36,7 @@ void main() {
     final f = e.file;
     f.text = 'this is fun fun fun\n';
     f.cursor = 0;
-    LineEditActions.substitute(e, f, ['s/fun/cool/g']);
+    const CmdSubstitute()(e, f, ['s/fun/cool/g']);
     expect(f.text, equals('this is cool cool cool\n'));
   });
 

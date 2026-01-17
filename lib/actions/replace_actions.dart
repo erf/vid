@@ -1,7 +1,9 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../range.dart';
+import '../types/action_base.dart';
 
+/// Utility methods for replace mode actions.
 class ReplaceActions {
   /// Replace single character under cursor and return to normal mode (r command).
   /// Cursor stays in place (vim behavior).
@@ -30,10 +32,15 @@ class ReplaceActions {
     f.cursor = f.nextGrapheme(f.cursor);
     f.clampCursor();
   }
+}
 
-  /// Exit replace mode and return to normal mode.
-  /// Moves cursor back one char (vim behavior), but not past line start.
-  static void escape(Editor e, FileBuffer f) {
+/// Exit replace mode and return to normal mode.
+/// Moves cursor back one char (vim behavior), but not past line start.
+class ReplaceEscape extends Action {
+  const ReplaceEscape();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
     int lineStart = f.lineStart(f.cursor);
     int prev = f.prevGrapheme(f.cursor);
@@ -43,12 +50,17 @@ class ReplaceActions {
     }
     f.clampCursor();
   }
+}
 
-  /// Delete character before cursor in replace mode.
-  /// TODO: Proper vim behavior should restore the original character that was
-  /// replaced, not just delete. This requires tracking original chars when
-  /// entering replace mode.
-  static void backspace(Editor e, FileBuffer f) {
+/// Delete character before cursor in replace mode.
+/// TODO: Proper vim behavior should restore the original character that was
+/// replaced, not just delete. This requires tracking original chars when
+/// entering replace mode.
+class ReplaceBackspace extends Action {
+  const ReplaceBackspace();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (f.cursor == 0) return;
     int prevPos = f.prevGrapheme(f.cursor);
     f.deleteRange(Range(prevPos, f.cursor), config: e.config);

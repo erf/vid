@@ -1,284 +1,216 @@
+import 'package:vid/types/text_object_action_base.dart';
+
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../range.dart';
 
-/// Standard vim text objects: inner/around brackets, quotes, words, etc.
-class TextObjectActions {
-  /// Find matching bracket pair containing offset.
-  /// Returns (openPos, closePos) or (-1, -1) if not found.
-  static (int, int) _findMatchingPair(
-    FileBuffer f,
-    int offset,
-    String open,
-    String close,
-  ) {
-    final text = f.text;
+// ===== Bracket text objects =====
 
-    // Search backwards for opening bracket, counting nesting
-    int openPos = -1;
-    int depth = 0;
-    int pos = offset;
+/// Inside parentheses: i( or ib
+class InsideParens extends TextObjectAction {
+  const InsideParens();
 
-    // First check if cursor is on a bracket
-    if (pos < text.length) {
-      final char = text[pos];
-      if (char == open) {
-        // Cursor is on opening bracket, search forward from here
-        openPos = pos;
-      } else if (char == close) {
-        // Cursor is on closing bracket, treat it as being inside
-        // Start search from before the closing bracket with depth 1
-        depth = 1;
-        pos = offset - 1;
-        while (pos >= 0) {
-          final c = text[pos];
-          if (c == close) {
-            depth++;
-          } else if (c == open) {
-            depth--;
-            if (depth == 0) {
-              openPos = pos;
-              break;
-            }
-          }
-          pos--;
-        }
-        if (openPos != -1) {
-          return (openPos, offset);
-        }
-        return (-1, -1);
-      }
-    }
-
-    // Search backwards for opening bracket
-    if (openPos == -1) {
-      pos = offset - 1;
-      while (pos >= 0) {
-        final char = text[pos];
-        if (char == close) {
-          depth++;
-        } else if (char == open) {
-          if (depth == 0) {
-            openPos = pos;
-            break;
-          }
-          depth--;
-        }
-        pos--;
-      }
-    }
-
-    if (openPos == -1) return (-1, -1);
-
-    // Search forward from opening bracket for matching close
-    depth = 1;
-    pos = openPos + 1;
-    while (pos < text.length) {
-      final char = text[pos];
-      if (char == open) {
-        depth++;
-      } else if (char == close) {
-        depth--;
-        if (depth == 0) {
-          return (openPos, pos);
-        }
-      }
-      pos++;
-    }
-
-    return (-1, -1);
-  }
-
-  /// Inside parentheses: i( or ib
-  static Range insideParens(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '(', ')');
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '(', ')');
     if (open == -1) return Range(offset, offset);
     return Range(open + 1, close);
   }
+}
 
-  /// Around parentheses: a( or ab
-  static Range aroundParens(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '(', ')');
+/// Around parentheses: a( or ab
+class AroundParens extends TextObjectAction {
+  const AroundParens();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '(', ')');
     if (open == -1) return Range(offset, offset);
     return Range(open, close + 1);
   }
+}
 
-  /// Inside braces: i{ or iB
-  static Range insideBraces(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '{', '}');
+/// Inside braces: i{ or iB
+class InsideBraces extends TextObjectAction {
+  const InsideBraces();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '{', '}');
     if (open == -1) return Range(offset, offset);
     return Range(open + 1, close);
   }
+}
 
-  /// Around braces: a{ or aB
-  static Range aroundBraces(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '{', '}');
+/// Around braces: a{ or aB
+class AroundBraces extends TextObjectAction {
+  const AroundBraces();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '{', '}');
     if (open == -1) return Range(offset, offset);
     return Range(open, close + 1);
   }
+}
 
-  /// Inside brackets: i[
-  static Range insideBrackets(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '[', ']');
+/// Inside brackets: i[
+class InsideBrackets extends TextObjectAction {
+  const InsideBrackets();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '[', ']');
     if (open == -1) return Range(offset, offset);
     return Range(open + 1, close);
   }
+}
 
-  /// Around brackets: a[
-  static Range aroundBrackets(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '[', ']');
+/// Around brackets: a[
+class AroundBrackets extends TextObjectAction {
+  const AroundBrackets();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '[', ']');
     if (open == -1) return Range(offset, offset);
     return Range(open, close + 1);
   }
+}
 
-  /// Inside angle brackets: i<
-  static Range insideAngleBrackets(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '<', '>');
+/// Inside angle brackets: i<
+class InsideAngleBrackets extends TextObjectAction {
+  const InsideAngleBrackets();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '<', '>');
     if (open == -1) return Range(offset, offset);
     return Range(open + 1, close);
   }
+}
 
-  /// Around angle brackets: a<
-  static Range aroundAngleBrackets(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findMatchingPair(f, offset, '<', '>');
+/// Around angle brackets: a<
+class AroundAngleBrackets extends TextObjectAction {
+  const AroundAngleBrackets();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findMatchingPair(f, offset, '<', '>');
     if (open == -1) return Range(offset, offset);
     return Range(open, close + 1);
   }
+}
 
-  /// Find quote pair on same line containing offset.
-  /// Returns (openPos, closePos) or (-1, -1) if not found.
-  static (int, int) _findQuotePair(FileBuffer f, int offset, String quote) {
-    final text = f.text;
+// ===== Quote text objects =====
 
-    // Find line boundaries
-    int lineStart = offset;
-    while (lineStart > 0 && text[lineStart - 1] != '\n') {
-      lineStart--;
-    }
-    int lineEnd = offset;
-    while (lineEnd < text.length && text[lineEnd] != '\n') {
-      lineEnd++;
-    }
+/// Inside double quotes: i"
+class InsideDoubleQuote extends TextObjectAction {
+  const InsideDoubleQuote();
 
-    // Find all quote positions on the line
-    final quotePositions = <int>[];
-    for (int i = lineStart; i < lineEnd; i++) {
-      if (text[i] == quote) {
-        // Skip escaped quotes (simple check for backslash before)
-        if (i > lineStart && text[i - 1] == '\\') continue;
-        quotePositions.add(i);
-      }
-    }
-
-    // Find pair that contains offset
-    for (int i = 0; i < quotePositions.length - 1; i += 2) {
-      final open = quotePositions[i];
-      final close = quotePositions[i + 1];
-      if (offset >= open && offset <= close) {
-        return (open, close);
-      }
-    }
-
-    // If cursor is on a quote, try to use it as start or end
-    if (quotePositions.contains(offset)) {
-      final idx = quotePositions.indexOf(offset);
-      if (idx % 2 == 0 && idx + 1 < quotePositions.length) {
-        // Cursor on opening quote
-        return (quotePositions[idx], quotePositions[idx + 1]);
-      } else if (idx % 2 == 1) {
-        // Cursor on closing quote
-        return (quotePositions[idx - 1], quotePositions[idx]);
-      }
-    }
-
-    return (-1, -1);
-  }
-
-  /// Inside double quotes: i"
-  static Range insideDoubleQuote(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findQuotePair(f, offset, '"');
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findQuotePair(f, offset, '"');
     if (open == -1) return Range(offset, offset);
     return Range(open + 1, close);
   }
+}
 
-  /// Around double quotes: a"
-  static Range aroundDoubleQuote(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findQuotePair(f, offset, '"');
+/// Around double quotes: a"
+class AroundDoubleQuote extends TextObjectAction {
+  const AroundDoubleQuote();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findQuotePair(f, offset, '"');
     if (open == -1) return Range(offset, offset);
     return Range(open, close + 1);
   }
+}
 
-  /// Inside single quotes: i'
-  static Range insideSingleQuote(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findQuotePair(f, offset, "'");
+/// Inside single quotes: i'
+class InsideSingleQuote extends TextObjectAction {
+  const InsideSingleQuote();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findQuotePair(f, offset, "'");
     if (open == -1) return Range(offset, offset);
     return Range(open + 1, close);
   }
+}
 
-  /// Around single quotes: a'
-  static Range aroundSingleQuote(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findQuotePair(f, offset, "'");
+/// Around single quotes: a'
+class AroundSingleQuote extends TextObjectAction {
+  const AroundSingleQuote();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findQuotePair(f, offset, "'");
     if (open == -1) return Range(offset, offset);
     return Range(open, close + 1);
   }
+}
 
-  /// Inside backticks: i`
-  static Range insideBacktick(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findQuotePair(f, offset, '`');
+/// Inside backticks: i`
+class InsideBacktick extends TextObjectAction {
+  const InsideBacktick();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findQuotePair(f, offset, '`');
     if (open == -1) return Range(offset, offset);
     return Range(open + 1, close);
   }
+}
 
-  /// Around backticks: a`
-  static Range aroundBacktick(Editor e, FileBuffer f, int offset) {
-    final (open, close) = _findQuotePair(f, offset, '`');
+/// Around backticks: a`
+class AroundBacktick extends TextObjectAction {
+  const AroundBacktick();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
+    final (open, close) = findQuotePair(f, offset, '`');
     if (open == -1) return Range(offset, offset);
     return Range(open, close + 1);
   }
+}
 
-  /// Word character check (same as vim: letters, digits, underscore)
-  static bool _isWordChar(String char) {
-    final c = char.codeUnitAt(0);
-    return (c >= 0x41 && c <= 0x5A) || // A-Z
-        (c >= 0x61 && c <= 0x7A) || // a-z
-        (c >= 0x30 && c <= 0x39) || // 0-9
-        c == 0x5F; // _
-  }
+// ===== Word text objects =====
 
-  /// Whitespace check
-  static bool _isWhitespace(String char) {
-    return char == ' ' || char == '\t';
-  }
+/// Inside word: iw
+/// Selects the word under cursor (no surrounding whitespace)
+class InsideWord extends TextObjectAction {
+  const InsideWord();
 
-  /// Inside word: iw
-  /// Selects the word under cursor (no surrounding whitespace)
-  static Range insideWord(Editor e, FileBuffer f, int offset) {
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
     if (offset >= text.length) return Range(offset, offset);
 
     final charAtCursor = text[offset];
 
     // If on whitespace, select the whitespace
-    if (_isWhitespace(charAtCursor)) {
+    if (isWhitespace(charAtCursor)) {
       int start = offset;
       int end = offset;
-      while (start > 0 && _isWhitespace(text[start - 1])) {
+      while (start > 0 && isWhitespace(text[start - 1])) {
         start--;
       }
-      while (end < text.length && _isWhitespace(text[end])) {
+      while (end < text.length && isWhitespace(text[end])) {
         end++;
       }
       return Range(start, end);
     }
 
     // If on word char, select the word
-    if (_isWordChar(charAtCursor)) {
+    if (isWordChar(charAtCursor)) {
       int start = offset;
       int end = offset;
-      while (start > 0 && _isWordChar(text[start - 1])) {
+      while (start > 0 && isWordChar(text[start - 1])) {
         start--;
       }
-      while (end < text.length && _isWordChar(text[end])) {
+      while (end < text.length && isWordChar(text[end])) {
         end++;
       }
       return Range(start, end);
@@ -288,25 +220,30 @@ class TextObjectActions {
     int start = offset;
     int end = offset;
     while (start > 0 &&
-        !_isWordChar(text[start - 1]) &&
-        !_isWhitespace(text[start - 1]) &&
+        !isWordChar(text[start - 1]) &&
+        !isWhitespace(text[start - 1]) &&
         text[start - 1] != '\n') {
       start--;
     }
     while (end < text.length &&
-        !_isWordChar(text[end]) &&
-        !_isWhitespace(text[end]) &&
+        !isWordChar(text[end]) &&
+        !isWhitespace(text[end]) &&
         text[end] != '\n') {
       end++;
     }
     return Range(start, end);
   }
+}
 
-  /// Around word: aw
-  /// Selects the word under cursor plus trailing whitespace (or leading if at end)
-  static Range aroundWord(Editor e, FileBuffer f, int offset) {
+/// Around word: aw
+/// Selects the word under cursor plus trailing whitespace (or leading if at end)
+class AroundWord extends TextObjectAction {
+  const AroundWord();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
-    final inner = insideWord(e, f, offset);
+    final inner = const InsideWord().call(e, f, offset);
     if (inner.start == inner.end) return inner;
 
     int start = inner.start;
@@ -314,7 +251,7 @@ class TextObjectActions {
 
     // Try to include trailing whitespace first
     int trailingEnd = end;
-    while (trailingEnd < text.length && _isWhitespace(text[trailingEnd])) {
+    while (trailingEnd < text.length && isWhitespace(text[trailingEnd])) {
       trailingEnd++;
     }
 
@@ -324,28 +261,33 @@ class TextObjectActions {
 
     // No trailing whitespace, try leading
     int leadingStart = start;
-    while (leadingStart > 0 && _isWhitespace(text[leadingStart - 1])) {
+    while (leadingStart > 0 && isWhitespace(text[leadingStart - 1])) {
       leadingStart--;
     }
 
     return Range(leadingStart, end);
   }
+}
 
-  /// Inside WORD: iW (whitespace-delimited)
-  static Range insideWORD(Editor e, FileBuffer f, int offset) {
+/// Inside WORD: iW (whitespace-delimited)
+class InsideWORD extends TextObjectAction {
+  const InsideWORD();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
     if (offset >= text.length) return Range(offset, offset);
 
     final charAtCursor = text[offset];
 
     // If on whitespace, select the whitespace
-    if (_isWhitespace(charAtCursor) || charAtCursor == '\n') {
+    if (isWhitespace(charAtCursor) || charAtCursor == '\n') {
       int start = offset;
       int end = offset;
-      while (start > 0 && _isWhitespace(text[start - 1])) {
+      while (start > 0 && isWhitespace(text[start - 1])) {
         start--;
       }
-      while (end < text.length && _isWhitespace(text[end])) {
+      while (end < text.length && isWhitespace(text[end])) {
         end++;
       }
       return Range(start, end);
@@ -355,22 +297,25 @@ class TextObjectActions {
     int start = offset;
     int end = offset;
     while (start > 0 &&
-        !_isWhitespace(text[start - 1]) &&
+        !isWhitespace(text[start - 1]) &&
         text[start - 1] != '\n') {
       start--;
     }
-    while (end < text.length &&
-        !_isWhitespace(text[end]) &&
-        text[end] != '\n') {
+    while (end < text.length && !isWhitespace(text[end]) && text[end] != '\n') {
       end++;
     }
     return Range(start, end);
   }
+}
 
-  /// Around WORD: aW (whitespace-delimited + whitespace)
-  static Range aroundWORD(Editor e, FileBuffer f, int offset) {
+/// Around WORD: aW (whitespace-delimited + whitespace)
+class AroundWORD extends TextObjectAction {
+  const AroundWORD();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
-    final inner = insideWORD(e, f, offset);
+    final inner = const InsideWORD().call(e, f, offset);
     if (inner.start == inner.end) return inner;
 
     int start = inner.start;
@@ -378,7 +323,7 @@ class TextObjectActions {
 
     // Try trailing whitespace first
     int trailingEnd = end;
-    while (trailingEnd < text.length && _isWhitespace(text[trailingEnd])) {
+    while (trailingEnd < text.length && isWhitespace(text[trailingEnd])) {
       trailingEnd++;
     }
 
@@ -388,15 +333,22 @@ class TextObjectActions {
 
     // No trailing whitespace, try leading
     int leadingStart = start;
-    while (leadingStart > 0 && _isWhitespace(text[leadingStart - 1])) {
+    while (leadingStart > 0 && isWhitespace(text[leadingStart - 1])) {
       leadingStart--;
     }
 
     return Range(leadingStart, end);
   }
+}
 
-  /// Inside sentence: is
-  static Range insideSentence(Editor e, FileBuffer f, int offset) {
+// ===== Sentence/paragraph text objects =====
+
+/// Inside sentence: is
+class InsideSentence extends TextObjectAction {
+  const InsideSentence();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
     if (offset >= text.length) return Range(offset, offset);
 
@@ -415,7 +367,7 @@ class TextObjectActions {
       start--;
     }
     // Skip leading whitespace
-    while (start < text.length && _isWhitespace(text[start])) {
+    while (start < text.length && isWhitespace(text[start])) {
       start++;
     }
 
@@ -435,11 +387,16 @@ class TextObjectActions {
 
     return Range(start, end);
   }
+}
 
-  /// Around sentence: as (includes trailing whitespace)
-  static Range aroundSentence(Editor e, FileBuffer f, int offset) {
+/// Around sentence: as (includes trailing whitespace)
+class AroundSentence extends TextObjectAction {
+  const AroundSentence();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
-    final inner = insideSentence(e, f, offset);
+    final inner = const InsideSentence().call(e, f, offset);
     if (inner.start == inner.end) return inner;
 
     int end = inner.end;
@@ -451,9 +408,14 @@ class TextObjectActions {
 
     return Range(inner.start, end);
   }
+}
 
-  /// Inside paragraph: ip
-  static Range insideParagraph(Editor e, FileBuffer f, int offset) {
+/// Inside paragraph: ip
+class InsideParagraph extends TextObjectAction {
+  const InsideParagraph();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
     if (offset >= text.length) return Range(offset, offset);
 
@@ -480,11 +442,16 @@ class TextObjectActions {
 
     return Range(start, end);
   }
+}
 
-  /// Around paragraph: ap (includes trailing blank lines)
-  static Range aroundParagraph(Editor e, FileBuffer f, int offset) {
+/// Around paragraph: ap (includes trailing blank lines)
+class AroundParagraph extends TextObjectAction {
+  const AroundParagraph();
+
+  @override
+  Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
-    final inner = insideParagraph(e, f, offset);
+    final inner = const InsideParagraph().call(e, f, offset);
     if (inner.start == inner.end) return inner;
 
     int end = inner.end;

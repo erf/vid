@@ -1,49 +1,48 @@
 import '../actions/buffer_actions.dart';
 import '../actions/line_edit_actions.dart';
 import '../actions/popup_command_actions.dart';
-import '../editor.dart';
 import '../features/lsp/lsp_command_actions.dart';
-import '../file_buffer/file_buffer.dart';
+import 'line_edit_action_base.dart';
 import 'line_edit_type.dart';
 
 extension LineEditTypeExt on LineEditType {
-  /// The function that implements this line edit command.
-  void Function(Editor, FileBuffer, List<String>) get fn => switch (this) {
+  /// The action that implements this line edit command.
+  LineEditAction get fn => switch (this) {
     // Basic commands
-    .noop => LineEditActions.noop,
-    .quit => LineEditActions.quit,
-    .forceQuit => LineEditActions.forceQuit,
-    .open => LineEditActions.open,
-    .read => LineEditActions.read,
-    .write => LineEditActions.write,
-    .writeAndQuit => LineEditActions.writeAndQuit,
+    .noop => const CmdNoop(),
+    .quit => const CmdQuit(),
+    .forceQuit => const CmdForceQuit(),
+    .open => const CmdOpen(),
+    .read => const CmdRead(),
+    .write => const CmdWrite(),
+    .writeAndQuit => const CmdWriteAndQuit(),
 
     // Wrap modes
-    .setNoWrap => LineEditActions.setNoWrap,
-    .setCharWrap => LineEditActions.setCharWrap,
-    .setWordWrap => LineEditActions.setWordWrap,
+    .setNoWrap => const CmdSetNoWrap(),
+    .setCharWrap => const CmdSetCharWrap(),
+    .setWordWrap => const CmdSetWordWrap(),
 
     // Buffer commands
-    .nextBuffer => BufferActions.nextBuffer,
-    .prevBuffer => BufferActions.prevBuffer,
-    .switchToBuffer => BufferActions.switchToBuffer,
-    .closeBuffer => BufferActions.closeBuffer,
-    .forceCloseBuffer => BufferActions.forceCloseBuffer,
-    .listBuffers => BufferActions.listBuffers,
+    .nextBuffer => const CmdNextBuffer(),
+    .prevBuffer => const CmdPrevBuffer(),
+    .switchToBuffer => const CmdSwitchToBuffer(),
+    .closeBuffer => const CmdCloseBuffer(),
+    .forceCloseBuffer => const CmdForceCloseBuffer(),
+    .listBuffers => const CmdListBuffers(),
 
     // LSP commands
-    .lsp => LspCommandActions.lsp,
-    .diagnostics => LspCommandActions.diagnostics,
-    .diagnosticsAll => LspCommandActions.diagnosticsAll,
-    .lspRename => LspCommandActions.rename,
+    .lsp => const CmdLsp(),
+    .diagnostics => const CmdDiagnostics(),
+    .diagnosticsAll => const CmdDiagnosticsAll(),
+    .lspRename => const CmdLspRename(),
 
     // Selection commands
-    .select => LineEditActions.select,
-    .selectClear => LineEditActions.selectClear,
+    .select => const CmdSelect(),
+    .selectClear => const CmdSelectClear(),
 
     // Popup commands
-    .themes => PopupCommandActions.themes,
-    .files => PopupCommandActions.files,
-    .references => PopupCommandActions.references,
+    .themes => const CmdThemes(),
+    .files => const CmdFiles(),
+    .references => const CmdReferences(),
   };
 }

@@ -1,9 +1,9 @@
-import 'package:vid/actions/operator_actions.dart';
+import 'package:vid/types/operator_action_base.dart';
 import 'package:vid/motion/motion.dart';
 
 /// Immutable operation that can be repeated
 class EditOperation {
-  final OperatorFunction? op;
+  final OperatorAction? op;
   final Motion motion;
   final int count;
   final String? findStr;

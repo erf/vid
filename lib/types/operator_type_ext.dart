@@ -1,13 +1,14 @@
-import '../actions/operator_actions.dart';
+import 'operator_action_base.dart';
+import 'package:vid/actions/operator_actions.dart';
 import 'operator_type.dart';
 
 extension OperatorTypeExt on OperatorType {
-  /// The function that implements this operator.
-  OperatorFunction get fn => switch (this) {
-    .change => OperatorActions.change,
-    .delete => OperatorActions.delete,
-    .yank => OperatorActions.yank,
-    .lowerCase => OperatorActions.lowerCase,
-    .upperCase => OperatorActions.upperCase,
+  /// The action that implements this operator.
+  OperatorAction get fn => switch (this) {
+    .change => const Change(),
+    .delete => const Delete(),
+    .yank => const Yank(),
+    .lowerCase => const LowerCase(),
+    .upperCase => const UpperCase(),
   };
 }

@@ -16,11 +16,11 @@ void main() {
     // Looking for 'b' from offset 0 -> 'b' is at offset 1
     // Looking for 'c' from offset 0 -> 'c' is at offset 2
     f.edit.findStr = 'a';
-    expect(MotionActions.findNextChar(e, f, 0), 3);
+    expect(const FindNextChar()(e, f, 0), 3);
     f.edit.findStr = 'b';
-    expect(MotionActions.findNextChar(e, f, 0), 1);
+    expect(const FindNextChar()(e, f, 0), 1);
     f.edit.findStr = 'c';
-    expect(MotionActions.findNextChar(e, f, 0), 2);
+    expect(const FindNextChar()(e, f, 0), 2);
   });
 
   test('motionFindPrevChar', () {
@@ -35,11 +35,11 @@ void main() {
     // Looking for 'b' from offset 2 -> 'b' is at offset 1
     // Looking for 'c' from offset 2 -> 'c' is at offset 2 (itself)
     f.edit.findStr = 'a';
-    expect(MotionActions.findPrevChar(e, f, 2), 0);
+    expect(const FindPrevChar()(e, f, 2), 0);
     f.edit.findStr = 'b';
-    expect(MotionActions.findPrevChar(e, f, 2), 1);
+    expect(const FindPrevChar()(e, f, 2), 1);
     f.edit.findStr = 'c';
-    expect(MotionActions.findPrevChar(e, f, 2), 2);
+    expect(const FindPrevChar()(e, f, 2), 2);
   });
 
   test('till with delete operator', () {
@@ -92,8 +92,8 @@ void main() {
     f.text = 'foo bar foo baz foo\n';
     f.edit.findStr = 'foo';
     // Direct motion test
-    expect(MotionActions.searchPrev(e, f, 16), 8); // From third 'foo' to second
-    expect(MotionActions.searchPrev(e, f, 8), 0); // From second 'foo' to first
+    expect(const SearchPrev()(e, f, 16), 8); // From third 'foo' to second
+    expect(const SearchPrev()(e, f, 8), 0); // From second 'foo' to first
   });
 
   test('N reverses search direction', () {

@@ -15,10 +15,12 @@ import '../popup/theme_selector.dart';
 import '../regex.dart';
 import '../selection.dart';
 import '../text_op.dart';
+import '../types/action_base.dart';
 import 'insert_actions.dart';
 
-class NormalActions {
-  static String _toggleCase(String s) {
+/// Utility methods for normal actions.
+class NormalActionsUtils {
+  static String toggleCase(String s) {
     if (s.isEmpty) return s;
 
     final upper = s.toUpperCase();
@@ -31,11 +33,38 @@ class NormalActions {
     return s == upper ? lower : upper;
   }
 
-  /// Toggle case of the grapheme under each cursor (vim-like `~`).
-  ///
-  /// Applies to collapsed selections only. Respects a numeric count prefix.
-  /// Cursor advances one grapheme per toggle and clamps at line end.
-  static void toggleCaseUnderCursor(Editor e, FileBuffer f) {
+  static void increaseNextWord(Editor e, FileBuffer f, int count) {
+    int lineNum = f.lineNumber(f.cursor);
+    int lineStartOffset = f.lines[lineNum].start;
+    String lineText = f.lineTextAt(lineNum);
+    int cursorInLine = f.cursor - lineStartOffset;
+
+    final matches = Regex.number.allMatches(lineText);
+    if (matches.isEmpty) return;
+
+    final m = matches.firstWhere(
+      (m) => cursorInLine < m.end,
+      orElse: () => matches.last,
+    );
+    if (cursorInLine >= m.end) return;
+
+    final s = m.group(1)!;
+    final num = int.parse(s);
+    final numstr = (num + count).toString();
+
+    int matchStart = lineStartOffset + m.start;
+    int matchEnd = lineStartOffset + m.end;
+    f.replace(matchStart, matchEnd, numstr, config: e.config);
+    f.cursor = matchStart + numstr.length - 1;
+  }
+}
+
+/// Toggle case of the grapheme under each cursor (vim-like `~`).
+class ToggleCaseUnderCursor extends Action {
+  const ToggleCaseUnderCursor();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // Visual mode: toggle within selection(s) and return to normal mode.
     if (f.mode == .visual || f.mode == .visualLine) {
       final isVisualLineMode = f.mode == .visualLine;
@@ -74,7 +103,9 @@ class NormalActions {
         final start = sel.start;
         final end = sel.end;
         final prevText = f.text.substring(start, end);
-        final replacement = prevText.characters.map(_toggleCase).join();
+        final replacement = prevText.characters
+            .map(NormalActionsUtils.toggleCase)
+            .join();
         edits.add(TextEdit(start, end, replacement));
         deltas.add(replacement.length - (end - start));
       }
@@ -139,7 +170,7 @@ class NormalActions {
         if (end <= pos) break;
 
         final prevText = f.text.substring(pos, end);
-        final newText = _toggleCase(prevText);
+        final newText = NormalActionsUtils.toggleCase(prevText);
 
         if (newText != prevText) {
           // Apply without per-edit undo entries; we group them below.
@@ -184,10 +215,15 @@ class NormalActions {
     f.clampCursor();
     f.edit.reset();
   }
+}
 
-  /// Scroll viewport down by half page (vim Ctrl-D behavior).
-  /// Both viewport and cursor move by the same number of lines.
-  static void moveDownHalfPage(Editor e, FileBuffer f) {
+/// Scroll viewport down by half page (vim Ctrl-D behavior).
+/// Both viewport and cursor move by the same number of lines.
+class MoveDownHalfPage extends Action {
+  const MoveDownHalfPage();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final halfPage = e.terminal.height ~/ 2;
     final cursorLine = f.lineNumber(f.cursor);
 
@@ -212,10 +248,15 @@ class NormalActions {
     final newViewportLine = min(viewportLine + halfPage, maxViewportLine);
     f.viewport = f.lineOffset(newViewportLine);
   }
+}
 
-  /// Scroll viewport up by half page (vim Ctrl-U behavior).
-  /// Both viewport and cursor move by the same number of lines.
-  static void moveUpHalfPage(Editor e, FileBuffer f) {
+/// Scroll viewport up by half page (vim Ctrl-U behavior).
+/// Both viewport and cursor move by the same number of lines.
+class MoveUpHalfPage extends Action {
+  const MoveUpHalfPage();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final halfPage = e.terminal.height ~/ 2;
     final cursorLine = f.lineNumber(f.cursor);
 
@@ -238,8 +279,14 @@ class NormalActions {
     final newViewportLine = max(viewportLine - halfPage, 0);
     f.viewport = f.lineOffset(newViewportLine);
   }
+}
 
-  static void pasteAfter(Editor e, FileBuffer f) {
+/// Paste after cursor.
+class PasteAfter extends Action {
+  const PasteAfter();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (e.yankBuffer == null) return;
     final YankBuffer yank = e.yankBuffer!;
 
@@ -268,8 +315,14 @@ class NormalActions {
       }
     }
   }
+}
 
-  static void pasteBefore(Editor e, FileBuffer f) {
+/// Paste before cursor.
+class PasteBefore extends Action {
+  const PasteBefore();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (e.yankBuffer == null) return;
     final YankBuffer yank = e.yankBuffer!;
     if (yank.linewise) {
@@ -282,8 +335,14 @@ class NormalActions {
       f.insertAt(f.cursor, yank.text, config: e.config);
     }
   }
+}
 
-  static void quit(Editor e, FileBuffer f) {
+/// Quit editor if no unsaved changes.
+class Quit extends Action {
+  const Quit();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final unsavedCount = e.unsavedBufferCount;
     if (unsavedCount > 0) {
       e.showMessage(.error('$unsavedCount buffer(s) have unsaved changes'));
@@ -291,12 +350,24 @@ class NormalActions {
       e.quit();
     }
   }
+}
 
-  static void quitWithoutSaving(Editor e, FileBuffer f) {
+/// Quit without saving.
+class QuitWithoutSaving extends Action {
+  const QuitWithoutSaving();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     e.quit();
   }
+}
 
-  static void save(Editor e, FileBuffer f) {
+/// Save file.
+class Save extends Action {
+  const Save();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     ErrorOr result = f.save(e, f.path);
     if (result.hasError) {
       e.showMessage(.error(result.error!));
@@ -304,9 +375,14 @@ class NormalActions {
       e.showMessage(.info('File saved'));
     }
   }
+}
 
-  /// Append after cursor - enters insert mode with cursor moved right.
-  static void appendCharNext(Editor e, FileBuffer f) {
+/// Append after cursor - enters insert mode with cursor moved right.
+class AppendCharNext extends Action {
+  const AppendCharNext();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     f.setMode(e, .insert);
     // Move all cursors right by one grapheme, but not past line end
     final newSelections = <Selection>[];
@@ -317,9 +393,14 @@ class NormalActions {
     }
     f.selections = newSelections;
   }
+}
 
-  /// Open line above all cursors and enter insert mode.
-  static void openLineAbove(Editor e, FileBuffer f) {
+/// Open line above all cursors and enter insert mode.
+class OpenLineAbove extends Action {
+  const OpenLineAbove();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // Sort cursors by position (ascending)
     final sorted = f.selections.toList()
       ..sort((a, b) => a.cursor.compareTo(b.cursor));
@@ -356,9 +437,14 @@ class NormalActions {
     f.selections = newSelections;
     f.setMode(e, .insert);
   }
+}
 
-  /// Open line below all cursors and enter insert mode.
-  static void openLineBelow(Editor e, FileBuffer f) {
+/// Open line below all cursors and enter insert mode.
+class OpenLineBelow extends Action {
+  const OpenLineBelow();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // Sort cursors by position (ascending)
     final sorted = f.selections.toList()
       ..sort((a, b) => a.cursor.compareTo(b.cursor));
@@ -396,8 +482,14 @@ class NormalActions {
     f.selections = newSelections;
     f.setMode(e, .insert);
   }
+}
 
-  static void joinLines(Editor e, FileBuffer f) {
+/// Join lines.
+class JoinLines extends Action {
+  const JoinLines();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // For multi-cursor, collapse to single cursor first (joining is complex)
     if (f.hasMultipleCursors) {
       f.collapseToPrimaryCursor();
@@ -412,36 +504,66 @@ class NormalActions {
       f.deleteAt(lineEndOffset, config: e.config);
     }
   }
+}
 
-  static void undo(Editor e, FileBuffer f) {
+/// Undo.
+class Undo extends Action {
+  const Undo();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       f.undo(); // Restores selections internally
     }
     f.edit.reset();
   }
+}
 
-  static void redo(Editor e, FileBuffer f) {
+/// Redo.
+class Redo extends Action {
+  const Redo();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     for (int i = 0; i < (f.edit.count ?? 1); i++) {
       f.redo(); // Positions cursor internally
     }
     f.edit.reset();
   }
+}
 
-  static void repeat(Editor e, FileBuffer f) {
+/// Repeat last edit.
+class Repeat extends Action {
+  const Repeat();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (f.prevEdit == null || !f.prevEdit!.canRepeatWithDot) {
       return;
     }
     e.commitEdit(f.prevEdit!);
   }
+}
 
-  static void repeatFindStr(Editor e, FileBuffer f) {
+/// Repeat find string (;).
+class RepeatFindStr extends Action {
+  const RepeatFindStr();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (f.prevEdit == null || !f.prevEdit!.canRepeatFind) {
       return;
     }
     e.commitEdit(f.prevEdit!);
   }
+}
 
-  static void repeatFindStrReverse(Editor e, FileBuffer f) {
+/// Repeat find string reverse (,).
+class RepeatFindStrReverse extends Action {
+  const RepeatFindStrReverse();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     if (f.prevEdit == null || !f.prevEdit!.canRepeatFind) {
       return;
     }
@@ -461,41 +583,34 @@ class NormalActions {
     f.cursor = newPos;
     f.edit.reset();
   }
+}
 
-  static void increaseNextWord(Editor e, FileBuffer f, int count) {
-    int lineNum = f.lineNumber(f.cursor);
-    int lineStartOffset = f.lines[lineNum].start;
-    String lineText = f.lineTextAt(lineNum);
-    int cursorInLine = f.cursor - lineStartOffset;
+/// Increase number under cursor.
+class Increase extends Action {
+  const Increase();
 
-    final matches = Regex.number.allMatches(lineText);
-    if (matches.isEmpty) return;
-
-    final m = matches.firstWhere(
-      (m) => cursorInLine < m.end,
-      orElse: () => matches.last,
-    );
-    if (cursorInLine >= m.end) return;
-
-    final s = m.group(1)!;
-    final num = int.parse(s);
-    final numstr = (num + count).toString();
-
-    int matchStart = lineStartOffset + m.start;
-    int matchEnd = lineStartOffset + m.end;
-    f.replace(matchStart, matchEnd, numstr, config: e.config);
-    f.cursor = matchStart + numstr.length - 1;
+  @override
+  void call(Editor e, FileBuffer f) {
+    NormalActionsUtils.increaseNextWord(e, f, 1);
   }
+}
 
-  static void increase(Editor e, FileBuffer f) {
-    increaseNextWord(e, f, 1);
+/// Decrease number under cursor.
+class Decrease extends Action {
+  const Decrease();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    NormalActionsUtils.increaseNextWord(e, f, -1);
   }
+}
 
-  static void decrease(Editor e, FileBuffer f) {
-    increaseNextWord(e, f, -1);
-  }
+/// Toggle wrap mode.
+class ToggleWrap extends Action {
+  const ToggleWrap();
 
-  static void toggleWrap(Editor e, FileBuffer f) {
+  @override
+  void call(Editor e, FileBuffer f) {
     // Cycle through: none -> char -> word -> none
     WrapMode next = switch (e.config.wrapMode) {
       .none => .char,
@@ -511,42 +626,95 @@ class NormalActions {
     };
     e.showMessage(.info('Wrap: $label'));
   }
+}
 
-  static void centerView(Editor e, FileBuffer f) {
+/// Center view.
+class CenterView extends Action {
+  const CenterView();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     f.centerViewport(e.terminal);
   }
+}
 
-  static void topView(Editor e, FileBuffer f) {
+/// Top view.
+class TopView extends Action {
+  const TopView();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     f.topViewport();
   }
+}
 
-  static void bottomView(Editor e, FileBuffer f) {
+/// Bottom view.
+class BottomView extends Action {
+  const BottomView();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     f.bottomViewport(e.terminal);
   }
+}
 
-  static void toggleSyntax(Editor e, FileBuffer f) {
+/// Toggle syntax highlighting.
+class ToggleSyntax extends Action {
+  const ToggleSyntax();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     e.toggleSyntax();
   }
+}
 
-  static void openFilePicker(Editor e, FileBuffer f) {
+/// Open file picker.
+class OpenFilePicker extends Action {
+  const OpenFilePicker();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     FileBrowser.show(e);
   }
+}
 
-  static void openBufferSelector(Editor e, FileBuffer f) {
+/// Open buffer selector.
+class OpenBufferSelector extends Action {
+  const OpenBufferSelector();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     BufferSelector.show(e);
   }
+}
 
-  static void openThemeSelector(Editor e, FileBuffer f) {
+/// Open theme selector.
+class OpenThemeSelector extends Action {
+  const OpenThemeSelector();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     ThemeSelector.show(e);
   }
+}
 
-  static void openDiagnostics(Editor e, FileBuffer f) {
+/// Open diagnostics popup.
+class OpenDiagnostics extends Action {
+  const OpenDiagnostics();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     DiagnosticsPopup.show(e);
   }
+}
 
-  /// Enter visual mode with a selection starting at the current cursor.
-  /// If multiple cursors exist, preserve them all as visual selections.
-  static void enterVisualMode(Editor e, FileBuffer f) {
+/// Enter visual mode with a selection starting at the current cursor.
+/// If multiple cursors exist, preserve them all as visual selections.
+class EnterVisualMode extends Action {
+  const EnterVisualMode();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // If we have multiple collapsed cursors, keep them all
     // Each collapsed cursor becomes a collapsed selection that can be extended
     // If already in visual mode (single cursor), this is a no-op
@@ -555,12 +723,17 @@ class NormalActions {
     // They will be extended by motions in visual mode
     f.setMode(e, .visual);
   }
+}
 
-  /// Enter visual line mode with the current line selected.
-  /// Preserves the cursor's column position - only the line highlighting changes.
-  /// If there's already a selection (from visual mode), expand it to full lines
-  /// but keep the cursor at its current position.
-  static void enterVisualLineMode(Editor e, FileBuffer f) {
+/// Enter visual line mode with the current line selected.
+/// Preserves the cursor's column position - only the line highlighting changes.
+/// If there's already a selection (from visual mode), expand it to full lines
+/// but keep the cursor at its current position.
+class EnterVisualLineMode extends Action {
+  const EnterVisualLineMode();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // Preserve all selections/cursors (multi-cursor + multi-selection).
     // Visual line expansion happens at render/operator time, but we normalize
     // anchors so the selection direction stays consistent.
@@ -596,9 +769,14 @@ class NormalActions {
     f.selections = newSelections;
     f.setMode(e, .visualLine);
   }
+}
 
-  /// Handle escape in normal mode - collapse selections to single cursor.
-  static void escape(Editor e, FileBuffer f) {
+/// Handle escape in normal mode - collapse selections to single cursor.
+class Escape extends Action {
+  const Escape();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     // Collapse all selections to their cursor position, then keep only the first
     if (f.selections.length > 1 || !f.selections.first.isCollapsed) {
       f.selections = [Selection.collapsed(f.selections.first.cursor)];

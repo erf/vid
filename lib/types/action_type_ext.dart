@@ -1,3 +1,4 @@
+import 'action_base.dart';
 import '../actions/completion_actions.dart';
 import '../actions/insert_actions.dart';
 import '../actions/line_edit_input_actions.dart';
@@ -5,100 +6,95 @@ import '../actions/normal_actions.dart';
 import '../actions/popup_actions.dart';
 import '../actions/replace_actions.dart';
 import '../actions/selection_actions.dart';
-import '../editor.dart';
 import '../features/lsp/lsp_actions.dart';
-import '../file_buffer/file_buffer.dart';
 import 'action_type.dart';
 
 extension ActionTypeExt on ActionType {
-  /// The function that implements this action.
-  void Function(Editor, FileBuffer) get fn => switch (this) {
+  /// The action that implements this action type.
+  Action get fn => switch (this) {
     // Normal mode
-    .quit => NormalActions.quit,
-    .save => NormalActions.save,
-    .appendCharNext => NormalActions.appendCharNext,
-    .openLineBelow => NormalActions.openLineBelow,
-    .openLineAbove => NormalActions.openLineAbove,
-    .pasteAfter => NormalActions.pasteAfter,
-    .pasteBefore => NormalActions.pasteBefore,
-    .moveDownHalfPage => NormalActions.moveDownHalfPage,
-    .moveUpHalfPage => NormalActions.moveUpHalfPage,
-    .joinLines => NormalActions.joinLines,
-    .undo => NormalActions.undo,
-    .redo => NormalActions.redo,
-    .toggleCaseUnderCursor => NormalActions.toggleCaseUnderCursor,
-    .repeat => NormalActions.repeat,
-    .repeatFindStr => NormalActions.repeatFindStr,
-    .repeatFindStrReverse => NormalActions.repeatFindStrReverse,
-    .increase => NormalActions.increase,
-    .decrease => NormalActions.decrease,
-    .toggleWrap => NormalActions.toggleWrap,
-    .openFilePicker => NormalActions.openFilePicker,
-    .openBufferSelector => NormalActions.openBufferSelector,
-    .openThemeSelector => NormalActions.openThemeSelector,
-    .openDiagnostics => NormalActions.openDiagnostics,
-    .centerView => NormalActions.centerView,
-    .topView => NormalActions.topView,
-    .bottomView => NormalActions.bottomView,
-    .toggleSyntax => NormalActions.toggleSyntax,
-    .enterVisualMode => NormalActions.enterVisualMode,
-    .enterVisualLineMode => NormalActions.enterVisualLineMode,
-    .escape => NormalActions.escape,
+    .quit => const Quit(),
+    .save => const Save(),
+    .appendCharNext => const AppendCharNext(),
+    .openLineBelow => const OpenLineBelow(),
+    .openLineAbove => const OpenLineAbove(),
+    .pasteAfter => const PasteAfter(),
+    .pasteBefore => const PasteBefore(),
+    .moveDownHalfPage => const MoveDownHalfPage(),
+    .moveUpHalfPage => const MoveUpHalfPage(),
+    .joinLines => const JoinLines(),
+    .undo => const Undo(),
+    .redo => const Redo(),
+    .toggleCaseUnderCursor => const ToggleCaseUnderCursor(),
+    .repeat => const Repeat(),
+    .repeatFindStr => const RepeatFindStr(),
+    .repeatFindStrReverse => const RepeatFindStrReverse(),
+    .increase => const Increase(),
+    .decrease => const Decrease(),
+    .toggleWrap => const ToggleWrap(),
+    .openFilePicker => const OpenFilePicker(),
+    .openBufferSelector => const OpenBufferSelector(),
+    .openThemeSelector => const OpenThemeSelector(),
+    .openDiagnostics => const OpenDiagnostics(),
+    .centerView => const CenterView(),
+    .topView => const TopView(),
+    .bottomView => const BottomView(),
+    .toggleSyntax => const ToggleSyntax(),
+    .enterVisualMode => const EnterVisualMode(),
+    .enterVisualLineMode => const EnterVisualLineMode(),
+    .escape => const Escape(),
 
     // Insert mode
-    .insertBackspace => InsertActions.backspace,
-    .insertEnter => InsertActions.enter,
-    .insertEscape => InsertActions.escape,
+    .insertBackspace => const InsertBackspace(),
+    .insertEnter => const InsertEnter(),
+    .insertEscape => const InsertEscape(),
 
     // Completion
-    .showCompletion => CompletionActions.showCompletion,
+    .showCompletion => const ShowCompletion(),
 
     // Replace mode
-    .replaceEscape => ReplaceActions.escape,
-    .replaceBackspace => ReplaceActions.backspace,
+    .replaceEscape => const ReplaceEscape(),
+    .replaceBackspace => const ReplaceBackspace(),
 
     // Selection
-    .addCursorBelow => SelectionActions.addCursorBelow,
-    .addCursorAbove => SelectionActions.addCursorAbove,
-    .escapeVisual => SelectionActions.escapeVisual,
-    .escapeVisualLine => SelectionActions.escapeVisualLine,
-    .swapEnds => SelectionActions.swapEnds,
-    .nextSelection => SelectionActions.nextSelection,
-    .prevSelection => SelectionActions.prevSelection,
-    .removeSelection => SelectionActions.removeSelection,
-    .selectWordUnderCursor => SelectionActions.selectWordUnderCursor,
-    .selectAllMatchesOfSelection =>
-      SelectionActions.selectAllMatchesOfSelection,
-    .visualLineInsertAtLineStarts =>
-      SelectionActions.visualLineInsertAtLineStarts,
-    .visualLineInsertAtLineEnds => SelectionActions.visualLineInsertAtLineEnds,
+    .addCursorBelow => const AddCursorBelow(),
+    .addCursorAbove => const AddCursorAbove(),
+    .escapeVisual => const EscapeVisual(),
+    .escapeVisualLine => const EscapeVisualLine(),
+    .swapEnds => const SwapEnds(),
+    .nextSelection => const NextSelection(),
+    .prevSelection => const PrevSelection(),
+    .removeSelection => const RemoveSelection(),
+    .selectWordUnderCursor => const SelectWordUnderCursor(),
+    .selectAllMatchesOfSelection => const SelectAllMatchesOfSelection(),
+    .visualLineInsertAtLineStarts => const VisualLineInsertAtLineStarts(),
+    .visualLineInsertAtLineEnds => const VisualLineInsertAtLineEnds(),
 
     // LSP
-    .goToDefinition => LspActions.goToDefinition,
-    .findReferences => LspActions.findReferences,
-    .lspRename => LspActions.rename,
-    .hover => LspActions.hover,
-    .jumpBack => LspActions.jumpBack,
-    .jumpForward => LspActions.jumpForward,
+    .goToDefinition => const GoToDefinition(),
+    .findReferences => const FindReferences(),
+    .lspRename => const LspRename(),
+    .hover => const Hover(),
+    .jumpBack => const JumpBack(),
+    .jumpForward => const JumpForward(),
 
     // Line edit input
-    .lineEditBackspace => LineEditInputActions.backspace,
-    .lineEditExecuteCommand => LineEditInputActions.executeCommand,
-    .lineEditExecuteSearch => LineEditInputActions.executeSearch,
-    .lineEditExecuteSearchBackward =>
-      LineEditInputActions.executeSearchBackward,
+    .lineEditBackspace => const LineEditBackspace(),
+    .lineEditExecuteCommand => const LineEditExecuteCommand(),
+    .lineEditExecuteSearch => const LineEditExecuteSearch(),
+    .lineEditExecuteSearchBackward => const LineEditExecuteSearchBackward(),
 
     // Popup
-    .popupCancel => PopupActions.cancel,
-    .popupSelect => PopupActions.select,
-    .popupMoveDown => PopupActions.moveDown,
-    .popupMoveUp => PopupActions.moveUp,
-    .popupFilterBackspace => PopupActions.filterBackspace,
-    .popupFilterCursorLeft => PopupActions.filterCursorLeft,
-    .popupFilterCursorRight => PopupActions.filterCursorRight,
-    .popupFilterCursorToStart => PopupActions.filterCursorToStart,
-    .popupFilterCursorToEnd => PopupActions.filterCursorToEnd,
-    .popupPageDown => PopupActions.pageDown,
-    .popupPageUp => PopupActions.pageUp,
+    .popupCancel => const PopupCancel(),
+    .popupSelect => const PopupSelect(),
+    .popupMoveDown => const PopupMoveDown(),
+    .popupMoveUp => const PopupMoveUp(),
+    .popupFilterBackspace => const PopupFilterBackspace(),
+    .popupFilterCursorLeft => const PopupFilterCursorLeft(),
+    .popupFilterCursorRight => const PopupFilterCursorRight(),
+    .popupFilterCursorToStart => const PopupFilterCursorToStart(),
+    .popupFilterCursorToEnd => const PopupFilterCursorToEnd(),
+    .popupPageDown => const PopupPageDown(),
+    .popupPageUp => const PopupPageUp(),
   };
 }

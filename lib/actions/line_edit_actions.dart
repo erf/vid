@@ -5,15 +5,27 @@ import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/file_browser.dart';
 import '../selection.dart';
+import '../types/line_edit_action_base.dart';
 import 'normal_actions.dart';
 
-/// Command handlers for :commands (executed after Enter).
-class LineEditActions {
-  static void noop(Editor e, FileBuffer f, List<String> args) {
+// ===== Basic commands =====
+
+/// No operation - just returns to normal mode.
+class CmdNoop extends LineEditAction {
+  const CmdNoop();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
   }
+}
 
-  static void open(Editor e, FileBuffer f, List<String> args) {
+/// Open file or directory (:e, :edit, :o, :open).
+class CmdOpen extends LineEditAction {
+  const CmdOpen();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     if (args.length < 2 || args[1].isEmpty) {
       // No path specified - show file browser in current directory
@@ -38,8 +50,14 @@ class LineEditActions {
       e.showMessage(.info('Opened \'$path\''));
     }
   }
+}
 
-  static void read(Editor e, FileBuffer f, List<String> args) {
+/// Read file into buffer (:r, :read).
+class CmdRead extends LineEditAction {
+  const CmdRead();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     if (args.length < 2 || args[1].isEmpty) {
       e.showMessage(.error('No file name'));
@@ -53,8 +71,14 @@ class LineEditActions {
       e.showMessage(.info('Read \'$path\''));
     }
   }
+}
 
-  static void write(Editor e, FileBuffer f, List<String> args) {
+/// Write buffer to file (:w, :write).
+class CmdWrite extends LineEditAction {
+  const CmdWrite();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
 
     String? path = f.path;
@@ -70,8 +94,14 @@ class LineEditActions {
       e.showMessage(.info('Saved \'$path\''));
     }
   }
+}
 
-  static void writeAndQuit(Editor e, FileBuffer f, List<String> args) {
+/// Write and quit (:wq, :x, :exit).
+class CmdWriteAndQuit extends LineEditAction {
+  const CmdWriteAndQuit();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
 
     // If a path argument is provided, save current buffer to that path first
@@ -108,59 +138,75 @@ class LineEditActions {
       e.quit();
     }
   }
+}
 
-  static void quit(Editor e, FileBuffer f, List<String> args) {
+/// Quit (:q, :quit).
+class CmdQuit extends LineEditAction {
+  const CmdQuit();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    NormalActions.quit(e, f);
+    const Quit()(e, f);
   }
+}
 
-  static void forceQuit(Editor e, FileBuffer f, List<String> args) {
+/// Force quit (:q!, :quit!).
+class CmdForceQuit extends LineEditAction {
+  const CmdForceQuit();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     e.quit();
   }
+}
 
-  static void substitute(Editor e, FileBuffer f, List<String> args) {
-    List<String> parts = args.first.split('/');
-    String pattern = parts[1];
-    String replacement = parts.length >= 3 ? parts[2] : '';
-    bool global = parts.length >= 4 && parts[3] == 'g';
+// ===== Wrap mode commands =====
 
-    f.setMode(e, .normal);
-    final regex = RegExp(RegExp.escape(pattern));
-    while (true) {
-      Match? match = regex.firstMatch(f.text);
-      if (match == null) {
-        break;
-      }
-      f.replace(match.start, match.end, replacement, config: e.config);
-      f.cursor = match.start;
-      f.clampCursor();
-      if (!global) {
-        break;
-      }
-    }
-  }
+/// Set no wrap (:nowrap).
+class CmdSetNoWrap extends LineEditAction {
+  const CmdSetNoWrap();
 
-  static void setNoWrap(Editor e, FileBuffer f, List<String> args) {
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.setWrapMode(.none);
     e.showMessage(.info('Wrap: off'));
   }
+}
 
-  static void setCharWrap(Editor e, FileBuffer f, List<String> args) {
+/// Set char wrap (:charwrap).
+class CmdSetCharWrap extends LineEditAction {
+  const CmdSetCharWrap();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.setWrapMode(.char);
     e.showMessage(.info('Wrap: char'));
   }
+}
 
-  static void setWordWrap(Editor e, FileBuffer f, List<String> args) {
+/// Set word wrap (:wordwrap).
+class CmdSetWordWrap extends LineEditAction {
+  const CmdSetWordWrap();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.setWrapMode(.word);
     e.showMessage(.info('Wrap: word'));
   }
+}
 
-  /// Select all matches of a regex pattern (:sel pattern)
-  /// Creates multiple selections from all regex matches.
-  static void select(Editor e, FileBuffer f, List<String> args) {
+// ===== Selection commands =====
+
+/// Select all matches of a regex pattern (:sel pattern).
+class CmdSelect extends LineEditAction {
+  const CmdSelect();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     if (args.length < 2) {
       f.setMode(e, .normal);
       e.showMessage(.error('Pattern required: :sel <pattern>'));
@@ -184,11 +230,44 @@ class LineEditActions {
       e.showMessage(.error('Invalid regex: ${ex.message}'));
     }
   }
+}
 
-  /// Clear all selections, keep only the main cursor (:selclear)
-  static void selectClear(Editor e, FileBuffer f, List<String> args) {
+/// Clear all selections (:selclear).
+class CmdSelectClear extends LineEditAction {
+  const CmdSelectClear();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     f.selections = [f.selection.collapse()];
     e.showMessage(.info('Selections cleared'));
+  }
+}
+
+/// Substitute pattern (:s/pattern/replacement/[g]).
+class CmdSubstitute extends LineEditAction {
+  const CmdSubstitute();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
+    List<String> parts = args.first.split('/');
+    String pattern = parts[1];
+    String replacement = parts.length >= 3 ? parts[2] : '';
+    bool global = parts.length >= 4 && parts[3] == 'g';
+
+    f.setMode(e, .normal);
+    final regex = RegExp(RegExp.escape(pattern));
+    while (true) {
+      Match? match = regex.firstMatch(f.text);
+      if (match == null) {
+        break;
+      }
+      f.replace(match.start, match.end, replacement, config: e.config);
+      f.cursor = match.start;
+      f.clampCursor();
+      if (!global) {
+        break;
+      }
+    }
   }
 }

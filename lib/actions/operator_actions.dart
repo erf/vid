@@ -1,4 +1,5 @@
 import 'package:termio/termio.dart';
+import 'package:vid/types/operator_action_base.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
@@ -6,19 +7,14 @@ import '../range.dart';
 import '../selection.dart';
 import '../yank_buffer.dart';
 
-/// Signature for operator functions (d, c, y, etc.).
-/// [range] is always normalized (start <= end).
-/// [linewise] indicates whether the operation affects whole lines.
-typedef OperatorFunction =
-    void Function(Editor e, FileBuffer f, Range range, {bool linewise});
-
+/// Utility class for operator-related helper functions.
 class OperatorActions {
   /// Check if there are visual selections and apply operator to them.
   /// Returns true if selections were handled, false to fall through to motion.
   static bool handleVisualSelections(
     Editor e,
     FileBuffer f,
-    OperatorFunction op, {
+    OperatorAction op, {
     bool linewise = false,
   }) {
     // In visual line mode, always treat as having a selection (even if collapsed)
@@ -69,7 +65,7 @@ class OperatorActions {
     e.yankBuffer = YankBuffer(allText.toString(), linewise: isLinewise);
 
     // For yank, we're done after copying
-    if (op == yank) {
+    if (op is Yank) {
       e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
       // Clear selections to collapsed at first selection's start
       f.selections = [Selection.collapsed(visualSelections.first.start)];
@@ -96,7 +92,7 @@ class OperatorActions {
     f.selections = newSelections;
     f.clampCursor();
 
-    if (op == change) {
+    if (op is Change) {
       f.setMode(e, .insert);
     } else {
       // Return to normal mode after delete/yank, preserving multi-cursors
@@ -105,13 +101,14 @@ class OperatorActions {
 
     return true;
   }
+}
 
-  static void change(
-    Editor e,
-    FileBuffer f,
-    Range range, {
-    bool linewise = false,
-  }) {
+/// Change operator (c) - delete range and enter insert mode
+class Change extends OperatorAction {
+  const Change();
+
+  @override
+  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
     f.yankRange(e, range, linewise: linewise);
     f.replace(range.start, range.end, '', config: e.config);
     f.cursor = range.start;
@@ -119,48 +116,52 @@ class OperatorActions {
     f.setMode(e, .insert);
     f.clampCursor();
   }
+}
 
-  static void delete(
-    Editor e,
-    FileBuffer f,
-    Range range, {
-    bool linewise = false,
-  }) {
+/// Delete operator (d) - delete range
+class Delete extends OperatorAction {
+  const Delete();
+
+  @override
+  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
     f.yankRange(e, range, linewise: linewise);
     f.replace(range.start, range.end, '', config: e.config);
     f.cursor = range.start;
     f.setMode(e, .normal);
     f.clampCursor();
   }
+}
 
-  static void yank(
-    Editor e,
-    FileBuffer f,
-    Range range, {
-    bool linewise = false,
-  }) {
+/// Yank operator (y) - copy range to yank buffer
+class Yank extends OperatorAction {
+  const Yank();
+
+  @override
+  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
     f.yankRange(e, range, linewise: linewise);
     e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
     f.setMode(e, .normal);
   }
+}
 
-  static void lowerCase(
-    Editor e,
-    FileBuffer f,
-    Range range, {
-    bool linewise = false,
-  }) {
+/// LowerCase operator (gu) - convert range to lowercase
+class LowerCase extends OperatorAction {
+  const LowerCase();
+
+  @override
+  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
     String replacement = f.text.substring(range.start, range.end).toLowerCase();
     f.replace(range.start, range.end, replacement, config: e.config);
     f.setMode(e, .normal);
   }
+}
 
-  static void upperCase(
-    Editor e,
-    FileBuffer f,
-    Range range, {
-    bool linewise = false,
-  }) {
+/// UpperCase operator (gU) - convert range to uppercase
+class UpperCase extends OperatorAction {
+  const UpperCase();
+
+  @override
+  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
     String replacement = f.text.substring(range.start, range.end).toUpperCase();
     f.replace(range.start, range.end, replacement, config: e.config);
     f.setMode(e, .normal);

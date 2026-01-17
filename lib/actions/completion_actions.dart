@@ -4,11 +4,14 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../features/lsp/lsp_feature.dart';
 import '../popup/popup.dart';
+import '../types/action_base.dart';
 
-/// Actions for word completion (CTRL-n in insert mode).
-class CompletionActions {
-  /// Show word completion popup using LSP.
-  static void showCompletion(Editor e, FileBuffer f) {
+/// Show word completion popup using LSP.
+class ShowCompletion extends Action {
+  const ShowCompletion();
+
+  @override
+  void call(Editor e, FileBuffer f) {
     final lsp = e.featureRegistry?.get<LspFeature>();
     if (lsp == null || !lsp.isConnected || f.absolutePath == null) {
       e.showMessage(.info('LSP not connected'));
@@ -16,14 +19,14 @@ class CompletionActions {
     }
 
     // Capture word boundaries upfront before async operations
-    final wordStart = _getWordStart(f);
+    final wordStart = getWordStart(f);
     final wordEnd = f.cursor;
 
-    _showLspCompletion(e, f, wordStart, wordEnd, lsp);
+    showLspCompletion(e, f, wordStart, wordEnd, lsp);
   }
 
   /// Get the start offset of the word being completed.
-  static int _getWordStart(FileBuffer f) {
+  int getWordStart(FileBuffer f) {
     if (f.cursor == 0) return 0;
 
     int start = f.cursor;
@@ -37,7 +40,7 @@ class CompletionActions {
   }
 
   /// Show LSP-based completion.
-  static void _showLspCompletion(
+  void showLspCompletion(
     Editor e,
     FileBuffer f,
     int wordStart,
@@ -70,7 +73,7 @@ class CompletionActions {
         );
       }).toList();
 
-      _showCompletionPopup(e, f, wordStart, wordEnd, popupItems);
+      showCompletionPopup(e, f, wordStart, wordEnd, popupItems);
     } on TimeoutException {
       if (f.mode != .insert) return;
       e.showMessage(.info('Completion timed out'));
@@ -83,7 +86,7 @@ class CompletionActions {
   }
 
   /// Show the completion popup.
-  static void _showCompletionPopup(
+  void showCompletionPopup(
     Editor e,
     FileBuffer f,
     int wordStart,

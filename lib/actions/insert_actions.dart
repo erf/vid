@@ -3,7 +3,9 @@ import 'package:vid/selection.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../types/action_base.dart';
 
+/// Utility methods for insert mode actions.
 class InsertActions {
   /// Insert character(s) at all cursor positions.
   static void insert(Editor e, FileBuffer f, String s) {
@@ -89,62 +91,8 @@ class InsertActions {
     return ' ' * (currentLen > 0 ? currentLen : e.config.tabWidth);
   }
 
-  /// Insert newline at all cursor positions.
-  static void enter(Editor e, FileBuffer f) {
-    // Sort selections by position (ascending)
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
-
-    // Build insertions - compute indent for each position
-    final insertions = <(int, String)>[];
-    for (final sel in sorted) {
-      String indent = '';
-      if (e.config.autoIndent) {
-        indent = getSmartIndent(e, f, sel.cursor, fullLine: false);
-      }
-      insertions.add((sel.cursor, Keys.newline + indent));
-    }
-
-    // Build edit list
-    final edits = insertions
-        .map((ins) => TextEdit.insert(ins.$1, ins.$2))
-        .toList();
-
-    // Apply the insertions
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions
-    final newSelections = <Selection>[];
-    int offset = 0;
-    for (int i = 0; i < sorted.length; i++) {
-      final textLen = insertions[i].$2.length;
-      newSelections.add(
-        Selection.collapsed(sorted[i].cursor + offset + textLen),
-      );
-      offset += textLen;
-    }
-    f.selections = newSelections;
-    f.clampCursor();
-  }
-
-  /// Exit insert mode and return to normal mode.
-  /// Moves all cursors back one char (vim behavior), but not past line start.
-  static void escape(Editor e, FileBuffer f) {
-    f.setMode(e, .normal);
-    final newSelections = <Selection>[];
-    for (final sel in f.selections) {
-      int lineStart = f.lineStart(sel.cursor);
-      int prev = f.prevGrapheme(sel.cursor);
-      // Only move back if we won't go before line start
-      newSelections.add(
-        Selection.collapsed(prev >= lineStart ? prev : sel.cursor),
-      );
-    }
-    f.selections = newSelections;
-  }
-
   /// Delete character before all cursor positions.
-  static void backspace(Editor e, FileBuffer f) {
+  static void backspaceImpl(Editor e, FileBuffer f) {
     // Sort selections by position (ascending)
     final sorted = f.selections.toList()
       ..sort((a, b) => a.cursor.compareTo(b.cursor));
@@ -184,5 +132,84 @@ class InsertActions {
       }
     }
     f.selections = newSelections;
+  }
+}
+
+/// Insert newline at all cursor positions.
+class InsertEnter extends Action {
+  const InsertEnter();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    // Sort selections by position (ascending)
+    final sorted = f.selections.toList()
+      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+
+    // Build insertions - compute indent for each position
+    final insertions = <(int, String)>[];
+    for (final sel in sorted) {
+      String indent = '';
+      if (e.config.autoIndent) {
+        indent = InsertActions.getSmartIndent(
+          e,
+          f,
+          sel.cursor,
+          fullLine: false,
+        );
+      }
+      insertions.add((sel.cursor, Keys.newline + indent));
+    }
+
+    // Build edit list
+    final edits = insertions
+        .map((ins) => TextEdit.insert(ins.$1, ins.$2))
+        .toList();
+
+    // Apply the insertions
+    applyEdits(f, edits, e.config);
+
+    // Update cursor positions
+    final newSelections = <Selection>[];
+    int offset = 0;
+    for (int i = 0; i < sorted.length; i++) {
+      final textLen = insertions[i].$2.length;
+      newSelections.add(
+        Selection.collapsed(sorted[i].cursor + offset + textLen),
+      );
+      offset += textLen;
+    }
+    f.selections = newSelections;
+    f.clampCursor();
+  }
+}
+
+/// Exit insert mode and return to normal mode.
+/// Moves all cursors back one char (vim behavior), but not past line start.
+class InsertEscape extends Action {
+  const InsertEscape();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    f.setMode(e, .normal);
+    final newSelections = <Selection>[];
+    for (final sel in f.selections) {
+      int lineStart = f.lineStart(sel.cursor);
+      int prev = f.prevGrapheme(sel.cursor);
+      // Only move back if we won't go before line start
+      newSelections.add(
+        Selection.collapsed(prev >= lineStart ? prev : sel.cursor),
+      );
+    }
+    f.selections = newSelections;
+  }
+}
+
+/// Delete character before all cursor positions.
+class InsertBackspace extends Action {
+  const InsertBackspace();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    InsertActions.backspaceImpl(e, f);
   }
 }

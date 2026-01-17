@@ -1,11 +1,16 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/buffer_selector.dart';
+import '../types/line_edit_action_base.dart';
 
-/// Buffer navigation and management commands.
-class BufferActions {
-  /// Switch to next buffer (:bn, :bnext)
-  static void nextBuffer(Editor e, FileBuffer f, List<String> args) {
+// ===== Buffer commands =====
+
+/// Switch to next buffer (:bn, :bnext).
+class CmdNextBuffer extends LineEditAction {
+  const CmdNextBuffer();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     if (e.bufferCount <= 1) {
       e.showMessage(.info('Only one buffer open'));
@@ -14,9 +19,14 @@ class BufferActions {
     e.nextBuffer();
     e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
   }
+}
 
-  /// Switch to previous buffer (:bp, :bprev)
-  static void prevBuffer(Editor e, FileBuffer f, List<String> args) {
+/// Switch to previous buffer (:bp, :bprev).
+class CmdPrevBuffer extends LineEditAction {
+  const CmdPrevBuffer();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     if (e.bufferCount <= 1) {
       e.showMessage(.info('Only one buffer open'));
@@ -25,9 +35,14 @@ class BufferActions {
     e.prevBuffer();
     e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
   }
+}
 
-  /// Switch to buffer by number (:b <n>) or show buffer selector (:b)
-  static void switchToBuffer(Editor e, FileBuffer f, List<String> args) {
+/// Switch to buffer by number (`:b <n>`) or show selector (`:b`).
+class CmdSwitchToBuffer extends LineEditAction {
+  const CmdSwitchToBuffer();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     if (args.length < 2) {
       // No argument - show buffer selector
@@ -42,21 +57,36 @@ class BufferActions {
     e.switchBuffer(num - 1);
     e.showMessage(.info('Buffer $num/${e.bufferCount}'));
   }
+}
 
-  /// Close current buffer (:bd, :bdelete)
-  static void closeBuffer(Editor e, FileBuffer f, List<String> args) {
+/// Close current buffer (:bd, :bdelete).
+class CmdCloseBuffer extends LineEditAction {
+  const CmdCloseBuffer();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.closeBuffer(e.currentBufferIndex);
   }
+}
 
-  /// Force close current buffer (:bd!, :bdelete!)
-  static void forceCloseBuffer(Editor e, FileBuffer f, List<String> args) {
+/// Force close current buffer (:bd!, :bdelete!).
+class CmdForceCloseBuffer extends LineEditAction {
+  const CmdForceCloseBuffer();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     e.closeBuffer(e.currentBufferIndex, force: true);
   }
+}
 
-  /// List all buffers (:ls, :buffers) - shows interactive popup
-  static void listBuffers(Editor e, FileBuffer f, List<String> args) {
+/// List all buffers (:ls, :buffers).
+class CmdListBuffers extends LineEditAction {
+  const CmdListBuffers();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     BufferSelector.show(e);
   }

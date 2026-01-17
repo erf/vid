@@ -1,211 +1,103 @@
 import 'dart:math';
 
-import 'package:characters/characters.dart';
+import 'package:vid/types/motion_action_base.dart';
 import 'package:vid/editor.dart';
+import 'package:vid/file_buffer/file_buffer.dart';
+import 'package:vid/regex.dart';
 
-import '../file_buffer/file_buffer.dart';
-import '../regex.dart';
-import '../string_ext.dart';
-import '../utils.dart';
+// ===== Character motions =====
 
-class MotionActions {
-  /// Sentinel value for desiredColumn meaning "end of line".
-  static const int endOfLineColumn = 0x7FFFFFFF;
+/// Move to next character (l)
+class CharNext extends MotionAction {
+  const CharNext();
 
-  /// Compute the visual column for the cursor at the given offset.
-  static int _computeVisualColumn(Editor e, FileBuffer f, int offset) {
-    int currentLine = f.lineNumber(offset);
-    int lineStartOff = f.lines[currentLine].start;
-    String beforeCursor = f.text.substring(lineStartOff, offset);
-    return beforeCursor.renderLength(e.config.tabWidth);
-  }
-
-  /// Move to a specific visual column on the target line.
-  /// Returns the byte offset of the resulting cursor position.
-  static int _moveToLineWithColumn(
-    Editor e,
-    FileBuffer f,
-    int targetLine,
-    int targetCol,
-  ) {
-    int targetLineStart = f.lines[targetLine].start;
-    int targetLineEnd = f.lines[targetLine].end;
-    String targetLineText = f.text.substring(targetLineStart, targetLineEnd);
-
-    // Find position in target line with similar visual column
-    int nextlen = 0;
-    Characters chars = targetLineText.characters.takeWhile((c) {
-      nextlen += c.charWidth(e.config.tabWidth);
-      return nextlen <= targetCol;
-    });
-
-    // Clamp to valid position in target line
-    int targetCharLen = targetLineText.characters.length;
-    int charIndex = clamp(chars.length, 0, max(0, targetCharLen - 1));
-
-    // Convert char index to byte offset
-    return targetLineStart +
-        targetLineText.characters.take(charIndex).string.length;
-  }
-
-  /// Move to a different line, maintaining approximate visual column position.
-  /// Legacy helper that computes column from offset (used when sticky column disabled).
-  static int _moveToLineKeepColumn(
-    Editor e,
-    FileBuffer f,
-    int offset,
-    int currentLine,
-    int targetLine,
-  ) {
-    int curVisualCol = _computeVisualColumn(e, f, offset);
-    return _moveToLineWithColumn(e, f, targetLine, curVisualCol);
-  }
-
-  /// Find the first match after the given byte offset
-  static int regexNext(
-    FileBuffer f,
-    int offset,
-    RegExp pattern, {
-    int skip = 0,
-  }) {
-    final matches = pattern.allMatches(f.text, offset + skip);
-    if (matches.isEmpty) return offset;
-    final m = matches.firstWhere(
-      (ma) => ma.start > offset,
-      orElse: () => matches.first,
-    );
-    return m.start == offset ? m.end : m.start;
-  }
-
-  /// Find the first match before the given byte offset.
-  /// Searches back in chunks of [chunkSize] until a match is found or start of file.
-  static int regexPrev(
-    FileBuffer f,
-    int offset,
-    RegExp pattern, {
-    int chunkSize = 1000,
-  }) {
-    int searchStart = max(0, offset - chunkSize);
-
-    while (true) {
-      final matches = pattern.allMatches(f.text, searchStart);
-      Match? lastMatch;
-      for (final m in matches) {
-        if (m.start >= offset) break;
-        lastMatch = m;
-      }
-      if (lastMatch != null) return lastMatch.start;
-
-      // No match found - expand search or give up
-      if (searchStart == 0) return offset;
-      searchStart = max(0, searchStart - chunkSize);
-    }
-  }
-
-  /// Find next/prev occurrence of the word under cursor
-  /// Returns (destinationOffset, matchedWord) or null if no word found
-  static (int, String)? matchCursorWord(
-    FileBuffer f,
-    int offset, {
-    required bool forward,
-    int chunkSize = 1000,
-  }) {
-    // Find word containing cursor - search backwards in chunks
-    int searchStart = max(0, offset - chunkSize);
-
-    while (true) {
-      final matches = Regex.word.allMatches(f.text, searchStart);
-      Match? match;
-      for (final m in matches) {
-        if (offset < m.end) {
-          match = m;
-          break;
-        }
-      }
-
-      if (match != null) {
-        // We are not on the word
-        if (offset < match.start || offset >= match.end) {
-          final wordToMatch = f.text.substring(match.start, match.end);
-          return (match.start, wordToMatch);
-        }
-        // We are on the word - find the next/prev same word
-        final wordToMatch = f.text.substring(match.start, match.end);
-        final pattern = RegExp(RegExp.escape(wordToMatch));
-        final int index = forward
-            ? f.text.indexOf(pattern, match.end)
-            : f.text.lastIndexOf(pattern, max(0, match.start - 1));
-        return (index == -1 ? match.start : index, wordToMatch);
-      }
-
-      // No match found - expand search or give up
-      if (searchStart == 0) return null;
-      searchStart = max(0, searchStart - chunkSize);
-    }
-  }
-
-  // ===== Motion functions =====
-
-  /// Move to next character (l)
-  static int charNext(Editor e, FileBuffer f, int offset) {
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     int next = f.nextGrapheme(offset);
     if (next >= f.text.length) return offset;
     return next;
   }
+}
 
-  /// Move to previous character (h)
-  static int charPrev(Editor e, FileBuffer f, int offset) {
+/// Move to previous character (h)
+class CharPrev extends MotionAction {
+  const CharPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     if (offset <= 0) return 0;
     return f.prevGrapheme(offset);
   }
+}
 
-  /// Move to next line (j) - linewise
-  static int lineDown(Editor e, FileBuffer f, int offset) {
+// ===== Line motions =====
+
+/// Move to next line (j) - linewise
+class LineDown extends MotionAction {
+  const LineDown();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     int currentLine = f.lineNumber(offset);
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
 
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
-      int targetCol = f.desiredColumn ?? _computeVisualColumn(e, f, offset);
-      int newOffset = _moveToLineWithColumn(e, f, currentLine + 1, targetCol);
+      int targetCol = f.desiredColumn ?? computeVisualColumn(e, f, offset);
+      int newOffset = moveToLineWithColumn(e, f, currentLine + 1, targetCol);
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;
       return newOffset;
     }
-    return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine + 1);
+    return moveToLineKeepColumn(e, f, offset, currentLine, currentLine + 1);
   }
+}
 
-  /// Move to previous line (k) - linewise
-  static int lineUp(Editor e, FileBuffer f, int offset) {
+/// Move to previous line (k) - linewise
+class LineUp extends MotionAction {
+  const LineUp();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     int currentLine = f.lineNumber(offset);
     if (currentLine == 0) return offset;
 
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
-      int targetCol = f.desiredColumn ?? _computeVisualColumn(e, f, offset);
-      int newOffset = _moveToLineWithColumn(e, f, currentLine - 1, targetCol);
+      int targetCol = f.desiredColumn ?? computeVisualColumn(e, f, offset);
+      int newOffset = moveToLineWithColumn(e, f, currentLine - 1, targetCol);
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;
       return newOffset;
     }
-    return _moveToLineKeepColumn(e, f, offset, currentLine, currentLine - 1);
+    return moveToLineKeepColumn(e, f, offset, currentLine, currentLine - 1);
   }
+}
 
-  /// Move to start of line (0)
-  static int lineStart(Editor e, FileBuffer f, int offset) {
+/// Move to start of line (0)
+class LineStart extends MotionAction {
+  const LineStart();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return f.lineStart(offset);
   }
+}
 
-  /// Move to end of line ($) - inclusive
-  /// Returns the last character position (before newline).
-  static int lineEnd(Editor e, FileBuffer f, int offset) {
+/// Move to end of line ($) - inclusive
+/// Returns the last character position (before newline).
+class LineEnd extends MotionAction {
+  const LineEnd();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     int lineNum = f.lineNumber(offset);
     int lineEndOff = f.lines[lineNum].end;
 
     // Set desiredColumn to end-of-line sentinel for sticky column
     if (e.config.preserveColumnOnVerticalMove) {
-      f.desiredColumn = endOfLineColumn;
+      f.desiredColumn = MotionAction.endOfLineColumn;
     }
 
     // Go to last char before newline (or stay if empty line)
@@ -214,9 +106,14 @@ class MotionActions {
     }
     return offset;
   }
+}
 
-  /// Move to first non-blank character (^) - linewise
-  static int firstNonBlank(Editor e, FileBuffer f, int offset) {
+/// Move to first non-blank character (^) - linewise
+class FirstNonBlank extends MotionAction {
+  const FirstNonBlank();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     int lineNum = f.lineNumber(offset);
     int lineStartOff = f.lines[lineNum].start;
     String lineText = f.lineTextAt(lineNum);
@@ -225,20 +122,37 @@ class MotionActions {
         ? lineStartOff
         : lineStartOff + firstNonBlankIdx;
   }
+}
 
-  /// Move to next word (w)
-  static int wordNext(Editor e, FileBuffer f, int offset) {
+// ===== Word motions =====
+
+/// Move to next word (w)
+class WordNext extends MotionAction {
+  const WordNext();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.word);
   }
+}
 
-  /// Move to previous word (b)
-  static int wordPrev(Editor e, FileBuffer f, int offset) {
+/// Move to previous word (b)
+class WordPrev extends MotionAction {
+  const WordPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.word);
   }
+}
 
-  /// Move to end of word (e) - inclusive
-  /// Returns the position of the last character of the word.
-  static int wordEnd(Editor e, FileBuffer f, int offset) {
+/// Move to end of word (e) - inclusive
+/// Returns the position of the last character of the word.
+class WordEnd extends MotionAction {
+  const WordEnd();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     final matches = Regex.word.allMatches(f.text, offset);
     if (matches.isEmpty) return offset;
     final match = matches.firstWhere(
@@ -247,14 +161,14 @@ class MotionActions {
     );
     return match.end - 1; // Position ON the last char
   }
+}
 
-  /// Move to end of previous word (ge) - inclusive
-  static int wordEndPrev(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    int chunkSize = 1000,
-  }) {
+/// Move to end of previous word (ge) - inclusive
+class WordEndPrev extends MotionAction {
+  const WordEndPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset, {int chunkSize = 1000}) {
     int searchStart = max(0, offset - chunkSize);
 
     while (true) {
@@ -271,20 +185,35 @@ class MotionActions {
       searchStart = max(0, searchStart - chunkSize);
     }
   }
+}
 
-  /// Move to next WORD (W)
-  static int wordCapNext(Editor e, FileBuffer f, int offset) {
+/// Move to next WORD (W)
+class WordCapNext extends MotionAction {
+  const WordCapNext();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.wordCap);
   }
+}
 
-  /// Move to previous WORD (B)
-  static int wordCapPrev(Editor e, FileBuffer f, int offset) {
+/// Move to previous WORD (B)
+class WordCapPrev extends MotionAction {
+  const WordCapPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.wordCap);
   }
+}
 
-  /// Move to end of WORD (E) - inclusive
-  /// Returns the position of the last character of the WORD.
-  static int wordCapEnd(Editor e, FileBuffer f, int offset) {
+/// Move to end of WORD (E) - inclusive
+/// Returns the position of the last character of the WORD.
+class WordCapEnd extends MotionAction {
+  const WordCapEnd();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     final matches = Regex.wordCap.allMatches(f.text, offset);
     if (matches.isEmpty) return offset;
     final match = matches.firstWhere(
@@ -293,14 +222,14 @@ class MotionActions {
     );
     return match.end - 1; // Position ON the last char
   }
+}
 
-  /// Move to end of previous WORD (gE) - inclusive
-  static int wordCapEndPrev(
-    Editor e,
-    FileBuffer f,
-    int offset, {
-    int chunkSize = 1000,
-  }) {
+/// Move to end of previous WORD (gE) - inclusive
+class WordCapEndPrev extends MotionAction {
+  const WordCapEndPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset, {int chunkSize = 1000}) {
     int searchStart = max(0, offset - chunkSize);
 
     while (true) {
@@ -317,132 +246,202 @@ class MotionActions {
       searchStart = max(0, searchStart - chunkSize);
     }
   }
+}
 
-  /// Move to start of file or line number (gg) - linewise
-  static int fileStart(Editor e, FileBuffer f, int offset) {
+// ===== File motions =====
+
+/// Move to start of file or line number (gg) - linewise
+class FileStart extends MotionAction {
+  const FileStart();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     int targetLine = 0;
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
     int lineStartOff = f.lineOffset(targetLine);
-    return firstNonBlank(e, f, lineStartOff);
+    return const FirstNonBlank().call(e, f, lineStartOff);
   }
+}
 
-  /// Move to end of file or line number (G) - linewise
-  static int fileEnd(Editor e, FileBuffer f, int offset) {
+/// Move to end of file or line number (G) - linewise
+class FileEnd extends MotionAction {
+  const FileEnd();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     int targetLine = f.totalLines - 1;
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
     int lineStartOff = f.lineOffset(targetLine);
-    return firstNonBlank(e, f, lineStartOff);
+    return const FirstNonBlank().call(e, f, lineStartOff);
   }
+}
 
-  /// Find next character (f) - inclusive
-  /// Returns the position of the matched character.
-  static int findNextChar(Editor e, FileBuffer f, int offset) {
+// ===== Find char motions =====
+
+/// Find next character (f) - inclusive
+/// Returns the position of the matched character.
+class FindNextChar extends MotionAction {
+  const FindNextChar();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     f.edit.findStr = f.edit.findStr ?? f.readNextChar();
     return regexNext(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
   }
+}
 
-  /// Find previous character (F) - inclusive
-  static int findPrevChar(Editor e, FileBuffer f, int offset) {
+/// Find previous character (F) - inclusive
+class FindPrevChar extends MotionAction {
+  const FindPrevChar();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     f.edit.findStr = f.edit.findStr ?? f.readNextChar();
     return regexPrev(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
   }
+}
 
-  /// Find till next character (t) - inclusive, stops one before
-  static int findTillNextChar(Editor e, FileBuffer f, int offset) {
-    final next = findNextChar(e, f, offset);
+/// Find till next character (t) - inclusive, stops one before
+class FindTillNextChar extends MotionAction {
+  const FindTillNextChar();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
+    final next = const FindNextChar().call(e, f, offset);
     // Move back one grapheme, but not past original position
     if (next > offset) {
       return max(f.prevGrapheme(next), offset);
     }
     return next;
   }
+}
 
-  /// Find till previous character (T) - inclusive, stops one after
-  static int findTillPrevChar(Editor e, FileBuffer f, int offset) {
-    final prev = findPrevChar(e, f, offset);
+/// Find till previous character (T) - inclusive, stops one after
+class FindTillPrevChar extends MotionAction {
+  const FindTillPrevChar();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
+    final prev = const FindPrevChar().call(e, f, offset);
     // Move forward one grapheme, but not past original position
     if (prev < offset) {
       return min(f.nextGrapheme(prev), offset);
     }
     return prev;
   }
+}
 
-  /// Move to next paragraph (})
-  static int paragraphNext(Editor e, FileBuffer f, int offset) {
+// ===== Paragraph/sentence motions =====
+
+/// Move to next paragraph (})
+class ParagraphNext extends MotionAction {
+  const ParagraphNext();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.paragraph, skip: 1);
   }
+}
 
-  /// Move to previous paragraph ({)
-  static int paragraphPrev(Editor e, FileBuffer f, int offset) {
+/// Move to previous paragraph ({)
+class ParagraphPrev extends MotionAction {
+  const ParagraphPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.paragraphPrev);
   }
+}
 
-  /// Move to next sentence ())
-  static int sentenceNext(Editor e, FileBuffer f, int offset) {
+/// Move to next sentence ())
+class SentenceNext extends MotionAction {
+  const SentenceNext();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexNext(f, offset, Regex.sentence, skip: 1);
   }
+}
 
-  /// Move to previous sentence (()
-  static int sentencePrev(Editor e, FileBuffer f, int offset) {
+/// Move to previous sentence (()
+class SentencePrev extends MotionAction {
+  const SentencePrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.sentence);
   }
+}
 
-  /// Move to next same word (*)
-  static int sameWordNext(Editor e, FileBuffer f, int offset) {
+// ===== Same word motions =====
+
+/// Move to next same word (*)
+class SameWordNext extends MotionAction {
+  const SameWordNext();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     final result = matchCursorWord(f, offset, forward: true);
     if (result == null) return offset;
     final (destOffset, word) = result;
     f.edit.findStr = word;
     return destOffset;
   }
+}
 
-  /// Move to previous same word (#)
-  static int sameWordPrev(Editor e, FileBuffer f, int offset) {
+/// Move to previous same word (#)
+class SameWordPrev extends MotionAction {
+  const SameWordPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     final result = matchCursorWord(f, offset, forward: false);
     if (result == null) return offset;
     final (destOffset, word) = result;
     f.edit.findStr = word;
     return destOffset;
   }
+}
 
-  /// Linewise motion for same-line operators (dd, yy, cc)
-  static int linewise(Editor e, FileBuffer f, int offset) {
-    int lineNum = f.lineNumber(offset);
-    int lineEndOff = f.lines[lineNum].end;
-    int lineStartOff = f.lines[lineNum].start;
+// ===== Search motions =====
 
-    // If already at line end (but not an empty line), move to end of next line
-    // This enables count support (e.g., 3dd deletes 3 lines)
-    // For empty lines (lineStart == lineEnd), stay on current line
-    if (offset >= lineEndOff &&
-        lineStartOff != lineEndOff &&
-        lineEndOff + 1 < f.text.length) {
-      return f.lines[lineNum + 1].end;
-    }
-    return lineEndOff;
-  }
+/// Search next (n)
+class SearchNext extends MotionAction {
+  const SearchNext();
 
-  /// Search next (n)
-  static int searchNext(Editor e, FileBuffer f, int offset) {
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     final String pattern = f.edit.findStr ?? '';
     return regexNext(f, offset, RegExp(RegExp.escape(pattern)), skip: 1);
   }
+}
 
-  /// Search previous (N)
-  static int searchPrev(Editor e, FileBuffer f, int offset) {
+/// Search previous (N)
+class SearchPrev extends MotionAction {
+  const SearchPrev();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     final String pattern = f.edit.findStr ?? '';
     return regexPrev(f, offset, RegExp(RegExp.escape(pattern)));
   }
+}
 
-  /// Match bracket (%) - jump to matching (), {}, []
-  /// If cursor is on a bracket, jump to its match.
-  /// If cursor is not on a bracket, search forward on the current line
-  /// for a bracket and jump to its match.
-  static int matchBracket(Editor e, FileBuffer f, int offset) {
+// ===== Match bracket =====
+
+/// Match bracket (%) - jump to matching (), {}, []
+/// If cursor is on a bracket, jump to its match.
+/// If cursor is not on a bracket, search forward on the current line
+/// for a bracket and jump to its match.
+class MatchBracket extends MotionAction {
+  const MatchBracket();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
     if (offset >= text.length) return offset;
 
@@ -519,5 +518,29 @@ class MotionActions {
 
     // No match found
     return offset;
+  }
+}
+
+// ===== Special linewise motion =====
+
+/// Linewise motion for same-line operators (dd, yy, cc)
+class Linewise extends MotionAction {
+  const Linewise();
+
+  @override
+  int call(Editor e, FileBuffer f, int offset) {
+    int lineNum = f.lineNumber(offset);
+    int lineEndOff = f.lines[lineNum].end;
+    int lineStartOff = f.lines[lineNum].start;
+
+    // If already at line end (but not an empty line), move to end of next line
+    // This enables count support (e.g., 3dd deletes 3 lines)
+    // For empty lines (lineStart == lineEnd), stay on current line
+    if (offset >= lineEndOff &&
+        lineStartOff != lineEndOff &&
+        lineEndOff + 1 < f.text.length) {
+      return f.lines[lineNum + 1].end;
+    }
+    return lineEndOff;
   }
 }

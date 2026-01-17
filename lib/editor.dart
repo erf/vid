@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:termio/termio.dart';
+import 'package:vid/types/operator_action_base.dart';
 import 'package:vid/actions/operator_actions.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/features/cursor_position/cursor_position_feature.dart';
@@ -407,6 +408,11 @@ class Editor {
     draw();
   }
 
+  /// Notify popup that highlighted item changed.
+  void notifyPopupHighlight() {
+    popup?.invokeHighlight();
+  }
+
   void showMessage(Message message, {bool timed = true}) {
     this.message = message;
     draw();
@@ -725,7 +731,7 @@ class Editor {
   void _applyOperatorToMultipleCursors(
     Motion motion,
     int count,
-    OperatorFunction op,
+    OperatorAction op,
     bool linewise,
   ) {
     // Remember main cursor position before processing
@@ -776,7 +782,7 @@ class Editor {
     terminal.write(Ansi.copyToClipboard(yankBuffer!.text));
 
     // For yank, we're done after copying
-    if (op == OperatorActions.yank) {
+    if (op is Yank) {
       file.setMode(this, .normal);
       return;
     }
@@ -808,7 +814,7 @@ class Editor {
     file.selections = newSelections;
     file.clampCursor();
 
-    if (op == OperatorActions.change) {
+    if (op is Change) {
       file.setMode(this, .insert);
     } else {
       file.setMode(this, .normal);

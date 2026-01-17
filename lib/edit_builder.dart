@@ -1,4 +1,4 @@
-import 'package:vid/actions/operator_actions.dart';
+import 'package:vid/types/operator_action_base.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/motion/motion.dart';
 
@@ -7,7 +7,7 @@ import 'package:vid/motion/motion.dart';
 /// Used during input parsing to collect operator, motion, count, and
 /// find string before building an immutable [EditOperation].
 class EditBuilder {
-  OperatorFunction? op;
+  OperatorAction? op;
   Motion? motion;
   int? count;
 
