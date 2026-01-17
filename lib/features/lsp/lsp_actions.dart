@@ -99,7 +99,7 @@ class ShowLineDiagnostic extends Action {
       DiagnosticSeverity.information => 'Info',
       DiagnosticSeverity.hint => 'Hint',
     };
-    e.showMessage(.info('$prefix: ${diag.message}'));
+    e.showMessage(.info('$prefix: ${diag.message}'), timed: false);
   }
 }
 
