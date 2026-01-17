@@ -58,7 +58,7 @@ class CodeActionsPopup {
         diagnostics: rangeDiagnostics.isNotEmpty ? rangeDiagnostics : null,
       );
 
-      editor.message = null;
+      editor.clearMessage();
 
       if (actions == null || actions.isEmpty) {
         editor.showMessage(Message.info('No code actions available'));

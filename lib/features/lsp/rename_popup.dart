@@ -106,7 +106,7 @@ class RenamePopup {
         return;
       }
 
-      editor.message = null;
+      editor.clearMessage();
 
       // Show rename popup with references and input field
       _showRenamePopup(

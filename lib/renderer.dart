@@ -1042,9 +1042,9 @@ class Renderer {
     final msgRow = terminal.height - lines.length;
 
     switch (message.type) {
-      case .info:
+      case MessageType.info:
         buffer.write(Ansi.fg(Color.green));
-      case .error:
+      case MessageType.error:
         buffer.write(Ansi.fg(Color.red));
     }
     buffer.write(Ansi.inverse(true));

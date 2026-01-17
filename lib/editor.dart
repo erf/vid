@@ -43,7 +43,11 @@ class Editor {
   int _currentBufferIndex = 0;
   YankBuffer? yankBuffer; // Shared across all buffers
   Message? message;
-  Timer? messageTimer;
+  Timer? _messageTimer;
+
+  /// Whether the current message is untimed (should clear on next input).
+  bool _messageUntimed = false;
+
   String? logPath;
   File? logFile;
   FeatureRegistry? featureRegistry;
@@ -466,16 +470,26 @@ class Editor {
     popup?.invokeHighlight();
   }
 
-  void showMessage(Message message, {bool timed = true}) {
-    this.message = message;
+  /// Show a message. New messages replace any existing message.
+  void showMessage(Message newMessage, {bool timed = true}) {
+    _messageTimer?.cancel();
+    message = newMessage;
+    _messageUntimed = !timed;
     draw();
+
     if (timed) {
-      messageTimer?.cancel();
-      messageTimer = Timer(Duration(milliseconds: config.messageTime), () {
-        this.message = null;
+      _messageTimer = Timer(Duration(milliseconds: config.messageTime), () {
+        message = null;
         draw();
       });
     }
+  }
+
+  /// Clear the current message.
+  void clearMessage() {
+    _messageTimer?.cancel();
+    message = null;
+    _messageUntimed = false;
   }
 
   void onInput(List<int> codes) {
@@ -496,6 +510,14 @@ class Editor {
       logFile?.writeAsStringSync(str, mode: FileMode.append);
     }
 
+    // Clear untimed messages (like diagnostics) from PREVIOUS input
+    // This must happen before processing new input so messages shown
+    // during this input cycle aren't immediately cleared.
+    if (_messageUntimed && message != null) {
+      message = null;
+      _messageUntimed = false;
+    }
+
     // Parse input into events using the InputParser
     final events = _inputParser.parseString(str);
 
@@ -512,7 +534,6 @@ class Editor {
     if (redraw) {
       draw();
     }
-    message = null;
   }
 
   /// Clamp cursor to top/bottom of viewport if it goes off-screen
