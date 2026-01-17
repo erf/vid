@@ -61,6 +61,7 @@ const normalCommands = <String, Command>{
   'gR': ActionCommand(.lspRename),
   'ga': ActionCommand(.showCodeActions),
   'gl': ActionCommand(.showLineDiagnostic),
+  'gs': ActionCommand(.showSymbols),
   Keys.ctrlR: ActionCommand(.findReferences),
   'K': ActionCommand(.hover),
   'go': ActionCommand(.jumpBack),
@@ -245,6 +246,8 @@ const lineEditCommands = <String, LineEditCommand>{
   'rename': LineEditCommand(.lspRename),
   'format': LineEditCommand(.format),
   'fmt': LineEditCommand(.format),
+  'symbols': LineEditCommand(.symbols),
+  'sym': LineEditCommand(.symbols),
   // Selection commands
   's': LineEditCommand(.select),
   'sel': LineEditCommand(.select),

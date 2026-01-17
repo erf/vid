@@ -507,6 +507,37 @@ class LspFeature extends Feature {
     }
   }
 
+  /// Get all document symbols in the current file.
+  Future<List<LspDocumentSymbol>> getDocumentSymbols(
+    Editor editor,
+    FileBuffer file,
+  ) async {
+    if (file.absolutePath == null) {
+      editor.showMessage(Message.error('File not saved'));
+      return [];
+    }
+
+    final protocol = getProtocolForPath(file.absolutePath!);
+    if (protocol == null) {
+      editor.showMessage(Message.error('No LSP server for this file type'));
+      return [];
+    }
+
+    final uri = _fileUri(file.absolutePath!);
+
+    try {
+      final symbols = await protocol.documentSymbol(uri);
+      if (symbols.isEmpty) {
+        editor.showMessage(Message.info('No symbols found'));
+        return [];
+      }
+      return symbols;
+    } catch (e) {
+      editor.showMessage(Message.error('LSP error: $e'));
+      return [];
+    }
+  }
+
   /// Extract meaningful content from markdown hover text.
   String _extractHoverContent(String text) {
     final lines = text.split('\n');

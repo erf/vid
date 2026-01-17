@@ -584,6 +584,38 @@ class LspProtocol {
     return null;
   }
 
+  /// Request document symbols.
+  ///
+  /// Returns a list of [LspDocumentSymbol]s (hierarchical or flat).
+  Future<List<LspDocumentSymbol>> documentSymbol(String uri) async {
+    final result = await client.sendRequest('textDocument/documentSymbol', {
+      'textDocument': {'uri': uri},
+    });
+
+    if (result == null) return [];
+
+    // Check for error response
+    if (result.containsKey('error')) {
+      return [];
+    }
+
+    final resultData = result['result'];
+    if (resultData == null || resultData is! List) return [];
+
+    // Can be DocumentSymbol[] (hierarchical) or SymbolInformation[] (flat)
+    // DocumentSymbol has: name, kind, range, selectionRange, children?
+    // SymbolInformation has: name, kind, location, containerName?
+    return resultData.map((item) {
+      final json = item as Map<String, dynamic>;
+      // Check if it's DocumentSymbol (has selectionRange) or SymbolInformation
+      if (json.containsKey('selectionRange')) {
+        return LspDocumentSymbol.fromJson(json);
+      } else {
+        return LspDocumentSymbol.fromSymbolInformation(json);
+      }
+    }).toList();
+  }
+
   /// Execute a command on the server.
   ///
   /// Some code actions return a command to execute rather than a direct edit.
@@ -1068,6 +1100,196 @@ class LspCommand {
       title: json['title'] as String? ?? '',
       command: json['command'] as String,
       arguments: json['arguments'] as List<dynamic>?,
+    );
+  }
+}
+
+/// Symbol kind from LSP spec.
+enum SymbolKind {
+  file(1),
+  module(2),
+  namespace(3),
+  package(4),
+  class_(5),
+  method(6),
+  property(7),
+  field(8),
+  constructor(9),
+  enum_(10),
+  interface(11),
+  function_(12),
+  variable(13),
+  constant(14),
+  string(15),
+  number(16),
+  boolean(17),
+  array(18),
+  object(19),
+  key(20),
+  null_(21),
+  enumMember(22),
+  struct(23),
+  event(24),
+  operator_(25),
+  typeParameter(26);
+
+  final int code;
+  const SymbolKind(this.code);
+
+  static SymbolKind fromValue(int? value) {
+    if (value == null) return SymbolKind.variable;
+    return SymbolKind.values.cast<SymbolKind?>().firstWhere(
+      (k) => k?.code == value,
+      orElse: () => SymbolKind.variable,
+    )!;
+  }
+
+  /// Icon for this symbol kind.
+  String get icon => switch (this) {
+    SymbolKind.file => '▫',
+    SymbolKind.module => '◫',
+    SymbolKind.namespace => '◫',
+    SymbolKind.package => '◫',
+    SymbolKind.class_ => '●',
+    SymbolKind.method => '◆',
+    SymbolKind.property => '◇',
+    SymbolKind.field => '◇',
+    SymbolKind.constructor => '◆',
+    SymbolKind.enum_ => '◉',
+    SymbolKind.interface => '○',
+    SymbolKind.function_ => '◆',
+    SymbolKind.variable => '◇',
+    SymbolKind.constant => '◈',
+    SymbolKind.string => '▪',
+    SymbolKind.number => '▪',
+    SymbolKind.boolean => '▪',
+    SymbolKind.array => '▣',
+    SymbolKind.object => '◫',
+    SymbolKind.key => '▪',
+    SymbolKind.null_ => '▫',
+    SymbolKind.enumMember => '◇',
+    SymbolKind.struct => '●',
+    SymbolKind.event => '◆',
+    SymbolKind.operator_ => '▪',
+    SymbolKind.typeParameter => '○',
+  };
+
+  /// Short label for this symbol kind.
+  String get label => switch (this) {
+    SymbolKind.file => 'file',
+    SymbolKind.module => 'module',
+    SymbolKind.namespace => 'namespace',
+    SymbolKind.package => 'package',
+    SymbolKind.class_ => 'class',
+    SymbolKind.method => 'method',
+    SymbolKind.property => 'property',
+    SymbolKind.field => 'field',
+    SymbolKind.constructor => 'constructor',
+    SymbolKind.enum_ => 'enum',
+    SymbolKind.interface => 'interface',
+    SymbolKind.function_ => 'function',
+    SymbolKind.variable => 'variable',
+    SymbolKind.constant => 'constant',
+    SymbolKind.string => 'string',
+    SymbolKind.number => 'number',
+    SymbolKind.boolean => 'boolean',
+    SymbolKind.array => 'array',
+    SymbolKind.object => 'object',
+    SymbolKind.key => 'key',
+    SymbolKind.null_ => 'null',
+    SymbolKind.enumMember => 'enumMember',
+    SymbolKind.struct => 'struct',
+    SymbolKind.event => 'event',
+    SymbolKind.operator_ => 'operator',
+    SymbolKind.typeParameter => 'typeParam',
+  };
+}
+
+/// A document symbol from LSP (can be hierarchical).
+class LspDocumentSymbol {
+  /// Symbol name.
+  final String name;
+
+  /// More detail, e.g. signature.
+  final String? detail;
+
+  /// The kind of symbol.
+  final SymbolKind kind;
+
+  /// Range of the whole symbol (for highlighting).
+  final LspRange range;
+
+  /// Range of the symbol name (for navigation).
+  final LspRange selectionRange;
+
+  /// Children symbols (for hierarchical structure).
+  final List<LspDocumentSymbol> children;
+
+  const LspDocumentSymbol({
+    required this.name,
+    this.detail,
+    required this.kind,
+    required this.range,
+    required this.selectionRange,
+    this.children = const [],
+  });
+
+  factory LspDocumentSymbol.fromJson(Map<String, dynamic> json) {
+    // Parse range
+    final range = json['range'] as Map<String, dynamic>;
+    final rangeStart = range['start'] as Map<String, dynamic>;
+    final rangeEnd = range['end'] as Map<String, dynamic>;
+
+    // Parse selection range
+    final selRange = json['selectionRange'] as Map<String, dynamic>;
+    final selStart = selRange['start'] as Map<String, dynamic>;
+    final selEnd = selRange['end'] as Map<String, dynamic>;
+
+    // Parse children recursively
+    final childrenJson = json['children'] as List<dynamic>? ?? [];
+    final children = childrenJson
+        .map((c) => LspDocumentSymbol.fromJson(c as Map<String, dynamic>))
+        .toList();
+
+    return LspDocumentSymbol(
+      name: json['name'] as String,
+      detail: json['detail'] as String?,
+      kind: SymbolKind.fromValue(json['kind'] as int?),
+      range: LspRange(
+        startLine: rangeStart['line'] as int,
+        startChar: rangeStart['character'] as int,
+        endLine: rangeEnd['line'] as int,
+        endChar: rangeEnd['character'] as int,
+      ),
+      selectionRange: LspRange(
+        startLine: selStart['line'] as int,
+        startChar: selStart['character'] as int,
+        endLine: selEnd['line'] as int,
+        endChar: selEnd['character'] as int,
+      ),
+      children: children,
+    );
+  }
+
+  /// Create from flat SymbolInformation format (older LSP).
+  factory LspDocumentSymbol.fromSymbolInformation(Map<String, dynamic> json) {
+    final location = json['location'] as Map<String, dynamic>;
+    final range = location['range'] as Map<String, dynamic>;
+    final start = range['start'] as Map<String, dynamic>;
+    final end = range['end'] as Map<String, dynamic>;
+
+    final lspRange = LspRange(
+      startLine: start['line'] as int,
+      startChar: start['character'] as int,
+      endLine: end['line'] as int,
+      endChar: end['character'] as int,
+    );
+
+    return LspDocumentSymbol(
+      name: json['name'] as String,
+      kind: SymbolKind.fromValue(json['kind'] as int?),
+      range: lspRange,
+      selectionRange: lspRange,
     );
   }
 }

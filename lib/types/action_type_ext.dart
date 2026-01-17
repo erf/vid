@@ -77,6 +77,7 @@ extension ActionTypeExt on ActionType {
     .hover => const Hover(),
     .showLineDiagnostic => const ShowLineDiagnostic(),
     .showCodeActions => const ShowCodeActions(),
+    .showSymbols => const ShowSymbols(),
     .jumpBack => const JumpBack(),
     .jumpForward => const JumpForward(),
 

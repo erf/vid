@@ -8,6 +8,7 @@ import 'diagnostics_popup.dart';
 import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 import 'rename_popup.dart';
+import 'symbols_popup.dart';
 
 // ===== LSP commands =====
 
@@ -72,6 +73,17 @@ class CmdDiagnosticsAll extends LineEditAction {
   void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     DiagnosticsPopup.showAll(e);
+  }
+}
+
+/// Show document symbols (:symbols, :sym).
+class CmdSymbols extends LineEditAction {
+  const CmdSymbols();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    SymbolsPopup.show(e, f);
   }
 }
 

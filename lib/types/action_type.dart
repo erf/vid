@@ -65,6 +65,7 @@ enum ActionType {
   hover,
   showLineDiagnostic,
   showCodeActions,
+  showSymbols,
   jumpBack,
   jumpForward,
 

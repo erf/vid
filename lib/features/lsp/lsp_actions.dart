@@ -6,6 +6,7 @@ import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 import 'references_popup.dart';
 import 'rename_popup.dart';
+import 'symbols_popup.dart';
 
 /// Go to definition (gd).
 class GoToDefinition extends Action {
@@ -35,6 +36,21 @@ class FindReferences extends Action {
       return;
     }
     ReferencesPopup.show(e, f);
+  }
+}
+
+/// Show document symbols (Ctrl+O, :symbols).
+class ShowSymbols extends Action {
+  const ShowSymbols();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    final lsp = e.featureRegistry?.get<LspFeature>();
+    if (lsp == null) {
+      e.showMessage(.error('LSP not available'));
+      return;
+    }
+    SymbolsPopup.show(e, f);
   }
 }
 
