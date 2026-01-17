@@ -59,6 +59,7 @@ const normalCommands = <String, Command>{
   'gd': ActionCommand(.goToDefinition),
   'gr': ActionCommand(.findReferences),
   'gR': ActionCommand(.lspRename),
+  'ga': ActionCommand(.showCodeActions),
   'gl': ActionCommand(.showLineDiagnostic),
   Keys.ctrlR: ActionCommand(.findReferences),
   'K': ActionCommand(.hover),

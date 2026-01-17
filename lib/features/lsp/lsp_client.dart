@@ -240,6 +240,23 @@ class LspClient {
             'dynamicRegistration': false,
             'completionItem': {'snippetSupport': false},
           },
+          'codeAction': {
+            'dynamicRegistration': false,
+            'codeActionLiteralSupport': {
+              'codeActionKind': {
+                'valueSet': [
+                  'quickfix',
+                  'refactor',
+                  'refactor.extract',
+                  'refactor.inline',
+                  'refactor.rewrite',
+                  'source',
+                  'source.organizeImports',
+                  'source.fixAll',
+                ],
+              },
+            },
+          },
           'publishDiagnostics': {'relatedInformation': true},
           'semanticTokens': {
             'dynamicRegistration': false,

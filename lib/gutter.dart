@@ -14,6 +14,9 @@ enum GutterSignType {
   /// LSP hint or info diagnostic.
   hint,
 
+  /// Code action available (lightbulb).
+  codeAction,
+
   /// Git: line was added (future).
   gitAdded,
 
@@ -45,6 +48,7 @@ class GutterSign {
     GutterSignType.error => '●',
     GutterSignType.warning => '●',
     GutterSignType.hint => '●',
+    GutterSignType.codeAction => '*',
     GutterSignType.gitAdded => '┃',
     GutterSignType.gitModified => '┃',
     GutterSignType.gitDeleted => '▁',
@@ -57,6 +61,7 @@ class GutterSign {
     GutterSignType.error => theme.diagnosticError ?? Ansi.fg(Color.red),
     GutterSignType.warning => theme.diagnosticWarning ?? Ansi.fg(Color.yellow),
     GutterSignType.hint => theme.diagnosticHint ?? Ansi.fg(Color.blue),
+    GutterSignType.codeAction => Ansi.fg(Color.cyan),
     GutterSignType.gitAdded => Ansi.fg(Color.green),
     GutterSignType.gitModified => Ansi.fg(Color.yellow),
     GutterSignType.gitDeleted => Ansi.fg(Color.red),

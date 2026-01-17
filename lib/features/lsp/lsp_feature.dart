@@ -35,6 +35,12 @@ class LspFeature extends Feature {
   /// Current diagnostics per file URI.
   final Map<String, List<LspDiagnostic>> _diagnostics = {};
 
+  /// Lines with code actions available per file URI.
+  final Map<String, Set<int>> _linesWithCodeActions = {};
+
+  /// Pending code action check timers.
+  final Map<String, Timer> _codeActionTimers = {};
+
   /// Files that have been opened with the LSP server, mapped to server key.
   final Map<String, String> _openDocuments = {}; // uri -> serverKey
 
@@ -153,6 +159,12 @@ class LspFeature extends Feature {
   List<LspDiagnostic> getDiagnostics(String? uri) {
     if (uri == null) return [];
     return _diagnostics[uri] ?? [];
+  }
+
+  /// Get lines that have code actions available.
+  Set<int> getLinesWithCodeActions(String? uri) {
+    if (uri == null) return {};
+    return _linesWithCodeActions[uri] ?? {};
   }
 
   /// Get first error diagnostic message for display.
@@ -712,8 +724,69 @@ class LspFeature extends Feature {
     final diags = parseDiagnostics(params);
     _diagnostics[uri] = diags;
 
+    // Check for code actions on diagnostic lines (debounced)
+    _checkCodeActionsForDiagnostics(uri, diags);
+
     // Just redraw to update diagnostic count in status bar
     editor.draw();
+  }
+
+  /// Check for code actions on lines with diagnostics.
+  void _checkCodeActionsForDiagnostics(String uri, List<LspDiagnostic> diags) {
+    // Cancel any pending request for this URI
+    _codeActionTimers[uri]?.cancel();
+
+    if (diags.isEmpty) {
+      _linesWithCodeActions.remove(uri);
+      return;
+    }
+
+    // Debounce to avoid spamming requests
+    _codeActionTimers[uri] = Timer(Duration(milliseconds: 200), () async {
+      final protocol = _getProtocolForUri(uri);
+      if (protocol == null) return;
+
+      final linesWithActions = <int>{};
+
+      // Group diagnostics by line to minimize requests
+      final diagsByLine = <int, List<LspDiagnostic>>{};
+      for (final diag in diags) {
+        diagsByLine.putIfAbsent(diag.startLine, () => []).add(diag);
+      }
+
+      // Check each line with diagnostics
+      for (final entry in diagsByLine.entries) {
+        final line = entry.key;
+        final lineDiags = entry.value;
+        final firstDiag = lineDiags.first;
+
+        try {
+          final actions = await protocol.codeAction(
+            uri,
+            firstDiag.startLine,
+            firstDiag.startChar,
+            firstDiag.endLine,
+            firstDiag.endChar,
+            diagnostics: lineDiags,
+          );
+
+          if (actions != null && actions.isNotEmpty) {
+            linesWithActions.add(line);
+          }
+        } catch (_) {
+          // Ignore errors - code actions are optional
+        }
+      }
+
+      _linesWithCodeActions[uri] = linesWithActions;
+      editor.draw();
+    });
+  }
+
+  /// Get protocol for a URI.
+  LspProtocol? _getProtocolForUri(String uri) {
+    final path = Uri.parse(uri).toFilePath();
+    return getProtocolForPath(path);
   }
 
   void _handleShowMessage(Map<String, dynamic> params) {

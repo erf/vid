@@ -1,6 +1,7 @@
 import '../../types/action_base.dart';
 import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
+import 'code_actions_popup.dart';
 import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 import 'references_popup.dart';
@@ -100,6 +101,16 @@ class ShowLineDiagnostic extends Action {
       DiagnosticSeverity.hint => 'Hint',
     };
     e.showMessage(.info('$prefix: ${diag.message}'), timed: false);
+  }
+}
+
+/// Show code actions at cursor (ga).
+class ShowCodeActions extends Action {
+  const ShowCodeActions();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    CodeActionsPopup.show(e, f);
   }
 }
 

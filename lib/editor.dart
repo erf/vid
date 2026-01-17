@@ -105,7 +105,7 @@ class Editor {
   void init(List<String> args) {
     final List<_FileArg> files = _parseArgs(args);
     final String? directoryArg = _getDirectoryArg(args);
-
+    
     if (files.isNotEmpty) {
       _loadInitialFiles(files);
     }
@@ -375,11 +375,13 @@ class Editor {
     if (lsp != null && lsp.isConnected && file.absolutePath != null) {
       final uri = 'file://${file.absolutePath}';
       final diagnostics = lsp.getDiagnostics(uri);
+      final linesWithCodeActions = lsp.getLinesWithCodeActions(uri);
       diagnosticCount = diagnostics.length;
 
-      // Build gutter signs from diagnostics
-      if (config.showDiagnosticSigns && diagnostics.isNotEmpty) {
-        gutterSigns = _buildGutterSigns(diagnostics);
+      // Build gutter signs from diagnostics and code actions
+      if (config.showDiagnosticSigns &&
+          (diagnostics.isNotEmpty || linesWithCodeActions.isNotEmpty)) {
+        gutterSigns = _buildGutterSigns(diagnostics, linesWithCodeActions);
       }
 
       // Get cached semantic tokens if available
@@ -401,9 +403,14 @@ class Editor {
     );
   }
 
-  /// Build gutter signs from LSP diagnostics.
-  GutterSigns _buildGutterSigns(List<LspDiagnostic> diagnostics) {
+  /// Build gutter signs from LSP diagnostics and code action availability.
+  GutterSigns _buildGutterSigns(
+    List<LspDiagnostic> diagnostics,
+    Set<int> linesWithCodeActions,
+  ) {
     final signs = GutterSigns();
+
+    // Add diagnostic signs first (higher priority)
     for (final diag in diagnostics) {
       final signType = switch (diag.severity) {
         DiagnosticSeverity.error => GutterSignType.error,
@@ -415,6 +422,19 @@ class Editor {
         GutterSign(type: signType, message: diag.message),
       );
     }
+
+    // Add code action signs for lines that don't already have a sign
+    // (or have lower priority signs like hints)
+    for (final line in linesWithCodeActions) {
+      signs.add(
+        line,
+        GutterSign(
+          type: GutterSignType.codeAction,
+          message: 'Code action available',
+        ),
+      );
+    }
+
     return signs;
   }
 

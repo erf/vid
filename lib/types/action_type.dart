@@ -64,6 +64,7 @@ enum ActionType {
   lspRename,
   hover,
   showLineDiagnostic,
+  showCodeActions,
   jumpBack,
   jumpForward,
 

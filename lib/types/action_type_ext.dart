@@ -76,6 +76,7 @@ extension ActionTypeExt on ActionType {
     .lspRename => const LspRename(),
     .hover => const Hover(),
     .showLineDiagnostic => const ShowLineDiagnostic(),
+    .showCodeActions => const ShowCodeActions(),
     .jumpBack => const JumpBack(),
     .jumpForward => const JumpForward(),
 

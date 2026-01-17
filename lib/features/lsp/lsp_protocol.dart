@@ -497,6 +497,59 @@ class LspProtocol {
     return WorkspaceEdit.fromJson(resultData as Map<String, dynamic>);
   }
 
+  /// Request code actions for a range.
+  ///
+  /// Returns a list of [LspCodeAction]s available for the given range,
+  /// or null if the request failed.
+  Future<List<LspCodeAction>?> codeAction(
+    String uri,
+    int startLine,
+    int startChar,
+    int endLine,
+    int endChar, {
+    List<LspDiagnostic>? diagnostics,
+  }) async {
+    final result = await client.sendRequest('textDocument/codeAction', {
+      'textDocument': {'uri': uri},
+      'range': {
+        'start': {'line': startLine, 'character': startChar},
+        'end': {'line': endLine, 'character': endChar},
+      },
+      'context': {
+        'diagnostics':
+            diagnostics
+                ?.map(
+                  (d) => {
+                    'range': {
+                      'start': {'line': d.startLine, 'character': d.startChar},
+                      'end': {'line': d.endLine, 'character': d.endChar},
+                    },
+                    'severity': d.severity.value,
+                    'message': d.message,
+                    if (d.code != null) 'code': d.code,
+                    if (d.source != null) 'source': d.source,
+                  },
+                )
+                .toList() ??
+            [],
+      },
+    });
+
+    if (result == null) return null;
+
+    // Check for error response
+    if (result.containsKey('error')) {
+      return null;
+    }
+
+    final resultData = result['result'];
+    if (resultData == null || resultData is! List) return null;
+
+    return resultData
+        .map((item) => LspCodeAction.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
   /// Request document formatting.
   ///
   /// Returns a list of [LspTextEdit]s to apply, or null if formatting failed.
@@ -529,6 +582,21 @@ class LspProtocol {
     }
 
     return null;
+  }
+
+  /// Execute a command on the server.
+  ///
+  /// Some code actions return a command to execute rather than a direct edit.
+  Future<void> executeCommand(String command, List<dynamic>? arguments) async {
+    final result = await client.sendRequest('workspace/executeCommand', {
+      'command': command,
+      if (arguments != null) 'arguments': arguments,
+    });
+
+    if (result != null && result.containsKey('error')) {
+      final error = result['error'];
+      throw Exception(error['message'] ?? 'Command execution failed');
+    }
   }
 
   /// Parse LSP Range to LspRange.
@@ -907,5 +975,99 @@ class WorkspaceEdit {
     }
 
     return WorkspaceEdit(changes: changes);
+  }
+}
+
+/// A code action from LSP (quick fix, refactoring, etc.).
+class LspCodeAction {
+  /// Human-readable title (e.g., "Add missing import").
+  final String title;
+
+  /// Kind of code action (e.g., "quickfix", "refactor.extract").
+  final String? kind;
+
+  /// Whether this action is preferred (should be auto-applied).
+  final bool isPreferred;
+
+  /// The workspace edit to apply (if computed).
+  final WorkspaceEdit? edit;
+
+  /// Command to execute (alternative to edit).
+  final LspCommand? command;
+
+  /// Original data for lazy resolution.
+  final Map<String, dynamic>? data;
+
+  const LspCodeAction({
+    required this.title,
+    this.kind,
+    this.isPreferred = false,
+    this.edit,
+    this.command,
+    this.data,
+  });
+
+  factory LspCodeAction.fromJson(Map<String, dynamic> json) {
+    // Can be either a Command or a CodeAction
+    // Command has: title, command, arguments
+    // CodeAction has: title, kind, edit, command, isPreferred
+    final isCommand = json.containsKey('command') && !json.containsKey('kind');
+
+    if (isCommand) {
+      // It's a Command, wrap it
+      return LspCodeAction(
+        title: json['title'] as String,
+        command: LspCommand.fromJson(json),
+      );
+    }
+
+    WorkspaceEdit? edit;
+    if (json.containsKey('edit')) {
+      edit = WorkspaceEdit.fromJson(json['edit'] as Map<String, dynamic>);
+    }
+
+    LspCommand? command;
+    if (json.containsKey('command') && json['command'] is Map) {
+      command = LspCommand.fromJson(json['command'] as Map<String, dynamic>);
+    }
+
+    return LspCodeAction(
+      title: json['title'] as String,
+      kind: json['kind'] as String?,
+      isPreferred: json['isPreferred'] as bool? ?? false,
+      edit: edit,
+      command: command,
+      data: json['data'] as Map<String, dynamic>?,
+    );
+  }
+
+  /// Whether this is a quick fix action.
+  bool get isQuickFix => kind?.startsWith('quickfix') ?? false;
+
+  /// Whether this is a refactor action.
+  bool get isRefactor => kind?.startsWith('refactor') ?? false;
+
+  /// Whether this is a source action (organize imports, etc.).
+  bool get isSource => kind?.startsWith('source') ?? false;
+}
+
+/// A command to execute on the server.
+class LspCommand {
+  final String title;
+  final String command;
+  final List<dynamic>? arguments;
+
+  const LspCommand({
+    required this.title,
+    required this.command,
+    this.arguments,
+  });
+
+  factory LspCommand.fromJson(Map<String, dynamic> json) {
+    return LspCommand(
+      title: json['title'] as String? ?? '',
+      command: json['command'] as String,
+      arguments: json['arguments'] as List<dynamic>?,
+    );
   }
 }
