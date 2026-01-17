@@ -66,6 +66,10 @@ class Renderer {
   int popupRight = 0;
   int popupBottom = 0;
 
+  /// Current gutter width in characters (0 if gutter is disabled).
+  /// Updated each draw() call based on total line count.
+  int gutterWidth = 0;
+
   Renderer({required this.terminal, required this.highlighter});
 
   void draw({
@@ -98,11 +102,17 @@ class Renderer {
       viewportLine,
     );
 
+    // Calculate gutter width early (needed for horizontal scroll calculation)
+    gutterWidth = _calculateGutterWidth(
+      file.totalLines,
+      config.showLineNumbers,
+    );
+
     // Horizontal scrolling (disabled when word wrap is on)
     int viewportCol = 0;
     if (config.wrapMode == .none &&
-        cursorRenderCol >= terminal.width - config.scrollMargin) {
-      viewportCol = cursorRenderCol - terminal.width + config.scrollMargin + 1;
+        cursorRenderCol >= contentWidth - config.scrollMargin) {
+      viewportCol = cursorRenderCol - contentWidth + config.scrollMargin + 1;
     }
 
     // Pass 1: Calculate layout and find cursor position
@@ -141,7 +151,12 @@ class Renderer {
     if (theme.foreground != null) buffer.write(theme.foreground);
     buffer.write(Ansi.clearScreen());
 
-    _renderLines(file: file, config: config, viewportCol: viewportCol);
+    _renderLines(
+      file: file,
+      config: config,
+      viewportCol: viewportCol,
+      cursorLine: cursorLine,
+    );
 
     if (file.mode case .command || .search || .searchBackward) {
       _drawLineEdit(file);
@@ -176,6 +191,19 @@ class Renderer {
     }
     terminal.write(buffer);
   }
+
+  /// Calculate gutter width based on total line count.
+  /// Format: " 123 │" where 123 is the line number (right-aligned).
+  /// Returns 0 if gutter is disabled.
+  int _calculateGutterWidth(int totalLines, bool showLineNumbers) {
+    if (!showLineNumbers) return 0;
+    // Digits + 1 space before + 1 space after + 1 separator char = digits + 3
+    final digits = totalLines.toString().length;
+    return digits + 3; // e.g., " 42 │" = 5 chars for 2-digit line numbers
+  }
+
+  /// Get the available content width (terminal width minus gutter).
+  int get contentWidth => terminal.width - gutterWidth;
 
   /// Pass 1: Calculate screen layout without rendering.
   /// Builds screenRowMap and finds cursor position.
@@ -361,7 +389,7 @@ class Renderer {
         ),
       );
 
-      int chunkEnd = wrapCol + terminal.width;
+      int chunkEnd = wrapCol + contentWidth;
       if (chunkEnd > rendered.length) chunkEnd = rendered.length;
 
       if (isCursorLine) {
@@ -373,7 +401,7 @@ class Renderer {
         lastWrapCol = wrapCol;
       }
 
-      wrapCol += terminal.width;
+      wrapCol += contentWidth;
       screenRow++;
       firstWrap = false;
 
@@ -422,7 +450,7 @@ class Renderer {
       );
 
       // Find wrap point - try to break at word boundary
-      int chunkEnd = wrapCol + terminal.width;
+      int chunkEnd = wrapCol + contentWidth;
       if (chunkEnd < rendered.length) {
         int breakAt = chunkEnd;
         for (int i = chunkEnd - 1; i > wrapCol; i--) {
@@ -431,7 +459,7 @@ class Renderer {
             break;
           }
         }
-        if (breakAt > wrapCol + terminal.width ~/ 2) {
+        if (breakAt > wrapCol + contentWidth ~/ 2) {
           chunkEnd = breakAt;
         }
       } else {
@@ -471,10 +499,12 @@ class Renderer {
     required FileBuffer file,
     required Config config,
     required int viewportCol,
+    required int cursorLine,
   }) {
     int numLines = terminal.height - 1;
     int offset = file.viewport;
     int screenRow = 0;
+    int currentLineNum = file.lineNumber(file.viewport);
 
     // Convert selections to (start, end) tuples for rendering
     // In visual line mode, expand each selection to full lines
@@ -511,9 +541,10 @@ class Renderer {
     }
 
     while (screenRow < numLines) {
-      // Past end of file - draw '~'
+      // Past end of file - draw '~' with empty gutter
       if (offset >= file.text.length) {
         if (screenRow > 0) buffer.write(Keys.newline);
+        _renderGutter(-1, cursorLine, file.totalLines);
         buffer.write('~');
         screenRow++;
         continue;
@@ -539,6 +570,9 @@ class Renderer {
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
           selectionRanges: selectionRanges,
+          lineNum: currentLineNum,
+          cursorLine: cursorLine,
+          totalLines: file.totalLines,
         ),
         .char => _renderLineCharWrap(
           original: lineText,
@@ -549,6 +583,9 @@ class Renderer {
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
           selectionRanges: selectionRanges,
+          lineNum: currentLineNum,
+          cursorLine: cursorLine,
+          totalLines: file.totalLines,
         ),
         .word => _renderLineWordWrap(
           original: lineText,
@@ -560,11 +597,67 @@ class Renderer {
           breakat: config.breakat,
           tabWidth: config.tabWidth,
           selectionRanges: selectionRanges,
+          lineNum: currentLineNum,
+          cursorLine: cursorLine,
+          totalLines: file.totalLines,
         ),
       };
 
       offset = lineEnd + 1;
+      currentLineNum++;
     }
+  }
+
+  /// Render the gutter (line number column) for a screen row.
+  /// [lineNum] is 0-based, -1 for empty rows (past end of file).
+  /// [isFirstWrap] indicates if this is the first row of a wrapped line.
+  void _renderGutter(
+    int lineNum,
+    int cursorLine,
+    int totalLines, {
+    bool isFirstWrap = true,
+  }) {
+    if (gutterWidth == 0) return;
+
+    final theme = highlighter.theme;
+    final digits = totalLines.toString().length;
+
+    // Apply gutter background if set
+    if (theme.gutterBackground != null) {
+      buffer.write(theme.gutterBackground);
+    }
+
+    String gutterContent;
+    if (lineNum < 0 || !isFirstWrap) {
+      // Empty line or wrapped continuation - just spaces
+      gutterContent = ' ' * (digits + 2);
+    } else {
+      // Format line number (1-based for display)
+      final numStr = (lineNum + 1).toString().padLeft(digits);
+      gutterContent = ' $numStr ';
+
+      // Apply active line highlight or muted color
+      if (lineNum == cursorLine) {
+        if (theme.gutterActiveLine != null) {
+          buffer.write(theme.gutterActiveLine);
+        }
+      } else {
+        if (theme.gutterForeground != null) {
+          buffer.write(theme.gutterForeground);
+        } else {
+          // Fallback: use dim for non-active lines
+          buffer.write(Ansi.dim());
+        }
+      }
+    }
+
+    buffer.write(gutterContent);
+
+    // Separator character
+    buffer.write('│');
+
+    // Reset colors back to theme defaults
+    theme.resetCode(buffer);
   }
 
   /// Render line without wrapping
@@ -578,11 +671,17 @@ class Renderer {
     required bool syntaxHighlighting,
     required int tabWidth,
     required List<(int, int)> selectionRanges,
+    required int lineNum,
+    required int cursorLine,
+    required int totalLines,
   }) {
     if (screenRow > 0) buffer.write(Keys.newline);
 
+    // Render gutter first
+    _renderGutter(lineNum, cursorLine, totalLines);
+
     if (rendered.isNotEmpty) {
-      final visible = rendered.renderLine(viewportCol, terminal.width);
+      final visible = rendered.renderLine(viewportCol, contentWidth);
       if (syntaxHighlighting) {
         // Map viewportCol in rendered string to byte offset in original
         final byteOffset = _renderedToOriginalOffset(
@@ -633,6 +732,9 @@ class Renderer {
     required bool syntaxHighlighting,
     required int tabWidth,
     required List<(int, int)> selectionRanges,
+    required int lineNum,
+    required int cursorLine,
+    required int totalLines,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -641,7 +743,10 @@ class Renderer {
       if (screenRow >= numLines) break;
       if (screenRow > 0) buffer.write(Keys.newline);
 
-      String chunk = rendered.ch.skip(wrapCol).take(terminal.width).string;
+      // Render gutter (only show line number on first wrap)
+      _renderGutter(lineNum, cursorLine, totalLines, isFirstWrap: firstWrap);
+
+      String chunk = rendered.ch.skip(wrapCol).take(contentWidth).string;
 
       if (syntaxHighlighting) {
         final byteOffset = _renderedToOriginalOffset(
@@ -682,7 +787,7 @@ class Renderer {
         }
       }
 
-      wrapCol += terminal.width;
+      wrapCol += contentWidth;
       screenRow++;
       firstWrap = false;
 
@@ -703,6 +808,9 @@ class Renderer {
     required String breakat,
     required int tabWidth,
     required List<(int, int)> selectionRanges,
+    required int lineNum,
+    required int cursorLine,
+    required int totalLines,
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
@@ -711,8 +819,11 @@ class Renderer {
       if (screenRow >= numLines) break;
       if (screenRow > 0) buffer.write(Keys.newline);
 
+      // Render gutter (only show line number on first wrap)
+      _renderGutter(lineNum, cursorLine, totalLines, isFirstWrap: firstWrap);
+
       // Find wrap point
-      int chunkEnd = wrapCol + terminal.width;
+      int chunkEnd = wrapCol + contentWidth;
       if (chunkEnd < rendered.length) {
         int breakAt = chunkEnd;
         for (int i = chunkEnd - 1; i > wrapCol; i--) {
@@ -721,7 +832,7 @@ class Renderer {
             break;
           }
         }
-        if (breakAt > wrapCol + terminal.width ~/ 2) {
+        if (breakAt > wrapCol + contentWidth ~/ 2) {
           chunkEnd = breakAt;
         }
       } else {
@@ -795,6 +906,9 @@ class Renderer {
       // Wrap mode - adjust for wrap column offset
       screenCol = cursorRenderCol - cursorWrapCol + 1;
     }
+
+    // Offset by gutter width
+    screenCol += gutterWidth;
 
     // Apply theme cursor color via OSC 12 if set
     final theme = highlighter.theme;

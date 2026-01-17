@@ -87,6 +87,9 @@ class Config {
   /// If not set in config, uses built-in defaults.
   final Set<String> fileBrowserExcludeDirs;
 
+  /// Whether to show line numbers in the gutter.
+  final bool showLineNumbers;
+
   /// Default directories to exclude from file browser scanning.
   static const Set<String> defaultExcludeDirs = {
     '.git',
@@ -136,6 +139,7 @@ class Config {
     this.fileBrowserExcludeDirs = defaultExcludeDirs,
     this.popupMaxWidth,
     this.preserveColumnOnVerticalMove = true,
+    this.showLineNumbers = false,
   });
 
   /// Creates a [Config] from a map (typically parsed from YAML).
@@ -170,6 +174,7 @@ class Config {
       preserveColumnOnVerticalMove: _parseBool(
         map['preserveColumnOnVerticalMove'],
       ),
+      showLineNumbers: _parseBool(map['showLineNumbers']),
     );
   }
 
@@ -235,6 +240,7 @@ class Config {
     Set<String>? fileBrowserExcludeDirs,
     int? popupMaxWidth,
     bool? preserveColumnOnVerticalMove,
+    bool? showLineNumbers,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -260,6 +266,7 @@ class Config {
       popupMaxWidth: popupMaxWidth ?? this.popupMaxWidth,
       preserveColumnOnVerticalMove:
           preserveColumnOnVerticalMove ?? this.preserveColumnOnVerticalMove,
+      showLineNumbers: showLineNumbers ?? this.showLineNumbers,
     );
   }
 }

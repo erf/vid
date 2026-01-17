@@ -40,6 +40,15 @@ class Theme {
   /// ANSI code for selection background color.
   final String? selectionBackground;
 
+  /// ANSI code for gutter background color (where line numbers appear).
+  final String? gutterBackground;
+
+  /// ANSI code for gutter foreground color (line numbers).
+  final String? gutterForeground;
+
+  /// ANSI code for active line number color (current cursor line).
+  final String? gutterActiveLine;
+
   const Theme._(
     this.name,
     this._colors, {
@@ -47,6 +56,9 @@ class Theme {
     this.foreground,
     this.cursorColor,
     this.selectionBackground,
+    this.gutterBackground,
+    this.gutterForeground,
+    this.gutterActiveLine,
   });
 
   /// ANSI reset code for clearing styles.
@@ -101,6 +113,9 @@ class Theme {
     foreground: Ansi.fgRgb(87, 82, 121), // Text #575279
     cursorColor: Ansi.setCursorColor('#9893a5'), // Muted
     selectionBackground: Ansi.bgRgb(223, 218, 228), // Highlight Med #dfdae4
+    gutterBackground: Ansi.bgRgb(242, 233, 222), // Surface #f2e9de
+    gutterForeground: Ansi.fgRgb(152, 147, 165), // Muted #9893a5
+    gutterActiveLine: Ansi.fgRgb(87, 82, 121), // Text #575279
   );
 
   // Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
@@ -140,6 +155,9 @@ class Theme {
     foreground: Ansi.fgRgb(224, 222, 244), // Text #e0def4
     cursorColor: Ansi.setCursorColor('#e0def4'), // Text
     selectionBackground: Ansi.bgRgb(57, 53, 82), // Highlight Med #393552
+    gutterBackground: Ansi.bgRgb(30, 28, 45), // Surface #1e1c2d
+    gutterForeground: Ansi.fgRgb(110, 106, 134), // Muted #6e6a86
+    gutterActiveLine: Ansi.fgRgb(224, 222, 244), // Text #e0def4
   );
 
   // Ayu Dark
@@ -179,6 +197,9 @@ class Theme {
     foreground: Ansi.fgRgb(191, 189, 182), // #BFBDB6
     cursorColor: Ansi.setCursorColor('#E6B450'),
     selectionBackground: Ansi.bgRgb(49, 57, 68), // #313944
+    gutterBackground: Ansi.bgRgb(22, 27, 37), // Slightly lighter than base
+    gutterForeground: Ansi.fgRgb(106, 115, 125), // #6A737D
+    gutterActiveLine: Ansi.fgRgb(191, 189, 182), // #BFBDB6
   );
 
   // Ayu Light
@@ -218,6 +239,9 @@ class Theme {
     foreground: Ansi.fgRgb(92, 97, 102), // #5C6166
     cursorColor: Ansi.setCursorColor('#F29718'),
     selectionBackground: Ansi.bgRgb(229, 237, 246), // #E5EDF6
+    gutterBackground: Ansi.bgRgb(242, 242, 242), // Slightly darker than base
+    gutterForeground: Ansi.fgRgb(150, 155, 160), // #969BA0
+    gutterActiveLine: Ansi.fgRgb(92, 97, 102), // #5C6166
   );
 
   // Unicorn Dark - soft pastel theme
@@ -257,6 +281,9 @@ class Theme {
     foreground: Ansi.fgRgb(224, 224, 235), // Light gray #E0E0EB
     cursorColor: Ansi.setCursorColor('#C692E9'), // Soft purple
     selectionBackground: Ansi.bgRgb(68, 71, 90), // Selection #44475A
+    gutterBackground: Ansi.bgRgb(48, 50, 64), // Slightly lighter than base
+    gutterForeground: Ansi.fgRgb(122, 129, 150), // Muted #7A8196
+    gutterActiveLine: Ansi.fgRgb(224, 224, 235), // Light gray #E0E0EB
   );
 
   // Unicorn Light - soft pastel theme
@@ -296,6 +323,9 @@ class Theme {
     foreground: Ansi.fgRgb(68, 68, 85), // Dark gray #444455
     cursorColor: Ansi.setCursorColor('#9B59B6'), // Purple
     selectionBackground: Ansi.bgRgb(243, 226, 238), // Light pink #F3E2EE
+    gutterBackground: Ansi.bgRgb(243, 235, 240), // Slightly darker than base
+    gutterForeground: Ansi.fgRgb(149, 165, 166), // Gray #95A5A6
+    gutterActiveLine: Ansi.fgRgb(68, 68, 85), // Dark gray #444455
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)
@@ -332,5 +362,7 @@ class Theme {
       TokenType.decorator: '${Ansi.dim()}${Ansi.italic()}',
     },
     selectionBackground: Ansi.inverse(true), // Use inverse video for mono
+    // Mono theme uses default terminal colors for gutter
+    // gutterForeground uses dim text for non-active lines
   );
 }

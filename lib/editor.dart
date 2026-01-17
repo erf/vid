@@ -531,6 +531,12 @@ class Editor {
     // Don't handle clicks on status line
     if (screenRow >= terminal.height - 1) return;
 
+    // Ignore clicks in the gutter area
+    if (screenCol < renderer.gutterWidth) return;
+
+    // Adjust for gutter width
+    final contentCol = screenCol - renderer.gutterWidth;
+
     // Use the screen row map populated by the renderer
     if (screenRow >= renderer.screenRowMap.length) return;
 
@@ -539,10 +545,10 @@ class Editor {
     // Ignore clicks on ~ lines (past end of file)
     if (rowInfo.lineNum < 0) return;
 
-    // screenCol + wrapCol gives the position within the full line
+    // contentCol + wrapCol gives the position within the full line
     file.cursor = file.screenColToOffset(
       rowInfo.lineNum,
-      rowInfo.wrapCol + screenCol,
+      rowInfo.wrapCol + contentCol,
       config.tabWidth,
     );
     file.clampCursor();

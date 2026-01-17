@@ -62,3 +62,6 @@ fileBrowserShowHidden: false
 
 # Maximum width for popup windows (unset for auto-sizing based on terminal)
 # popupMaxWidth: 80
+
+# Show line numbers in the gutter
+showLineNumbers: false
