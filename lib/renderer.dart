@@ -193,13 +193,13 @@ class Renderer {
   }
 
   /// Calculate gutter width based on total line count.
-  /// Format: " 123 │" where 123 is the line number (right-aligned).
+  /// Format: " 123 " where 123 is the line number (right-aligned).
   /// Returns 0 if gutter is disabled.
   int _calculateGutterWidth(int totalLines, bool showLineNumbers) {
     if (!showLineNumbers) return 0;
-    // Digits + 1 space before + 1 space after + 1 separator char = digits + 3
+    // Digits + 1 space before + 1 space after = digits + 2
     final digits = totalLines.toString().length;
-    return digits + 3; // e.g., " 42 │" = 5 chars for 2-digit line numbers
+    return digits + 2; // e.g., " 42 " = 4 chars for 2-digit line numbers
   }
 
   /// Get the available content width (terminal width minus gutter).
@@ -622,19 +622,14 @@ class Renderer {
     final theme = highlighter.theme;
     final digits = totalLines.toString().length;
 
-    // Apply gutter background if set
-    if (theme.gutterBackground != null) {
-      buffer.write(theme.gutterBackground);
-    }
-
     String gutterContent;
     if (lineNum < 0 || !isFirstWrap) {
       // Empty line or wrapped continuation - just spaces
-      gutterContent = ' ' * (digits + 2);
+      gutterContent = ' ' * (digits + 1);
     } else {
       // Format line number (1-based for display)
       final numStr = (lineNum + 1).toString().padLeft(digits);
-      gutterContent = ' $numStr ';
+      gutterContent = ' $numStr';
 
       // Apply active line highlight or muted color
       if (lineNum == cursorLine) {
@@ -652,9 +647,7 @@ class Renderer {
     }
 
     buffer.write(gutterContent);
-
-    // Separator character
-    buffer.write('│');
+    buffer.write(' ');
 
     // Reset colors back to theme defaults
     theme.resetCode(buffer);
