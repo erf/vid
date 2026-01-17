@@ -3,7 +3,7 @@ import '../file_buffer/file_buffer.dart';
 import '../range.dart';
 
 /// Standard vim text objects: inner/around brackets, quotes, words, etc.
-class TextObjects {
+class TextObjectActions {
   /// Find matching bracket pair containing offset.
   /// Returns (openPos, closePos) or (-1, -1) if not found.
   static (int, int) _findMatchingPair(

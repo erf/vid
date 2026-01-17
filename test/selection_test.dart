@@ -1,6 +1,6 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/actions/line_edit.dart';
+import 'package:vid/actions/line_edit_actions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/modes.dart';
@@ -173,7 +173,7 @@ void main() {
       final f = e.file;
       f.text = 'foo bar foo baz\n';
 
-      LineEdit.select(e, f, ['sel', 'foo']);
+      LineEditActions.select(e, f, ['sel', 'foo']);
 
       expect(f.selections.length, 2);
       // Cursor-based: cursor on last char of match
@@ -192,7 +192,7 @@ void main() {
       final f = e.file;
       f.text = 'hello world\n';
 
-      LineEdit.select(e, f, ['sel', 'world']);
+      LineEditActions.select(e, f, ['sel', 'world']);
 
       expect(f.selections.length, 1);
       // "world" at positions 6-10, cursor on last char 'd' at position 10
@@ -215,7 +215,7 @@ void main() {
       final f = e.file;
       f.text = 'hello world\n';
 
-      LineEdit.select(e, f, ['sel', 'xyz']);
+      LineEditActions.select(e, f, ['sel', 'xyz']);
 
       // Should keep single selection
       expect(f.selections.length, 1);
@@ -233,7 +233,7 @@ void main() {
       f.selections = [Selection(0, 3), Selection(4, 7), Selection(8, 11)];
       expect(f.selections.length, 3);
 
-      LineEdit.selectClear(e, f, ['selclear']);
+      LineEditActions.selectClear(e, f, ['selclear']);
 
       expect(f.selections.length, 1);
       expect(f.selections.first.isCollapsed, true);

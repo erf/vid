@@ -1,6 +1,6 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/actions/motions.dart';
+import 'package:vid/actions/motion_actions.dart';
 import 'package:vid/editor.dart';
 
 void main() {
@@ -16,11 +16,11 @@ void main() {
     // Looking for 'b' from offset 0 -> 'b' is at offset 1
     // Looking for 'c' from offset 0 -> 'c' is at offset 2
     f.edit.findStr = 'a';
-    expect(Motions.findNextChar(e, f, 0), 3);
+    expect(MotionActions.findNextChar(e, f, 0), 3);
     f.edit.findStr = 'b';
-    expect(Motions.findNextChar(e, f, 0), 1);
+    expect(MotionActions.findNextChar(e, f, 0), 1);
     f.edit.findStr = 'c';
-    expect(Motions.findNextChar(e, f, 0), 2);
+    expect(MotionActions.findNextChar(e, f, 0), 2);
   });
 
   test('motionFindPrevChar', () {
@@ -35,11 +35,11 @@ void main() {
     // Looking for 'b' from offset 2 -> 'b' is at offset 1
     // Looking for 'c' from offset 2 -> 'c' is at offset 2 (itself)
     f.edit.findStr = 'a';
-    expect(Motions.findPrevChar(e, f, 2), 0);
+    expect(MotionActions.findPrevChar(e, f, 2), 0);
     f.edit.findStr = 'b';
-    expect(Motions.findPrevChar(e, f, 2), 1);
+    expect(MotionActions.findPrevChar(e, f, 2), 1);
     f.edit.findStr = 'c';
-    expect(Motions.findPrevChar(e, f, 2), 2);
+    expect(MotionActions.findPrevChar(e, f, 2), 2);
   });
 
   test('till with delete operator', () {
@@ -92,8 +92,8 @@ void main() {
     f.text = 'foo bar foo baz foo\n';
     f.edit.findStr = 'foo';
     // Direct motion test
-    expect(Motions.searchPrev(e, f, 16), 8); // From third 'foo' to second
-    expect(Motions.searchPrev(e, f, 8), 0); // From second 'foo' to first
+    expect(MotionActions.searchPrev(e, f, 16), 8); // From third 'foo' to second
+    expect(MotionActions.searchPrev(e, f, 8), 0); // From second 'foo' to first
   });
 
   test('N reverses search direction', () {

@@ -1,6 +1,6 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/actions/normal.dart';
+import 'package:vid/actions/normal_actions.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/range.dart';
@@ -121,13 +121,13 @@ void main() {
     f.deleteAt(0, config: e.config); // removes emoji (👩‍👩‍👦‍👦)
     f.replaceAt(0, 'X', config: e.config); // replaces 'f'
     expect(f.text, 'X\nghi\n');
-    Normal.undo(e, f);
+    NormalActions.undo(e, f);
     expect(f.text, 'f\nghi\n');
-    Normal.undo(e, f);
+    NormalActions.undo(e, f);
     expect(f.text, '👩‍👩‍👦‍👦f\nghi\n');
-    Normal.undo(e, f);
+    NormalActions.undo(e, f);
     expect(f.text, 'd👩‍👩‍👦‍👦f\nghi\n');
-    Normal.undo(e, f);
+    NormalActions.undo(e, f);
     expect(f.text, 'abc\nd👩‍👩‍👦‍👦f\nghi\n');
   });
 

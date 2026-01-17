@@ -1,14 +1,18 @@
 import 'package:vid/edit_builder.dart';
 
-import '../actions/operators.dart';
+import '../actions/operator_actions.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../modes.dart';
 import '../motion/motion.dart';
 import 'action_type.dart';
+import 'action_type_ext.dart';
 import 'line_edit_type.dart';
+import 'line_edit_type_ext.dart';
 import 'operator_type.dart';
+import 'operator_type_ext.dart';
 import 'text_object_type.dart';
+import 'text_object_type_ext.dart';
 
 abstract class Command {
   const Command();
@@ -100,7 +104,7 @@ class OperatorCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     // If there are visual selections, operate on them immediately
-    if (Operators.handleVisualSelections(e, f, type.fn)) {
+    if (OperatorActions.handleVisualSelections(e, f, type.fn)) {
       return;
     }
     // Otherwise, enter operator-pending mode to wait for a motion

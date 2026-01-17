@@ -8,7 +8,7 @@ import '../regex.dart';
 import '../string_ext.dart';
 import '../utils.dart';
 
-class Motions {
+class MotionActions {
   /// Sentinel value for desiredColumn meaning "end of line".
   static const int endOfLineColumn = 0x7FFFFFFF;
 

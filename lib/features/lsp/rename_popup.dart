@@ -1,11 +1,11 @@
 import 'package:characters/characters.dart';
 
-import '../editor.dart';
-import '../file_buffer/file_buffer.dart';
-import '../message.dart';
-import '../features/lsp/lsp_feature.dart';
-import '../features/lsp/lsp_protocol.dart';
-import 'popup.dart';
+import '../../editor.dart';
+import '../../file_buffer/file_buffer.dart';
+import '../../message.dart';
+import '../../popup/popup.dart';
+import 'lsp_feature.dart';
+import 'lsp_protocol.dart';
 
 /// Reference location value for rename preview items.
 class _RenameLocation {

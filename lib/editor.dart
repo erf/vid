@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:termio/termio.dart';
-import 'package:vid/actions/operators.dart';
+import 'package:vid/actions/operator_actions.dart';
 import 'package:vid/edit_operation.dart';
 import 'package:vid/features/cursor_position/cursor_position_feature.dart';
 import 'package:vid/features/feature_registry.dart';
@@ -20,7 +20,7 @@ import 'package:vid/yank_buffer.dart';
 
 import 'bindings.dart';
 import 'jump_list.dart';
-import 'commands/command.dart';
+import 'types/command.dart';
 import 'config.dart';
 import 'error_or.dart';
 import 'file_buffer/file_buffer.dart';
@@ -776,7 +776,7 @@ class Editor {
     terminal.write(Ansi.copyToClipboard(yankBuffer!.text));
 
     // For yank, we're done after copying
-    if (op == Operators.yank) {
+    if (op == OperatorActions.yank) {
       file.setMode(this, .normal);
       return;
     }
@@ -808,7 +808,7 @@ class Editor {
     file.selections = newSelections;
     file.clampCursor();
 
-    if (op == Operators.change) {
+    if (op == OperatorActions.change) {
       file.setMode(this, .insert);
     } else {
       file.setMode(this, .normal);

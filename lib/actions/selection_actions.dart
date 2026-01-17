@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:characters/characters.dart';
-import 'package:vid/actions/text_objects.dart';
+import 'package:vid/actions/text_object_actions.dart';
 import 'package:vid/selection.dart';
 import 'package:vid/string_ext.dart';
 import 'package:vid/utils.dart';
@@ -48,7 +48,7 @@ class SelectionActions {
   /// If cursor is on whitespace, selects the whitespace.
   static void selectWordUnderCursor(Editor e, FileBuffer f) {
     final cursor = f.cursor;
-    final wordRange = TextObjects.insideWord(e, f, cursor);
+    final wordRange = TextObjectActions.insideWord(e, f, cursor);
 
     // Create selection from word range
     // anchor at start, cursor at end-1 (last char of word)
@@ -67,7 +67,7 @@ class SelectionActions {
 
     // If collapsed, select word under cursor first
     if (sel.isCollapsed) {
-      final wordRange = TextObjects.insideWord(e, f, sel.cursor);
+      final wordRange = TextObjectActions.insideWord(e, f, sel.cursor);
       if (wordRange.start == wordRange.end) return; // Empty word
       sel = Selection(
         wordRange.start,

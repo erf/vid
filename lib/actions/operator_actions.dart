@@ -12,7 +12,7 @@ import '../yank_buffer.dart';
 typedef OperatorFunction =
     void Function(Editor e, FileBuffer f, Range range, {bool linewise});
 
-class Operators {
+class OperatorActions {
   /// Check if there are visual selections and apply operator to them.
   /// Returns true if selections were handled, false to fall through to motion.
   static bool handleVisualSelections(

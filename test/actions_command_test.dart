@@ -1,6 +1,6 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/actions/line_edit.dart';
+import 'package:vid/actions/line_edit_actions.dart';
 import 'package:vid/editor.dart';
 
 void main() {
@@ -12,7 +12,7 @@ void main() {
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = 0;
-    LineEdit.substitute(e, f, ['s/l//']);
+    LineEditActions.substitute(e, f, ['s/l//']);
     expect(f.text, equals('helo world\n'));
   });
 
@@ -24,7 +24,7 @@ void main() {
     final f = e.file;
     f.text = 'hello world\n';
     f.cursor = 0;
-    LineEdit.substitute(e, f, ['s/world/friend/']);
+    LineEditActions.substitute(e, f, ['s/world/friend/']);
     expect(f.text, equals('hello friend\n'));
   });
 
@@ -36,7 +36,7 @@ void main() {
     final f = e.file;
     f.text = 'this is fun fun fun\n';
     f.cursor = 0;
-    LineEdit.substitute(e, f, ['s/fun/cool/g']);
+    LineEditActions.substitute(e, f, ['s/fun/cool/g']);
     expect(f.text, equals('this is cool cool cool\n'));
   });
 

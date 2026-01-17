@@ -3,11 +3,11 @@ import 'package:vid/mode_bindings.dart';
 import 'package:vid/motion/motion.dart';
 
 import 'actions/insert_actions.dart';
-import 'actions/line_edit.dart';
+import 'actions/line_edit_input_actions.dart';
+import 'actions/popup_actions.dart';
 import 'actions/replace_actions.dart';
-import 'commands/command.dart';
 import 'modes.dart';
-import 'popup/popup_actions.dart';
+import 'types/command.dart';
 
 const normalCommands = <String, Command>{
   'q': ActionCommand(.quit),
@@ -262,21 +262,21 @@ const lineEditInputBindings = <String, Command>{
   Keys.backspace: ActionCommand(.lineEditBackspace),
   Keys.newline: ActionCommand(.lineEditExecuteCommand),
 };
-const lineEditInputFallback = InputCommand(LineEditInput.input);
+const lineEditInputFallback = InputCommand(LineEditInputActions.input);
 
 const lineEditSearchBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
   Keys.backspace: ActionCommand(.lineEditBackspace),
   Keys.newline: ActionCommand(.lineEditExecuteSearch),
 };
-const lineEditSearchFallback = InputCommand(LineEditInput.input);
+const lineEditSearchFallback = InputCommand(LineEditInputActions.input);
 
 const lineEditSearchBackwardBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
   Keys.backspace: ActionCommand(.lineEditBackspace),
   Keys.newline: ActionCommand(.lineEditExecuteSearchBackward),
 };
-const lineEditSearchBackwardFallback = InputCommand(LineEditInput.input);
+const lineEditSearchBackwardFallback = InputCommand(LineEditInputActions.input);
 
 const popupBindings = <String, Command>{
   Keys.escape: ActionCommand(.popupCancel),

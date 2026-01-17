@@ -1,135 +1,14 @@
 import 'dart:io';
 
-import '../bindings.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
-import '../motion/motion.dart';
-import '../popup/buffer_selector.dart';
 import '../popup/file_browser.dart';
-import '../popup/references_popup.dart';
-import '../popup/theme_selector.dart';
-import '../regex.dart';
 import '../selection.dart';
-import 'normal.dart';
-
-/// Buffer navigation and management commands.
-class BufferCommands {
-  /// Switch to next buffer (:bn, :bnext)
-  static void nextBuffer(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    if (e.bufferCount <= 1) {
-      e.showMessage(.info('Only one buffer open'));
-      return;
-    }
-    e.nextBuffer();
-    e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
-  }
-
-  /// Switch to previous buffer (:bp, :bprev)
-  static void prevBuffer(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    if (e.bufferCount <= 1) {
-      e.showMessage(.info('Only one buffer open'));
-      return;
-    }
-    e.prevBuffer();
-    e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
-  }
-
-  /// Switch to buffer by number (:b <n>) or show buffer selector (:b)
-  static void switchToBuffer(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    if (args.length < 2) {
-      // No argument - show buffer selector
-      BufferSelector.show(e);
-      return;
-    }
-    final num = int.tryParse(args[1]);
-    if (num == null || num < 1 || num > e.bufferCount) {
-      e.showMessage(.error('Invalid buffer number: ${args[1]}'));
-      return;
-    }
-    e.switchBuffer(num - 1);
-    e.showMessage(.info('Buffer $num/${e.bufferCount}'));
-  }
-
-  /// Close current buffer (:bd, :bdelete)
-  static void closeBuffer(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    e.closeBuffer(e.currentBufferIndex);
-  }
-
-  /// Force close current buffer (:bd!, :bdelete!)
-  static void forceCloseBuffer(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    e.closeBuffer(e.currentBufferIndex, force: true);
-  }
-
-  /// List all buffers (:ls, :buffers) - shows interactive popup
-  static void listBuffers(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    BufferSelector.show(e);
-  }
-}
-
-/// Input actions for line edit mode (command line and search).
-class LineEditInput {
-  /// Delete last character in line edit buffer, or exit if empty.
-  static void backspace(Editor e, FileBuffer f) {
-    final String lineEdit = f.input.lineEdit;
-    if (lineEdit.isEmpty) {
-      f.setMode(e, .normal);
-    } else {
-      f.input.lineEdit = lineEdit.substring(0, lineEdit.length - 1);
-    }
-  }
-
-  /// Add character to line edit buffer.
-  static void input(Editor e, FileBuffer f, String s) {
-    f.input.lineEdit += s;
-  }
-
-  /// Execute the command in line edit buffer.
-  static void executeCommand(Editor e, FileBuffer f) {
-    final String command = f.input.lineEdit;
-    List<String> args = command.split(' ');
-    String cmd = args.isNotEmpty ? args.first : command;
-    if (lineEditCommands.containsKey(cmd)) {
-      lineEditCommands[cmd]!.execute(e, f, '');
-      return;
-    }
-    if (command.startsWith(Regex.substitute)) {
-      LineEdit.substitute(e, f, [command]);
-      f.input.lineEdit = '';
-      return;
-    }
-    f.input.lineEdit = '';
-    f.setMode(e, .normal);
-    e.showMessage(.error('Unknown command: \'$command\''));
-  }
-
-  /// Execute search with the pattern in line edit buffer.
-  static void executeSearch(Editor e, FileBuffer f) {
-    f.setMode(e, .normal);
-    f.edit.motion = Motion(.searchNext);
-    f.edit.findStr = f.input.lineEdit;
-    f.input.lineEdit = '';
-    e.commitEdit(f.edit.build());
-  }
-
-  /// Execute backward search with the pattern in line edit buffer.
-  static void executeSearchBackward(Editor e, FileBuffer f) {
-    f.setMode(e, .normal);
-    f.edit.motion = Motion(.searchPrev);
-    f.edit.findStr = f.input.lineEdit;
-    f.input.lineEdit = '';
-    e.commitEdit(f.edit.build());
-  }
-}
+import 'normal_actions.dart';
 
 /// Command handlers for :commands (executed after Enter).
-class LineEdit {
+class LineEditActions {
   static void noop(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
   }
@@ -232,7 +111,7 @@ class LineEdit {
 
   static void quit(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    Normal.quit(e, f);
+    NormalActions.quit(e, f);
   }
 
   static void forceQuit(Editor e, FileBuffer f, List<String> args) {
@@ -311,26 +190,5 @@ class LineEdit {
     f.setMode(e, .normal);
     f.selections = [f.selection.collapse()];
     e.showMessage(.info('Selections cleared'));
-  }
-}
-
-/// Popup commands - open various popup dialogs.
-class PopupCommands {
-  /// Open theme selector (:themes, :theme, :th)
-  static void themes(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    ThemeSelector.show(e);
-  }
-
-  /// Open file browser (:files, :browse, :f)
-  static void files(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    FileBrowser.show(e);
-  }
-
-  /// Open references popup (:ref, :references)
-  static void references(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    ReferencesPopup.show(e, f);
   }
 }

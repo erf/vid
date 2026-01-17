@@ -7,17 +7,17 @@ import 'package:vid/yank_buffer.dart';
 import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
+import '../features/lsp/diagnostics_popup.dart';
 import '../file_buffer/file_buffer.dart';
-import '../text_op.dart';
-import 'insert_actions.dart';
 import '../popup/buffer_selector.dart';
-import '../popup/diagnostics_popup.dart';
 import '../popup/file_browser.dart';
 import '../popup/theme_selector.dart';
 import '../regex.dart';
 import '../selection.dart';
+import '../text_op.dart';
+import 'insert_actions.dart';
 
-class Normal {
+class NormalActions {
   static String _toggleCase(String s) {
     if (s.isEmpty) return s;
 
