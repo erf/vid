@@ -1013,11 +1013,31 @@ class Renderer {
 
   /// Draw message above status bar.
   void _drawMessage(Message message) {
-    final msgText = ' ${message.text} ';
-    final msgLines = (msgText.length / terminal.width).ceil().clamp(1, 5);
-    final msgRow = terminal.height - msgLines;
+    final text = message.text;
+    final contentWidth = terminal.width - 2; // Leave space for padding
 
-    buffer.write(Ansi.cursor(x: 1, y: msgRow));
+    // Split text into lines that fit within content width
+    final lines = <String>[];
+    var remaining = text;
+    while (remaining.isNotEmpty && lines.length < 5) {
+      if (remaining.length <= contentWidth) {
+        lines.add(remaining);
+        break;
+      }
+      // Find a good break point (prefer space)
+      var breakAt = contentWidth;
+      for (var i = contentWidth; i > contentWidth ~/ 2; i--) {
+        if (remaining[i] == ' ') {
+          breakAt = i;
+          break;
+        }
+      }
+      lines.add(remaining.substring(0, breakAt));
+      remaining = remaining.substring(breakAt).trimLeft();
+    }
+
+    final msgRow = terminal.height - lines.length;
+
     switch (message.type) {
       case .info:
         buffer.write(Ansi.fg(Color.green));
@@ -1025,7 +1045,12 @@ class Renderer {
         buffer.write(Ansi.fg(Color.red));
     }
     buffer.write(Ansi.inverse(true));
-    buffer.write(msgText);
+
+    for (var i = 0; i < lines.length; i++) {
+      buffer.write(Ansi.cursor(x: 1, y: msgRow + i));
+      buffer.write(' ${lines[i]} ');
+    }
+
     buffer.write(Ansi.inverse(false));
     highlighter.theme.resetCode(buffer);
   }
