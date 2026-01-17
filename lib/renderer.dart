@@ -1016,24 +1016,27 @@ class Renderer {
     final text = message.text;
     final contentWidth = terminal.width - 2; // Leave space for padding
 
-    // Split text into lines that fit within content width
+    // Split text into lines, respecting embedded newlines and wrapping long lines
     final lines = <String>[];
-    var remaining = text;
-    while (remaining.isNotEmpty && lines.length < 5) {
-      if (remaining.length <= contentWidth) {
-        lines.add(remaining);
-        break;
-      }
-      // Find a good break point (prefer space)
-      var breakAt = contentWidth;
-      for (var i = contentWidth; i > contentWidth ~/ 2; i--) {
-        if (remaining[i] == ' ') {
-          breakAt = i;
+    for (final paragraph in text.split('\n')) {
+      if (lines.length >= 5) break;
+      var remaining = paragraph;
+      while (remaining.isNotEmpty && lines.length < 5) {
+        if (remaining.length <= contentWidth) {
+          lines.add(remaining);
           break;
         }
+        // Find a good break point (prefer space)
+        var breakAt = contentWidth;
+        for (var i = contentWidth; i > contentWidth ~/ 2; i--) {
+          if (remaining[i] == ' ') {
+            breakAt = i;
+            break;
+          }
+        }
+        lines.add(remaining.substring(0, breakAt));
+        remaining = remaining.substring(breakAt).trimLeft();
       }
-      lines.add(remaining.substring(0, breakAt));
-      remaining = remaining.substring(breakAt).trimLeft();
     }
 
     final msgRow = terminal.height - lines.length;

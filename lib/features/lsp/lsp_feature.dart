@@ -515,12 +515,11 @@ class LspFeature extends Feature {
       result.add(line);
     }
 
-    // Join and truncate
-    final joined = result.join(' ').trim();
-    if (joined.length > 100) {
-      return '${joined.substring(0, 97)}...';
+    // Join with newlines to preserve structure, limit to 5 lines
+    if (result.length > 5) {
+      return '${result.take(5).join('\n')}...';
     }
-    return joined;
+    return result.join('\n');
   }
 
   /// Restart all LSP servers.
