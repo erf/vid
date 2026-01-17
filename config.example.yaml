@@ -68,3 +68,11 @@ showLineNumbers: false
 
 # Show diagnostic signs (errors, warnings) in the gutter (reserve gutter space for signs)
 showDiagnosticSigns: true
+
+# Format files automatically on save via LSP
+formatOnSave: false
+
+# Languages to format on save (empty list = format all languages)
+# Uses language IDs: dart, typescript, javascript, python, rust, go, etc.
+# formatOnSaveLanguages: ["dart", "typescript"]
+formatOnSaveLanguages: []

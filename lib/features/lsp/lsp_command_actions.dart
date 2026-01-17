@@ -6,8 +6,7 @@ import '../../message.dart';
 import '../../types/line_edit_action_base.dart';
 import 'diagnostics_popup.dart';
 import 'lsp_feature.dart';
-// ignore: unused_import
-import 'lsp_protocol.dart'; // needed for LspTextEdit type
+import 'lsp_protocol.dart';
 import 'rename_popup.dart';
 
 // ===== LSP commands =====
@@ -94,81 +93,144 @@ class CmdFormat extends LineEditAction {
   @override
   void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    _format(e, f);
+    formatBuffer(e, f);
+  }
+}
+
+/// Result of a formatting operation.
+enum FormatResult {
+  /// Formatting was applied successfully.
+  success,
+
+  /// No formatting changes needed.
+  noChanges,
+
+  /// LSP not available for this file.
+  noLsp,
+
+  /// No file path set.
+  noPath,
+
+  /// Formatting failed with an error.
+  error,
+}
+
+/// Format a buffer via LSP.
+///
+/// Returns the result of the formatting operation.
+/// If [showMessages] is true (default), shows status messages to the user.
+/// If [redraw] is true (default), redraws the editor after formatting.
+Future<FormatResult> formatBuffer(
+  Editor e,
+  FileBuffer f, {
+  bool showMessages = true,
+  bool redraw = true,
+}) async {
+  final lsp = e.featureRegistry?.get<LspFeature>();
+  if (lsp == null) {
+    if (showMessages) e.showMessage(Message.error('LSP not available'));
+    return FormatResult.noLsp;
   }
 
-  Future<void> _format(Editor e, FileBuffer f) async {
-    final lsp = e.featureRegistry?.get<LspFeature>();
-    if (lsp == null) {
-      e.showMessage(Message.error('LSP not available'));
-      return;
-    }
+  final path = f.absolutePath;
+  if (path == null) {
+    if (showMessages) e.showMessage(Message.error('No file path'));
+    return FormatResult.noPath;
+  }
 
-    final path = f.absolutePath;
-    if (path == null) {
-      e.showMessage(Message.error('No file path'));
-      return;
-    }
-
-    final protocol = lsp.getProtocolForPath(path);
-    if (protocol == null) {
+  final protocol = lsp.getProtocolForPath(path);
+  if (protocol == null) {
+    if (showMessages) {
       e.showMessage(Message.error('No LSP server for this file type'));
-      return;
+    }
+    return FormatResult.noLsp;
+  }
+
+  final uri = 'file://$path';
+
+  try {
+    final lspEdits = await protocol.formatting(
+      uri,
+      tabSize: e.config.tabWidth,
+      insertSpaces: true,
+    );
+
+    if (lspEdits == null || lspEdits.isEmpty) {
+      if (showMessages) e.showMessage(Message.info('No formatting changes'));
+      return FormatResult.noChanges;
     }
 
-    final uri = 'file://$path';
-
-    try {
-      final lspEdits = await protocol.formatting(
-        uri,
-        tabSize: e.config.tabWidth,
-        insertSpaces: true,
+    // Convert LSP edits to our TextEdit format
+    final edits = <TextEdit>[];
+    for (final lspEdit in lspEdits) {
+      final startOffset = _lspPositionToOffset(
+        f,
+        lspEdit.range.startLine,
+        lspEdit.range.startChar,
       );
+      final endOffset = _lspPositionToOffset(
+        f,
+        lspEdit.range.endLine,
+        lspEdit.range.endChar,
+      );
+      edits.add(TextEdit(startOffset, endOffset, lspEdit.newText));
+    }
 
-      if (lspEdits == null || lspEdits.isEmpty) {
-        e.showMessage(Message.info('No formatting changes'));
-        return;
-      }
+    // Apply edits to buffer
+    applyEdits(f, edits, e.config);
 
-      // Convert LSP edits to our TextEdit format
-      final edits = <TextEdit>[];
-      for (final lspEdit in lspEdits) {
-        final startOffset = _lspPositionToOffset(
-          f,
-          lspEdit.range.startLine,
-          lspEdit.range.startChar,
-        );
-        final endOffset = _lspPositionToOffset(
-          f,
-          lspEdit.range.endLine,
-          lspEdit.range.endChar,
-        );
-        edits.add(TextEdit(startOffset, endOffset, lspEdit.newText));
-      }
-
-      // Apply edits to buffer
-      applyEdits(f, edits, e.config);
-
+    if (showMessages) {
       e.showMessage(Message.info('Formatted (${edits.length} edits)'));
-      e.draw();
-    } catch (err) {
-      e.showMessage(Message.error('Format failed: $err'));
     }
+    if (redraw) e.draw();
+    return FormatResult.success;
+  } catch (err) {
+    if (showMessages) e.showMessage(Message.error('Format failed: $err'));
+    return FormatResult.error;
+  }
+}
+
+/// Convert LSP position (line, character) to byte offset.
+int _lspPositionToOffset(FileBuffer file, int line, int char) {
+  final lineStart = file.lineOffset(line);
+  final lineText = file.lineTextAt(line);
+
+  int offset = 0;
+  int charCount = 0;
+  for (final c in lineText.characters) {
+    if (charCount >= char) break;
+    charCount++;
+    offset += c.length;
   }
 
-  /// Convert LSP position (line, character) to byte offset.
-  int _lspPositionToOffset(FileBuffer file, int line, int char) {
-    final lineStart = file.lineOffset(line);
-    final lineText = file.lineTextAt(line);
+  return lineStart + offset;
+}
 
-    int offset = 0;
-    int charCount = 0;
-    for (final c in lineText.characters) {
-      if (charCount >= char) break;
-      charCount++;
-      offset += c.length;
-    }
+/// Check if format-on-save should run for the given file.
+///
+/// Returns true if:
+/// - formatOnSave is enabled in config
+/// - Either formatOnSaveLanguages is empty (format all) or contains this file's language
+bool shouldFormatOnSave(Editor e, FileBuffer f) {
+  if (!e.config.formatOnSave) return false;
 
-    return lineStart + offset;
-  }
+  final path = f.absolutePath;
+  if (path == null) return false;
+
+  final langs = e.config.formatOnSaveLanguages;
+  if (langs.isEmpty) return true; // empty = format all languages
+
+  final languageId = languageIdFromPath(path);
+  return langs.contains(languageId);
+}
+
+/// Format buffer on save if configured.
+///
+/// Returns true if formatting was applied successfully.
+/// Shows no messages by default since it's part of the save flow.
+Future<bool> maybeFormatOnSave(Editor e, FileBuffer f) async {
+  if (!shouldFormatOnSave(e, f)) return false;
+
+  final result = await formatBuffer(e, f, showMessages: false, redraw: false);
+  return result == FormatResult.success;
 }

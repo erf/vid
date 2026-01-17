@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../editor.dart';
 import '../error_or.dart';
+import '../features/lsp/lsp_command_actions.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/file_browser.dart';
 import '../selection.dart';
@@ -80,18 +81,25 @@ class CmdWrite extends LineEditAction {
   @override
   void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
+    _write(e, f, args);
+  }
 
+  Future<void> _write(Editor e, FileBuffer f, List<String> args) async {
     String? path = f.path;
     if (args.length > 1) {
       path = args[1];
     }
+
+    // Format on save if configured
+    final formatted = await maybeFormatOnSave(e, f);
 
     final ErrorOr<bool> result = f.save(e, path);
     if (result.hasError) {
       e.showMessage(.error(result.error!));
     } else {
       f.path = path; // set path after successful save
-      e.showMessage(.info('Saved \'$path\''));
+      final msg = formatted ? 'Saved \'$path\' (formatted)' : 'Saved \'$path\'';
+      e.showMessage(.info(msg));
     }
   }
 }
@@ -103,10 +111,14 @@ class CmdWriteAndQuit extends LineEditAction {
   @override
   void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
+    _writeAndQuit(e, f, args);
+  }
 
+  Future<void> _writeAndQuit(Editor e, FileBuffer f, List<String> args) async {
     // If a path argument is provided, save current buffer to that path first
     if (args.length > 1) {
       final path = args[1];
+      await maybeFormatOnSave(e, f);
       final result = f.save(e, path);
       if (result.hasError) {
         e.showMessage(.error(result.error!));
@@ -125,6 +137,9 @@ class CmdWriteAndQuit extends LineEditAction {
         errors.add('No file name for buffer \'$name\'');
         continue;
       }
+
+      // Format on save for each modified buffer
+      await maybeFormatOnSave(e, buffer);
 
       final result = buffer.save(e, buffer.path);
       if (result.hasError) {

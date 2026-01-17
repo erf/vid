@@ -93,6 +93,13 @@ class Config {
   /// Whether to show diagnostic signs (errors/warnings) in the gutter.
   final bool showDiagnosticSigns;
 
+  /// Whether to automatically format files on save via LSP.
+  final bool formatOnSave;
+
+  /// Languages to format on save. Empty set means format all languages.
+  /// Uses language IDs like 'dart', 'typescript', 'python', etc.
+  final Set<String> formatOnSaveLanguages;
+
   /// Default directories to exclude from file browser scanning.
   static const Set<String> defaultExcludeDirs = {
     '.git',
@@ -144,6 +151,8 @@ class Config {
     this.preserveColumnOnVerticalMove = true,
     this.showLineNumbers = false,
     this.showDiagnosticSigns = true,
+    this.formatOnSave = false,
+    this.formatOnSaveLanguages = const {},
   });
 
   /// Creates a [Config] from a map (typically parsed from YAML).
@@ -180,6 +189,8 @@ class Config {
       ),
       showLineNumbers: _parseBool(map['showLineNumbers']),
       showDiagnosticSigns: _parseBool(map['showDiagnosticSigns']),
+      formatOnSave: _parseBool(map['formatOnSave']),
+      formatOnSaveLanguages: _parseStringSet(map['formatOnSaveLanguages']),
     );
   }
 
@@ -247,6 +258,8 @@ class Config {
     bool? preserveColumnOnVerticalMove,
     bool? showLineNumbers,
     bool? showDiagnosticSigns,
+    bool? formatOnSave,
+    Set<String>? formatOnSaveLanguages,
   }) {
     return Config(
       messageTime: messageTime ?? this.messageTime,
@@ -274,6 +287,9 @@ class Config {
           preserveColumnOnVerticalMove ?? this.preserveColumnOnVerticalMove,
       showLineNumbers: showLineNumbers ?? this.showLineNumbers,
       showDiagnosticSigns: showDiagnosticSigns ?? this.showDiagnosticSigns,
+      formatOnSave: formatOnSave ?? this.formatOnSave,
+      formatOnSaveLanguages:
+          formatOnSaveLanguages ?? this.formatOnSaveLanguages,
     );
   }
 }

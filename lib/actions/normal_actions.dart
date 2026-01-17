@@ -8,6 +8,7 @@ import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../features/lsp/diagnostics_popup.dart';
+import '../features/lsp/lsp_command_actions.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/file_browser.dart';
@@ -368,11 +369,19 @@ class Save extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
+    _save(e, f);
+  }
+
+  Future<void> _save(Editor e, FileBuffer f) async {
+    // Format on save if configured
+    final formatted = await maybeFormatOnSave(e, f);
+
     ErrorOr result = f.save(e, f.path);
     if (result.hasError) {
       e.showMessage(.error(result.error!));
     } else {
-      e.showMessage(.info('File saved'));
+      final msg = formatted ? 'Saved (formatted)' : 'File saved';
+      e.showMessage(.info(msg));
     }
   }
 }
