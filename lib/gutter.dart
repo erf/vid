@@ -41,20 +41,39 @@ class GutterSign {
   /// Optional message associated with this sign (e.g., diagnostic message).
   final String? message;
 
-  const GutterSign({required this.type, this.message});
+  /// Whether code actions are available on this line (combined indicator).
+  final bool hasCodeAction;
+
+  const GutterSign({
+    required this.type,
+    this.message,
+    this.hasCodeAction = false,
+  });
 
   /// Get the character to display for this sign type.
-  String get char => switch (type) {
-    GutterSignType.error => '●',
-    GutterSignType.warning => '●',
-    GutterSignType.hint => '●',
-    GutterSignType.codeAction => '*',
-    GutterSignType.gitAdded => '┃',
-    GutterSignType.gitModified => '┃',
-    GutterSignType.gitDeleted => '▁',
-    GutterSignType.breakpoint => '●',
-    GutterSignType.bookmark => '★',
-  };
+  /// Shows '!' when diagnostic has code actions available.
+  String get char {
+    // If this is a diagnostic with code actions, show combined indicator
+    if (hasCodeAction) {
+      return switch (type) {
+        GutterSignType.error => '!',
+        GutterSignType.warning => '!',
+        GutterSignType.hint => '*',
+        _ => '*',
+      };
+    }
+    return switch (type) {
+      GutterSignType.error => '●',
+      GutterSignType.warning => '●',
+      GutterSignType.hint => '●',
+      GutterSignType.codeAction => '*',
+      GutterSignType.gitAdded => '┃',
+      GutterSignType.gitModified => '┃',
+      GutterSignType.gitDeleted => '▁',
+      GutterSignType.breakpoint => '●',
+      GutterSignType.bookmark => '★',
+    };
+  }
 
   /// Get the ANSI color code for this sign type.
   String colorCode(Theme theme) => switch (type) {

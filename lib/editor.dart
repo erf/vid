@@ -105,7 +105,7 @@ class Editor {
   void init(List<String> args) {
     final List<_FileArg> files = _parseArgs(args);
     final String? directoryArg = _getDirectoryArg(args);
-    
+
     if (files.isNotEmpty) {
       _loadInitialFiles(files);
     }
@@ -410,29 +410,36 @@ class Editor {
   ) {
     final signs = GutterSigns();
 
-    // Add diagnostic signs first (higher priority)
+    // Add diagnostic signs, marking those with code actions
     for (final diag in diagnostics) {
       final signType = switch (diag.severity) {
         DiagnosticSeverity.error => GutterSignType.error,
         DiagnosticSeverity.warning => GutterSignType.warning,
         _ => GutterSignType.hint,
       };
+      final hasAction = linesWithCodeActions.contains(diag.startLine);
       signs.add(
         diag.startLine,
-        GutterSign(type: signType, message: diag.message),
+        GutterSign(
+          type: signType,
+          message: diag.message,
+          hasCodeAction: hasAction,
+        ),
       );
     }
 
-    // Add code action signs for lines that don't already have a sign
-    // (or have lower priority signs like hints)
+    // Add code action signs for lines without diagnostics
     for (final line in linesWithCodeActions) {
-      signs.add(
-        line,
-        GutterSign(
-          type: GutterSignType.codeAction,
-          message: 'Code action available',
-        ),
-      );
+      // Only add if no diagnostic already covers this line
+      if (!diagnostics.any((d) => d.startLine == line)) {
+        signs.add(
+          line,
+          GutterSign(
+            type: GutterSignType.codeAction,
+            message: 'Code action available',
+          ),
+        );
+      }
     }
 
     return signs;

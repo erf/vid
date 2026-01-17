@@ -30,15 +30,20 @@ class CodeActionsPopup {
 
     final uri = 'file://${file.absolutePath}';
 
-    // Calculate line and character from cursor offset
-    final line = file.lineNumber(file.cursor);
-    final lineStart = file.lineOffset(line);
-    final char = file.cursor - lineStart;
+    // Use selection range (supports visual mode selections for refactorings)
+    final selection = file.selections.first;
+    final startLine = file.lineNumber(selection.start);
+    final startLineOffset = file.lineOffset(startLine);
+    final startChar = selection.start - startLineOffset;
 
-    // Get diagnostics for this line to include in request
+    final endLine = file.lineNumber(selection.end);
+    final endLineOffset = file.lineOffset(endLine);
+    final endChar = selection.end - endLineOffset;
+
+    // Get diagnostics in range to include in request
     final allDiagnostics = lsp.getDiagnostics(uri);
-    final lineDiagnostics = allDiagnostics
-        .where((d) => d.startLine == line)
+    final rangeDiagnostics = allDiagnostics
+        .where((d) => d.startLine >= startLine && d.startLine <= endLine)
         .toList();
 
     editor.showMessage(Message.info('Fetching code actions...'));
@@ -46,11 +51,11 @@ class CodeActionsPopup {
     try {
       final actions = await protocol.codeAction(
         uri,
-        line,
-        char,
-        line,
-        char,
-        diagnostics: lineDiagnostics.isNotEmpty ? lineDiagnostics : null,
+        startLine,
+        startChar,
+        endLine,
+        endChar,
+        diagnostics: rangeDiagnostics.isNotEmpty ? rangeDiagnostics : null,
       );
 
       editor.message = null;
