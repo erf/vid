@@ -1,5 +1,5 @@
 import 'package:vid/actions/operators.dart';
-import 'package:vid/motions/motion.dart';
+import 'package:vid/motion/motion.dart';
 
 /// Immutable operation that can be repeated
 class EditOperation {

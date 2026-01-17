@@ -11,6 +11,7 @@ import 'package:vid/highlighting/theme.dart';
 import 'package:vid/input_state.dart';
 import 'package:vid/features/lsp/lsp_feature.dart';
 import 'package:vid/features/lsp/lsp_protocol.dart';
+import 'package:vid/motion/motion_type.dart';
 import 'package:vid/popup/file_browser.dart';
 import 'package:vid/popup/popup.dart';
 import 'package:vid/renderer.dart';
@@ -26,7 +27,7 @@ import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
-import 'motions/motion.dart';
+import 'motion/motion.dart';
 import 'range.dart';
 
 class Editor {

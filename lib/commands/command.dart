@@ -4,7 +4,7 @@ import '../actions/operators.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../modes.dart';
-import '../motions/motion.dart';
+import '../motion/motion.dart';
 import 'action_type.dart';
 import 'line_edit_type.dart';
 import 'operator_type.dart';

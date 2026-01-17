@@ -4,7 +4,7 @@ import '../bindings.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../file_buffer/file_buffer.dart';
-import '../motions/motion.dart';
+import '../motion/motion.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/file_browser.dart';
 import '../popup/references_popup.dart';
