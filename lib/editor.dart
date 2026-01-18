@@ -220,9 +220,19 @@ class Editor {
       return result;
     }
     final buffer = result.value!;
-    _addBuffer(buffer);
+
+    // Replace untouched buffer instead of adding a new one (vim behavior)
+    if (file.isUntouched) {
+      _buffers[_currentBufferIndex] = buffer;
+      _addBufferListener(buffer);
+    } else {
+      _addBuffer(buffer);
+      if (switchTo) {
+        _currentBufferIndex = _buffers.length - 1;
+      }
+    }
+
     if (switchTo) {
-      _currentBufferIndex = _buffers.length - 1;
       terminal.write(Ansi.setTitle('vid $path'));
       draw();
     }

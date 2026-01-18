@@ -160,6 +160,10 @@ class FileBuffer {
   // if the file has been modified (not saved)
   bool get modified => undoList.length != savepoint;
 
+  /// Whether this buffer is untouched (no path, not modified, empty content).
+  /// Used to determine if the buffer should be replaced when opening a file.
+  bool get isUntouched => path == null && !modified && _text == Keys.newline;
+
   // --- Methods ---
 
   // build line index by scanning for newlines - O(n)
