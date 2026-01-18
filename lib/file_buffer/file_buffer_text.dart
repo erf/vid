@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:vid/config.dart';
+import 'package:vid/modes.dart';
+import 'package:vid/selection.dart';
 import 'package:vid/yank_buffer.dart';
 
 import '../editor.dart';
@@ -103,17 +105,25 @@ extension FileBufferText on FileBuffer {
     if (undoList.isEmpty) return null;
     final ops = undoList.removeLast();
 
+    // Capture current selections (the "after" state) for redo
+    final selectionsAfter = List<Selection>.of(selections);
+
     // Apply ops in reverse order (from lowest position to highest)
     // since they're stored in descending position order
     for (final op in ops.reversed) {
       updateText(op.start, op.endNew, op.prevText);
     }
 
-    redoList.add(ops);
+    redoList.add((ops: ops, selectionsAfter: selectionsAfter));
 
     // Restore selections from the first op
     if (ops.isNotEmpty) {
       selections = ops.first.selections.toList();
+      // In normal mode, collapse selections to enable multi-cursor movement
+      // (visual selections from before the edit shouldn't persist)
+      if (mode == Mode.normal) {
+        selections = selections.map((s) => s.collapse()).toList();
+      }
       clampCursor();
     }
 
@@ -123,7 +133,7 @@ extension FileBufferText on FileBuffer {
 
   TextOp? redo() {
     if (redoList.isEmpty) return null;
-    final ops = redoList.removeLast();
+    final (:ops, :selectionsAfter) = redoList.removeLast();
 
     // Apply ops in forward order (from highest position to lowest)
     for (final op in ops) {
@@ -132,10 +142,9 @@ extension FileBufferText on FileBuffer {
 
     undoList.add(ops);
 
-    // For redo, move cursor to end of last edit
-    // (selections are not preserved on redo - collapse to single cursor)
-    if (ops.isNotEmpty) {
-      cursor = ops.last.endNew;
+    // Restore selections to the state after the edit was originally applied
+    if (selectionsAfter.isNotEmpty) {
+      selections = selectionsAfter.toList();
       clampCursor();
     }
 
