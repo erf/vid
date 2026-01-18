@@ -9,7 +9,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 - vim motions, operators, text objects, visual and command mode (see [bindings.dart](lib/bindings.dart))
 - multiple selections with regex search (`:select <pattern>`)
 - syntax highlighting with theme selector (mono, rosepine, ayu, unicorn)
-- LSP support (go to definition, references, hover, rename, completion)
+- LSP support (go to definition, references, symbols, hover, rename, completion, format)
 - proper emoji and wide character support
 - multi-buffer support with interactive popups
 - undo and redo
