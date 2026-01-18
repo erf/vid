@@ -308,6 +308,7 @@ const popupFallback = InputCommand(PopupActions.filterInput);
 // Supports multi-cursor workflow with Tab/Shift+Tab to cycle selections
 const visualCommands = <String, Command>{
   Keys.escape: ActionCommand(.escapeVisual),
+  'v': ActionCommand(.escapeVisual), // Exit visual mode
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   // Override x to directly delete (normal mode x is 'dl' alias, which causes issues)
   'x': OperatorCommand(.delete),
@@ -323,6 +324,7 @@ const visualCommands = <String, Command>{
 // Visual line mode bindings - linewise selection
 const visualLineCommands = <String, Command>{
   Keys.escape: ActionCommand(.escapeVisualLine),
+  'V': ActionCommand(.escapeVisualLine), // Exit visual line mode
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   'x': OperatorCommand(.delete),
   'I': ActionCommand(.visualLineInsertAtLineStarts),
