@@ -12,7 +12,7 @@ import 'types/command.dart';
 const normalCommands = <String, Command>{
   'q': ActionCommand(.quit),
   'S': AliasCommand('^C'),
-  's': ActionCommand(.save),
+  's': AliasCommand('cl'),
   'i': ModeCommand(.insert),
   'a': ActionCommand(.appendCharNext),
   'A': AliasCommand('\$a'),
@@ -312,6 +312,7 @@ const visualCommands = <String, Command>{
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   // Override x to directly delete (normal mode x is 'dl' alias, which causes issues)
   'x': OperatorCommand(.delete),
+  's': OperatorCommand(.change), // Substitute selection
   // Selection cycling (for multi-cursor)
   Keys.tab: ActionCommand(.nextSelection),
   Keys.shiftTab: ActionCommand(.prevSelection),
@@ -329,6 +330,7 @@ const visualLineCommands = <String, Command>{
   'V': ActionCommand(.escapeVisualLine), // Exit visual line mode
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   'x': OperatorCommand(.delete),
+  's': OperatorCommand(.change), // Substitute selection
   'I': ActionCommand(.visualLineInsertAtLineStarts),
   'A': ActionCommand(.visualLineInsertAtLineEnds),
   // Selection cycling
