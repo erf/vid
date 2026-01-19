@@ -11,6 +11,8 @@ import 'types/command.dart';
 
 const normalCommands = <String, Command>{
   'q': ActionCommand(.quit),
+  'ZZ': ActionCommand(.writeAndQuit),
+  'ZQ': ActionCommand(.forceQuit),
   'S': AliasCommand('^C'),
   's': AliasCommand('cl'),
   'i': ModeCommand(.insert),

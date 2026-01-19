@@ -2,6 +2,8 @@
 enum ActionType {
   // Normal mode actions
   quit,
+  forceQuit,
+  writeAndQuit,
   save,
   appendCharNext,
   openLineBelow,

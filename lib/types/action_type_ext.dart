@@ -14,6 +14,8 @@ extension ActionTypeExt on ActionType {
   Action get fn => switch (this) {
     // Normal mode
     .quit => const Quit(),
+    .forceQuit => const QuitWithoutSaving(),
+    .writeAndQuit => const WriteAndQuit(),
     .save => const Save(),
     .appendCharNext => const AppendCharNext(),
     .openLineBelow => const OpenLineBelow(),

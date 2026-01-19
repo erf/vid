@@ -363,6 +363,28 @@ class QuitWithoutSaving extends Action {
   }
 }
 
+/// Save and quit (ZZ).
+class WriteAndQuit extends Action {
+  const WriteAndQuit();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    _saveAndQuit(e, f);
+  }
+
+  Future<void> _saveAndQuit(Editor e, FileBuffer f) async {
+    // Format on save if configured
+    await maybeFormatOnSave(e, f);
+
+    ErrorOr result = f.save(e, f.path);
+    if (result.hasError) {
+      e.showMessage(.error(result.error!));
+    } else {
+      e.quit();
+    }
+  }
+}
+
 /// Save file.
 class Save extends Action {
   const Save();
