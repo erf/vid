@@ -107,15 +107,15 @@ class Editor {
   }
 
   void init(List<String> args) {
-    final List<_FileArg> files = _parseArgs(args);
+    final List<_FileArg> fileArgs = _parseArgs(args);
     final String? directoryArg = _getDirectoryArg(args);
 
-    if (files.isNotEmpty) {
-      _loadInitialFiles(files);
+    if (fileArgs.isNotEmpty) {
+      _loadInitialFiles(fileArgs);
     }
-    _initTerminal(files.firstOrNull?.path);
+    _initTerminal(fileArgs.firstOrNull?.path);
     _initFeatures();
-    _applyLineArgs(files);
+    _applyLineArgs(fileArgs);
 
     draw();
 
@@ -157,10 +157,10 @@ class Editor {
     return null;
   }
 
-  void _loadInitialFiles(List<_FileArg> files) {
-    for (int i = 0; i < files.length; i++) {
+  void _loadInitialFiles(List<_FileArg> fileArgs) {
+    for (int i = 0; i < fileArgs.length; i++) {
       final result = FileBuffer.load(
-        files[i].path,
+        fileArgs[i].path,
         createIfNotExists: true,
         cwd: workingDirectory,
       );
@@ -190,11 +190,11 @@ class Editor {
     }
   }
 
-  void _applyLineArgs(List<_FileArg> files) {
-    for (int i = 0; i < files.length; i++) {
-      final lineArg = files[i].lineArg;
+  void _applyLineArgs(List<_FileArg> fileArgs) {
+    for (int i = 0; i < fileArgs.length; i++) {
+      final lineArg = fileArgs[i].lineArg;
       if (lineArg != null) {
-        _buffers[i].parseCliArgs([files[i].path, lineArg]);
+        _buffers[i].parseCliArgs([fileArgs[i].path, lineArg]);
       }
     }
   }
