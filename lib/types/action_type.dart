@@ -55,6 +55,7 @@ enum ActionType {
   removeSelection,
   selectWordUnderCursor,
   selectAllMatchesOfSelection,
+  selectNextMatch,
   visualLineInsertAtLineStarts,
   visualLineInsertAtLineEnds,
 

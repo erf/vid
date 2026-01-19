@@ -319,6 +319,8 @@ const visualCommands = <String, Command>{
   '[s': ActionCommand(.prevSelection),
   // Select all matches of current selection
   Keys.ctrlA: ActionCommand(.selectAllMatchesOfSelection),
+  // Select next match (add selection for next occurrence)
+  Keys.ctrlN: ActionCommand(.selectNextMatch),
 };
 
 // Visual line mode bindings - linewise selection

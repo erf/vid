@@ -1707,14 +1707,16 @@ void main() {
       e.input('\n'); // Add cursor below again
 
       expect(f.selections.length, 3);
-      final firstCursor = f.selections[0].cursor;
-      final secondCursor = f.selections[1].cursor;
+      // After AddCursorBelow x2: primary is at line 2 (bottom), others at lines 0, 1
+      // Sorted by document position: line0, line1, line2
+      // Primary (line2) is last in document order
 
-      e.input('\t'); // Tab to cycle
+      e.input(
+        '\t',
+      ); // Tab to cycle - goes to next in document order (wraps to first)
 
-      // First selection should now be at back, second is now first
-      expect(f.selections[0].cursor, secondCursor);
-      expect(f.selections[2].cursor, firstCursor);
+      // Primary should now be at line 0 (first in document order)
+      expect(f.selections[0].cursor, 0); // line 0
     });
 
     test('[s and ]s cycle selections in normal mode', () {
@@ -1726,26 +1728,22 @@ void main() {
       f.text = 'abc\ndef\nghi\n';
       f.cursor = 0;
 
-      // Create multiple cursors
+      // Create multiple cursors at lines 0, 1, 2
       e.input('\n'); // Add cursor below
       e.input('\n'); // Add cursor below again
 
       expect(f.selections.length, 3);
-      final cursors = f.selections.map((s) => s.cursor).toList();
+      // Primary is at line 2 (position 8), which is last in document order
 
-      e.input(']s'); // Next selection
+      e.input(']s'); // Next selection - wraps to first in document order
 
-      // Rotated: [1, 2, 0]
-      expect(f.selections[0].cursor, cursors[1]);
-      expect(f.selections[1].cursor, cursors[2]);
-      expect(f.selections[2].cursor, cursors[0]);
+      // Primary should now be at line 0 (first in document)
+      expect(f.selections[0].cursor, 0);
 
-      e.input('[s'); // Previous selection
+      e.input('[s'); // Previous selection - wraps to last in document order
 
-      // Rotated back: [0, 1, 2]
-      expect(f.selections[0].cursor, cursors[0]);
-      expect(f.selections[1].cursor, cursors[1]);
-      expect(f.selections[2].cursor, cursors[2]);
+      // Primary should now be at line 2 (last in document)
+      expect(f.selections[0].cursor, 8);
     });
   });
 }

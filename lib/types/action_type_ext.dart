@@ -67,6 +67,7 @@ extension ActionTypeExt on ActionType {
     .removeSelection => const RemoveSelection(),
     .selectWordUnderCursor => const SelectWordUnderCursor(),
     .selectAllMatchesOfSelection => const SelectAllMatchesOfSelection(),
+    .selectNextMatch => const SelectNextMatch(),
     .visualLineInsertAtLineStarts => const VisualLineInsertAtLineStarts(),
     .visualLineInsertAtLineEnds => const VisualLineInsertAtLineEnds(),
 

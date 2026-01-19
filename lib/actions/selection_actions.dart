@@ -23,9 +23,19 @@ class NextSelection extends Action {
   @override
   void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) return;
-    // Rotate list: move first to end
-    final first = f.selections.removeAt(0);
-    f.selections.add(first);
+    // Sort by document position, find current, move to next
+    final sorted = [...f.selections]
+      ..sort((a, b) => a.start.compareTo(b.start));
+    final current = f.selections.first;
+    final currentIdx = sorted.indexWhere(
+      (s) => s.start == current.start && s.end == current.end,
+    );
+    final nextIdx = (currentIdx + 1) % sorted.length;
+    // Reorder: next becomes first, then others in document order
+    f.selections = [
+      for (int i = 0; i < sorted.length; i++)
+        sorted[(nextIdx + i) % sorted.length],
+    ];
   }
 }
 
@@ -36,9 +46,19 @@ class PrevSelection extends Action {
   @override
   void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) return;
-    // Rotate list: move last to front
-    final last = f.selections.removeLast();
-    f.selections.insert(0, last);
+    // Sort by document position, find current, move to previous
+    final sorted = [...f.selections]
+      ..sort((a, b) => a.start.compareTo(b.start));
+    final current = f.selections.first;
+    final currentIdx = sorted.indexWhere(
+      (s) => s.start == current.start && s.end == current.end,
+    );
+    final prevIdx = (currentIdx - 1 + sorted.length) % sorted.length;
+    // Reorder: prev becomes first, then others in document order
+    f.selections = [
+      for (int i = 0; i < sorted.length; i++)
+        sorted[(prevIdx + i) % sorted.length],
+    ];
   }
 }
 
@@ -110,6 +130,62 @@ class SelectAllMatchesOfSelection extends Action {
 
     f.selections = matches;
     f.setMode(e, .visual);
+  }
+}
+
+/// Select the next occurrence of the current selection text.
+/// Adds it as a new primary selection (inserted at front).
+/// Wraps around to start of file if no match found after current selection.
+class SelectNextMatch extends Action {
+  const SelectNextMatch();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    final sel = f.selections.first;
+
+    // Get the selected text
+    final selectedText = f.text.substring(sel.start, sel.end + 1);
+    if (selectedText.isEmpty) return;
+
+    final pattern = RegExp(RegExp.escape(selectedText));
+
+    // Search after current selection first
+    Selection? newSel = _findNextMatch(f.text, pattern, sel.end + 1);
+
+    // Wrap around: search from beginning if not found
+    newSel ??= _findNextMatch(f.text, pattern, 0, sel.start);
+
+    if (newSel == null) return; // No other occurrence
+
+    // Check if this position already has a selection
+    for (final existing in f.selections) {
+      if (existing.start == newSel.start && existing.end == newSel.end) {
+        return; // Already selected
+      }
+    }
+
+    // Insert at front to make it primary
+    f.selections.insert(0, newSel);
+  }
+
+  /// Find next match starting from [from], optionally stopping before [until].
+  Selection? _findNextMatch(
+    String text,
+    RegExp pattern,
+    int from, [
+    int? until,
+  ]) {
+    final match = pattern.firstMatch(text.substring(from));
+    if (match == null) return null;
+
+    final matchStart = from + match.start;
+    final matchEnd = from + match.end;
+
+    // If until is specified, only accept matches that start before it
+    if (until != null && matchStart >= until) return null;
+
+    final cursor = matchEnd > matchStart ? matchEnd - 1 : matchStart;
+    return Selection(matchStart, cursor);
   }
 }
 
