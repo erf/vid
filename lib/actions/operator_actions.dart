@@ -17,72 +17,38 @@ class OperatorActions {
     OperatorAction op, {
     bool linewise = false,
   }) {
-    // In visual line mode, always treat as having a selection (even if collapsed)
-    // since the current line is always selected
     final isVisualLineMode = f.mode == .visualLine;
+
+    // Must have visual selection or be in visual line mode (where current line is selected)
     if (!f.hasVisualSelection && !isVisualLineMode) return false;
+
+    // Get the ranges to operate on (expanded for visual line / inclusive for visual)
+    final ranges = _getOperatorRanges(f, isVisualLineMode);
+    if (ranges.isEmpty) return false;
 
     // Visual line mode is always linewise
     final isLinewise = linewise || isVisualLineMode;
 
-    // Collect selections, sorted by position
-    List<Selection> visualSelections;
+    // Yank all selected text (in document order)
+    final allText = ranges.map((s) => f.text.substring(s.start, s.end)).join();
+    e.yankBuffer = YankBuffer(allText, linewise: isLinewise);
 
-    if (isVisualLineMode) {
-      // In visual line mode, expand each selection to full lines
-      visualSelections = f.selections.map((s) {
-        final startLineNum = f.lineNumber(s.start);
-        final endLineNum = f.lineNumber(s.end);
-        final minLine = startLineNum < endLineNum ? startLineNum : endLineNum;
-        final maxLine = startLineNum < endLineNum ? endLineNum : startLineNum;
-        final lineStart = f.lines[minLine].start;
-        var lineEnd = f.lines[maxLine].end + 1; // Include newline
-        if (lineEnd > f.text.length) lineEnd = f.text.length;
-        return Selection(lineStart, lineEnd);
-      }).toList()..sort((a, b) => a.start.compareTo(b.start));
-    } else {
-      // Non-line visual modes: filter to non-collapsed selections
-      visualSelections = f.selections.where((s) => !s.isCollapsed).toList()
-        ..sort((a, b) => a.start.compareTo(b.start));
-
-      if (visualSelections.isEmpty) return false;
-
-      // In visual mode, extend each selection by one grapheme to include cursor char.
-      // Visual mode is always inclusive - the char under cursor is selected.
-      if (f.mode == .visual) {
-        visualSelections = visualSelections.map((s) {
-          final newEnd = f.nextGrapheme(s.end);
-          return Selection(s.start, newEnd);
-        }).toList();
-      }
-    }
-
-    // Yank all selected text first (in document order)
-    final allText = StringBuffer();
-    for (final sel in visualSelections) {
-      allText.write(f.text.substring(sel.start, sel.end));
-    }
-    e.yankBuffer = YankBuffer(allText.toString(), linewise: isLinewise);
-
-    // For yank, we're done after copying - stay in visual mode with selections intact
+    // For yank, just copy and stay in visual mode with selections intact
     if (op is Yank) {
       e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
       return true;
     }
 
-    // For delete/change, use applyEdits for atomic operation
-    // Apply from end to start to preserve positions
-    final edits = visualSelections.reversed
+    // For delete/change, apply edits from end to start to preserve positions
+    final edits = ranges.reversed
         .map((s) => TextEdit.delete(s.start, s.end))
         .toList();
-
-    // Apply the deletions
     applyEdits(f, edits, e.config);
 
     // Compute new collapsed selection positions, adjusted for deleted text
     int offset = 0;
     final newSelections = <Selection>[];
-    for (final s in visualSelections) {
+    for (final s in ranges) {
       newSelections.add(Selection.collapsed(s.start - offset));
       offset += s.end - s.start;
     }
@@ -92,9 +58,44 @@ class OperatorActions {
     if (op is Change) {
       f.setMode(e, .insert);
     }
-    // For delete/yank, stay in visual mode - user can press Esc to return to normal
+    // For delete, stay in visual mode - user can press Esc to return to normal
 
     return true;
+  }
+
+  /// Get the ranges to operate on, sorted by position.
+  /// Handles visual line expansion and visual mode inclusive extension.
+  static List<Selection> _getOperatorRanges(
+    FileBuffer f,
+    bool isVisualLineMode,
+  ) {
+    if (isVisualLineMode) {
+      // Expand each selection to full lines
+      return f.selections.map((s) {
+        final startLine = f.lineNumber(s.start);
+        final endLine = f.lineNumber(s.end);
+        final minLine = startLine < endLine ? startLine : endLine;
+        final maxLine = startLine < endLine ? endLine : startLine;
+        final lineStart = f.lines[minLine].start;
+        var lineEnd = f.lines[maxLine].end + 1; // Include newline
+        if (lineEnd > f.text.length) lineEnd = f.text.length;
+        return Selection(lineStart, lineEnd);
+      }).toList()..sort((a, b) => a.start.compareTo(b.start));
+    }
+
+    // Non-line visual modes: filter to non-collapsed selections
+    final selections = f.selections.where((s) => !s.isCollapsed).toList();
+    if (selections.isEmpty) return [];
+
+    // Visual mode is inclusive - extend each selection by one grapheme
+    if (f.mode == .visual) {
+      return selections.map((s) {
+        final newEnd = f.nextGrapheme(s.end);
+        return Selection(s.start, newEnd);
+      }).toList()..sort((a, b) => a.start.compareTo(b.start));
+    }
+
+    return selections..sort((a, b) => a.start.compareTo(b.start));
   }
 }
 
