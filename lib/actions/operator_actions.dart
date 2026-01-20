@@ -64,12 +64,9 @@ class OperatorActions {
     }
     e.yankBuffer = YankBuffer(allText.toString(), linewise: isLinewise);
 
-    // For yank, we're done after copying
+    // For yank, we're done after copying - stay in visual mode with selections intact
     if (op is Yank) {
       e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
-      // Clear selections to collapsed at first selection's start
-      f.selections = [Selection.collapsed(visualSelections.first.start)];
-      f.setMode(e, .normal);
       return true;
     }
 
@@ -94,10 +91,8 @@ class OperatorActions {
 
     if (op is Change) {
       f.setMode(e, .insert);
-    } else {
-      // Return to normal mode after delete/yank, preserving multi-cursors
-      f.setMode(e, .normal);
     }
+    // For delete/yank, stay in visual mode - user can press Esc to return to normal
 
     return true;
   }
