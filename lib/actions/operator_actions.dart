@@ -18,9 +18,15 @@ class OperatorActions {
     bool linewise = false,
   }) {
     final isVisualLineMode = f.mode == .visualLine;
+    final isVisualMode = f.mode == .visual;
 
-    // Must have visual selection or be in visual line mode (where current line is selected)
-    if (!f.hasVisualSelection && !isVisualLineMode) return false;
+    // Handle visual selections if:
+    // 1. We're in visual mode (even with collapsed selections - operates on char under cursor)
+    // 2. We're in visual line mode (current line is always selected)
+    // 3. There are non-collapsed selections (for programmatic use)
+    if (!isVisualMode && !isVisualLineMode && !f.hasVisualSelection) {
+      return false;
+    }
 
     // Get the ranges to operate on (expanded for visual line / inclusive for visual)
     final ranges = _getOperatorRanges(f, isVisualLineMode);
@@ -83,18 +89,19 @@ class OperatorActions {
       }).toList()..sort((a, b) => a.start.compareTo(b.start));
     }
 
-    // Non-line visual modes: filter to non-collapsed selections
-    final selections = f.selections.where((s) => !s.isCollapsed).toList();
-    if (selections.isEmpty) return [];
-
-    // Visual mode is inclusive - extend each selection by one grapheme
+    // Visual mode is inclusive - extend each selection by one grapheme to
+    // include the character under cursor. This handles both:
+    // - Collapsed selections (single char under cursor)
+    // - Non-collapsed selections (extend to include end char)
     if (f.mode == .visual) {
-      return selections.map((s) {
+      return f.selections.map((s) {
         final newEnd = f.nextGrapheme(s.end);
         return Selection(s.start, newEnd);
       }).toList()..sort((a, b) => a.start.compareTo(b.start));
     }
 
+    // Other modes: only operate on non-collapsed selections
+    final selections = f.selections.where((s) => !s.isCollapsed).toList();
     return selections..sort((a, b) => a.start.compareTo(b.start));
   }
 }
