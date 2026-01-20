@@ -722,7 +722,7 @@ class Editor {
     if ((file.mode == .normal || file.mode == .operatorPending) &&
         file.hasMultipleCursors &&
         op == null) {
-      _applyMotionToCollapsedSelections(motion, edit.count);
+      _applyMotionToSelections(motion, edit.count, collapsed: true);
       _saveForRepeat(edit);
       _clearDesiredColumnIfNeeded(motion.type);
       file.edit.reset();
@@ -783,36 +783,25 @@ class Editor {
     }
   }
 
-  /// Apply motion to all selections, preserving them in visual mode.
-  void _applyMotionToSelections(Motion motion, int count) {
+  /// Apply motion to all selections.
+  ///
+  /// If [collapsed] is false, preserves anchor for visual selections.
+  /// If [collapsed] is true, collapses selections to cursor-only (multi-cursor mode).
+  void _applyMotionToSelections(
+    Motion motion,
+    int count, {
+    bool collapsed = false,
+  }) {
     final newSelections = <Selection>[];
     for (final sel in file.selections) {
       var newCursor = sel.cursor;
       for (int i = 0; i < count; i++) {
         newCursor = motion.fn(this, file, newCursor);
       }
-      // Update selection cursor, keeping anchor for visual selections
-      // Extension for inclusive behavior happens at operator time
-      newSelections.add(sel.withCursor(newCursor));
+      newSelections.add(
+        collapsed ? Selection.collapsed(newCursor) : sel.withCursor(newCursor),
+      );
     }
-    // Merge any overlapping selections that result from the motion
-    file.selections = mergeSelections(newSelections);
-    file.clampCursor();
-  }
-
-  /// Apply motion to all collapsed selections (multi-cursor mode).
-  /// Keeps selections collapsed (cursor-only).
-  void _applyMotionToCollapsedSelections(Motion motion, int count) {
-    final newSelections = <Selection>[];
-    for (final sel in file.selections) {
-      var newCursor = sel.cursor;
-      for (int i = 0; i < count; i++) {
-        newCursor = motion.fn(this, file, newCursor);
-      }
-      // Keep selections collapsed
-      newSelections.add(Selection.collapsed(newCursor));
-    }
-    // Merge any overlapping selections (cursors at same position become one)
     file.selections = mergeSelections(newSelections);
     file.clampCursor();
   }
