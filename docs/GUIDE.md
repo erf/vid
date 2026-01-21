@@ -8,6 +8,8 @@ A quick introduction to vid, the minimal vim-like text editor.
 vid file.txt              # Open a file
 vid file1.txt file2.txt   # Open multiple files (as buffers)
 vid                       # Open empty buffer
+vid .                     # Open file browser in current directory
+vid somefolder            # Open file browser in specified directory
 ```
 
 ## The Basics
