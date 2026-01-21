@@ -1,5 +1,6 @@
 import 'package:termio/termio.dart';
 import 'package:vid/types/operator_action_base.dart';
+import 'package:vid/types/operator_type.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
@@ -14,7 +15,7 @@ class OperatorActions {
   static bool handleVisualSelections(
     Editor e,
     FileBuffer f,
-    OperatorAction op, {
+    OperatorType op, {
     bool linewise = false,
   }) {
     final isVisualLineMode = f.mode == .visualLine;
@@ -35,37 +36,42 @@ class OperatorActions {
     // Visual line mode is always linewise
     final isLinewise = linewise || isVisualLineMode;
 
-    // Yank all selected text (in document order)
-    final allText = ranges.map((s) => f.text.substring(s.start, s.end)).join();
-    e.yankBuffer = YankBuffer(allText, linewise: isLinewise);
-
-    // For yank, just copy and stay in visual mode with selections intact
-    if (op is Yank) {
+    // Yank selected text for yank/delete/change operators
+    if (op == .yank || op == .delete || op == .change) {
+      final allText = ranges
+          .map((s) => f.text.substring(s.start, s.end))
+          .join();
+      e.yankBuffer = YankBuffer(allText, linewise: isLinewise);
       e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
-      return true;
     }
 
-    // For delete/change, apply edits from end to start to preserve positions
-    final edits = ranges.reversed
-        .map((s) => TextEdit.delete(s.start, s.end))
-        .toList();
-    applyEdits(f, edits, e.config);
+    // Apply edits based on operator type
+    switch (op) {
+      case .delete || .change:
+        final edits = ranges.reversed
+            .map((s) => TextEdit.delete(s.start, s.end))
+            .toList();
+        applyEdits(f, edits, e.config);
+        _collapseSelectionsAfterDelete(f, ranges);
+        break;
 
-    // Compute new collapsed selection positions, adjusted for deleted text
-    int offset = 0;
-    final newSelections = <Selection>[];
-    for (final s in ranges) {
-      newSelections.add(Selection.collapsed(s.start - offset));
-      offset += s.end - s.start;
+      case .lowerCase || .upperCase:
+        final edits = ranges.reversed.map((s) {
+          final original = f.text.substring(s.start, s.end);
+          final text = op == .lowerCase
+              ? original.toLowerCase()
+              : original.toUpperCase();
+          return TextEdit(s.start, s.end, text);
+        }).toList();
+        applyEdits(f, edits, e.config);
+        _collapseSelections(f, ranges);
+        break;
+
+      case .yank:
+        break; // Already handled above
     }
-    f.selections = newSelections;
-    f.clampCursor();
 
-    if (op is Change) {
-      f.setMode(e, .insert);
-    }
-    // For delete, stay in visual mode - user can press Esc to return to normal
-
+    f.setMode(e, op == .change ? .insert : .normal);
     return true;
   }
 
@@ -103,6 +109,28 @@ class OperatorActions {
     // Other modes: only operate on non-collapsed selections
     final selections = f.selections.where((s) => !s.isCollapsed).toList();
     return selections..sort((a, b) => a.start.compareTo(b.start));
+  }
+
+  /// Collapse selections to their start positions after delete operations.
+  /// Adjusts positions based on deleted text length.
+  static void _collapseSelectionsAfterDelete(
+    FileBuffer f,
+    List<Selection> ranges,
+  ) {
+    int offset = 0;
+    final newSelections = <Selection>[];
+    for (final s in ranges) {
+      newSelections.add(Selection.collapsed(s.start - offset));
+      offset += s.end - s.start;
+    }
+    f.selections = newSelections;
+    f.clampCursor();
+  }
+
+  /// Collapse selections to their start positions (for non-delete operations).
+  static void _collapseSelections(FileBuffer f, List<Selection> ranges) {
+    f.selections = ranges.map((s) => Selection.collapsed(s.start)).toList();
+    f.clampCursor();
   }
 }
 

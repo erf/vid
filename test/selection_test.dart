@@ -294,8 +294,8 @@ void main() {
         f.selections[1],
         Selection.collapsed(5),
       ); // Second "foo" was at 8, now 8-3=5
-      // Stays in visual mode (preserving multi-cursors, press Esc to return to normal)
-      expect(f.mode, Mode.visual);
+      // Returns to normal mode (Vim behavior)
+      expect(f.mode, Mode.normal);
     });
 
     test('d keeps all collapsed cursors at adjusted positions', () {
@@ -656,7 +656,7 @@ void main() {
       e.input('d'); // Delete
 
       expect(f.text, ' world\n');
-      expect(f.mode, Mode.visual);
+      expect(f.mode, Mode.normal);
     });
 
     test('c changes visual selection and enters insert mode', () {
@@ -676,7 +676,7 @@ void main() {
       expect(f.mode, Mode.insert);
     });
 
-    test('y yanks visual selection and stays in visual mode', () {
+    test('y yanks visual selection and returns to normal mode', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -690,7 +690,7 @@ void main() {
       e.input('y'); // Yank
 
       expect(f.text, 'hello world\n'); // Text unchanged
-      expect(f.mode, Mode.visual);
+      expect(f.mode, Mode.normal);
       expect(e.yankBuffer?.text, 'hello');
     });
 
@@ -772,7 +772,7 @@ void main() {
       // "hello" (positions 0-4 inclusive) should be deleted
       expect(f.text, ' world\n');
       expect(f.cursor, 0); // Cursor should be at start of deleted region
-      expect(f.mode, Mode.visual);
+      expect(f.mode, Mode.normal);
     });
 
     test('d with l motion deletes inclusive of cursor', () {
@@ -944,7 +944,7 @@ void main() {
       e.input('d'); // Delete
 
       expect(f.text, 'line three\n');
-      expect(f.mode, Mode.visualLine);
+      expect(f.mode, Mode.normal);
     });
 
     test('y yanks entire lines with linewise flag', () {
@@ -961,7 +961,7 @@ void main() {
       e.input('y'); // Yank
 
       expect(f.text, 'line one\nline two\nline three\n'); // Unchanged
-      expect(f.mode, Mode.visualLine);
+      expect(f.mode, Mode.normal);
       expect(e.yankBuffer?.text, 'line one\nline two\n');
       expect(e.yankBuffer?.linewise, true);
     });
@@ -979,7 +979,7 @@ void main() {
       e.input('d'); // Delete first line
 
       expect(f.text, 'line two\nline three\n');
-      expect(f.mode, Mode.visualLine);
+      expect(f.mode, Mode.normal);
       expect(f.cursor, 0);
     });
 

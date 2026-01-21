@@ -272,4 +272,74 @@ void main() {
       reason: 'h motion should not extend selection in normal mode',
     );
   });
+
+  group('case operators in visual mode', () {
+    test('gU converts selection to uppercase', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('v'); // Enter visual mode
+      e.input('e'); // Select "hello"
+      e.input('gU'); // Uppercase
+
+      expect(f.text, 'HELLO world\n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('gu converts selection to lowercase', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'HELLO WORLD\n';
+      f.cursor = 0;
+
+      e.input('v'); // Enter visual mode
+      e.input('e'); // Select "HELLO"
+      e.input('gu'); // Lowercase
+
+      expect(f.text, 'hello WORLD\n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('gU in visual line mode converts entire lines to uppercase', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello\nworld\nfoo\n';
+      f.cursor = 0;
+
+      e.input('V'); // Enter visual line mode
+      e.input('j'); // Select 2 lines
+      e.input('gU'); // Uppercase
+
+      expect(f.text, 'HELLO\nWORLD\nfoo\n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('gu in visual line mode converts entire lines to lowercase', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'HELLO\nWORLD\nFOO\n';
+      f.cursor = 0;
+
+      e.input('V'); // Enter visual line mode
+      e.input('j'); // Select 2 lines
+      e.input('gu'); // Lowercase
+
+      expect(f.text, 'hello\nworld\nFOO\n');
+      expect(f.mode, Mode.normal);
+    });
+  });
 }

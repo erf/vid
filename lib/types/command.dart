@@ -104,7 +104,7 @@ class OperatorCommand extends Command {
   @override
   void execute(Editor e, FileBuffer f, String s) {
     // If there are visual selections, operate on them immediately
-    if (OperatorActions.handleVisualSelections(e, f, type.fn)) {
+    if (OperatorActions.handleVisualSelections(e, f, type)) {
       return;
     }
     // Otherwise, enter operator-pending mode to wait for a motion
