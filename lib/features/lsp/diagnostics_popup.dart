@@ -6,12 +6,12 @@ import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 
 /// Diagnostic item value containing location info.
-class DiagnosticLocation {
+class _DiagnosticLocation {
   final String? filePath;
   final int line;
   final int character;
 
-  const DiagnosticLocation({
+  const _DiagnosticLocation({
     this.filePath,
     required this.line,
     required this.character,
@@ -62,7 +62,7 @@ class DiagnosticsPopup {
       return;
     }
 
-    final items = <PopupItem<DiagnosticLocation>>[];
+    final items = <PopupItem<_DiagnosticLocation>>[];
 
     // Gather diagnostics from all open buffers
     for (final buffer in editor.buffers) {
@@ -100,7 +100,7 @@ class DiagnosticsPopup {
   }
 
   /// Build popup items from diagnostics.
-  static List<PopupItem<DiagnosticLocation>> _buildItems(
+  static List<PopupItem<_DiagnosticLocation>> _buildItems(
     List<LspDiagnostic> diagnostics,
     String? filePath,
   ) {
@@ -123,10 +123,10 @@ class DiagnosticsPopup {
 
       final label = '[$prefix] L${diag.startLine + 1}: $message';
 
-      return PopupItem<DiagnosticLocation>(
+      return PopupItem<_DiagnosticLocation>(
         label: label,
         detail: filePath != null ? _shortenPath(filePath) : null,
-        value: DiagnosticLocation(
+        value: _DiagnosticLocation(
           filePath: filePath,
           line: diag.startLine,
           character: diag.startChar,
@@ -136,7 +136,7 @@ class DiagnosticsPopup {
   }
 
   /// Handle diagnostic selection.
-  static void _onSelect(Editor editor, PopupItem<DiagnosticLocation> item) {
+  static void _onSelect(Editor editor, PopupItem<_DiagnosticLocation> item) {
     editor.closePopup();
 
     final loc = item.value;
