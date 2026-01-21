@@ -106,19 +106,63 @@ N           Previous match
 *           Search word under cursor
 ```
 
-## Multi-Cursor Editing
+## Multi-Cursor Normal Mode
 
-Vid supports multiple cursors for powerful simultaneous editing:
+Vid supports multiple cursors for powerful simultaneous editing.
 
 ```
 Ctrl-J      Add cursor below (also works with Enter)
 Ctrl+K      Add cursor above
-Ctrl+N      Select word under cursor (visual mode)
+Tab         Cycle to next cursor
+Shift+Tab   Cycle to previous cursor
+```
+
+This lets you use regular motions and operators at multiple positions simultaneously:
+
+- `w` — move all cursors forward by word
+- `dw` — delete a word at each cursor
+- `i` — enter insert mode at all cursor positions
+- `A` — append at end of line for each cursor's line
+
+Press `Escape` (or use `:selclear`) to collapse back to a single cursor.
+
+## Multi-Cursor Visual Mode
+
+You can also work with multiple selections in visual mode.
+
+### Creating Selections
+
+```
+Ctrl+N      Select word under cursor (enters visual mode)
+Ctrl+A      Select all matches of current selection (in visual mode)
 Tab         Cycle to next selection
 Shift+Tab   Cycle to previous selection
 ```
 
-In visual mode, `Ctrl+A` selects all matches of the current selection.
+### Regex Select (`:select`)
+
+One of vid's most powerful features is the `:select` command (or `:s` / `:sel`). It performs a regex search on the current buffer and creates a selection for **every match**:
+
+```
+:select pattern     Select all matches of pattern
+:s foo              Select all occurrences of "foo"
+:s \d+              Select all numbers
+:s TODO|FIXME       Select all TODO and FIXME comments
+```
+
+After running `:select`, you'll be in **visual mode** with all matches selected. Now you can:
+
+- `c` — Change all selections (type replacement, press `Escape`)
+- `d` — Delete all selections
+- `y` — Yank all selections
+
+**Example workflow:** To rename a variable across a file:
+1. `:s oldName` — select all occurrences
+2. `c` — enter change mode
+3. Type `newName`
+4. `Escape` — done!
+
+Press `Escape` to return to normal mode with collapsed cursors at each selection position.
 
 ## LSP Integration
 
