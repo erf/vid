@@ -585,6 +585,12 @@ class Editor {
     final dir = mouse.scrollDirection;
     if (dir != ScrollDirection.up && dir != ScrollDirection.down) return;
 
+    // Handle popup scroll if popup is open
+    if (popup != null && file.mode == Mode.popup) {
+      _handlePopupScroll(dir!);
+      return;
+    }
+
     final visibleLines = terminal.height - 1;
 
     // Don't scroll if all content fits in viewport
@@ -663,16 +669,33 @@ class Editor {
     // Check if click is on an item row
     if (clickedRow >= 0 && clickedRow < renderer.popupRowMap.length) {
       final itemIndex = renderer.popupRowMap[clickedRow];
-      if (itemIndex < popup!.items.length) {
-        // Update selection
+      if (itemIndex >= 0 && itemIndex < popup!.items.length) {
+        // Update selection and select the item
         popup = popup!.copyWith(selectedIndex: itemIndex);
         draw();
 
-        // Select the item on click
-        final item = popup!.items[itemIndex];
-        popup!.onSelect?.call(item);
+        // Use invokeSelect for type-safe callback invocation
+        popup!.invokeSelect();
       }
     }
+  }
+
+  /// Handle scroll wheel in popup menu
+  void _handlePopupScroll(ScrollDirection dir) {
+    if (popup == null) return;
+
+    final oldIndex = popup!.selectedIndex;
+    if (dir == ScrollDirection.up) {
+      popup = popup!.moveUp();
+    } else {
+      popup = popup!.moveDown();
+    }
+
+    if (popup!.selectedIndex != oldIndex) {
+      notifyPopupHighlight();
+    }
+
+    if (redraw) draw();
   }
 
   // match input against key bindings for executing commands
