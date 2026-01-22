@@ -63,6 +63,9 @@ class LspClient {
         _serverConfig!.executable,
         _serverConfig!.args,
         workingDirectory: rootPath,
+        // Run the server in a separate process group so SIGINT (Ctrl-C)
+        // intended for the editor doesn't also get delivered to the LSP server.
+        mode: ProcessStartMode.detachedWithStdio,
       );
 
       _process!.stdout
