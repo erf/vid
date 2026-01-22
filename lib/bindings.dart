@@ -13,6 +13,7 @@ const normalCommands = <String, Command>{
   'q': ActionCommand(.quit),
   'ZZ': ActionCommand(.writeAndQuit),
   'ZQ': ActionCommand(.forceQuit),
+  Keys.ctrlS: ActionCommand(.save),
   'S': AliasCommand('^C'),
   's': AliasCommand('cl'),
   'i': ModeCommand(.insert),
