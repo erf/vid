@@ -311,6 +311,7 @@ class Editor {
 
   void _initTerminal(String? path) {
     terminal.rawMode = true;
+    terminal.flowControl = false;
 
     // Only auto-detect theme if user hasn't explicitly set one in config file
     if (!config.themeExplicitlySet) {
@@ -347,6 +348,7 @@ class Editor {
     terminal.write(Ansi.resetCursorColor());
     terminal.write(Ansi.altBuffer(false));
 
+    terminal.flowControl = true;
     terminal.rawMode = false;
     exit(0);
   }
