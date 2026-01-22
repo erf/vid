@@ -377,7 +377,7 @@ class Editor {
   }
 
   void onSigint(ProcessSignal event) {
-    input(Ansi.e);
+    input(Keys.ctrlC);
   }
 
   void draw() {

@@ -72,6 +72,7 @@ const normalCommands = <String, Command>{
   'V': ActionCommand(.enterVisualLineMode),
   // Escape collapses multi-cursor to single cursor
   Keys.escape: ActionCommand(.escape),
+  Keys.ctrlC: ActionCommand(.escape),
   // Selection cycling (for multi-cursor) - vim bracket convention
   ']s': ActionCommand(.nextSelection),
   '[s': ActionCommand(.prevSelection),
@@ -310,6 +311,7 @@ const popupFallback = InputCommand(PopupActions.filterInput);
 // Supports multi-cursor workflow with Tab/Shift+Tab to cycle selections
 const visualCommands = <String, Command>{
   Keys.escape: ActionCommand(.escapeVisual),
+  Keys.ctrlC: ActionCommand(.escapeVisual),
   'v': ActionCommand(.escapeVisual), // Exit visual mode
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   // Override x to directly delete (normal mode x is 'dl' alias, which causes issues)
@@ -329,6 +331,7 @@ const visualCommands = <String, Command>{
 // Visual line mode bindings - linewise selection
 const visualLineCommands = <String, Command>{
   Keys.escape: ActionCommand(.escapeVisualLine),
+  Keys.ctrlC: ActionCommand(.escapeVisualLine),
   'V': ActionCommand(.escapeVisualLine), // Exit visual line mode
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   'x': OperatorCommand(.delete),
