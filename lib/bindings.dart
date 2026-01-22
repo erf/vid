@@ -87,6 +87,7 @@ const insertBindings = <String, Command>{
   Keys.backspace: ActionCommand(.insertBackspace),
   Keys.newline: ActionCommand(.insertEnter),
   Keys.escape: ActionCommand(.insertEscape),
+  Keys.ctrlC: ActionCommand(.insertEscape),
   Keys.ctrlN: ActionCommand(.showCompletion),
   Keys.ctrlP: ActionCommand(.showCompletion),
 };
@@ -94,12 +95,14 @@ const insertFallback = InputCommand(InsertActions.insert);
 
 const replaceBindings = <String, Command>{
   Keys.escape: ActionCommand(.replaceEscape),
+  Keys.ctrlC: ActionCommand(.replaceEscape),
   Keys.backspace: ActionCommand(.replaceBackspace),
 };
 const replaceFallback = InputCommand(ReplaceActions.replace);
 
 const replaceSingleBindings = <String, Command>{
   Keys.escape: ModeCommand(.normal),
+  Keys.ctrlC: ModeCommand(.normal),
 };
 const replaceSingleFallback = InputCommand(ReplaceActions.replaceSingle);
 
