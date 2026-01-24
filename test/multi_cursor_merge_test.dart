@@ -26,11 +26,6 @@ void main() {
 
       expect(f.mode, Mode.normal);
       expect(f.text, '\n\ngoodbye\n');
-      // After deleting both "hello", we have 2 cursors at start of empty lines
-      print('After first d: selections=${f.selections.length}');
-      for (var i = 0; i < f.selections.length; i++) {
-        print('  Selection $i: ${f.selections[i]}');
-      }
       expect(f.selections.length, 2, reason: 'Should have 2 cursors');
 
       // Now delete the empty lines with dd
@@ -38,10 +33,6 @@ void main() {
 
       expect(f.mode, Mode.normal);
       expect(f.text, 'goodbye\n');
-      print('After dd: selections=${f.selections.length}');
-      for (var i = 0; i < f.selections.length; i++) {
-        print('  Selection $i: ${f.selections[i]}');
-      }
       // Both empty lines deleted, cursors should merge at position 0
       expect(
         f.selections.length,
@@ -74,10 +65,6 @@ void main() {
 
     expect(f.mode, Mode.normal);
     expect(f.text, 'goodbye\n');
-    print('After visual line d: selections=${f.selections.length}');
-    for (var i = 0; i < f.selections.length; i++) {
-      print('  Selection $i: ${f.selections[i]}');
-    }
     // Both lines deleted, cursors should be at same position
     expect(
       f.selections.length,
