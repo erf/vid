@@ -1072,8 +1072,8 @@ class Renderer {
 
     int cursorCol = file.columnInLine(file.cursor);
     String mode = file.mode.label;
-    // Show cursor count for multi-cursor mode
-    if (file.hasMultipleCursors) {
+    // Show selection count when multiple selections exist
+    if (file.selections.length > 1) {
       mode = '$mode[${file.selections.length}]';
     }
     String path = file.relativePath ?? '[No Name]';
