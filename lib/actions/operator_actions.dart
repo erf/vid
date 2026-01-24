@@ -113,6 +113,7 @@ class OperatorActions {
 
   /// Collapse selections to their start positions after delete operations.
   /// Adjusts positions based on deleted text length.
+  /// Merges any selections that end up at the same position.
   static void _collapseSelectionsAfterDelete(
     FileBuffer f,
     List<Selection> ranges,
@@ -123,13 +124,15 @@ class OperatorActions {
       newSelections.add(Selection.collapsed(s.start - offset));
       offset += s.end - s.start;
     }
-    f.selections = newSelections;
+    f.selections = mergeSelections(newSelections);
     f.clampCursor();
   }
 
   /// Collapse selections to their start positions (for non-delete operations).
+  /// Merges any selections that end up at the same position.
   static void _collapseSelections(FileBuffer f, List<Selection> ranges) {
-    f.selections = ranges.map((s) => Selection.collapsed(s.start)).toList();
+    final collapsed = ranges.map((s) => Selection.collapsed(s.start)).toList();
+    f.selections = mergeSelections(collapsed);
     f.clampCursor();
   }
 }

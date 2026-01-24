@@ -914,7 +914,7 @@ class Editor {
       newSelections.insert(0, mainSel);
     }
 
-    file.selections = newSelections;
+    file.selections = mergeSelections(newSelections);
     file.clampCursor();
 
     if (op is Change) {
