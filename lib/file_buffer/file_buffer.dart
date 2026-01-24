@@ -104,9 +104,6 @@ class FileBuffer {
   Selection get selection => selections.first;
   set selection(Selection value) => selections[0] = value;
 
-  // whether we have multiple selections active
-  bool get hasMultipleSelections => selections.length > 1;
-
   // whether any selection is non-collapsed (visual selection)
   bool get hasVisualSelection => selections.any((s) => !s.isCollapsed);
 
