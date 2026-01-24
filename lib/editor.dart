@@ -684,12 +684,11 @@ class Editor {
   void _handlePopupScroll(ScrollDirection dir) {
     if (popup == null) return;
 
+    const scrollLines = 3; // Same as editor scroll
+    final delta = dir == ScrollDirection.up ? -scrollLines : scrollLines;
+
     final oldIndex = popup!.selectedIndex;
-    if (dir == ScrollDirection.up) {
-      popup = popup!.moveUp();
-    } else {
-      popup = popup!.moveDown();
-    }
+    popup = popup!.scrollViewport(delta);
 
     if (popup!.selectedIndex != oldIndex) {
       notifyPopupHighlight();

@@ -247,25 +247,26 @@ class PopupState<T> {
   PopupState<T> pageDown() {
     if (items.isEmpty) return this;
     final halfPage = (maxVisibleItems ~/ 2).clamp(1, maxVisibleItems);
-    final newIndex = (selectedIndex + halfPage).clamp(0, items.length - 1);
-    var newScroll = scrollOffset;
-    // Scroll down if selection goes below visible area
-    if (newIndex >= scrollOffset + maxVisibleItems) {
-      newScroll = (newIndex - maxVisibleItems + 1).clamp(0, items.length - 1);
-    }
-    return copyWith(selectedIndex: newIndex, scrollOffset: newScroll);
+    return scrollViewport(halfPage);
   }
 
   /// Move selection up by half a page (Ctrl+U style).
   PopupState<T> pageUp() {
     if (items.isEmpty) return this;
     final halfPage = (maxVisibleItems ~/ 2).clamp(1, maxVisibleItems);
-    final newIndex = (selectedIndex - halfPage).clamp(0, items.length - 1);
-    var newScroll = scrollOffset;
-    // Scroll up if selection goes above visible area
-    if (newIndex < scrollOffset) {
-      newScroll = newIndex;
-    }
+    return scrollViewport(-halfPage);
+  }
+
+  /// Scroll viewport by delta lines.
+  PopupState<T> scrollViewport(int delta) {
+    if (items.isEmpty) return this;
+
+    final maxScroll = items.length - maxVisibleItems;
+    if (maxScroll <= 0) return this; // All items fit in view
+
+    final newScroll = (scrollOffset + delta).clamp(0, maxScroll);
+    final newIndex = (selectedIndex + delta).clamp(0, items.length - 1);
+
     return copyWith(selectedIndex: newIndex, scrollOffset: newScroll);
   }
 
