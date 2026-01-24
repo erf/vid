@@ -86,7 +86,7 @@ class LineStart extends MotionAction {
 }
 
 /// Move to end of line ($) - inclusive
-/// Returns the last character position (before newline).
+/// Returns the newline character position at the end of the line.
 class LineEnd extends MotionAction {
   const LineEnd();
 
@@ -100,11 +100,8 @@ class LineEnd extends MotionAction {
       f.desiredColumn = MotionAction.endOfLineColumn;
     }
 
-    // Go to last char before newline (or stay if empty line)
-    if (lineEndOff > f.lines[lineNum].start) {
-      return f.prevGrapheme(lineEndOff);
-    }
-    return offset;
+    // Go to the newline position (makes newline reachable by cursor)
+    return lineEndOff;
   }
 }
 

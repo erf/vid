@@ -19,8 +19,15 @@ scrollMargin: 10
 # Text wrap mode: none, char, or word
 wrapMode: none
 
+# Symbol to display at the end of each line (the newline character)
+# Default is a space ' ' for subtle visibility. Can be '¬', '↩', '␤', etc.
+newlineSymbol: ' '
+
 # Characters that can break a line in word-wrap mode
-breakat: " !@*-+;:,./?"
+breakat: " !@*-+;:./?'
+
+# Characters that can break a line in word-wrap mode
+breakat: " !@*-+;:,./?" 
 
 # Enable auto-indentation when pressing Enter
 autoIndent: true

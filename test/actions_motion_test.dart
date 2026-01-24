@@ -130,22 +130,25 @@ void main() {
     final f = e.file;
     f.text = 'abc\ndefgh\nij\n';
 
-    // Use $ to go to end of line 0 ('c' at offset 2)
+    // Use $ to go to end of line 0 (newline at offset 3)
     f.cursor = 0;
     int endPos = const LineEnd()(e, f, 0);
-    expect(endPos, 2); // 'c'
+    expect(endPos, 3); // newline position
     expect(
       f.desiredColumn,
       MotionAction.endOfLineColumn,
     ); // End-of-line sentinel
 
-    // Move down - should go to end of line 1 ('h' at offset 8)
+    // Move down - should go to end of line 1 (newline at offset 9)
     int pos1 = const LineDown()(e, f, endPos);
-    expect(pos1, 8); // 'h' (last char before newline on line 1)
+    expect(
+      pos1,
+      8,
+    ); // last char before newline ('h') - shorter than desired column
 
-    // Move down again - should go to end of line 2 ('j' at offset 11)
+    // Move down again - should go to end of line 2 (newline at offset 12)
     int pos2 = const LineDown()(e, f, pos1);
-    expect(pos2, 11); // 'j' (last char before newline on line 2)
+    expect(pos2, 11); // 'j' - last char before newline
   });
 
   test('sticky column disabled via config', () {
@@ -376,11 +379,11 @@ void main() {
     );
     final f = e.file;
     f.text = 'abc def\nghi jkl\n';
-    // Should go to last character of line (before \n)
-    expect(const LineEnd()(e, f, 0), 6); // a -> f (offset 6)
-    expect(const LineEnd()(e, f, 3), 6); // space -> f
-    expect(const LineEnd()(e, f, 8), 14); // g -> l (offset 14)
-    expect(const LineEnd()(e, f, 11), 14); // space -> l
+    // Should go to newline position at end of line
+    expect(const LineEnd()(e, f, 0), 7); // a -> newline (offset 7)
+    expect(const LineEnd()(e, f, 3), 7); // space -> newline
+    expect(const LineEnd()(e, f, 8), 15); // g -> newline (offset 15)
+    expect(const LineEnd()(e, f, 11), 15); // space -> newline
   });
 
   test('FindNextCharMotion with dot', () {

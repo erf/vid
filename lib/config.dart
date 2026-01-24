@@ -35,6 +35,10 @@ class Config {
   /// Index corresponds to [WrapMode.index]: none, char, word.
   final List<String> wrapSymbols;
 
+  /// Symbol to display at the end of each line to represent the newline character.
+  /// Default is a space ' ' for subtle visibility. Can be set to '¬', '↩', '␤', etc.
+  final String newlineSymbol;
+
   /// Current text wrapping mode.
   final WrapMode wrapMode;
 
@@ -134,6 +138,7 @@ class Config {
     this.maxNumUndo = 100,
     this.scrollMargin = 10,
     this.wrapSymbols = const ['', '|↵', '↵'],
+    this.newlineSymbol = ' ',
     this.wrapMode = .none,
     this.breakat = ' !@*-+;:,./?',
     this.autoIndent = true,
@@ -164,6 +169,7 @@ class Config {
       tabWidth: _parseInt(map['tabWidth']),
       maxNumUndo: _parseInt(map['maxNumUndo']),
       scrollMargin: _parseInt(map['scrollMargin']),
+      newlineSymbol: map['newlineSymbol'] as String?,
       wrapMode: _parseEnum(map['wrapMode'], WrapMode.values),
       breakat: map['breakat'] as String?,
       autoIndent: _parseBool(map['autoIndent']),
@@ -241,6 +247,7 @@ class Config {
     int? maxNumUndo,
     int? scrollMargin,
     List<String>? wrapSymbols,
+    String? newlineSymbol,
     WrapMode? wrapMode,
     String? breakat,
     bool? autoIndent,
@@ -267,6 +274,7 @@ class Config {
       maxNumUndo: maxNumUndo ?? this.maxNumUndo,
       scrollMargin: scrollMargin ?? this.scrollMargin,
       wrapSymbols: wrapSymbols ?? this.wrapSymbols,
+      newlineSymbol: newlineSymbol ?? this.newlineSymbol,
       wrapMode: wrapMode ?? this.wrapMode,
       breakat: breakat ?? this.breakat,
       autoIndent: autoIndent ?? this.autoIndent,

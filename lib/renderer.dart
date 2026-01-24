@@ -3,6 +3,7 @@ import 'config.dart';
 import 'file_buffer/file_buffer.dart';
 import 'gutter.dart';
 import 'highlighting/highlighter.dart';
+import 'highlighting/token.dart';
 import 'features/lsp/lsp_protocol.dart';
 import 'message.dart';
 import 'popup/popup.dart';
@@ -546,9 +547,13 @@ class Renderer {
       // Show secondary cursors as single-character highlights
       // Skip first cursor (it's rendered as the actual terminal cursor)
       selectionRanges = file.selections.skip(1).map((s) {
-        final end = s.cursor < file.text.length
+        var end = s.cursor < file.text.length
             ? file.nextGrapheme(s.cursor)
             : s.cursor;
+        // Ensure we always have a visible highlight (at least 1 byte)
+        if (end == s.cursor && s.cursor < file.text.length) {
+          end = s.cursor + 1;
+        }
         return (s.cursor, end);
       }).toList();
     } else {
@@ -597,6 +602,7 @@ class Renderer {
           sign: gutterSigns?[currentLineNum],
           showSigns: showSigns,
           showLineNumbers: config.showLineNumbers,
+          newlineSymbol: config.newlineSymbol,
         ),
         .char => _renderLineCharWrap(
           original: lineText,
@@ -613,6 +619,7 @@ class Renderer {
           sign: gutterSigns?[currentLineNum],
           showSigns: showSigns,
           showLineNumbers: config.showLineNumbers,
+          newlineSymbol: config.newlineSymbol,
         ),
         .word => _renderLineWordWrap(
           original: lineText,
@@ -630,6 +637,7 @@ class Renderer {
           sign: gutterSigns?[currentLineNum],
           showSigns: showSigns,
           showLineNumbers: config.showLineNumbers,
+          newlineSymbol: config.newlineSymbol,
         ),
       };
 
@@ -703,6 +711,34 @@ class Renderer {
     }
   }
 
+  /// Render newline symbol with optional highlighting for secondary cursors
+  void _renderNewlineSymbol({
+    required String newlineSymbol,
+    required int lineStartByte,
+    required int originalLength,
+    required List<(int, int)> selectionRanges,
+  }) {
+    final newlineOffset = lineStartByte + originalLength;
+
+    // Check if a secondary cursor is on the newline
+    final hasSecondaryCursor = selectionRanges.any(
+      (range) => range.$1 == newlineOffset && range.$2 > range.$1,
+    );
+
+    if (hasSecondaryCursor) {
+      final selBg =
+          highlighter.theme.selectionBackground ?? Ansi.bg(Color.brightBlack);
+      buffer.write(selBg);
+      buffer.write(newlineSymbol);
+      highlighter.theme.resetCode(buffer);
+    } else {
+      final newlineColor = highlighter.theme.colorFor(TokenType.lineComment);
+      buffer.write(newlineColor);
+      buffer.write(newlineSymbol);
+      highlighter.theme.resetCode(buffer);
+    }
+  }
+
   /// Render line without wrapping
   int _renderLineNoWrap({
     required String original,
@@ -717,6 +753,7 @@ class Renderer {
     required int lineNum,
     required int cursorLine,
     required int totalLines,
+    required String newlineSymbol,
     GutterSign? sign,
     bool showSigns = false,
     bool showLineNumbers = true,
@@ -772,6 +809,18 @@ class Renderer {
         }
       }
     }
+
+    // Render newline symbol if visible in viewport
+    final lineRenderLength = rendered.renderLength(tabWidth);
+    if (viewportCol + contentWidth > lineRenderLength) {
+      _renderNewlineSymbol(
+        newlineSymbol: newlineSymbol,
+        lineStartByte: lineStartByte,
+        originalLength: original.length,
+        selectionRanges: selectionRanges,
+      );
+    }
+
     return screenRow + 1;
   }
 
@@ -788,6 +837,7 @@ class Renderer {
     required int lineNum,
     required int cursorLine,
     required int totalLines,
+    required String newlineSymbol,
     GutterSign? sign,
     bool showSigns = false,
     bool showLineNumbers = true,
@@ -812,42 +862,44 @@ class Renderer {
 
       String chunk = rendered.ch.skip(wrapCol).take(contentWidth).string;
 
-      if (syntaxHighlighting) {
-        final byteOffset = _renderedToOriginalOffset(
-          original,
-          wrapCol,
-          tabWidth,
-        );
-        final originalSlice = _getOriginalSlice(
-          original,
-          wrapCol,
-          chunk.length,
-          tabWidth,
-        );
-        highlighter.style(
-          buffer,
-          originalSlice,
-          lineStartByte + byteOffset,
-          tabWidth: tabWidth,
-          selectionRanges: selectionRanges,
-        );
-      } else {
-        // No syntax highlighting but may have selections
-        if (selectionRanges.isNotEmpty) {
+      if (chunk.isNotEmpty) {
+        if (syntaxHighlighting) {
           final byteOffset = _renderedToOriginalOffset(
             original,
             wrapCol,
             tabWidth,
           );
+          final originalSlice = _getOriginalSlice(
+            original,
+            wrapCol,
+            chunk.length,
+            tabWidth,
+          );
           highlighter.style(
             buffer,
-            chunk,
+            originalSlice,
             lineStartByte + byteOffset,
             tabWidth: tabWidth,
             selectionRanges: selectionRanges,
           );
         } else {
-          buffer.write(chunk);
+          // No syntax highlighting but may have selections
+          if (selectionRanges.isNotEmpty) {
+            final byteOffset = _renderedToOriginalOffset(
+              original,
+              wrapCol,
+              tabWidth,
+            );
+            highlighter.style(
+              buffer,
+              chunk,
+              lineStartByte + byteOffset,
+              tabWidth: tabWidth,
+              selectionRanges: selectionRanges,
+            );
+          } else {
+            buffer.write(chunk);
+          }
         }
       }
 
@@ -857,6 +909,14 @@ class Renderer {
 
       if (rendered.isEmpty) break;
     }
+
+    // Render newline symbol after all wraps
+    _renderNewlineSymbol(
+      newlineSymbol: newlineSymbol,
+      lineStartByte: lineStartByte,
+      originalLength: original.length,
+      selectionRanges: selectionRanges,
+    );
 
     return screenRow;
   }
@@ -875,6 +935,7 @@ class Renderer {
     required int lineNum,
     required int cursorLine,
     required int totalLines,
+    required String newlineSymbol,
     GutterSign? sign,
     bool showSigns = false,
     bool showLineNumbers = true,
@@ -961,6 +1022,14 @@ class Renderer {
 
       if (rendered.isEmpty) break;
     }
+
+    // Render newline symbol after all wraps
+    _renderNewlineSymbol(
+      newlineSymbol: newlineSymbol,
+      lineStartByte: lineStartByte,
+      originalLength: original.length,
+      selectionRanges: selectionRanges,
+    );
 
     return screenRow;
   }

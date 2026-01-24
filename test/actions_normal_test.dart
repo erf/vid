@@ -15,8 +15,9 @@ void main() {
     // 'abc\ndef\nghi\n' - line 1 ('def') starts at offset 4, 'e' is at offset 5
     f.cursor = 5; // at 'e' in 'def'
     e.input('D');
-    expect(f.text, 'abc\nd\nghi\n');
-    expect(f.cursor, 4); // at 'd'
+    // D deletes from 'e' to newline (inclusive), joining with next line
+    expect(f.text, 'abc\ndghi\n');
+    expect(f.cursor, 5); // cursor stays at deletion point (now on 'g')
   });
 
   test('actionChangeLineEnd', () {
@@ -139,7 +140,7 @@ void main() {
     e.input('2~');
 
     expect(f.text, 'Ab\n');
-    expect(f.cursor, 1); // would move to newline, then clamp back
+    expect(f.cursor, 2); // cursor can now be at newline position
   });
 
   test('toggleCaseUnderCursor ~ in visual mode', () {
@@ -410,9 +411,9 @@ void main() {
     f.text = 'abc\n';
     f.cursor = 0;
     e.input('ye\$p');
-    // ye yanks 'abc' (characterwise), $ goes to 'c', p pastes after cursor
-    expect(f.text, 'abcabc\n');
-    expect(f.cursor, 5); // cursor at end of pasted text
+    // ye yanks 'abc' (characterwise), $ goes to newline (offset 3), p pastes after = on next line
+    expect(f.text, 'abc\nabc');
+    expect(f.cursor, 6); // cursor at 'c' of pasted text
   });
 
   test('deleteCharNext at end of file', () {
@@ -425,10 +426,9 @@ void main() {
     // 'def' starts at offset 4, 'f' is at offset 6
     f.cursor = 6;
     e.input('xxxx');
-    // x deletes f, e, d in sequence (cursor moves left after each delete)
-    // 4th x does nothing (cursor on empty line, can't move right)
-    expect(f.text, 'abc\n\n');
-    expect(f.cursor, 4);
+    // x deletes f (cursor on e), x deletes e (cursor on d), x deletes d (cursor on newline), x deletes newline (joins)
+    expect(f.text, 'abc\nde\n');
+    expect(f.cursor, 6); // cursor after join
   });
 
   test('delete to eol, move down, repeat and move down', () {
@@ -440,8 +440,9 @@ void main() {
     f.text = 'abc\ndef\nghi\njkl\n';
     f.cursor = 0;
     e.input('Dj.j');
-    expect(f.text, '\n\nghi\njkl\n');
-    expect(f.lineNumber(f.cursor), 2);
+    // D at offset 0 deletes 'abc\n', cursor stays at 0, j moves down, . repeats D
+    expect(f.text, 'def\njkl\n');
+    expect(f.lineNumber(f.cursor), 1);
   });
 
   test('go down one line with j', () {

@@ -102,15 +102,8 @@ extension FileBufferNav on FileBuffer {
       return Selection.collapsed(cursor);
     }
 
-    // Don't allow cursor on newline in normal mode - move to previous char
-    // (Empty lines are ok - lineStart == lineEnd pointing to the newline)
-    if (cursor > 0 && text[cursor] == Keys.newline) {
-      int ls = lines[lineNumber(cursor)].start;
-      // If not an empty line, move to char before newline
-      if (cursor > ls) {
-        cursor = prevGrapheme(cursor);
-      }
-    }
+    // In normal mode, cursor can now be on newline (for newline visualization)
+    // No need to move cursor away from newline position
 
     // For collapsed selections, always return collapsed to prevent
     // anchor/cursor divergence during clamping
