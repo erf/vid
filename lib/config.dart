@@ -224,19 +224,14 @@ class Config {
     return null;
   }
 
+  /// Parses a YAML value into a `Set<String>`, or null if not present.
+  /// Accepts YAML lists only. Returns null for invalid/missing input.
   static Set<String>? _parseStringSet(dynamic value) {
     if (value is YamlList) {
       return value.map((e) => e.toString()).toSet();
     }
     if (value is List) {
       return value.map((e) => e.toString()).toSet();
-    }
-    if (value is String) {
-      return value
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toSet();
     }
     return null;
   }

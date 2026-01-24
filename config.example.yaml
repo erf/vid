@@ -61,11 +61,11 @@ fileBrowserMaxDepth: 4
 fileBrowserShowHidden: false
 
 # File browser: directories to exclude from scanning (replaces defaults if set)
-# Can be comma-separated string or YAML list
+# YAML list format
 # Default: .git, node_modules, .dart_tool, build, target, vendor, .pub-cache,
 #   __pycache__, .venv, venv, .gradle, .idea, .vs, dist, out, .next, .nuxt,
 #   coverage, .cache, tmp, temp
-# fileBrowserExcludeDirs: ".git, node_modules, build, my_custom_dir"
+# fileBrowserExcludeDirs: [.git, node_modules, build, my_custom_dir]
 
 # Maximum width for popup windows (unset for auto-sizing based on terminal)
 # popupMaxWidth: 80
@@ -81,5 +81,6 @@ formatOnSave: false
 
 # Languages to format on save (empty list = format all languages)
 # Uses language IDs: dart, typescript, javascript, python, rust, go, etc.
-# formatOnSaveLanguages: ["dart", "typescript"]
+# YAML list format: [dart, typescript] or leave empty for all
+# formatOnSaveLanguages: [dart, typescript]
 formatOnSaveLanguages: []
