@@ -317,10 +317,10 @@ packages:
     dependency: "direct main"
     description:
       name: termio
-      sha256: edd62a36eb87226a858ea3fe4d4879c5ee98616c70869ef0a3ef6d97d2f5a91f
+      sha256: "96aa9ee5ac66100de50d9d5139752c130d49aa50875623397c1497fdc16b7748"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.3"
+    version: "0.5.3+1"
   test:
     dependency: "direct dev"
     description:
