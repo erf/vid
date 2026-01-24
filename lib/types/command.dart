@@ -77,7 +77,7 @@ class CountCommand extends Command {
       e.commitEdit(edit.build());
     } else {
       edit.count = (edit.count ?? 0) * 10 + count;
-      e.showMessage(.info('count: ${edit.count}'));
+      e.showMessage(.info('Count ${edit.count}'));
     }
   }
 }
