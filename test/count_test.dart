@@ -1,3 +1,4 @@
+import 'package:termio/termio.dart';
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/editor.dart';
@@ -110,5 +111,18 @@ void main() {
     e.input('2dd');
     expect(f.cursor, 0);
     expect(f.text, 'ghi\n');
+  });
+
+  test('Escape should reset count', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = '\n';
+    e.input('123');
+    expect(f.edit.count, 123);
+    e.input(Keys.escape);
+    expect(f.edit.count, null);
   });
 }

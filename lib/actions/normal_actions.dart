@@ -808,6 +808,10 @@ class Escape extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
+    // Reset count
+    f.edit.reset();
+    e.showMessage(.info('Edit reset'));
+
     // Collapse all selections to their cursor position, then keep only the first
     if (f.selections.length > 1 || !f.selections.first.isCollapsed) {
       f.selections = [Selection.collapsed(f.selections.first.cursor)];
