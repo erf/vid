@@ -34,29 +34,86 @@ class NormalActionsUtils {
     return s == upper ? lower : upper;
   }
 
-  static void increaseNextWord(Editor e, FileBuffer f, int count) {
-    int lineNum = f.lineNumber(f.cursor);
-    int lineStartOffset = f.lines[lineNum].start;
-    String lineText = f.lineTextAt(lineNum);
-    int cursorInLine = f.cursor - lineStartOffset;
+  static void increaseNextWordMulti(Editor e, FileBuffer f, int count) {
+    // Only operate on collapsed selections (cursors)
+    final selections = f.selections;
+    if (!selections.every((s) => s.isCollapsed)) return;
 
-    final matches = Regex.number.allMatches(lineText);
-    if (matches.isEmpty) return;
+    // Sort by position ascending for offset adjustment
+    final indexed = selections.asMap().entries.toList()
+      ..sort((a, b) => a.value.cursor.compareTo(b.value.cursor));
+    final cursorByIndex = <int, int>{
+      for (final entry in indexed) entry.key: entry.value.cursor,
+    };
+    final selectionsBefore = List<Selection>.unmodifiable(selections);
+    final textOps = <TextOp>[];
 
-    final m = matches.firstWhere(
-      (m) => cursorInLine < m.end,
-      orElse: () => matches.last,
+    void shiftCursorsAfterEdit(int start, int end, int delta) {
+      if (delta == 0) return;
+      cursorByIndex.updateAll((idx, cur) {
+        if (cur < start) return cur;
+        if (cur >= end) return cur + delta;
+        // Cursor was inside the replaced range: move to end of inserted text.
+        return end + delta;
+      });
+    }
+
+    for (final entry in indexed) {
+      final idx = entry.key;
+      var pos = cursorByIndex[idx]!;
+      int lineNum = f.lineNumber(pos);
+      int lineStartOffset = f.lines[lineNum].start;
+      String lineText = f.lineTextAt(lineNum);
+      int cursorInLine = pos - lineStartOffset;
+
+      final matches = Regex.number.allMatches(lineText);
+      if (matches.isEmpty) continue;
+
+      final m = matches.firstWhere(
+        (m) => cursorInLine < m.end,
+        orElse: () => matches.last,
+      );
+      if (cursorInLine >= m.end) continue;
+
+      final s = m.group(1)!;
+      final num = int.parse(s);
+      final numstr = (num + count).toString();
+
+      int matchStart = lineStartOffset + m.start;
+      int matchEnd = lineStartOffset + m.end;
+      final prevText = f.text.substring(matchStart, matchEnd);
+      f.replace(matchStart, matchEnd, numstr, undo: false, config: e.config);
+      textOps.add(
+        TextOp(
+          newText: numstr,
+          prevText: prevText,
+          start: matchStart,
+          selections: selectionsBefore,
+        ),
+      );
+      final delta = numstr.length - (matchEnd - matchStart);
+      shiftCursorsAfterEdit(matchStart, matchEnd, delta);
+      // Move cursor to end of new number
+      pos = matchStart + numstr.length - 1;
+      cursorByIndex[idx] = pos;
+    }
+
+    if (textOps.isNotEmpty) {
+      f.undoList.add(textOps);
+      if (f.undoList.length > e.config.maxNumUndo) {
+        final removeEnd = f.undoList.length - e.config.maxNumUndo;
+        f.undoList.removeRange(0, removeEnd);
+      }
+      f.redoList.clear();
+    }
+
+    // Write back updated cursor positions, preserving original selection order.
+    f.selections = List.generate(
+      selections.length,
+      (i) => Selection.collapsed(cursorByIndex[i] ?? selections[i].cursor),
     );
-    if (cursorInLine >= m.end) return;
-
-    final s = m.group(1)!;
-    final num = int.parse(s);
-    final numstr = (num + count).toString();
-
-    int matchStart = lineStartOffset + m.start;
-    int matchEnd = lineStartOffset + m.end;
-    f.replace(matchStart, matchEnd, numstr, config: e.config);
-    f.cursor = matchStart + numstr.length - 1;
+    f.clampCursor();
+    f.edit.reset();
   }
 }
 
@@ -622,7 +679,7 @@ class Increase extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    NormalActionsUtils.increaseNextWord(e, f, 1);
+    NormalActionsUtils.increaseNextWordMulti(e, f, 1);
   }
 }
 
@@ -632,7 +689,7 @@ class Decrease extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    NormalActionsUtils.increaseNextWord(e, f, -1);
+    NormalActionsUtils.increaseNextWordMulti(e, f, -1);
   }
 }
 
