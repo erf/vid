@@ -24,9 +24,6 @@ wrapMode: none
 newlineSymbol: ' '
 
 # Characters that can break a line in word-wrap mode
-breakat: " !@*-+;:./?'
-
-# Characters that can break a line in word-wrap mode
 breakat: " !@*-+;:,./?" 
 
 # Enable auto-indentation when pressing Enter
