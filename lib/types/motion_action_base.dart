@@ -57,7 +57,7 @@ abstract class MotionAction {
 
     // Clamp to valid position in target line
     int targetCharLen = targetLineText.characters.length;
-    int charIndex = clamp(chars.length, 0, max(0, targetCharLen - 1));
+    int charIndex = clamp(chars.length, 0, max(0, targetCharLen));
 
     // Convert char index to byte offset
     return targetLineStart +

@@ -134,21 +134,15 @@ void main() {
     f.cursor = 0;
     int endPos = const LineEnd()(e, f, 0);
     expect(endPos, 3); // newline position
-    expect(
-      f.desiredColumn,
-      MotionAction.endOfLineColumn,
-    ); // End-of-line sentinel
-
+    // End-of-line sentinel
+    expect(f.desiredColumn, MotionAction.endOfLineColumn);
     // Move down - should go to end of line 1 (newline at offset 9)
     int pos1 = const LineDown()(e, f, endPos);
-    expect(
-      pos1,
-      8,
-    ); // last char before newline ('h') - shorter than desired column
-
+    // last char before newline ('h') - shorter than desired column
+    expect(pos1, 9);
     // Move down again - should go to end of line 2 (newline at offset 12)
     int pos2 = const LineDown()(e, f, pos1);
-    expect(pos2, 11); // 'j' - last char before newline
+    expect(pos2, 12); // 'j' - last char before newline
   });
 
   test('sticky column disabled via config', () {
@@ -173,7 +167,7 @@ void main() {
     int pos2 = const LineDown()(e, f, pos1);
     expect(f.lineNumber(pos2), 2);
     // pos1 is at 'y' (col 1), so next line should be at col 1 ('2' at offset 13)
-    expect(pos2, 12 + 1); // '2' at offset 13
+    expect(pos2, 12 + 2); // '2' at offset 13
   });
 
   test('motionFileStart', () {
