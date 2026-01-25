@@ -757,6 +757,19 @@ class Renderer {
     }
   }
 
+  /// Calculate available width for wrapping, reserving space for newline symbol on last chunk.
+  int _availableWidthForWrap({
+    required String rendered,
+    required int wrapCol,
+    required String newlineSymbol,
+    required int tabWidth,
+  }) {
+    final remainingChars = rendered.length - wrapCol;
+    final isLastChunk = remainingChars <= contentWidth;
+    final newlineWidth = newlineSymbol.renderLength(tabWidth);
+    return isLastChunk ? contentWidth - newlineWidth : contentWidth;
+  }
+
   /// Render line without wrapping
   int _renderLineNoWrap({
     required String original,
@@ -878,13 +891,12 @@ class Renderer {
         showLineNumbers: showLineNumbers,
       );
 
-      // Check if this is the last chunk - reserve space for newline symbol
-      final remainingChars = rendered.length - wrapCol;
-      final isLastChunk = remainingChars <= contentWidth;
-      final newlineWidth = newlineSymbol.renderLength(tabWidth);
-      final availableWidth = isLastChunk
-          ? contentWidth - newlineWidth
-          : contentWidth;
+      final availableWidth = _availableWidthForWrap(
+        rendered: rendered,
+        wrapCol: wrapCol,
+        newlineSymbol: newlineSymbol,
+        tabWidth: tabWidth,
+      );
 
       String chunk = rendered.ch.skip(wrapCol).take(availableWidth).string;
 
@@ -984,13 +996,12 @@ class Renderer {
         showLineNumbers: showLineNumbers,
       );
 
-      // Find wrap point - reserve space for newline symbol on last chunk
-      final newlineWidth = newlineSymbol.renderLength(tabWidth);
-      final remainingChars = rendered.length - wrapCol;
-      final isLastChunk = remainingChars <= contentWidth;
-      final availableWidth = isLastChunk
-          ? contentWidth - newlineWidth
-          : contentWidth;
+      final availableWidth = _availableWidthForWrap(
+        rendered: rendered,
+        wrapCol: wrapCol,
+        newlineSymbol: newlineSymbol,
+        tabWidth: tabWidth,
+      );
 
       int chunkEnd = wrapCol + availableWidth;
       if (chunkEnd < rendered.length) {
