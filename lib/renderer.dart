@@ -878,7 +878,15 @@ class Renderer {
         showLineNumbers: showLineNumbers,
       );
 
-      String chunk = rendered.ch.skip(wrapCol).take(contentWidth).string;
+      // Check if this is the last chunk - reserve space for newline symbol
+      final remainingChars = rendered.length - wrapCol;
+      final isLastChunk = remainingChars <= contentWidth;
+      final newlineWidth = newlineSymbol.renderLength(tabWidth);
+      final availableWidth = isLastChunk
+          ? contentWidth - newlineWidth
+          : contentWidth;
+
+      String chunk = rendered.ch.skip(wrapCol).take(availableWidth).string;
 
       if (chunk.isNotEmpty) {
         if (syntaxHighlighting) {
@@ -976,8 +984,15 @@ class Renderer {
         showLineNumbers: showLineNumbers,
       );
 
-      // Find wrap point
-      int chunkEnd = wrapCol + contentWidth;
+      // Find wrap point - reserve space for newline symbol on last chunk
+      final newlineWidth = newlineSymbol.renderLength(tabWidth);
+      final remainingChars = rendered.length - wrapCol;
+      final isLastChunk = remainingChars <= contentWidth;
+      final availableWidth = isLastChunk
+          ? contentWidth - newlineWidth
+          : contentWidth;
+
+      int chunkEnd = wrapCol + availableWidth;
       if (chunkEnd < rendered.length) {
         int breakAt = chunkEnd;
         for (int i = chunkEnd - 1; i > wrapCol; i--) {
