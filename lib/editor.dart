@@ -61,6 +61,12 @@ class Editor {
   /// Mode to restore when popup is closed.
   Mode? _popupPreviousMode;
 
+  /// Whether we're currently receiving bracketed paste input.
+  bool _inBracketedPaste = false;
+
+  /// Buffer for accumulating bracketed paste content.
+  final StringBuffer _pasteBuffer = StringBuffer();
+
   /// Jump list for Ctrl-o / Ctrl-i navigation.
   final JumpList jumpList = JumpList();
 
@@ -330,6 +336,7 @@ class Editor {
     terminal.write(Ansi.altScroll(true));
     terminal.write(Ansi.mouseMode(true));
     terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
+    terminal.write('\x1b[?2004h'); // Enable bracketed paste mode
     terminal.write(Ansi.pushTitle());
     terminal.write(Ansi.setTitle('vid ${path ?? '[No Name]'}'));
 
@@ -341,6 +348,7 @@ class Editor {
   void quit() {
     featureRegistry?.notifyQuit();
 
+    terminal.write('\x1b[?2004l'); // Disable bracketed paste mode
     terminal.write(Ansi.mouseMode(false));
     terminal.write(Ansi.popTitle());
     terminal.write(Ansi.reset());
@@ -530,22 +538,143 @@ class Editor {
       _messageUntimed = false;
     }
 
-    // Parse input into events using the InputParser
-    final events = _inputParser.parseString(str);
-
-    for (final event in events) {
-      switch (event) {
-        case KeyInputEvent key:
-          // Pass the raw sequence to _handleInput for key binding matching
-          _handleInput(key.raw);
-        case MouseInputEvent mouse:
-          _handleMouseEvent(mouse.event);
-      }
+    // Handle bracketed paste sequences
+    str = _handleBracketedPaste(str);
+    if (str.isNotEmpty) {
+      _processInputEvents(str);
     }
 
     if (redraw) {
       draw();
     }
+  }
+
+  /// Handle bracketed paste sequences.
+  /// Returns remaining input after extracting paste content, or empty string
+  /// if we're still buffering paste content.
+  ///
+  /// When paste markers are found mid-input, processes segments in order:
+  /// 1. Any input before the paste marker (processed as regular input)
+  /// 2. The paste content (inserted as bulk)
+  /// 3. Any input after the paste marker (recursively processed)
+  String _handleBracketedPaste(String str) {
+    const pasteStart = '\x1b[200~';
+    const pasteEnd = '\x1b[201~';
+
+    // If we're currently in a paste sequence, buffer everything until end marker
+    if (_inBracketedPaste) {
+      final endIdx = str.indexOf(pasteEnd);
+      if (endIdx == -1) {
+        // No end marker yet, buffer everything
+        _pasteBuffer.write(str);
+        return '';
+      }
+
+      // Found end marker - complete the paste
+      _pasteBuffer.write(str.substring(0, endIdx));
+      _finishBracketedPaste();
+
+      // Return any remaining input after the paste end marker
+      final remaining = str.substring(endIdx + pasteEnd.length);
+      return remaining.isEmpty ? '' : _handleBracketedPaste(remaining);
+    }
+
+    // Check if input contains a paste start marker
+    final startIdx = str.indexOf(pasteStart);
+    if (startIdx == -1) {
+      return str; // No paste sequence, return input as-is
+    }
+
+    // Found start marker - begin buffering
+    _inBracketedPaste = true;
+    _pasteBuffer.clear();
+
+    // Process any input before the paste marker first (via normal input flow)
+    final before = str.substring(0, startIdx);
+    if (before.isNotEmpty) {
+      _processInputEvents(before);
+    }
+
+    // Check if paste end is also in this chunk
+    final afterStart = str.substring(startIdx + pasteStart.length);
+    final endIdx = afterStart.indexOf(pasteEnd);
+
+    if (endIdx == -1) {
+      // No end marker yet, buffer the rest
+      _pasteBuffer.write(afterStart);
+      return ''; // All content handled
+    }
+
+    // Complete paste is in this single chunk
+    _pasteBuffer.write(afterStart.substring(0, endIdx));
+    _finishBracketedPaste();
+
+    // Recursively handle any remaining input after paste
+    final remaining = afterStart.substring(endIdx + pasteEnd.length);
+    if (remaining.isNotEmpty) {
+      return _handleBracketedPaste(remaining);
+    }
+    return '';
+  }
+
+  /// Process input string through the normal event parsing and handling.
+  void _processInputEvents(String str) {
+    final events = _inputParser.parseString(str);
+    for (final event in events) {
+      switch (event) {
+        case KeyInputEvent key:
+          _handleInput(key.raw);
+        case MouseInputEvent mouse:
+          _handleMouseEvent(mouse.event);
+      }
+    }
+  }
+
+  /// Complete a bracketed paste operation by inserting buffered content.
+  void _finishBracketedPaste() {
+    _inBracketedPaste = false;
+    final content = _pasteBuffer.toString();
+    _pasteBuffer.clear();
+
+    if (content.isEmpty) return;
+
+    // Insert paste content as a single bulk operation (one undo entry)
+    // This bypasses insert mode's per-character processing
+    if (file.mode == Mode.insert) {
+      _insertPasteContent(content);
+    } else {
+      // In normal mode, just show a message - user should enter insert mode first
+      // Or we could auto-enter insert mode. For now, insert at cursor anyway.
+      _insertPasteContent(content);
+    }
+  }
+
+  /// Insert paste content at all cursor positions as a single undo operation.
+  void _insertPasteContent(String content) {
+    final f = file;
+
+    // Sort selections by position (ascending)
+    final sorted = f.selections.toList()
+      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+
+    // Build edits for all cursor positions
+    final edits = sorted
+        .map((sel) => TextEdit.insert(sel.cursor, content))
+        .toList();
+
+    // Apply all insertions as a single grouped undo operation
+    applyEdits(f, edits, config);
+
+    // Update cursor positions
+    final newSelections = <Selection>[];
+    int offset = 0;
+    for (final sel in sorted) {
+      newSelections.add(
+        Selection.collapsed(sel.cursor + offset + content.length),
+      );
+      offset += content.length;
+    }
+    f.selections = newSelections;
   }
 
   /// Clamp cursor to top/bottom of viewport if it goes off-screen
