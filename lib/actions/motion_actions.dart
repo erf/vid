@@ -44,7 +44,8 @@ class LineDown extends MotionAction {
 
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
-      int targetCol = f.desiredColumn ?? computeVisualColumn(e, f, offset);
+      int targetCol =
+          f.desiredColumn ?? computeVisualColumn(e, f, offset, currentLine);
       int newOffset = moveToLineWithColumn(e, f, currentLine + 1, targetCol);
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;
@@ -65,7 +66,8 @@ class LineUp extends MotionAction {
 
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
-      int targetCol = f.desiredColumn ?? computeVisualColumn(e, f, offset);
+      int targetCol =
+          f.desiredColumn ?? computeVisualColumn(e, f, offset, currentLine);
       int newOffset = moveToLineWithColumn(e, f, currentLine - 1, targetCol);
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;

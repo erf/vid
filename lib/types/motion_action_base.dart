@@ -30,8 +30,7 @@ abstract class MotionAction {
   // ===== Utility methods for motion implementations =====
 
   /// Compute the visual column for the cursor at the given offset.
-  int computeVisualColumn(Editor e, FileBuffer f, int offset) {
-    int currentLine = f.lineNumber(offset);
+  int computeVisualColumn(Editor e, FileBuffer f, int offset, int currentLine) {
     int lineStartOff = f.lines[currentLine].start;
     String beforeCursor = f.text.substring(lineStartOff, offset);
     return beforeCursor.renderLength(e.config.tabWidth);
@@ -74,7 +73,7 @@ abstract class MotionAction {
     int currentLine,
     int targetLine,
   ) {
-    int curVisualCol = computeVisualColumn(e, f, offset);
+    int curVisualCol = computeVisualColumn(e, f, offset, currentLine);
     return moveToLineWithColumn(e, f, targetLine, curVisualCol);
   }
 
