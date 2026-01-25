@@ -10,7 +10,6 @@ class FileBrowser {
   /// Show file picker popup starting at the given path.
   static void show(Editor editor, [String? path]) {
     final rootPath = _resolvePath(path);
-    final gitignore = _parseGitignore(rootPath);
 
     // Show popup immediately with "Scanning..." message
     editor.showPopup(
@@ -27,18 +26,14 @@ class FileBrowser {
     );
 
     // Start async scanning
-    _scanFilesAsync(editor, rootPath, gitignore);
+    _scanFilesAsync(editor, rootPath);
   }
 
   /// Flag to cancel ongoing scan.
   static bool _cancelScan = false;
 
   /// Scan files asynchronously and update popup progressively.
-  static Future<void> _scanFilesAsync(
-    Editor editor,
-    String rootPath,
-    Set<String> gitignore,
-  ) async {
+  static Future<void> _scanFilesAsync(Editor editor, String rootPath) async {
     _cancelScan = false;
     final items = <PopupItem<String>>[];
     final rootLen = rootPath.length + 1;
@@ -66,9 +61,6 @@ class FileBrowser {
           final relativePath = entry.path.length > rootLen
               ? entry.path.substring(rootLen)
               : name;
-
-          // Check gitignore patterns
-          if (_matchesGitignore(relativePath, gitignore)) continue;
 
           if (entry is Directory) {
             // Skip excluded directories
@@ -137,77 +129,6 @@ class FileBrowser {
       return absPath;
     }
     return Directory.current.path;
-  }
-
-  /// Parse .gitignore file and return set of patterns.
-  static Set<String> _parseGitignore(String rootPath) {
-    final patterns = <String>{};
-    final gitignoreFile = File('$rootPath/.gitignore');
-
-    if (!gitignoreFile.existsSync()) return patterns;
-
-    try {
-      final lines = gitignoreFile.readAsLinesSync();
-      for (final line in lines) {
-        final trimmed = line.trim();
-        // Skip empty lines and comments
-        if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
-        // Normalize pattern
-        var pattern = trimmed;
-        // Remove leading slash (we match relative paths)
-        if (pattern.startsWith('/')) {
-          pattern = pattern.substring(1);
-        }
-        // Remove trailing slash (we add it back for directory matching)
-        if (pattern.endsWith('/')) {
-          pattern = pattern.substring(0, pattern.length - 1);
-        }
-        patterns.add(pattern);
-      }
-    } catch (e) {
-      // Ignore errors reading .gitignore
-    }
-
-    return patterns;
-  }
-
-  /// Check if a path matches any gitignore pattern.
-  static bool _matchesGitignore(String relativePath, Set<String> patterns) {
-    if (patterns.isEmpty) return false;
-
-    final pathParts = relativePath.split('/');
-
-    for (final pattern in patterns) {
-      // Simple matching: check if any path component matches the pattern
-      // or if the full path starts with the pattern
-      if (pattern.contains('*')) {
-        // Handle glob patterns (simplified)
-        final regex = _globToRegex(pattern);
-        if (regex.hasMatch(relativePath)) return true;
-        // Also check individual path components
-        for (final part in pathParts) {
-          if (regex.hasMatch(part)) return true;
-        }
-      } else {
-        // Exact match on path component or prefix match on path
-        if (pathParts.contains(pattern)) return true;
-        if (relativePath.startsWith('$pattern/')) return true;
-        if (relativePath == pattern) return true;
-      }
-    }
-
-    return false;
-  }
-
-  /// Convert a simple glob pattern to regex.
-  static RegExp _globToRegex(String pattern) {
-    var regex = pattern
-        .replaceAll('.', r'\.')
-        .replaceAll('**', '{{DOUBLESTAR}}')
-        .replaceAll('*', r'[^/]*')
-        .replaceAll('{{DOUBLESTAR}}', r'.*')
-        .replaceAll('?', r'[^/]');
-    return RegExp('^$regex\$');
   }
 
   /// Compare directory entries for sorting (directories first, then alphabetically).
