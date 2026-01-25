@@ -336,7 +336,9 @@ class Editor {
     terminal.write(Ansi.altScroll(true));
     terminal.write(Ansi.mouseMode(true));
     terminal.write(Ansi.cursorStyle(CursorStyle.steadyBlock));
-    terminal.write('\x1b[?2004h'); // Enable bracketed paste mode
+    terminal.write(
+      Ansi.bracketedPasteMode(true),
+    ); // Enable bracketed paste mode
     terminal.write(Ansi.pushTitle());
     terminal.write(Ansi.setTitle('vid ${path ?? '[No Name]'}'));
 
@@ -348,7 +350,9 @@ class Editor {
   void quit() {
     featureRegistry?.notifyQuit();
 
-    terminal.write('\x1b[?2004l'); // Disable bracketed paste mode
+    terminal.write(
+      Ansi.bracketedPasteMode(false),
+    ); // Disable bracketed paste mode
     terminal.write(Ansi.mouseMode(false));
     terminal.write(Ansi.popTitle());
     terminal.write(Ansi.reset());
