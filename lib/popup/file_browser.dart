@@ -58,15 +58,15 @@ class FileBrowser {
             continue;
           }
 
-          final relativePath = entry.path.length > rootLen
-              ? entry.path.substring(rootLen)
-              : name;
-
           if (entry is Directory) {
             // Skip excluded directories
             if (editor.config.fileBrowserExcludeDirs.contains(name)) continue;
             await scanDir(entry, depth + 1);
           } else if (entry is File) {
+            final relativePath = entry.path.length > rootLen
+                ? entry.path.substring(rootLen)
+                : name;
+
             items.add(PopupItem(label: relativePath, value: entry.path));
 
             // Update popup every 100 files for progressive loading
