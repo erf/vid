@@ -110,6 +110,12 @@ class FileBuffer {
   // the viewport position (byte offset of first visible character)
   int viewport = 0;
 
+  // the horizontal viewport position (column offset for horizontal scrolling)
+  int viewportCol = 0;
+
+  // track the last cursor line to reset viewportCol on line changes
+  int? lastCursorLine;
+
   // the current mode
   Mode mode = .normal;
 

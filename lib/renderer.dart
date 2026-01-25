@@ -115,11 +115,29 @@ class Renderer {
     );
 
     // Horizontal scrolling (disabled when word wrap is on)
-    int viewportCol = 0;
-    if (config.wrapMode == .none &&
-        cursorRenderCol >= contentWidth - config.scrollMargin) {
-      viewportCol = cursorRenderCol - contentWidth + config.scrollMargin + 1;
+    // Reset viewportCol when changing lines
+    if (config.wrapMode != .none) {
+      file.viewportCol = 0;
+    } else if (file.lastCursorLine != cursorLine) {
+      file.viewportCol = 0;
+      file.lastCursorLine = cursorLine;
+    } else {
+      // Adjust viewportCol to keep cursor visible with scrollMargin
+      // Scroll right when cursor approaches right edge
+      if (cursorRenderCol >=
+          file.viewportCol + contentWidth - config.scrollMargin) {
+        file.viewportCol =
+            cursorRenderCol - contentWidth + config.scrollMargin + 1;
+      }
+      // Scroll left when cursor approaches left edge
+      else if (cursorRenderCol < file.viewportCol + config.scrollMargin) {
+        file.viewportCol = (cursorRenderCol - config.scrollMargin)
+            .clamp(0, double.infinity)
+            .toInt();
+      }
+      // Otherwise viewportCol stays where it is
     }
+    final viewportCol = file.viewportCol;
 
     // Pass 1: Calculate layout and find cursor position
     // This may adjust viewport if cursor is not visible (wrap mode)
