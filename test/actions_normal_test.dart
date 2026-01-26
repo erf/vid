@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/modes.dart';
+import 'package:vid/selection.dart';
 
 void main() {
   test('actionDeleteLineEnd', () {
@@ -348,6 +349,46 @@ void main() {
     e.input('\u0018');
     expect(f.text, 'abc -124 def\n');
     expect(f.columnInLine(f.cursor), 7);
+  });
+
+  test('increase with multiple cursors', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'a1 b2 c3\n';
+    // Cursor positions: at 'a', 'b', 'c'
+    f.selections = [
+      Selection.collapsed(0), // before 'a1'
+      Selection.collapsed(3), // before 'b2'
+      Selection.collapsed(6), // before 'c3'
+    ];
+    e.input('\u0001'); // Ctrl+A to increase
+    expect(f.text, 'a2 b3 c4\n');
+    // Cursors should be at end of each number
+    expect(f.selections.length, 3);
+    expect(f.selections[0].cursor, 1); // after '2'
+    expect(f.selections[1].cursor, 4); // after '3'
+    expect(f.selections[2].cursor, 7); // after '4'
+  });
+
+  test('decrease with multiple cursors and digit changes', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'x10 y100\n';
+    f.selections = [
+      Selection.collapsed(1), // at '10'
+      Selection.collapsed(5), // at '100'
+    ];
+    e.input('\u0018'); // Ctrl+X to decrease
+    expect(f.text, 'x9 y99\n');
+    expect(f.selections.length, 2);
+    expect(f.selections[0].cursor, 1); // after '9'
+    expect(f.selections[1].cursor, 5); // after '99' (shifted due to first edit)
   });
 
   test('deleteCharNext if cursor is at start of line on second line', () {
