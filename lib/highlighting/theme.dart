@@ -58,6 +58,9 @@ class Theme {
   /// ANSI code for diagnostic hint/info signs in gutter.
   final String? diagnosticHint;
 
+  /// ANSI code for secondary cursor background in visual mode multi-cursor.
+  final String? secondaryCursorBackground;
+
   const Theme._(
     this.name,
     this._colors, {
@@ -71,6 +74,7 @@ class Theme {
     this.diagnosticError,
     this.diagnosticWarning,
     this.diagnosticHint,
+    this.secondaryCursorBackground,
   });
 
   /// ANSI reset code for clearing styles.
@@ -131,6 +135,11 @@ class Theme {
     diagnosticError: Ansi.fgRgb(180, 99, 122), // Love #b4637a
     diagnosticWarning: Ansi.fgRgb(234, 157, 52), // Gold #ea9d34
     diagnosticHint: Ansi.fgRgb(86, 148, 159), // Foam #56949f
+    secondaryCursorBackground: Ansi.bgRgb(
+      144,
+      122,
+      169,
+    ), // Iris #907aa9 (muted)
   );
 
   // Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
@@ -176,6 +185,7 @@ class Theme {
     diagnosticError: Ansi.fgRgb(235, 111, 146), // Love #eb6f92
     diagnosticWarning: Ansi.fgRgb(246, 193, 119), // Gold #f6c177
     diagnosticHint: Ansi.fgRgb(156, 207, 216), // Foam #9ccfd8
+    secondaryCursorBackground: Ansi.bgRgb(110, 106, 134), // Muted #6e6a86
   );
 
   // Ayu Dark
@@ -221,6 +231,7 @@ class Theme {
     diagnosticError: Ansi.fgRgb(240, 113, 120), // #F07178
     diagnosticWarning: Ansi.fgRgb(255, 180, 84), // #FFB454
     diagnosticHint: Ansi.fgRgb(89, 194, 255), // #59C2FF
+    secondaryCursorBackground: Ansi.bgRgb(70, 80, 95), // Muted blue-gray
   );
 
   // Ayu Light
@@ -266,6 +277,7 @@ class Theme {
     diagnosticError: Ansi.fgRgb(240, 113, 113), // #F07171
     diagnosticWarning: Ansi.fgRgb(242, 163, 0), // #F2A300
     diagnosticHint: Ansi.fgRgb(57, 158, 230), // #399EE6
+    secondaryCursorBackground: Ansi.bgRgb(180, 190, 205), // Muted blue-gray
   );
 
   // Unicorn Dark - soft pastel theme
@@ -311,6 +323,7 @@ class Theme {
     diagnosticError: Ansi.fgRgb(255, 121, 121), // Soft red #FF7979
     diagnosticWarning: Ansi.fgRgb(255, 218, 185), // Peach #FFDAB9
     diagnosticHint: Ansi.fgRgb(137, 207, 240), // Soft blue #89CFF0
+    secondaryCursorBackground: Ansi.bgRgb(90, 93, 110), // Muted purple-gray
   );
 
   // Unicorn Light - soft pastel theme
@@ -356,6 +369,7 @@ class Theme {
     diagnosticError: Ansi.fgRgb(231, 76, 60), // Soft red #E74C3C
     diagnosticWarning: Ansi.fgRgb(230, 126, 34), // Orange #E67E22
     diagnosticHint: Ansi.fgRgb(52, 152, 219), // Blue #3498DB
+    secondaryCursorBackground: Ansi.bgRgb(200, 180, 210), // Muted lavender
   );
 
   // Monochrome theme using text attributes (uses terminal default colors)
@@ -392,6 +406,9 @@ class Theme {
       TokenType.decorator: '${Ansi.dim()}${Ansi.italic()}',
     },
     selectionBackground: Ansi.inverse(true), // Use inverse video for mono
+    secondaryCursorBackground: Ansi.bg(
+      Color.brightBlack,
+    ), // Subtle cursor marker
     // Mono theme uses default terminal colors for gutter
     // gutterForeground uses dim text for non-active lines
   );

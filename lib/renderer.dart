@@ -543,6 +543,7 @@ class Renderer {
     // Convert selections to (start, end) tuples for rendering
     // In visual line mode, expand each selection to full lines
     List<(int, int)> selectionRanges;
+    List<(int, int)> secondaryCursorRanges = const <(int, int)>[];
     if (file.mode == .visualLine) {
       selectionRanges = file.selections.map((s) {
         final startLineNum = file.lineNumber(s.start);
@@ -554,6 +555,18 @@ class Renderer {
         if (end > file.text.length) end = file.text.length;
         return (start, end);
       }).toList();
+      // In visual line mode, show secondary cursors at cursor positions
+      if (file.selections.length > 1) {
+        secondaryCursorRanges = file.selections.skip(1).map((s) {
+          var end = s.cursor < file.text.length
+              ? file.nextGrapheme(s.cursor)
+              : s.cursor;
+          if (end == s.cursor && s.cursor < file.text.length) {
+            end = s.cursor + 1;
+          }
+          return (s.cursor, end);
+        }).toList();
+      }
     } else if (file.hasVisualSelection) {
       // Visual mode selections are cursor-based: end is the cursor position (last char)
       // Extend by 1 to include the cursor character in the visual highlight
@@ -561,6 +574,18 @@ class Renderer {
         final end = s.end < file.text.length ? file.nextGrapheme(s.end) : s.end;
         return (s.start, end);
       }).toList();
+      // In visual mode with multiple cursors, show secondary cursors distinctly
+      if (file.selections.length > 1) {
+        secondaryCursorRanges = file.selections.skip(1).map((s) {
+          var end = s.cursor < file.text.length
+              ? file.nextGrapheme(s.cursor)
+              : s.cursor;
+          if (end == s.cursor && s.cursor < file.text.length) {
+            end = s.cursor + 1;
+          }
+          return (s.cursor, end);
+        }).toList();
+      }
     } else if (file.hasMultipleCursors) {
       // Show secondary cursors as single-character highlights
       // Skip first cursor (it's rendered as the actual terminal cursor)
@@ -614,6 +639,7 @@ class Renderer {
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
           selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
           lineNum: currentLineNum,
           cursorLine: cursorLine,
           totalLines: file.totalLines,
@@ -631,6 +657,7 @@ class Renderer {
           syntaxHighlighting: config.syntaxHighlighting,
           tabWidth: config.tabWidth,
           selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
           lineNum: currentLineNum,
           cursorLine: cursorLine,
           totalLines: file.totalLines,
@@ -649,6 +676,7 @@ class Renderer {
           breakat: config.breakat,
           tabWidth: config.tabWidth,
           selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
           lineNum: currentLineNum,
           cursorLine: cursorLine,
           totalLines: file.totalLines,
@@ -735,15 +763,29 @@ class Renderer {
     required int lineStartByte,
     required int originalLength,
     required List<(int, int)> selectionRanges,
+    required List<(int, int)> secondaryCursorRanges,
   }) {
     final newlineOffset = lineStartByte + originalLength;
 
-    // Check if a secondary cursor is on the newline
-    final hasSecondaryCursor = selectionRanges.any(
+    // Check if a secondary cursor is on the newline (takes precedence)
+    final hasSecondaryCursor = secondaryCursorRanges.any(
       (range) => range.$1 == newlineOffset && range.$2 > range.$1,
     );
 
+    // Check if newline is in any selection
+    final inSelection = selectionRanges.any(
+      (range) => range.$1 <= newlineOffset && newlineOffset < range.$2,
+    );
+
     if (hasSecondaryCursor) {
+      // Use distinct secondary cursor color
+      final cursorBg =
+          highlighter.theme.secondaryCursorBackground ??
+          Ansi.bg(Color.brightBlack);
+      buffer.write(cursorBg);
+      buffer.write(newlineSymbol);
+      highlighter.theme.resetCode(buffer);
+    } else if (inSelection) {
       final selBg =
           highlighter.theme.selectionBackground ?? Ansi.bg(Color.brightBlack);
       buffer.write(selBg);
@@ -781,6 +823,7 @@ class Renderer {
     required bool syntaxHighlighting,
     required int tabWidth,
     required List<(int, int)> selectionRanges,
+    required List<(int, int)> secondaryCursorRanges,
     required int lineNum,
     required int cursorLine,
     required int totalLines,
@@ -824,16 +867,18 @@ class Renderer {
           lineStartByte + byteOffset,
           tabWidth: tabWidth,
           selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
         );
       } else {
         // No syntax highlighting but may have selections
-        if (selectionRanges.isNotEmpty) {
+        if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
           highlighter.style(
             buffer,
             visible,
             lineStartByte,
             tabWidth: tabWidth,
             selectionRanges: selectionRanges,
+            secondaryCursorRanges: secondaryCursorRanges,
           );
         } else {
           buffer.write(visible);
@@ -849,6 +894,7 @@ class Renderer {
         lineStartByte: lineStartByte,
         originalLength: original.length,
         selectionRanges: selectionRanges,
+        secondaryCursorRanges: secondaryCursorRanges,
       );
     }
 
@@ -865,6 +911,7 @@ class Renderer {
     required bool syntaxHighlighting,
     required int tabWidth,
     required List<(int, int)> selectionRanges,
+    required List<(int, int)> secondaryCursorRanges,
     required int lineNum,
     required int cursorLine,
     required int totalLines,
@@ -919,10 +966,11 @@ class Renderer {
             lineStartByte + byteOffset,
             tabWidth: tabWidth,
             selectionRanges: selectionRanges,
+            secondaryCursorRanges: secondaryCursorRanges,
           );
         } else {
           // No syntax highlighting but may have selections
-          if (selectionRanges.isNotEmpty) {
+          if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
             final byteOffset = _renderedToOriginalOffset(
               original,
               wrapCol,
@@ -934,6 +982,7 @@ class Renderer {
               lineStartByte + byteOffset,
               tabWidth: tabWidth,
               selectionRanges: selectionRanges,
+              secondaryCursorRanges: secondaryCursorRanges,
             );
           } else {
             buffer.write(chunk);
@@ -954,6 +1003,7 @@ class Renderer {
       lineStartByte: lineStartByte,
       originalLength: original.length,
       selectionRanges: selectionRanges,
+      secondaryCursorRanges: secondaryCursorRanges,
     );
 
     return screenRow;
@@ -970,6 +1020,7 @@ class Renderer {
     required String breakat,
     required int tabWidth,
     required List<(int, int)> selectionRanges,
+    required List<(int, int)> secondaryCursorRanges,
     required int lineNum,
     required int cursorLine,
     required int totalLines,
@@ -1039,10 +1090,11 @@ class Renderer {
           lineStartByte + byteOffset,
           tabWidth: tabWidth,
           selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
         );
       } else {
         // No syntax highlighting but may have selections
-        if (selectionRanges.isNotEmpty) {
+        if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
           final byteOffset = _renderedToOriginalOffset(
             original,
             wrapCol,
@@ -1054,6 +1106,7 @@ class Renderer {
             lineStartByte + byteOffset,
             tabWidth: tabWidth,
             selectionRanges: selectionRanges,
+            secondaryCursorRanges: secondaryCursorRanges,
           );
         } else {
           buffer.write(chunk);
@@ -1073,6 +1126,7 @@ class Renderer {
       lineStartByte: lineStartByte,
       originalLength: original.length,
       selectionRanges: selectionRanges,
+      secondaryCursorRanges: secondaryCursorRanges,
     );
 
     return screenRow;

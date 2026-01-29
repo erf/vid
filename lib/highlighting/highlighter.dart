@@ -148,12 +148,15 @@ class Highlighter {
   /// [start] is the byte offset where this text starts in the document.
   /// [tabWidth] is the number of spaces to use for tab expansion.
   /// [selectionRanges] is a list of (selStart, selEnd) pairs for highlighting.
+  /// [secondaryCursorRanges] is a list of (start, end) pairs for secondary
+  /// cursor positions (shown with distinct color from selection).
   void style(
     StringBuffer buffer,
     String text,
     int start, {
     int tabWidth = 2,
     List<(int, int)> selectionRanges = const [],
+    List<(int, int)> secondaryCursorRanges = const [],
   }) {
     if (text.isEmpty) {
       buffer.write(text);
@@ -164,13 +167,16 @@ class Highlighter {
     final textEndByte = start + text.length;
     final tokens = _getOverlappingTokens(start, textEndByte);
 
-    if (tokens.isEmpty && selectionRanges.isEmpty) {
+    if (tokens.isEmpty &&
+        selectionRanges.isEmpty &&
+        secondaryCursorRanges.isEmpty) {
       buffer.write(_expandTabs(text, tabWidth));
       return;
     }
 
-    // Get selection background color for highlighting
+    // Get selection and secondary cursor background colors for highlighting
     final selBg = theme.selectionBackground;
+    final secondaryCursorBg = theme.secondaryCursorBackground;
 
     // Build styled output
     var pos = 0;
@@ -197,6 +203,8 @@ class Highlighter {
           selectionRanges,
           selBg,
           null, // no syntax color for plain text
+          secondaryCursorRanges,
+          secondaryCursorBg,
         );
       }
 
@@ -211,6 +219,8 @@ class Highlighter {
         selectionRanges,
         selBg,
         syntaxColor,
+        secondaryCursorRanges,
+        secondaryCursorBg,
       );
 
       pos = tokenEnd;
@@ -225,11 +235,13 @@ class Highlighter {
         selectionRanges,
         selBg,
         null,
+        secondaryCursorRanges,
+        secondaryCursorBg,
       );
     }
   }
 
-  /// Write text to buffer, applying selection highlighting where needed.
+  /// Write text to buffer, applying selection and secondary cursor highlighting.
   void _writeWithSelections(
     StringBuffer buffer,
     String text,
@@ -237,9 +249,15 @@ class Highlighter {
     List<(int, int)> selectionRanges,
     String? selBg,
     String? syntaxColor,
+    List<(int, int)> secondaryCursorRanges,
+    String? secondaryCursorBg,
   ) {
-    if (selBg == null || selectionRanges.isEmpty) {
-      // No selection highlighting needed
+    final hasSelections = selBg != null && selectionRanges.isNotEmpty;
+    final hasSecondaryCursors =
+        secondaryCursorBg != null && secondaryCursorRanges.isNotEmpty;
+
+    if (!hasSelections && !hasSecondaryCursors) {
+      // No selection or cursor highlighting needed
       if (syntaxColor != null) {
         buffer.write(syntaxColor);
         buffer.write(text);
@@ -250,18 +268,25 @@ class Highlighter {
       return;
     }
 
-    // Check if any part of this text is in a selection
+    // Check if any part of this text is in a selection or secondary cursor
     final textEnd = byteOffset + text.length;
     bool anySelection = false;
+    bool anySecondaryCursor = false;
     for (final (selStart, selEnd) in selectionRanges) {
       if (selStart < textEnd && selEnd > byteOffset) {
         anySelection = true;
         break;
       }
     }
+    for (final (curStart, curEnd) in secondaryCursorRanges) {
+      if (curStart < textEnd && curEnd > byteOffset) {
+        anySecondaryCursor = true;
+        break;
+      }
+    }
 
-    if (!anySelection) {
-      // No selection overlap, write normally
+    if (!anySelection && !anySecondaryCursor) {
+      // No selection or secondary cursor overlap, write normally
       if (syntaxColor != null) {
         buffer.write(syntaxColor);
         buffer.write(text);
@@ -272,39 +297,68 @@ class Highlighter {
       return;
     }
 
-    // Need to handle character-by-character for selection boundaries
+    // Need to handle character-by-character for selection/cursor boundaries
     var pos = 0;
     var currentByte = byteOffset;
 
     while (pos < text.length) {
-      // Check if current byte is in any selection
-      bool nowInSelection = false;
-      for (final (selStart, selEnd) in selectionRanges) {
-        if (currentByte >= selStart && currentByte < selEnd) {
-          nowInSelection = true;
+      // Check if current byte is in any secondary cursor (takes precedence)
+      bool nowInSecondaryCursor = false;
+      for (final (curStart, curEnd) in secondaryCursorRanges) {
+        if (currentByte >= curStart && currentByte < curEnd) {
+          nowInSecondaryCursor = true;
           break;
         }
       }
 
-      // Find extent of current run (same selection state)
-      var runEnd = pos + 1;
-      var runByte = currentByte + 1;
-      while (runEnd < text.length) {
-        bool nextInSelection = false;
+      // Check if current byte is in any selection
+      bool nowInSelection = false;
+      if (!nowInSecondaryCursor) {
         for (final (selStart, selEnd) in selectionRanges) {
-          if (runByte >= selStart && runByte < selEnd) {
-            nextInSelection = true;
+          if (currentByte >= selStart && currentByte < selEnd) {
+            nowInSelection = true;
             break;
           }
         }
-        if (nextInSelection != nowInSelection) break;
+      }
+
+      // Find extent of current run (same selection/cursor state)
+      var runEnd = pos + 1;
+      var runByte = currentByte + 1;
+      while (runEnd < text.length) {
+        bool nextInSecondaryCursor = false;
+        for (final (curStart, curEnd) in secondaryCursorRanges) {
+          if (runByte >= curStart && runByte < curEnd) {
+            nextInSecondaryCursor = true;
+            break;
+          }
+        }
+        bool nextInSelection = false;
+        if (!nextInSecondaryCursor) {
+          for (final (selStart, selEnd) in selectionRanges) {
+            if (runByte >= selStart && runByte < selEnd) {
+              nextInSelection = true;
+              break;
+            }
+          }
+        }
+        if (nextInSecondaryCursor != nowInSecondaryCursor ||
+            nextInSelection != nowInSelection) {
+          break;
+        }
         runEnd++;
         runByte++;
       }
 
       // Write this run with appropriate styling
       final runText = text.substring(pos, runEnd);
-      if (nowInSelection) {
+      if (nowInSecondaryCursor) {
+        // Secondary cursor takes precedence - use distinct cursor color
+        buffer.write(secondaryCursorBg);
+        if (syntaxColor != null) buffer.write(syntaxColor);
+        buffer.write(runText);
+        theme.resetCode(buffer);
+      } else if (nowInSelection) {
         buffer.write(selBg);
         if (syntaxColor != null) buffer.write(syntaxColor);
         buffer.write(runText);
