@@ -1,7 +1,32 @@
-/// Yank buffer with linewise information
+/// Yank buffer with linewise information and multi-cursor support.
+///
+/// When yanking with multiple cursors, each selection is stored separately
+/// in [pieces]. When pasting with the same number of cursors, each cursor
+/// gets its corresponding piece. Otherwise, all pieces are joined for paste.
 class YankBuffer {
-  final String text;
+  /// Individual pieces from each cursor/selection.
+  final List<String> pieces;
+
+  /// Whether this was a linewise yank (yy, dd, etc.)
   final bool linewise;
 
-  const YankBuffer(this.text, {this.linewise = false});
+  /// All pieces joined together (for clipboard and single-cursor paste).
+  String get text => pieces.join();
+
+  /// Number of pieces in the buffer.
+  int get length => pieces.length;
+
+  const YankBuffer(this.pieces, {this.linewise = false});
+
+  /// Create a single-piece yank buffer (backwards compatible).
+  YankBuffer.single(String text, {this.linewise = false}) : pieces = [text];
+
+  /// Get the text for a specific cursor index.
+  /// If index is out of range, returns all text joined.
+  String textForCursor(int index, int totalCursors) {
+    if (pieces.length == totalCursors && index < pieces.length) {
+      return pieces[index];
+    }
+    return text;
+  }
 }

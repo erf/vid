@@ -321,6 +321,9 @@ const visualCommands = <String, Command>{
   // Override x to directly delete (normal mode x is 'dl' alias, which causes issues)
   'x': OperatorCommand(.delete),
   's': OperatorCommand(.change), // Substitute selection
+  // Replace selection with yank buffer contents
+  'p': ActionCommand(.visualPaste),
+  'P': ActionCommand(.visualPaste),
   // Selection cycling (for multi-cursor)
   Keys.tab: ActionCommand(.nextSelection),
   Keys.shiftTab: ActionCommand(.prevSelection),
@@ -340,6 +343,9 @@ const visualLineCommands = <String, Command>{
   'o': ActionCommand(.swapEnds), // Swap anchor/cursor
   'x': OperatorCommand(.delete),
   's': OperatorCommand(.change), // Substitute selection
+  // Replace selection with yank buffer contents
+  'p': ActionCommand(.visualPaste),
+  'P': ActionCommand(.visualPaste),
   'I': ActionCommand(.visualLineInsertAtLineStarts),
   'A': ActionCommand(.visualLineInsertAtLineEnds),
   // Selection cycling

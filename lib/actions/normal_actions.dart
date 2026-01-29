@@ -380,6 +380,97 @@ class PasteBefore extends Action {
   }
 }
 
+/// Paste in visual mode - replace selection(s) with yank buffer content.
+/// The replaced text is yanked (Vim default behavior).
+class VisualPaste extends Action {
+  const VisualPaste();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    if (e.yankBuffer == null) return;
+
+    final isVisualLineMode = f.mode == .visualLine;
+    final isVisualMode = f.mode == .visual;
+
+    // In visual line mode, even collapsed selections represent full line selection.
+    // In visual mode, we need actual non-collapsed selections.
+    if (!isVisualLineMode && !isVisualMode) {
+      const PasteAfter().call(e, f);
+      return;
+    }
+
+    // In visual mode (not visual line), if selection is collapsed, fall back
+    if (isVisualMode && !f.hasVisualSelection) {
+      const PasteAfter().call(e, f);
+      return;
+    }
+
+    // Get ranges to replace - use same logic as operator actions
+    final ranges = _getVisualRanges(f, isVisualLineMode);
+    if (ranges.isEmpty) return;
+
+    final yank = e.yankBuffer!;
+    final numSelections = ranges.length;
+
+    // Get paste text for each selection
+    // If yank has same number of pieces as selections, distribute them
+    final pasteTexts = <String>[];
+    for (int i = 0; i < numSelections; i++) {
+      pasteTexts.add(yank.textForCursor(i, numSelections));
+    }
+
+    // Yank the selected text before replacing (Vim default behavior)
+    final selectedPieces = ranges
+        .map((s) => f.text.substring(s.start, s.end))
+        .toList();
+    e.yankBuffer = YankBuffer(selectedPieces, linewise: isVisualLineMode);
+
+    // Build edits: replace each selection with its corresponding paste content
+    final edits = <TextEdit>[];
+    for (int i = ranges.length - 1; i >= 0; i--) {
+      edits.add(TextEdit(ranges[i].start, ranges[i].end, pasteTexts[i]));
+    }
+    applyEdits(f, edits, e.config);
+
+    // Collapse selections to start of pasted content
+    var offset = 0;
+    final newSelections = <Selection>[];
+    for (int i = 0; i < ranges.length; i++) {
+      final range = ranges[i];
+      final newCursor = range.start + offset;
+      newSelections.add(Selection.collapsed(newCursor));
+      // Adjust offset: old range removed, paste text added
+      offset += pasteTexts[i].length - (range.end - range.start);
+    }
+    f.selections = newSelections;
+    f.clampCursor();
+
+    f.setMode(e, .normal);
+  }
+
+  /// Get visual ranges to operate on (expanded for visual line / inclusive for visual).
+  static List<Selection> _getVisualRanges(FileBuffer f, bool isVisualLineMode) {
+    if (isVisualLineMode) {
+      return f.selections.map((s) {
+        final startLine = f.lineNumber(s.start);
+        final endLine = f.lineNumber(s.end);
+        final minLine = startLine < endLine ? startLine : endLine;
+        final maxLine = startLine < endLine ? endLine : startLine;
+        final lineStart = f.lines[minLine].start;
+        var lineEnd = f.lines[maxLine].end + 1; // Include newline
+        if (lineEnd > f.text.length) lineEnd = f.text.length;
+        return Selection(lineStart, lineEnd);
+      }).toList()..sort((a, b) => a.start.compareTo(b.start));
+    }
+
+    // Visual mode is inclusive - extend by one grapheme
+    return f.selections.map((s) {
+      final newEnd = f.nextGrapheme(s.end);
+      return Selection(s.start, newEnd);
+    }).toList()..sort((a, b) => a.start.compareTo(b.start));
+  }
+}
+
 /// Quit editor if no unsaved changes.
 class Quit extends Action {
   const Quit();

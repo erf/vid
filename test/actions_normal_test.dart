@@ -930,4 +930,195 @@ void main() {
       expect(f.cursor, 0);
     });
   });
+
+  group('visual paste', () {
+    test('p in visual mode replaces selection with yank buffer', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      // Yank 'hello ' then select 'world' and paste
+      e.input('yw'); // yank 'hello '
+      e.input('w'); // move to 'world'
+      e.input('ve'); // select to end of 'world' (visual mode, motion e)
+      e.input('p'); // paste
+
+      // 'world' replaced with 'hello '
+      expect(f.text, 'hello hello \n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('visual paste yanks the replaced text', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc def\n';
+      f.cursor = 0;
+
+      // Yank 'abc ' then select 'def' and paste - the replaced 'def' should be yanked
+      e.input('yw'); // yank 'abc '
+      e.input('w'); // move to 'def'
+      e.input('ve'); // select 'def' (v enters visual, e moves to end of word)
+      e.input('p'); // paste
+
+      expect(f.text, 'abc abc \n');
+
+      // Yank buffer should now contain 'def' (the replaced text)
+      // Note: visual mode is inclusive so it includes 'f' under cursor
+      expect(e.yankBuffer?.text, 'def');
+    });
+
+    test('P in visual mode also replaces selection', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      e.input('yw'); // yank 'hello '
+      e.input('w'); // move to 'world'
+      e.input('ve'); // select 'world'
+      e.input('P'); // paste with P
+
+      expect(f.text, 'hello hello \n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('visual line paste replaces entire line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line1\nline2\nline3\n';
+      f.cursor = 0;
+
+      e.input('yy'); // yank 'line1\n'
+      e.input('j'); // move to line2
+      e.input('V'); // enter visual line mode
+      e.input('p'); // paste
+
+      expect(f.text, 'line1\nline1\nline3\n');
+      expect(f.mode, Mode.normal);
+    });
+
+    test('visual paste with collapsed selection in visual mode falls back', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc def\n';
+      f.cursor = 0;
+
+      e.input('yw'); // yank 'abc '
+      // Force visual mode with a collapsed selection (unusual but possible)
+      f.selections = [Selection.collapsed(4)]; // cursor at 'd'
+      f.setMode(e, Mode.visual);
+      e.input('p'); // paste - should fall back to PasteAfter behavior
+
+      // PasteAfter with character-wise text inserts after cursor ('d' at pos 4)
+      // So it inserts 'abc ' after position 4
+      expect(f.text, 'abc dabc ef\n');
+    });
+
+    test('visual paste replaces word selection', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo bar baz\n';
+      f.cursor = 0;
+
+      e.input('yw'); // yank 'foo '
+      e.input('w'); // move to 'bar'
+      e.input('ve'); // select 'bar' (v + e motion)
+      e.input('p'); // paste
+
+      expect(f.text, 'foo foo  baz\n');
+    });
+
+    test('multi-cursor yank and paste distributes pieces correctly', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'aaa bbb ccc\nxxx yyy zzz\n';
+
+      // Visual mode selections: anchor to cursor (end is cursor position)
+      // Visual mode is inclusive, so Selection(0, 2) yanks chars at 0,1,2 -> 'aaa'
+      // The _getOperatorRanges extends end by one grapheme: (0,2) -> (0,3)
+      f.selections = [
+        Selection(0, 2), // positions 0-2, extended to 0-3 = 'aaa'
+        Selection(4, 6), // positions 4-6, extended to 4-7 = 'bbb'
+        Selection(8, 10), // positions 8-10, extended to 8-11 = 'ccc'
+      ];
+      f.setMode(e, Mode.visual);
+
+      // Yank the 3 selections
+      e.input('y');
+      expect(e.yankBuffer?.pieces.length, 3);
+      expect(e.yankBuffer?.pieces[0], 'aaa');
+      expect(e.yankBuffer?.pieces[1], 'bbb');
+      expect(e.yankBuffer?.pieces[2], 'ccc');
+
+      // Now select 'xxx', 'yyy', 'zzz' on second line (line starts at offset 12)
+      f.selections = [
+        Selection(12, 14), // 'xxx'
+        Selection(16, 18), // 'yyy'
+        Selection(20, 22), // 'zzz'
+      ];
+      f.setMode(e, Mode.visual);
+
+      // Paste - each selection should get its corresponding piece
+      e.input('p');
+
+      // Each 3-char word is replaced with its corresponding yanked word
+      expect(f.text, 'aaa bbb ccc\naaa bbb ccc\n');
+    });
+
+    test('multi-cursor paste with different count falls back to full text', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'aa bb\nxx yy zz\n';
+
+      // Yank 2 pieces: 'aa' and 'bb'
+      f.selections = [
+        Selection(0, 1), // 'aa' (0-1 extended to 0-2)
+        Selection(3, 4), // 'bb' (3-4 extended to 3-5)
+      ];
+      f.setMode(e, Mode.visual);
+      e.input('y');
+      expect(e.yankBuffer?.pieces.length, 2);
+      expect(e.yankBuffer?.pieces[0], 'aa');
+      expect(e.yankBuffer?.pieces[1], 'bb');
+      expect(e.yankBuffer?.text, 'aabb');
+
+      // Now try to paste to 3 selections - different count, should get full text
+      // Line 2 starts at offset 6
+      f.selections = [
+        Selection(6, 7), // 'xx'
+        Selection(9, 10), // 'yy'
+        Selection(12, 13), // 'zz'
+      ];
+      f.setMode(e, Mode.visual);
+      e.input('p');
+
+      // Each of the 3 selections gets the full "aabb" since counts don't match
+      expect(f.text, 'aa bb\naabb aabb aabb\n');
+    });
+  });
 }

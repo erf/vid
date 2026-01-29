@@ -95,7 +95,7 @@ extension FileBufferText on FileBuffer {
 
   void yankRange(Editor e, Range range, {bool linewise = false}) {
     final Range r = range.norm;
-    e.yankBuffer = YankBuffer(
+    e.yankBuffer = YankBuffer.single(
       text.substring(r.start, r.end),
       linewise: linewise,
     );

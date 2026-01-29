@@ -1010,11 +1010,10 @@ class Editor {
     final sortedRanges = rangesWithIndex.map((e) => e.value).toList();
 
     // Yank all text first (for delete/change operations)
-    final allText = StringBuffer();
-    for (final range in sortedRanges) {
-      allText.write(file.text.substring(range.start, range.end));
-    }
-    yankBuffer = YankBuffer(allText.toString(), linewise: linewise);
+    final pieces = sortedRanges
+        .map((range) => file.text.substring(range.start, range.end))
+        .toList();
+    yankBuffer = YankBuffer(pieces, linewise: linewise);
     terminal.write(Ansi.copyToClipboard(yankBuffer!.text));
 
     // For yank, we're done after copying

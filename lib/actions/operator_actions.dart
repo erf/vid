@@ -38,10 +38,10 @@ class OperatorActions {
 
     // Yank selected text for yank/delete/change operators
     if (op == .yank || op == .delete || op == .change) {
-      final allText = ranges
+      final pieces = ranges
           .map((s) => f.text.substring(s.start, s.end))
-          .join();
-      e.yankBuffer = YankBuffer(allText, linewise: isLinewise);
+          .toList();
+      e.yankBuffer = YankBuffer(pieces, linewise: isLinewise);
       e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
     }
 
