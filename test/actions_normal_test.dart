@@ -1087,7 +1087,7 @@ void main() {
       expect(f.text, 'aaa bbb ccc\naaa bbb ccc\n');
     });
 
-    test('multi-cursor paste with different count falls back to full text', () {
+    test('multi-cursor paste with more cursors distributes then falls back', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -1107,18 +1107,48 @@ void main() {
       expect(e.yankBuffer?.pieces[1], 'bb');
       expect(e.yankBuffer?.text, 'aabb');
 
-      // Now try to paste to 3 selections - different count, should get full text
+      // Now try to paste to 3 selections - more cursors than pieces
+      // First 2 cursors get their pieces, 3rd gets full text
       // Line 2 starts at offset 6
       f.selections = [
-        Selection(6, 7), // 'xx'
-        Selection(9, 10), // 'yy'
-        Selection(12, 13), // 'zz'
+        Selection(6, 7), // 'xx' -> gets 'aa'
+        Selection(9, 10), // 'yy' -> gets 'bb'
+        Selection(12, 13), // 'zz' -> gets 'aabb' (fallback)
       ];
       f.setMode(e, Mode.visual);
       e.input('p');
 
-      // Each of the 3 selections gets the full "aabb" since counts don't match
-      expect(f.text, 'aa bb\naabb aabb aabb\n');
+      // First 2 get pieces, 3rd gets full text
+      expect(f.text, 'aa bb\naa bb aabb\n');
+    });
+
+    test('multi-cursor paste with fewer cursors uses first N pieces', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'aa bb cc\nxx yy\n';
+
+      // Yank 3 pieces
+      f.selections = [
+        Selection(0, 1), // 'aa'
+        Selection(3, 4), // 'bb'
+        Selection(6, 7), // 'cc'
+      ];
+      f.setMode(e, Mode.visual);
+      e.input('y');
+      expect(e.yankBuffer?.pieces.length, 3);
+
+      // Paste to 2 cursors - should get first 2 pieces
+      f.selections = [
+        Selection(9, 10), // 'xx' -> gets 'aa'
+        Selection(12, 13), // 'yy' -> gets 'bb'
+      ];
+      f.setMode(e, Mode.visual);
+      e.input('p');
+
+      expect(f.text, 'aa bb cc\naa bb\n');
     });
   });
 }

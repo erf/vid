@@ -1,8 +1,10 @@
 /// Yank buffer with linewise information and multi-cursor support.
 ///
 /// When yanking with multiple cursors, each selection is stored separately
-/// in [pieces]. When pasting with the same number of cursors, each cursor
-/// gets its corresponding piece. Otherwise, all pieces are joined for paste.
+/// in [pieces]. When pasting:
+/// - With same number of cursors: each cursor gets its corresponding piece
+/// - With fewer cursors: each cursor gets its corresponding piece (first N)
+/// - With single cursor: gets all pieces joined
 class YankBuffer {
   /// Individual pieces from each cursor/selection.
   final List<String> pieces;
@@ -22,11 +24,13 @@ class YankBuffer {
   YankBuffer.single(String text, {this.linewise = false}) : pieces = [text];
 
   /// Get the text for a specific cursor index.
+  /// Each cursor gets its corresponding piece by index.
   /// If index is out of range, returns all text joined.
   String textForCursor(int index, int totalCursors) {
-    if (pieces.length == totalCursors && index < pieces.length) {
+    if (index < pieces.length) {
       return pieces[index];
     }
+    // More cursors than pieces: extras get full text
     return text;
   }
 }
