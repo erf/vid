@@ -1087,40 +1087,43 @@ void main() {
       expect(f.text, 'aaa bbb ccc\naaa bbb ccc\n');
     });
 
-    test('multi-cursor paste with more cursors distributes then falls back', () {
-      final e = Editor(
-        terminal: TestTerminal(width: 80, height: 24),
-        redraw: false,
-      );
-      final f = e.file;
-      f.text = 'aa bb\nxx yy zz\n';
+    test(
+      'multi-cursor paste with more cursors distributes then falls back',
+      () {
+        final e = Editor(
+          terminal: TestTerminal(width: 80, height: 24),
+          redraw: false,
+        );
+        final f = e.file;
+        f.text = 'aa bb\nxx yy zz\n';
 
-      // Yank 2 pieces: 'aa' and 'bb'
-      f.selections = [
-        Selection(0, 1), // 'aa' (0-1 extended to 0-2)
-        Selection(3, 4), // 'bb' (3-4 extended to 3-5)
-      ];
-      f.setMode(e, Mode.visual);
-      e.input('y');
-      expect(e.yankBuffer?.pieces.length, 2);
-      expect(e.yankBuffer?.pieces[0], 'aa');
-      expect(e.yankBuffer?.pieces[1], 'bb');
-      expect(e.yankBuffer?.text, 'aabb');
+        // Yank 2 pieces: 'aa' and 'bb'
+        f.selections = [
+          Selection(0, 1), // 'aa' (0-1 extended to 0-2)
+          Selection(3, 4), // 'bb' (3-4 extended to 3-5)
+        ];
+        f.setMode(e, Mode.visual);
+        e.input('y');
+        expect(e.yankBuffer?.pieces.length, 2);
+        expect(e.yankBuffer?.pieces[0], 'aa');
+        expect(e.yankBuffer?.pieces[1], 'bb');
+        expect(e.yankBuffer?.text, 'aabb');
 
-      // Now try to paste to 3 selections - more cursors than pieces
-      // First 2 cursors get their pieces, 3rd gets full text
-      // Line 2 starts at offset 6
-      f.selections = [
-        Selection(6, 7), // 'xx' -> gets 'aa'
-        Selection(9, 10), // 'yy' -> gets 'bb'
-        Selection(12, 13), // 'zz' -> gets 'aabb' (fallback)
-      ];
-      f.setMode(e, Mode.visual);
-      e.input('p');
+        // Now try to paste to 3 selections - more cursors than pieces
+        // First 2 cursors get their pieces, 3rd gets full text
+        // Line 2 starts at offset 6
+        f.selections = [
+          Selection(6, 7), // 'xx' -> gets 'aa'
+          Selection(9, 10), // 'yy' -> gets 'bb'
+          Selection(12, 13), // 'zz' -> gets 'aabb' (fallback)
+        ];
+        f.setMode(e, Mode.visual);
+        e.input('p');
 
-      // First 2 get pieces, 3rd gets full text
-      expect(f.text, 'aa bb\naa bb aabb\n');
-    });
+        // First 2 get pieces, 3rd gets full text
+        expect(f.text, 'aa bb\naa bb aabb\n');
+      },
+    );
 
     test('multi-cursor paste with fewer cursors uses first N pieces', () {
       final e = Editor(

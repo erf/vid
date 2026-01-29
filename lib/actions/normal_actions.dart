@@ -325,105 +325,66 @@ class MoveUpHalfPage extends Action {
 }
 
 /// Paste after cursor.
+/// Helper to paste at multiple cursors with proper position tracking.
+void _pasteAtCursors(
+  Editor e,
+  FileBuffer f,
+  YankBuffer yank,
+  int Function(int cursor) getInsertPos,
+  bool cursorAtEnd,
+) {
+  final n = f.selections.length;
+  // Sort by position, keep original indices for piece mapping
+  final sorted = List.generate(n, (i) => i)
+    ..sort((a, b) => f.selections[a].cursor.compareTo(f.selections[b].cursor));
+
+  // Build edits and track insert info (from end to preserve positions)
+  final edits = <TextEdit>[];
+  final insertInfo = <(int, String)>[]; // (pos, text) in sorted order
+  for (int i = sorted.length - 1; i >= 0; i--) {
+    final idx = sorted[i];
+    final pos = getInsertPos(f.selections[idx].cursor);
+    final text = yank.textForCursor(idx, n);
+    edits.add(TextEdit(pos, pos, text));
+    insertInfo.insert(0, (pos, text));
+  }
+
+  applyEdits(f, edits, e.config);
+
+  // Update cursor positions
+  var offset = 0;
+  final newSels = <Selection>[];
+  for (final (pos, text) in insertInfo) {
+    final cur = pos + offset + (cursorAtEnd ? text.length - 1 : 0);
+    newSels.add(Selection.collapsed(cur));
+    offset += text.length;
+  }
+  f.selections = newSels;
+  f.clampCursor();
+}
+
+/// Paste after cursor.
 class PasteAfter extends Action {
   const PasteAfter();
 
   @override
   void call(Editor e, FileBuffer f) {
     if (e.yankBuffer == null) return;
-    final YankBuffer yank = e.yankBuffer!;
+    final yank = e.yankBuffer!;
 
     if (yank.linewise) {
-      // Linewise paste: insert after each cursor's line
-      _pasteLinewiseAfter(e, f, yank);
+      _pasteAtCursors(e, f, yank, (c) {
+        final pos = f.lineEnd(c) + 1;
+        return pos > f.text.length ? f.text.length : pos;
+      }, false);
     } else {
-      // Character-wise paste: insert after each cursor
-      _pasteCharwiseAfter(e, f, yank);
+      _pasteAtCursors(e, f, yank, (c) {
+        final line = f.lineText(c);
+        return (line.isEmpty || line == ' ')
+            ? f.lineStart(c)
+            : f.nextGrapheme(c);
+      }, true);
     }
-  }
-
-  void _pasteLinewiseAfter(Editor e, FileBuffer f, YankBuffer yank) {
-    // Sort selections by position (we need to process from end to start)
-    final sortedIndices = List.generate(f.selections.length, (i) => i);
-    sortedIndices.sort(
-      (a, b) => f.selections[a].cursor.compareTo(f.selections[b].cursor),
-    );
-
-    final numCursors = f.selections.length;
-    final edits = <TextEdit>[];
-    final insertPositions = <int>[];
-
-    // Build edits from end to start to preserve positions
-    for (int i = sortedIndices.length - 1; i >= 0; i--) {
-      final idx = sortedIndices[i];
-      final cursor = f.selections[idx].cursor;
-      final pasteText = yank.textForCursor(idx, numCursors);
-
-      int lineEndOffset = f.lineEnd(cursor);
-      int insertPos = lineEndOffset + 1;
-      if (insertPos > f.text.length) insertPos = f.text.length;
-
-      edits.add(TextEdit(insertPos, insertPos, pasteText));
-      insertPositions.insert(0, insertPos);
-    }
-
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions
-    var offset = 0;
-    final newSelections = <Selection>[];
-    for (int i = 0; i < sortedIndices.length; i++) {
-      final pasteText = yank.textForCursor(sortedIndices[i], numCursors);
-      final newCursor = insertPositions[i] + offset;
-      newSelections.add(Selection.collapsed(newCursor));
-      offset += pasteText.length;
-    }
-    f.selections = newSelections;
-    f.clampCursor();
-  }
-
-  void _pasteCharwiseAfter(Editor e, FileBuffer f, YankBuffer yank) {
-    // Sort selections by position
-    final sortedIndices = List.generate(f.selections.length, (i) => i);
-    sortedIndices.sort(
-      (a, b) => f.selections[a].cursor.compareTo(f.selections[b].cursor),
-    );
-
-    final numCursors = f.selections.length;
-    final edits = <TextEdit>[];
-    final insertData = <(int, String)>[]; // (original insert pos, paste text)
-
-    // Build edits from end to start
-    for (int i = sortedIndices.length - 1; i >= 0; i--) {
-      final idx = sortedIndices[i];
-      final cursor = f.selections[idx].cursor;
-      final pasteText = yank.textForCursor(idx, numCursors);
-
-      String lineText = f.lineText(cursor);
-      int insertPos;
-      if (lineText.isEmpty || lineText == ' ') {
-        insertPos = f.lineStart(cursor);
-      } else {
-        insertPos = f.nextGrapheme(cursor);
-      }
-
-      edits.add(TextEdit(insertPos, insertPos, pasteText));
-      insertData.insert(0, (insertPos, pasteText));
-    }
-
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions - cursor at end of pasted content
-    var offset = 0;
-    final newSelections = <Selection>[];
-    for (int i = 0; i < insertData.length; i++) {
-      final (insertPos, pasteText) = insertData[i];
-      final newCursor = insertPos + offset + pasteText.length - 1;
-      newSelections.add(Selection.collapsed(newCursor));
-      offset += pasteText.length;
-    }
-    f.selections = newSelections;
-    f.clampCursor();
   }
 }
 
@@ -434,81 +395,13 @@ class PasteBefore extends Action {
   @override
   void call(Editor e, FileBuffer f) {
     if (e.yankBuffer == null) return;
-    final YankBuffer yank = e.yankBuffer!;
+    final yank = e.yankBuffer!;
 
     if (yank.linewise) {
-      _pasteLinewiseBefore(e, f, yank);
+      _pasteAtCursors(e, f, yank, (c) => f.lineStart(c), false);
     } else {
-      _pasteCharwiseBefore(e, f, yank);
+      _pasteAtCursors(e, f, yank, (c) => c, false);
     }
-  }
-
-  void _pasteLinewiseBefore(Editor e, FileBuffer f, YankBuffer yank) {
-    final sortedIndices = List.generate(f.selections.length, (i) => i);
-    sortedIndices.sort(
-      (a, b) => f.selections[a].cursor.compareTo(f.selections[b].cursor),
-    );
-
-    final numCursors = f.selections.length;
-    final edits = <TextEdit>[];
-    final insertPositions = <int>[];
-
-    for (int i = sortedIndices.length - 1; i >= 0; i--) {
-      final idx = sortedIndices[i];
-      final cursor = f.selections[idx].cursor;
-      final pasteText = yank.textForCursor(idx, numCursors);
-
-      int lineStartOffset = f.lineStart(cursor);
-      edits.add(TextEdit(lineStartOffset, lineStartOffset, pasteText));
-      insertPositions.insert(0, lineStartOffset);
-    }
-
-    applyEdits(f, edits, e.config);
-
-    var offset = 0;
-    final newSelections = <Selection>[];
-    for (int i = 0; i < sortedIndices.length; i++) {
-      final pasteText = yank.textForCursor(sortedIndices[i], numCursors);
-      final newCursor = insertPositions[i] + offset;
-      newSelections.add(Selection.collapsed(newCursor));
-      offset += pasteText.length;
-    }
-    f.selections = newSelections;
-    f.clampCursor();
-  }
-
-  void _pasteCharwiseBefore(Editor e, FileBuffer f, YankBuffer yank) {
-    final sortedIndices = List.generate(f.selections.length, (i) => i);
-    sortedIndices.sort(
-      (a, b) => f.selections[a].cursor.compareTo(f.selections[b].cursor),
-    );
-
-    final numCursors = f.selections.length;
-    final edits = <TextEdit>[];
-    final insertData = <(int, String)>[];
-
-    for (int i = sortedIndices.length - 1; i >= 0; i--) {
-      final idx = sortedIndices[i];
-      final cursor = f.selections[idx].cursor;
-      final pasteText = yank.textForCursor(idx, numCursors);
-
-      edits.add(TextEdit(cursor, cursor, pasteText));
-      insertData.insert(0, (cursor, pasteText));
-    }
-
-    applyEdits(f, edits, e.config);
-
-    // Cursor stays at start of pasted content for P
-    var offset = 0;
-    final newSelections = <Selection>[];
-    for (int i = 0; i < insertData.length; i++) {
-      final (insertPos, pasteText) = insertData[i];
-      final newCursor = insertPos + offset;
-      newSelections.add(Selection.collapsed(newCursor));
-      offset += pasteText.length;
-    }
-    f.selections = newSelections;
-    f.clampCursor();
   }
 }
 
