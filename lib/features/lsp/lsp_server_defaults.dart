@@ -57,18 +57,41 @@ class LspServerDefaults {
     disableSemanticTokens: true,
   );
 
+  /// TypeScript/JavaScript language server configuration.
+  /// Uses typescript-language-server which wraps tsserver.
+  static const typescript = LspServerConfig(
+    name: 'TypeScript Language Server',
+    executable: 'typescript-language-server',
+    args: ['--stdio'],
+    extensions: {'ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'mts', 'cts'},
+    languageIds: {
+      'typescript',
+      'typescriptreact',
+      'javascript',
+      'javascriptreact',
+    },
+    projectMarkers: ['tsconfig.json', 'jsconfig.json', 'package.json'],
+  );
+
   /// All default server configurations, keyed by identifier.
   static const Map<String, LspServerConfig> all = {
     'dart': dart,
     'lua': lua,
     'clangd': clangd,
     'swift': swift,
+    'typescript': typescript,
   };
 
   /// Fallback language ID mappings for extensions without LSP config.
   static const Map<String, String> fallbackLanguageIds = {
     'js': 'javascript',
+    'jsx': 'javascriptreact',
+    'mjs': 'javascript',
+    'cjs': 'javascript',
     'ts': 'typescript',
+    'tsx': 'typescriptreact',
+    'mts': 'typescript',
+    'cts': 'typescript',
     'json': 'json',
     'yaml': 'yaml',
     'yml': 'yaml',

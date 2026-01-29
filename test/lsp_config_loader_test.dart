@@ -9,10 +9,10 @@ void main() {
       final config = LspConfig.withDefaults();
 
       expect(config.enabled, isTrue);
-      expect(config.servers, hasLength(4));
+      expect(config.servers, hasLength(5));
       expect(
         config.servers.keys,
-        containsAll(['dart', 'lua', 'clangd', 'swift']),
+        containsAll(['dart', 'lua', 'clangd', 'swift', 'typescript']),
       );
     });
 
@@ -44,7 +44,7 @@ servers: {}
 ''');
       expect(config.enabled, isFalse);
       // Should still have defaults merged in
-      expect(config.servers, hasLength(4));
+      expect(config.servers, hasLength(5));
     });
 
     test('parseConfig parses enabled true', () {
@@ -72,7 +72,7 @@ servers:
     languageIds: [rust]
     projectMarkers: [Cargo.toml]
 ''');
-      expect(config.servers, hasLength(5)); // 4 defaults + 1 custom
+      expect(config.servers, hasLength(6)); // 5 defaults + 1 custom
       expect(config.servers['rust'], isNotNull);
       expect(config.servers['rust']!.name, equals('rust-analyzer'));
       expect(config.servers['rust']!.extensions, contains('rs'));
@@ -83,7 +83,7 @@ servers:
 servers:
   lua: false
 ''');
-      expect(config.servers, hasLength(3)); // 4 defaults - 1 disabled
+      expect(config.servers, hasLength(4)); // 5 defaults - 1 disabled
       expect(config.servers['lua'], isNull);
       expect(config.servers['dart'], isNotNull);
     });
@@ -112,7 +112,7 @@ servers:
     test('parseConfig returns defaults for non-map yaml', () {
       final config = LspConfigLoader.parseConfig('just a string');
       expect(config.enabled, isTrue);
-      expect(config.servers, hasLength(4));
+      expect(config.servers, hasLength(5));
     });
   });
 
@@ -172,6 +172,31 @@ servers:
       expect(swift.disableSemanticTokens, isTrue);
     });
 
+    test('typescript server handles JS and TS extensions', () {
+      final ts = LspServerDefaults.typescript;
+
+      expect(ts.name, equals('TypeScript Language Server'));
+      expect(ts.executable, equals('typescript-language-server'));
+      expect(ts.args, equals(['--stdio']));
+      expect(
+        ts.extensions,
+        containsAll(['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'mts', 'cts']),
+      );
+      expect(
+        ts.languageIds,
+        containsAll([
+          'typescript',
+          'typescriptreact',
+          'javascript',
+          'javascriptreact',
+        ]),
+      );
+      expect(
+        ts.projectMarkers,
+        containsAll(['tsconfig.json', 'jsconfig.json', 'package.json']),
+      );
+    });
+
     test('fallbackLanguageIds covers common languages', () {
       final fallbacks = LspServerDefaults.fallbackLanguageIds;
 
@@ -200,7 +225,7 @@ servers:
       );
       LspServerRegistry.initializeWith(customConfig);
 
-      expect(LspServerRegistry.all, hasLength(4));
+      expect(LspServerRegistry.all, hasLength(5));
     });
 
     test('enabled reflects config value', () {
@@ -269,19 +294,32 @@ servers:
     });
 
     test('languageIdFromPath uses fallbacks for non-LSP languages', () {
-      expect(
-        LspServerRegistry.languageIdFromPath('script.js'),
-        equals('javascript'),
-      );
-      expect(
-        LspServerRegistry.languageIdFromPath('app.ts'),
-        equals('typescript'),
-      );
+      // Note: js and ts now have LSP servers, so test other fallbacks
       expect(LspServerRegistry.languageIdFromPath('main.py'), equals('python'));
       expect(LspServerRegistry.languageIdFromPath('main.rs'), equals('rust'));
       expect(
         LspServerRegistry.languageIdFromPath('README.md'),
         equals('markdown'),
+      );
+    });
+
+    test('languageIdFromPath returns typescript server language IDs', () {
+      // TypeScript server handles these extensions
+      expect(
+        LspServerRegistry.languageIdFromPath('script.js'),
+        equals('typescript'),
+      );
+      expect(
+        LspServerRegistry.languageIdFromPath('app.ts'),
+        equals('typescript'),
+      );
+      expect(
+        LspServerRegistry.languageIdFromPath('component.tsx'),
+        equals('typescript'),
+      );
+      expect(
+        LspServerRegistry.languageIdFromPath('component.jsx'),
+        equals('typescript'),
       );
     });
 

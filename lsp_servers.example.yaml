@@ -69,6 +69,19 @@ servers:
       - "*.xcodeproj"
     disableSemanticTokens: true
 
+  # TypeScript Language Server (also handles JavaScript)
+  # Requires: npm install -g typescript-language-server typescript
+  typescript:
+    name: "TypeScript Language Server"
+    executable: "typescript-language-server"
+    args: ["--stdio"]
+    extensions: [ts, tsx, js, jsx, mjs, cjs, mts, cts]
+    languageIds: [typescript, typescriptreact, javascript, javascriptreact]
+    projectMarkers:
+      - tsconfig.json
+      - jsconfig.json
+      - package.json
+
   # Example: Add rust-analyzer
   # rust:
   #   name: "rust-analyzer"
