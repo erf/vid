@@ -4,10 +4,12 @@ import 'package:vid/highlighting/theme.dart';
 import 'languages/bash_tokenizer.dart';
 import 'languages/c_tokenizer.dart';
 import 'languages/dart_tokenizer.dart';
+import 'languages/javascript_tokenizer.dart';
 import 'languages/json_tokenizer.dart';
 import 'languages/lua_tokenizer.dart';
 import 'languages/markdown_tokenizer.dart';
 import 'languages/swift_tokenizer.dart';
+import 'languages/typescript_tokenizer.dart';
 import 'languages/xml_tokenizer.dart';
 import 'languages/yaml_tokenizer.dart';
 import 'token.dart';
@@ -24,10 +26,12 @@ class Highlighter {
   final _bashTokenizer = BashTokenizer();
   final _cTokenizer = CTokenizer();
   final _dartTokenizer = DartTokenizer();
+  final _javascriptTokenizer = JavaScriptTokenizer();
   final _jsonTokenizer = JsonTokenizer();
   final _luaTokenizer = LuaTokenizer();
   final _markdownTokenizer = MarkdownTokenizer();
   final _swiftTokenizer = SwiftTokenizer();
+  final _typescriptTokenizer = TypeScriptTokenizer();
   final _xmlTokenizer = XmlTokenizer();
   final _yamlTokenizer = YamlTokenizer();
 
@@ -54,9 +58,11 @@ class Highlighter {
       'bash' || 'sh' || 'zsh' => 'bash',
       'c' || 'h' => 'c',
       'dart' => 'dart',
+      'js' || 'mjs' || 'cjs' || 'jsx' => 'javascript',
       'lua' => 'lua',
       'md' || 'markdown' => 'markdown',
       'swift' => 'swift',
+      'ts' || 'mts' || 'tsx' => 'typescript',
       'yaml' || 'yml' => 'yaml',
       'json' => 'json',
       'xml' ||
@@ -94,9 +100,11 @@ class Highlighter {
       'bash' => _bashTokenizer.tokenize(text, start, end),
       'c' => _cTokenizer.tokenize(text, start, end),
       'dart' => _dartTokenizer.tokenize(text, start, end),
+      'javascript' => _javascriptTokenizer.tokenize(text, start, end),
       'lua' => _luaTokenizer.tokenize(text, start, end),
       'markdown' => _markdownTokenizer.tokenize(text, start, end),
       'swift' => _swiftTokenizer.tokenize(text, start, end),
+      'typescript' => _typescriptTokenizer.tokenize(text, start, end),
       'yaml' => _yamlTokenizer.tokenize(text, start, end),
       'json' => _jsonTokenizer.tokenize(text, start, end),
       'xml' => _xmlTokenizer.tokenize(text, start, end),
