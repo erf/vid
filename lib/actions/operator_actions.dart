@@ -29,9 +29,21 @@ class OperatorActions {
       return false;
     }
 
+    // Remember main cursor position before sorting
+    final mainCursorPos = f.selections.first.cursor;
+
     // Get the ranges to operate on (expanded for visual line / inclusive for visual)
     final ranges = _getOperatorRanges(f, isVisualLineMode);
     if (ranges.isEmpty) return false;
+
+    // Find which sorted index corresponds to main cursor
+    int mainIndex = 0;
+    for (int i = 0; i < ranges.length; i++) {
+      if (ranges[i].start <= mainCursorPos && mainCursorPos <= ranges[i].end) {
+        mainIndex = i;
+        break;
+      }
+    }
 
     // Visual line mode is always linewise
     final isLinewise = linewise || isVisualLineMode;
@@ -52,7 +64,7 @@ class OperatorActions {
             .map((s) => TextEdit.delete(s.start, s.end))
             .toList();
         applyEdits(f, edits, e.config);
-        _collapseSelectionsAfterDelete(f, ranges);
+        _collapseSelectionsAfterDelete(f, ranges, mainIndex);
         break;
 
       case .lowerCase || .upperCase:
@@ -64,7 +76,7 @@ class OperatorActions {
           return TextEdit(s.start, s.end, text);
         }).toList();
         applyEdits(f, edits, e.config);
-        _collapseSelections(f, ranges);
+        _collapseSelections(f, ranges, mainIndex);
         break;
 
       case .yank:
@@ -114,9 +126,11 @@ class OperatorActions {
   /// Collapse selections to their start positions after delete operations.
   /// Adjusts positions based on deleted text length.
   /// Merges any selections that end up at the same position.
+  /// [mainIndex] is the index of the main cursor in the sorted ranges.
   static void _collapseSelectionsAfterDelete(
     FileBuffer f,
     List<Selection> ranges,
+    int mainIndex,
   ) {
     int offset = 0;
     final newSelections = <Selection>[];
@@ -124,14 +138,33 @@ class OperatorActions {
       newSelections.add(Selection.collapsed(s.start - offset));
       offset += s.end - s.start;
     }
+
+    // Move main cursor to front before merging
+    if (mainIndex > 0 && mainIndex < newSelections.length) {
+      final mainSel = newSelections.removeAt(mainIndex);
+      newSelections.insert(0, mainSel);
+    }
+
     f.selections = mergeSelections(newSelections);
     f.clampCursor();
   }
 
   /// Collapse selections to their start positions (for non-delete operations).
   /// Merges any selections that end up at the same position.
-  static void _collapseSelections(FileBuffer f, List<Selection> ranges) {
+  /// [mainIndex] is the index of the main cursor in the sorted ranges.
+  static void _collapseSelections(
+    FileBuffer f,
+    List<Selection> ranges,
+    int mainIndex,
+  ) {
     final collapsed = ranges.map((s) => Selection.collapsed(s.start)).toList();
+
+    // Move main cursor to front before merging
+    if (mainIndex > 0 && mainIndex < collapsed.length) {
+      final mainSel = collapsed.removeAt(mainIndex);
+      collapsed.insert(0, mainSel);
+    }
+
     f.selections = mergeSelections(collapsed);
     f.clampCursor();
   }

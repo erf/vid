@@ -329,7 +329,7 @@ void main() {
       expect(f.selections[3], Selection.collapsed(33));
     });
 
-    test('d cursors correct even when selections reordered', () {
+    test('d preserves main cursor position when selections reordered', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -337,13 +337,13 @@ void main() {
       final f = e.file;
       f.text = 'hello world\nhello world\nhello world\nhello world\n';
 
-      // Select all "wor" matches
+      // Select all "wor" matches (at positions 6, 18, 30, 42)
       f.selections = selectAllMatches(f.text, RegExp('wor'));
       f.mode = Mode.visual;
 
-      // Simulate cycling selections (Tab rotates to end)
+      // Simulate cycling selections (Tab rotates) - main cursor now at position 18
       f.selections = [
-        f.selections[1],
+        f.selections[1], // position 18 - this is now main
         f.selections[2],
         f.selections[3],
         f.selections[0],
@@ -352,13 +352,43 @@ void main() {
       // Delete with 'd'
       e.input('d');
 
-      // Selections should be in document order with correct positions
+      // Text should have all "wor" deleted
       expect(f.text, 'hello ld\nhello ld\nhello ld\nhello ld\n');
       expect(f.selections.length, 4);
-      expect(f.selections[0], Selection.collapsed(6));
-      expect(f.selections[1], Selection.collapsed(15));
+      // Main cursor (was at 18) should still be first, now at position 15
+      // (6 stays at 6, 18 becomes 15, 30 becomes 24, 42 becomes 33)
+      expect(f.selections[0], Selection.collapsed(15)); // main cursor preserved
+      expect(f.selections[1], Selection.collapsed(6));
       expect(f.selections[2], Selection.collapsed(24));
       expect(f.selections[3], Selection.collapsed(33));
+    });
+
+    test('x with primary cursor at bottom preserves primary position', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\nghi\n';
+
+      // Create multiple cursors with primary at bottom
+      // Put cursor on 'g' (position 8), then add cursors on 'a' (0) and 'd' (4)
+      f.selections = [
+        Selection.collapsed(8), // main cursor at 'g'
+        Selection.collapsed(0), // 'a'
+        Selection.collapsed(4), // 'd'
+      ];
+      f.mode = Mode.visual;
+
+      // Delete with 'x' (same as 'd' in visual mode)
+      e.input('x');
+
+      // After deleting 'a', 'd', 'g': positions shift
+      // 'a' at 0 deleted, 'd' was at 4 now at 3, 'g' was at 8 now at 6
+      expect(f.text, 'bc\nef\nhi\n');
+      expect(f.selections.length, 3);
+      // Main cursor should still be first (was at 'g', now at position 6)
+      expect(f.selections[0], Selection.collapsed(6));
     });
 
     test('c changes all visual selections', () {
