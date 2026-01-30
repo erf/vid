@@ -7,6 +7,7 @@ enum LineEditType {
   open,
   read,
   write,
+  forceWrite,
   writeAndQuit,
 
   // Wrap modes

@@ -224,6 +224,8 @@ const lineEditCommands = <String, LineEditCommand>{
   'read': LineEditCommand(.read),
   'w': LineEditCommand(.write),
   'write': LineEditCommand(.write),
+  'w!': LineEditCommand(.forceWrite),
+  'write!': LineEditCommand(.forceWrite),
   'wq': LineEditCommand(.writeAndQuit),
   'x': LineEditCommand(.writeAndQuit),
   'exit': LineEditCommand(.writeAndQuit),

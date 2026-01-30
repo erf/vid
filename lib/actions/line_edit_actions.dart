@@ -81,13 +81,24 @@ class CmdWrite extends LineEditAction {
   @override
   void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    _write(e, f, args);
+    _write(e, f, args, force: false);
   }
 
-  Future<void> _write(Editor e, FileBuffer f, List<String> args) async {
+  static Future<void> _write(
+    Editor e,
+    FileBuffer f,
+    List<String> args, {
+    required bool force,
+  }) async {
     String? path = f.path;
     if (args.length > 1) {
       path = args[1];
+    }
+
+    // Check if writing to a different path and file already exists
+    if (!force && path != null && path != f.path && File(path).existsSync()) {
+      e.showMessage(.error('File exists (use :w! to override): \'$path\''));
+      return;
     }
 
     // Format on save if configured
@@ -101,6 +112,17 @@ class CmdWrite extends LineEditAction {
       final msg = formatted ? 'Saved \'$path\' (formatted)' : 'Saved \'$path\'';
       e.showMessage(.info(msg));
     }
+  }
+}
+
+/// Force write buffer to file (:w!, :write!).
+class CmdForceWrite extends LineEditAction {
+  const CmdForceWrite();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    CmdWrite._write(e, f, args, force: true);
   }
 }
 

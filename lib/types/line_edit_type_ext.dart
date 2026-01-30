@@ -15,6 +15,7 @@ extension LineEditTypeExt on LineEditType {
     .open => const CmdOpen(),
     .read => const CmdRead(),
     .write => const CmdWrite(),
+    .forceWrite => const CmdForceWrite(),
     .writeAndQuit => const CmdWriteAndQuit(),
 
     // Wrap modes
