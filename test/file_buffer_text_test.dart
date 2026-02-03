@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 import 'package:vid/actions/normal_actions.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
+import 'package:vid/modes.dart';
 import 'package:vid/range.dart';
 
 void main() {
@@ -150,6 +151,57 @@ void main() {
     expect(f.text, 'world\n123\n');
     e.input('U');
     expect(f.text, '123\n');
+  });
+
+  test('undo restores visual mode and selection', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'hello world\n';
+    f.cursor = 0;
+
+    // Enter visual mode and select 'hello'
+    e.input('v'); // enter visual mode
+    expect(f.mode, Mode.visual);
+    e.input('llll'); // extend selection to cover 'hello'
+
+    // Selection should now span 'hello' (0 to 4)
+    expect(f.selection.start, 0);
+    expect(f.selection.end, 4);
+
+    // Delete selection
+    e.input('d');
+    expect(f.text, ' world\n');
+    expect(f.mode, Mode.normal);
+
+    // Undo should restore visual mode and selection
+    e.input('u');
+    expect(f.text, 'hello world\n');
+    expect(f.mode, Mode.visual);
+    expect(f.selection.start, 0);
+    expect(f.selection.end, 4);
+  });
+
+  test('undo from normal mode operator stays in normal mode', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'hello world\n';
+    f.cursor = 0;
+
+    // Delete word using operator+motion (normal mode)
+    e.input('dw');
+    expect(f.text, 'world\n');
+    expect(f.mode, Mode.normal);
+
+    // Undo should stay in normal mode
+    e.input('u');
+    expect(f.text, 'hello world\n');
+    expect(f.mode, Mode.normal);
   });
 
   test('delete last newline undo should not create extra newline', () {

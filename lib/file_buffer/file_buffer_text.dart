@@ -47,12 +47,18 @@ extension FileBufferText on FileBuffer {
     required String newText,
     required Config config,
   }) {
+    // For undo restoration, only visual modes should be restored.
+    // Other modes (insert, operatorPending, etc.) should return to normal.
+    final restoreMode = (mode == .visual || mode == .visualLine)
+        ? mode
+        : Mode.normal;
     // text operation
     final textOp = TextOp(
       newText: newText,
       prevText: text.substring(start, end),
       start: start,
       selections: List.unmodifiable(selections),
+      mode: restoreMode,
     );
 
     undoList.add([textOp]);
@@ -105,8 +111,9 @@ extension FileBufferText on FileBuffer {
     if (undoList.isEmpty) return null;
     final ops = undoList.removeLast();
 
-    // Capture current selections (the "after" state) for redo
+    // Capture current state (the "after" state) for redo
     final selectionsAfter = List<Selection>.of(selections);
+    final modeAfter = mode;
 
     // Apply ops in reverse order (from lowest position to highest)
     // since they're stored in descending position order
@@ -114,13 +121,21 @@ extension FileBufferText on FileBuffer {
       updateText(op.start, op.endNew, op.prevText);
     }
 
-    redoList.add((ops: ops, selectionsAfter: selectionsAfter));
+    redoList.add((
+      ops: ops,
+      selectionsAfter: selectionsAfter,
+      modeAfter: modeAfter,
+    ));
 
-    // Restore selections from the first op
+    // Restore selections and mode from the first op
     if (ops.isNotEmpty) {
       selections = ops.first.selections.toList();
-      // In normal mode, collapse selections to enable multi-cursor movement
-      // (visual selections from before the edit shouldn't persist)
+      final restoreMode = ops.first.mode;
+      if (restoreMode != null) {
+        // Restore the mode that was active when the edit was made
+        mode = restoreMode;
+      }
+      // Collapse selections only if we're staying in normal mode
       if (mode == Mode.normal) {
         selections = selections.map((s) => s.collapse()).toList();
       }
@@ -133,7 +148,7 @@ extension FileBufferText on FileBuffer {
 
   TextOp? redo() {
     if (redoList.isEmpty) return null;
-    final (:ops, :selectionsAfter) = redoList.removeLast();
+    final (:ops, :selectionsAfter, :modeAfter) = redoList.removeLast();
 
     // Apply ops in forward order (from highest position to lowest)
     for (final op in ops) {
@@ -142,11 +157,12 @@ extension FileBufferText on FileBuffer {
 
     undoList.add(ops);
 
-    // Restore selections to the state after the edit was originally applied
+    // Restore selections and mode to the state after the edit
     if (selectionsAfter.isNotEmpty) {
       selections = selectionsAfter.toList();
       clampCursor();
     }
+    mode = modeAfter;
 
     // Return the first op for compatibility
     return ops.firstOrNull;

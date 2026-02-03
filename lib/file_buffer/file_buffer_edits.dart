@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:vid/config.dart';
+import 'package:vid/modes.dart';
 import 'package:vid/selection.dart';
 
 import '../text_op.dart';
@@ -82,8 +83,13 @@ List<TextOp> applyEdits(
   final sorted = nonOverlapping.toList()
     ..sort((a, b) => b.start.compareTo(a.start));
 
-  // Capture selections before any edits
+  // Capture selections and mode before any edits.
+  // For undo restoration, only visual modes should be restored.
+  // Other modes (insert, operatorPending, etc.) should return to normal.
   final selectionsBefore = List<Selection>.unmodifiable(buffer.selections);
+  final modeBefore = (buffer.mode == .visual || buffer.mode == .visualLine)
+      ? buffer.mode
+      : Mode.normal;
 
   // Apply each edit in reverse order, collecting TextOps
   final textOps = <TextOp>[];
@@ -100,6 +106,7 @@ List<TextOp> applyEdits(
         prevText: prevText,
         start: edit.start,
         selections: selectionsBefore,
+        mode: modeBefore,
       ),
     );
   }
