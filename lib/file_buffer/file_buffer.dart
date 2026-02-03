@@ -134,11 +134,10 @@ class FileBuffer {
   int? desiredColumn;
 
   // list of undo operations (each entry is a group of TextOps)
-  List<List<TextOp>> undoList = [];
+  List<UndoGroup> undoList = [];
 
-  // list of redo operations (ops + selections/mode after the edit)
-  List<({List<TextOp> ops, List<Selection> selectionsAfter, Mode modeAfter})>
-  redoList = [];
+  // list of redo operations (same structure as undoList)
+  List<UndoGroup> redoList = [];
 
   // the savepoint for undo operations
   int savepoint = 0;

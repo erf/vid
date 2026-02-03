@@ -61,7 +61,7 @@ extension FileBufferText on FileBuffer {
       mode: restoreMode,
     );
 
-    undoList.add([textOp]);
+    undoList.add(UndoGroup([textOp]));
 
     // limit undo operations
     if (undoList.length > config.maxNumUndo) {
@@ -109,28 +109,25 @@ extension FileBufferText on FileBuffer {
 
   TextOp? undo() {
     if (undoList.isEmpty) return null;
-    final ops = undoList.removeLast();
+    final group = undoList.removeLast();
 
     // Capture current state (the "after" state) for redo
-    final selectionsAfter = List<Selection>.of(selections);
-    final modeAfter = mode;
+    group.selectionsAfter = List<Selection>.of(selections);
+    group.modeAfter = mode;
 
     // Apply ops in reverse order (from lowest position to highest)
     // since they're stored in descending position order
-    for (final op in ops.reversed) {
+    for (final op in group.ops.reversed) {
       updateText(op.start, op.endNew, op.prevText);
     }
 
-    redoList.add((
-      ops: ops,
-      selectionsAfter: selectionsAfter,
-      modeAfter: modeAfter,
-    ));
+    redoList.add(group);
 
     // Restore selections and mode from the first op
-    if (ops.isNotEmpty) {
-      selections = ops.first.selections.toList();
-      final restoreMode = ops.first.mode;
+    final firstOp = group.ops.firstOrNull;
+    if (firstOp != null) {
+      selections = firstOp.selections.toList();
+      final restoreMode = firstOp.mode;
       if (restoreMode != null) {
         // Restore the mode that was active when the edit was made
         mode = restoreMode;
@@ -143,29 +140,31 @@ extension FileBufferText on FileBuffer {
     }
 
     // Return the first op for compatibility (most callers just check non-null)
-    return ops.firstOrNull;
+    return firstOp;
   }
 
   TextOp? redo() {
     if (redoList.isEmpty) return null;
-    final (:ops, :selectionsAfter, :modeAfter) = redoList.removeLast();
+    final group = redoList.removeLast();
 
     // Apply ops in forward order (from highest position to lowest)
-    for (final op in ops) {
+    for (final op in group.ops) {
       updateText(op.start, op.endPrev, op.newText);
     }
 
-    undoList.add(ops);
+    undoList.add(group);
 
-    // Restore selections and mode to the state after the edit
-    if (selectionsAfter.isNotEmpty) {
-      selections = selectionsAfter.toList();
+    // Restore selections and mode from the group's after-state
+    if (group.selectionsAfter != null) {
+      selections = group.selectionsAfter!.toList();
       clampCursor();
     }
-    mode = modeAfter;
+    if (group.modeAfter != null) {
+      mode = group.modeAfter!;
+    }
 
     // Return the first op for compatibility
-    return ops.firstOrNull;
+    return group.ops.firstOrNull;
   }
 
   // Insert file contents at cursor position

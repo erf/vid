@@ -23,3 +23,13 @@ class TextOp {
   /// Byte offset where the new text ends.
   int get endNew => start + newText.length;
 }
+
+/// A group of text operations that form a single undo/redo unit.
+class UndoGroup {
+  final List<TextOp> ops;
+  // After-state fields (set at undo time for redo restoration)
+  List<Selection>? selectionsAfter;
+  Mode? modeAfter;
+
+  UndoGroup(this.ops);
+}

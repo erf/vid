@@ -40,7 +40,7 @@ void main() {
 
       expect(f.text, 'hi world\n');
       expect(f.undoList.length, 1);
-      expect(f.undoList.last.length, 1);
+      expect(f.undoList.last.ops.length, 1);
     });
 
     test('multiple edits in same buffer', () {
@@ -57,7 +57,7 @@ void main() {
 
       expect(f.text, 'XXX bbb ZZZ\n');
       expect(f.undoList.length, 1);
-      expect(f.undoList.last.length, 2);
+      expect(f.undoList.last.ops.length, 2);
     });
 
     test('multiple edits applied in reverse order preserves positions', () {

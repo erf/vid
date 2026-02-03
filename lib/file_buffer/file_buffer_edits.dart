@@ -112,7 +112,7 @@ List<TextOp> applyEdits(
   }
 
   // Add grouped undo entry to unified undo list
-  buffer.undoList.add(textOps);
+  buffer.undoList.add(UndoGroup(textOps));
 
   // Limit undo operations
   if (buffer.undoList.length > config.maxNumUndo) {
