@@ -4,6 +4,7 @@ import 'package:vid/types/motion_action_base.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/regex.dart';
+import 'package:vid/regex_ext.dart';
 
 // ===== Character motions =====
 
@@ -171,12 +172,12 @@ class WordEndPrev extends MotionAction {
     int searchStart = max(0, offset - chunkSize);
 
     while (true) {
-      final matches = Regex.word.allMatches(f.text, searchStart);
-      Match? lastMatch;
-      for (final m in matches) {
-        if (m.end >= offset) break;
-        lastMatch = m;
-      }
+      final matches = Regex.word.allMatchesEndingBefore(
+        f.text,
+        start: searchStart,
+        endBefore: offset,
+      );
+      final lastMatch = matches.lastOrNull;
       if (lastMatch != null) return lastMatch.end - 1;
 
       // No match found - expand search or give up
@@ -232,12 +233,12 @@ class WordCapEndPrev extends MotionAction {
     int searchStart = max(0, offset - chunkSize);
 
     while (true) {
-      final matches = Regex.wordCap.allMatches(f.text, searchStart);
-      Match? lastMatch;
-      for (final m in matches) {
-        if (m.end >= offset) break;
-        lastMatch = m;
-      }
+      final matches = Regex.wordCap.allMatchesEndingBefore(
+        f.text,
+        start: searchStart,
+        endBefore: offset,
+      );
+      final lastMatch = matches.lastOrNull;
       if (lastMatch != null) return lastMatch.end - 1;
 
       // No match found - expand search or give up

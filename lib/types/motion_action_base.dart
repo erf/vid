@@ -4,6 +4,7 @@ import 'package:characters/characters.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/regex.dart';
+import 'package:vid/regex_ext.dart';
 import 'package:vid/string_ext.dart';
 import 'package:vid/utils.dart';
 
@@ -99,12 +100,12 @@ abstract class MotionAction {
     int searchStart = max(0, offset - chunkSize);
 
     while (true) {
-      final matches = pattern.allMatches(f.text, searchStart);
-      Match? lastMatch;
-      for (final m in matches) {
-        if (m.start >= offset) break;
-        lastMatch = m;
-      }
+      final matches = pattern.allMatchesInRange(
+        f.text,
+        start: searchStart,
+        end: offset,
+      );
+      final lastMatch = matches.lastOrNull;
       if (lastMatch != null) return lastMatch.start;
 
       // No match found - expand search or give up
