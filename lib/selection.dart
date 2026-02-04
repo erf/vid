@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'regex_ext.dart';
+
 /// A selection in a buffer, defined by an anchor and cursor position.
 ///
 /// The anchor is the fixed point where the selection started, and the cursor
@@ -62,8 +64,16 @@ class Selection {
 /// at the last character of the match (match.end - 1). This creates
 /// cursor-based selections consistent with visual mode motions.
 /// For empty matches, creates a collapsed selection.
-List<Selection> selectAllMatches(String text, RegExp pattern) {
-  final matches = pattern.allMatches(text);
+///
+/// If [start] is provided, matching begins at that byte offset.
+/// If [end] is provided, only matches starting before [end] are included.
+List<Selection> selectAllMatches(
+  String text,
+  RegExp pattern, {
+  int start = 0,
+  int? end,
+}) {
+  final matches = pattern.allMatchesInRange(text, start: start, end: end);
   return matches.map((m) {
     // For non-empty matches, cursor is on last char (end - 1)
     // For empty matches, create collapsed selection

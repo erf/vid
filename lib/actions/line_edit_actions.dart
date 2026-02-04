@@ -239,6 +239,9 @@ class CmdSetWordWrap extends LineEditAction {
 // ===== Selection commands =====
 
 /// Select all matches of a regex pattern (:sel pattern).
+///
+/// If there's an active visual selection (from visual or visual line mode),
+/// only matches within that selection are returned.
 class CmdSelect extends LineEditAction {
   const CmdSelect();
 
@@ -252,7 +255,28 @@ class CmdSelect extends LineEditAction {
     final pattern = args.skip(1).join(' ');
     try {
       final regex = RegExp(pattern);
-      final selections = selectAllMatches(f.text, regex);
+
+      // Check if we have a visual selection to scope the search
+      final List<Selection> selections;
+      if (f.hasVisualSelection) {
+        // Search within each visual selection and combine results
+        final results = <Selection>[];
+        for (final sel in f.selections) {
+          // Visual mode is inclusive, extend end by one grapheme
+          final rangeEnd = f.nextGrapheme(sel.end);
+          final matches = selectAllMatches(
+            f.text,
+            regex,
+            start: sel.start,
+            end: rangeEnd,
+          );
+          results.addAll(matches);
+        }
+        selections = results;
+      } else {
+        selections = selectAllMatches(f.text, regex);
+      }
+
       if (selections.isEmpty) {
         f.setMode(e, .normal);
         e.showMessage(.info('No matches found'));

@@ -109,6 +109,34 @@ void main() {
       expect(selections[0], Selection(0, 1));
       expect(selections[1], Selection(2, 3));
     });
+
+    test('respects start parameter', () {
+      final text = 'foo bar foo baz foo\n';
+      final selections = selectAllMatches(text, RegExp('foo'), start: 5);
+      expect(selections.length, 2);
+      expect(selections[0], Selection(8, 10)); // second 'foo'
+      expect(selections[1], Selection(16, 18)); // third 'foo'
+    });
+
+    test('respects end parameter', () {
+      final text = 'foo bar foo baz foo\n';
+      final selections = selectAllMatches(text, RegExp('foo'), end: 12);
+      expect(selections.length, 2);
+      expect(selections[0], Selection(0, 2)); // first 'foo'
+      expect(selections[1], Selection(8, 10)); // second 'foo' starts at 8 < 12
+    });
+
+    test('respects both start and end parameters', () {
+      final text = 'foo bar foo baz foo\n';
+      final selections = selectAllMatches(
+        text,
+        RegExp('foo'),
+        start: 5,
+        end: 12,
+      );
+      expect(selections.length, 1);
+      expect(selections[0], Selection(8, 10)); // only middle 'foo'
+    });
   });
 
   group('mergeSelections', () {
@@ -219,6 +247,97 @@ void main() {
 
       // Should keep single selection
       expect(f.selections.length, 1);
+    });
+
+    test(':sel with visual selection only matches within selection', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      // 'foo' appears at positions 0, 8, 16
+      f.text = 'foo bar foo baz foo\n';
+
+      // Create a visual selection covering 'bar foo baz' (positions 4-14)
+      f.selections = [Selection(4, 14)];
+      // hasVisualSelection should be true
+      expect(f.hasVisualSelection, true);
+
+      const CmdSelect()(e, f, ['sel', 'foo']);
+
+      // Only the middle 'foo' (positions 8-10) should be selected
+      expect(f.selections.length, 1);
+      expect(f.selections[0].start, 8);
+      expect(f.selections[0].end, 10);
+      expect(f.mode, Mode.visual);
+    });
+
+    test(':sel with visual selection respects multiple selections', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      // 'x' appears at positions 0, 4, 8, 12, 16
+      f.text = 'x---x---x---x---x\n';
+
+      // Create two visual selections: positions 0-5 and 10-17
+      f.selections = [Selection(0, 5), Selection(10, 16)];
+      expect(f.hasVisualSelection, true);
+
+      const CmdSelect()(e, f, ['sel', 'x']);
+
+      // Should find 'x' at 0, 4 (in first selection) and 12, 16 (in second)
+      expect(f.selections.length, 4);
+      expect(f.selections.map((s) => s.start).toList(), [0, 4, 12, 16]);
+    });
+
+    test(':sel without visual selection searches entire buffer', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'foo bar foo\n';
+
+      // Collapsed selection (no visual selection)
+      f.selections = [Selection.collapsed(0)];
+      expect(f.hasVisualSelection, false);
+
+      const CmdSelect()(e, f, ['sel', 'foo']);
+
+      // Both 'foo' matches should be found
+      expect(f.selections.length, 2);
+      expect(f.selections[0].start, 0);
+      expect(f.selections[1].start, 8);
+    });
+
+    test(':sel in visual line mode expands selection to full lines', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      // Line 0: 'foo aaa\n' (0-7, newline at 7)
+      // Line 1: 'bar bbb\n' (8-14, newline at 15)
+      // Line 2: 'foo ccc\n' (16-22, newline at 23)
+      f.text = 'foo aaa\nbar bbb\nfoo ccc\n';
+
+      // Position cursor on line 1 and enter visual line mode
+      f.cursor = 10; // in 'bar'
+      e.input('V'); // Enter visual line mode - expands selection to full line
+
+      // Selection should now cover full line 1 (cursor at last char before newline)
+      expect(f.mode, Mode.visualLine);
+      expect(f.selection.start, 8);
+      expect(f.selection.end, 14); // Last char of line (before newline)
+      expect(f.hasVisualSelection, true);
+
+      const CmdSelect()(e, f, ['sel', 'b']);
+
+      // Should find all 'b' in line 1: at positions 8, 12, 13, 14
+      expect(f.selections.length, 4);
+      expect(f.selections.map((s) => s.start).toList(), [8, 12, 13, 14]);
     });
 
     test(':selclear clears multiple selections', () {
@@ -841,7 +960,7 @@ void main() {
   });
 
   group('visual line mode', () {
-    test('V enters visual line mode with collapsed selection', () {
+    test('V enters visual line mode with full line selection', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -854,35 +973,42 @@ void main() {
 
       expect(f.mode, Mode.visualLine);
       expect(f.selections.length, 1);
-      // Selection is collapsed at cursor, line expansion happens at render/operator time
-      expect(f.selections[0].isCollapsed, true);
-      expect(f.selections[0].cursor, 5);
+      // Selection expands to full line (anchor at start, cursor at end)
+      expect(f.selections[0].isCollapsed, false);
+      expect(f.selections[0].anchor, 0); // Start of line
+      expect(f.selections[0].cursor, 7); // End of line (before newline)
     });
 
-    test('V enters visual line mode preserving multiple cursors', () {
-      final e = Editor(
-        terminal: TestTerminal(width: 80, height: 24),
-        redraw: false,
-      );
-      final f = e.file;
-      f.text = 'line one\nline two\nline three\n';
+    test(
+      'V enters visual line mode with full line selections for multiple cursors',
+      () {
+        final e = Editor(
+          terminal: TestTerminal(width: 80, height: 24),
+          redraw: false,
+        );
+        final f = e.file;
+        f.text = 'line one\nline two\nline three\n';
 
-      // Multi-cursor (collapsed selections) across multiple lines.
-      f.selections = [
-        Selection.collapsed(0),
-        Selection.collapsed(9),
-        Selection.collapsed(18),
-      ];
+        // Multi-cursor (collapsed selections) across multiple lines.
+        f.selections = [
+          Selection.collapsed(0),
+          Selection.collapsed(9),
+          Selection.collapsed(18),
+        ];
 
-      e.input('V');
+        e.input('V');
 
-      expect(f.mode, Mode.visualLine);
-      expect(f.selections.length, 3);
-      expect(f.selections.every((s) => s.isCollapsed), true);
-      expect(f.selections[0].cursor, 0);
-      expect(f.selections[1].cursor, 9);
-      expect(f.selections[2].cursor, 18);
-    });
+        expect(f.mode, Mode.visualLine);
+        expect(f.selections.length, 3);
+        // Each selection expands to its full line (cursor at last char before newline)
+        expect(f.selections[0].start, 0);
+        expect(f.selections[0].end, 7); // Last char of 'line one'
+        expect(f.selections[1].start, 9);
+        expect(f.selections[1].end, 16); // Last char of 'line two'
+        expect(f.selections[2].start, 18);
+        expect(f.selections[2].end, 27); // Last char of 'line three'
+      },
+    );
 
     test('j motion moves cursor to next line', () {
       final e = Editor(
@@ -922,7 +1048,7 @@ void main() {
       expect(f.lineNumber(f.selections[0].cursor), 0);
     });
 
-    test('escape exits visual line mode preserving cursor position', () {
+    test('escape exits visual line mode with cursor at line end', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -937,7 +1063,8 @@ void main() {
       expect(f.mode, Mode.normal);
       expect(f.selections.length, 1);
       expect(f.selections[0].isCollapsed, true);
-      expect(f.cursor, 5); // Cursor stays at original position
+      // Cursor is now at line end (where visual line mode cursor was)
+      expect(f.cursor, 7);
     });
 
     test('escape from backward visual line selection preserves cursor', () {
@@ -1362,16 +1489,13 @@ void main() {
       e.input('V'); // Switch to visual line mode
 
       expect(f.mode, Mode.visualLine);
-      // Selection should expand to full lines for highlighting, but cursor stays at current position
+      // Selection expands to full lines (cursor at last char before newline)
       final sel = f.selections[0];
-      expect(f.lineNumber(sel.start), 0); // Anchor at first line
-      expect(sel.start, 0); // Start of first line
-      // Cursor (end) stays at current position, not moved to line end
-      // Line expansion for operators/rendering happens dynamically
-      expect(sel.cursor, 18); // Cursor stayed at position 18 (start of line 3)
+      expect(sel.anchor, 0); // Start of first line
+      expect(sel.cursor, 27); // Last char of third line
     });
 
-    test('V from visual mode preserves multiple selections', () {
+    test('V from visual mode expands multiple selections to full lines', () {
       final e = Editor(
         terminal: TestTerminal(width: 80, height: 24),
         redraw: false,
@@ -1388,13 +1512,14 @@ void main() {
       expect(f.mode, Mode.visualLine);
       expect(f.selections.length, 2);
 
-      // Cursors stay where they were.
-      expect(f.selections[0].cursor, 2);
-      expect(f.selections[1].cursor, 9);
+      // First selection expands to full line 0
+      expect(f.selections[0].anchor, 0); // start of line 0
+      expect(f.selections[0].cursor, 7); // last char of line 0
 
-      // Anchors are normalized to the relevant line boundary.
-      expect(f.selections[0].anchor, 0); // start of line 1
-      expect(f.selections[1].anchor, 17); // end of line 2 (newline offset)
+      // Second selection (backward) expands from line 1 to line 1
+      // Original: anchor=16, cursor=9 -> both on line 1
+      expect(f.selections[1].anchor, 16); // last char of line 1
+      expect(f.selections[1].cursor, 9); // start of line 1
     });
   });
 

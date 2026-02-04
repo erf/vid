@@ -17,6 +17,7 @@ import '../regex.dart';
 import '../selection.dart';
 import '../text_op.dart';
 import '../types/action_base.dart';
+import '../types/motion_action_base.dart';
 import 'insert_actions.dart';
 
 /// Utility methods for normal actions.
@@ -915,47 +916,43 @@ class EnterVisualMode extends Action {
 }
 
 /// Enter visual line mode with the current line selected.
-/// Preserves the cursor's column position - only the line highlighting changes.
-/// If there's already a selection (from visual mode), expand it to full lines
-/// but keep the cursor at its current position.
+/// Expands selections to cover full lines (anchor at line start, cursor at last char).
+/// If there's already a selection (from visual mode), expand it to full lines.
 class EnterVisualLineMode extends Action {
   const EnterVisualLineMode();
 
   @override
   void call(Editor e, FileBuffer f) {
-    // Preserve all selections/cursors (multi-cursor + multi-selection).
-    // Visual line expansion happens at render/operator time, but we normalize
-    // anchors so the selection direction stays consistent.
     final newSelections = <Selection>[];
 
     for (final sel in f.selections) {
-      final cursorPos = sel.cursor;
-
-      if (sel.isCollapsed) {
-        // No existing selection - keep cursor position, anchor at same spot.
-        newSelections.add(Selection.collapsed(cursorPos));
-        continue;
-      }
-
-      // Expand existing selection to cover full lines, but keep cursor position.
+      // Get line range for the selection
       final startLine = f.lineNumber(sel.start);
       final endLine = f.lineNumber(sel.end);
-      final lineStart = f.lines[startLine].start;
-      final lineEnd = f.lines[endLine].end;
+      final minLine = startLine < endLine ? startLine : endLine;
+      final maxLine = startLine < endLine ? endLine : startLine;
 
-      // Determine anchor based on cursor position relative to anchor.
-      // If cursor was at end, anchor at line start; if cursor was at start,
-      // anchor at line end.
-      if (sel.cursor >= sel.anchor) {
-        // Forward selection: anchor at line start, cursor stays where it is.
-        newSelections.add(Selection(lineStart, cursorPos));
+      final lineStart = f.lines[minLine].start;
+      // lineEnd is the newline position, cursor should be on last char before it
+      // For empty lines, cursor stays at line start
+      final lineEndPos = f.lines[maxLine].end;
+      final lineEnd = lineEndPos > f.lines[maxLine].start
+          ? lineEndPos - 1
+          : lineEndPos;
+
+      // Preserve selection direction
+      if (sel.isCollapsed || sel.cursor >= sel.anchor) {
+        // Forward selection or collapsed: anchor at line start, cursor at line end
+        newSelections.add(Selection(lineStart, lineEnd));
       } else {
-        // Backward selection: anchor at line end, cursor stays where it is.
-        newSelections.add(Selection(lineEnd, cursorPos));
+        // Backward selection: anchor at line end, cursor at line start
+        newSelections.add(Selection(lineEnd, lineStart));
       }
     }
 
     f.selections = newSelections;
+    // Set desiredColumn to end-of-line so j/k movements stay at line ends
+    f.desiredColumn = MotionAction.endOfLineColumn;
     f.setMode(e, .visualLine);
   }
 }
