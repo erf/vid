@@ -10,9 +10,23 @@ extension RegExpExt on RegExp {
     int start = 0,
     int? end,
   }) {
-    return allMatches(
-      text,
-      start,
-    ).takeWhile((m) => end == null || m.start < end);
+    final matches = allMatches(text, start);
+    if (end == null) return matches;
+    return matches.takeWhile((m) => m.start < end);
+  }
+
+  /// Returns all matches ending before or at [endBefore].
+  ///
+  /// Uses [start] as the starting byte offset (default 0).
+  /// If [endBefore] is provided, only matches with `m.end <= endBefore` are included.
+  /// Useful for backward search where we need matches that fully complete before a position.
+  Iterable<RegExpMatch> allMatchesEndingBefore(
+    String text, {
+    int start = 0,
+    int? endBefore,
+  }) {
+    final matches = allMatches(text, start);
+    if (endBefore == null) return matches;
+    return matches.takeWhile((m) => m.end <= endBefore);
   }
 }
