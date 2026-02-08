@@ -77,6 +77,7 @@ const normalCommands = <String, Command>{
   // Selection cycling (for multi-cursor) - vim bracket convention
   ']s': ActionCommand(.nextSelection),
   '[s': ActionCommand(.prevSelection),
+  Keys.ctrlL: ActionCommand(.removeSelection),
   Keys.tab: ActionCommand(.nextSelection),
   Keys.shiftTab: ActionCommand(.prevSelection),
   // Select word under cursor and enter visual mode
@@ -331,6 +332,7 @@ const visualCommands = <String, Command>{
   Keys.shiftTab: ActionCommand(.prevSelection),
   ']s': ActionCommand(.nextSelection),
   '[s': ActionCommand(.prevSelection),
+  Keys.ctrlL: ActionCommand(.removeSelection),
   // Select all matches of current selection
   Keys.ctrlA: ActionCommand(.selectAllMatchesOfSelection),
   // Select next match (add selection for next occurrence)
@@ -355,6 +357,7 @@ const visualLineCommands = <String, Command>{
   Keys.shiftTab: ActionCommand(.prevSelection),
   ']s': ActionCommand(.nextSelection),
   '[s': ActionCommand(.prevSelection),
+  Keys.ctrlL: ActionCommand(.removeSelection),
   // Select all matches of current selection
   Keys.ctrlA: ActionCommand(.selectAllMatchesOfSelection),
 };

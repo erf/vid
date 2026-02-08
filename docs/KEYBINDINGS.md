@@ -125,6 +125,7 @@ Double an operator to apply to the whole line: `dd` (delete line), `cc` (change 
 | `Ctrl+N` | Select word under cursor |
 | `Tab` / `]s` | Cycle to next selection |
 | `Shift+Tab` / `[s` | Cycle to previous selection |
+| `]S` | Remove primary selection |
 
 ### LSP Commands
 
@@ -227,6 +228,7 @@ In visual mode, motions extend the selection. Operators act on the selection.
 | `s` | Substitute (change) selection |
 | `Tab` / `]s` | Cycle to next selection |
 | `Shift+Tab` / `[s` | Cycle to previous selection |
+| `Ctrl+L` | Remove primary selection |
 | `Ctrl+A` | Select all matches of current selection |
 | `Ctrl+N` | Select next match of selection |
 
@@ -245,6 +247,7 @@ In visual mode, motions extend the selection. Operators act on the selection.
 | `A` | Append at end of each selected line |
 | `Tab` / `]s` | Cycle to next selection |
 | `Shift+Tab` / `[s` | Cycle to previous selection |
+| `Ctrl+L` | Remove primary selection |
 | `Ctrl+A` | Select all matches of current selection |
 
 ---

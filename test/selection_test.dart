@@ -1,6 +1,8 @@
+import 'package:termio/termio.dart';
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
 import 'package:vid/actions/line_edit_actions.dart';
+import 'package:vid/actions/selection_actions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/modes.dart';
@@ -1899,6 +1901,68 @@ void main() {
 
       // Primary should now be at line 2 (last in document)
       expect(f.selections[0].cursor, 8);
+    });
+  });
+
+  group('remove primary selection', () {
+    test('removes primary selection when multiple exist', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\nghi\n';
+      f.cursor = 0;
+
+      // Create 3 cursors at lines 0, 1, 2
+      e.input('\n'); // Add cursor below
+      e.input('\n'); // Add cursor below again
+
+      expect(f.selections.length, 3);
+
+      // Remove primary selection via action
+      const RemoveSelection()(e, f);
+
+      expect(f.selections.length, 2);
+    });
+
+    test('with single selection escapes to normal mode', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc\ndef\n';
+      f.cursor = 0;
+
+      // Only one selection
+      expect(f.selections.length, 1);
+
+      // Should not crash and should remain with 1 selection
+      const RemoveSelection()(e, f);
+
+      expect(f.selections.length, 1);
+    });
+
+    test('in visual mode removes primary selection', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello hello hello\n';
+      f.cursor = 0;
+
+      // Select word, then select all matches
+      e.input(Keys.ctrlN); // select word under cursor -> visual mode
+      e.input(Keys.ctrlA); // select all matches
+
+      expect(f.selections.length, 3);
+
+      // Remove primary selection via action
+      const RemoveSelection()(e, f);
+
+      expect(f.selections.length, 2);
     });
   });
 }
