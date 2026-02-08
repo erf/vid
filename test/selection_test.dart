@@ -1919,11 +1919,46 @@ void main() {
       e.input('\n'); // Add cursor below again
 
       expect(f.selections.length, 3);
+      final removedPos = f.selections[0].cursor;
 
       // Remove primary selection via action
       const RemoveSelection()(e, f);
 
       expect(f.selections.length, 2);
+      // New primary should be the cursor closest to the removed one
+      final newPrimaryDist = (f.selections[0].cursor - removedPos).abs();
+      for (final sel in f.selections.skip(1)) {
+        expect(
+          newPrimaryDist,
+          lessThanOrEqualTo((sel.cursor - removedPos).abs()),
+        );
+      }
+    });
+
+    test('new primary is closest to removed cursor', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'aaa\nbbb\nccc\nddd\neee\n';
+      f.cursor = 0;
+
+      // Add 4 cursors below (5 total, primary at bottom line 4)
+      for (var i = 0; i < 4; i++) {
+        e.input('\n');
+      }
+      expect(f.selections.length, 5);
+      final primaryBefore = f.selections[0].cursor; // line 4
+
+      // Remove primary — nearest cursor should become new primary
+      const RemoveSelection()(e, f);
+      expect(f.selections.length, 4);
+      // New primary should be the cursor closest to the removed one
+      expect(
+        (f.selections[0].cursor - primaryBefore).abs(),
+        lessThanOrEqualTo(4), // one line away
+      );
     });
 
     test('with single selection escapes to normal mode', () {

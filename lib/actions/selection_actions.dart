@@ -73,7 +73,8 @@ class RemoveSelection extends Action {
       const EscapeVisual()(e, f);
       return;
     }
-    f.selections.removeAt(0);
+    final removed = f.selections.removeAt(0);
+    promoteClosest(f.selections, removed.cursor);
   }
 }
 

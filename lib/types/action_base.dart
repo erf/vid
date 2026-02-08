@@ -40,6 +40,24 @@ abstract class Action {
     }
   }
 
+  /// Promote the selection closest to [offset] to front of list.
+  void promoteClosest(List<Selection> selections, int offset) {
+    if (selections.length <= 1) return;
+    int bestIdx = 0;
+    int bestDist = (selections[0].cursor - offset).abs();
+    for (int i = 1; i < selections.length; i++) {
+      final dist = (selections[i].cursor - offset).abs();
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx != 0) {
+      final nearest = selections.removeAt(bestIdx);
+      selections.insert(0, nearest);
+    }
+  }
+
   /// Get visual column of offset.
   static int visualColumn(FileBuffer f, int offset, int tabWidth) {
     final lineStart = f.lineStart(offset);
