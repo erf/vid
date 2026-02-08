@@ -333,6 +333,7 @@ const visualCommands = <String, Command>{
   ']s': ActionCommand(.nextSelection),
   '[s': ActionCommand(.prevSelection),
   Keys.ctrlL: ActionCommand(.removeSelection),
+  Keys.ctrlG: ActionCommand(.splitSelectionIntoLines),
   // Select all matches of current selection
   Keys.ctrlA: ActionCommand(.selectAllMatchesOfSelection),
   // Select next match (add selection for next occurrence)
@@ -358,6 +359,7 @@ const visualLineCommands = <String, Command>{
   ']s': ActionCommand(.nextSelection),
   '[s': ActionCommand(.prevSelection),
   Keys.ctrlL: ActionCommand(.removeSelection),
+  Keys.ctrlG: ActionCommand(.splitSelectionIntoLines),
   // Select all matches of current selection
   Keys.ctrlA: ActionCommand(.selectAllMatchesOfSelection),
 };

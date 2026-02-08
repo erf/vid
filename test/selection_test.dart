@@ -2000,4 +2000,61 @@ void main() {
       expect(f.selections.length, 2);
     });
   });
+
+  group('split selection into lines', () {
+    test('splits multi-line selection into per-line selections', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'aaa\nbbb\nccc\n';
+      f.cursor = 0;
+
+      // Select from start of line 0 to end of line 2
+      f.selections = [Selection(0, 10)]; // 'aaa\nbbb\ncc' (c at offset 10)
+
+      const SplitSelectionIntoLines()(e, f);
+
+      expect(f.selections.length, 3);
+      // First line: clipped to selection start (0) to end of line content (2)
+      // Last line: clipped from line start (8) to selection end (10)
+    });
+
+    test('single-line selection is unchanged', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'hello world\n';
+      f.cursor = 0;
+
+      f.selections = [Selection(0, 4)]; // 'hello'
+
+      const SplitSelectionIntoLines()(e, f);
+
+      expect(f.selections.length, 1);
+      expect(f.selections[0], Selection(0, 4));
+    });
+
+    test('primary is on cursor line', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'aaa\nbbb\nccc\n';
+      f.cursor = 0;
+
+      // Backward selection: anchor at line 2, cursor at line 0
+      f.selections = [Selection(10, 0)];
+
+      const SplitSelectionIntoLines()(e, f);
+
+      expect(f.selections.length, 3);
+      // Primary should be the selection on cursor's line (line 0)
+      expect(f.selections[0].start, 0);
+    });
+  });
 }

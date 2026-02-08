@@ -58,6 +58,7 @@ enum ActionType {
   selectWordUnderCursor,
   selectAllMatchesOfSelection,
   selectNextMatch,
+  splitSelectionIntoLines,
   visualPaste,
   visualLineInsertAtLineStarts,
   visualLineInsertAtLineEnds,

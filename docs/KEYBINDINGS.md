@@ -229,6 +229,7 @@ In visual mode, motions extend the selection. Operators act on the selection.
 | `Tab` / `]s` | Cycle to next selection |
 | `Shift+Tab` / `[s` | Cycle to previous selection |
 | `Ctrl+L` | Remove primary selection |
+| `Ctrl+G` | Split selection into per-line selections |
 | `Ctrl+A` | Select all matches of current selection |
 | `Ctrl+N` | Select next match of selection |
 
@@ -248,6 +249,7 @@ In visual mode, motions extend the selection. Operators act on the selection.
 | `Tab` / `]s` | Cycle to next selection |
 | `Shift+Tab` / `[s` | Cycle to previous selection |
 | `Ctrl+L` | Remove primary selection |
+| `Ctrl+G` | Split selection into per-line selections |
 | `Ctrl+A` | Select all matches of current selection |
 
 ---

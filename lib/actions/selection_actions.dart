@@ -202,6 +202,59 @@ class SwapEnds extends Action {
   }
 }
 
+/// Split each selection into one selection per line.
+///
+/// For each selection spanning multiple lines, creates a per-line selection
+/// clipped to the original selection boundaries on the first and last lines.
+/// Single-line selections are kept as-is. The primary selection's line
+/// becomes the new primary.
+class SplitSelectionIntoLines extends Action {
+  const SplitSelectionIntoLines();
+
+  @override
+  void call(Editor e, FileBuffer f) {
+    final newSelections = <Selection>[];
+    int primaryIdx = 0;
+
+    for (int si = 0; si < f.selections.length; si++) {
+      final sel = f.selections[si];
+      final startLine = f.lineNumber(sel.start);
+      final endLine = f.lineNumber(sel.end);
+      final cursorLine = f.lineNumber(sel.cursor);
+
+      if (startLine == endLine) {
+        // Single line — keep as-is
+        if (si == 0) primaryIdx = newSelections.length;
+        newSelections.add(sel);
+        continue;
+      }
+
+      for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
+        final line = f.lines[lineNum];
+        // Clip start/end to selection boundaries
+        final lineStart = lineNum == startLine ? sel.start : line.start;
+        final lineEnd = lineNum == endLine
+            ? sel.end
+            : (line.end > line.start ? f.prevGrapheme(line.end) : line.start);
+        if (si == 0 && lineNum == cursorLine) {
+          primaryIdx = newSelections.length;
+        }
+        newSelections.add(Selection(lineStart, lineEnd));
+      }
+    }
+
+    if (newSelections.isEmpty) return;
+
+    // Move primary to front
+    if (primaryIdx > 0) {
+      final primary = newSelections.removeAt(primaryIdx);
+      newSelections.insert(0, primary);
+    }
+
+    f.selections = newSelections;
+  }
+}
+
 /// Exit visual line mode, collapse selections to cursor positions.
 class EscapeVisualLine extends Action {
   const EscapeVisualLine();

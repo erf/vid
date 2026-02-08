@@ -70,6 +70,7 @@ extension ActionTypeExt on ActionType {
     .selectWordUnderCursor => const SelectWordUnderCursor(),
     .selectAllMatchesOfSelection => const SelectAllMatchesOfSelection(),
     .selectNextMatch => const SelectNextMatch(),
+    .splitSelectionIntoLines => const SplitSelectionIntoLines(),
     .visualPaste => const VisualPaste(),
     .visualLineInsertAtLineStarts => const VisualLineInsertAtLineStarts(),
     .visualLineInsertAtLineEnds => const VisualLineInsertAtLineEnds(),
