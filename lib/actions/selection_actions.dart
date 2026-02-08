@@ -255,14 +255,13 @@ class SplitSelectionIntoLines extends Action {
   }
 }
 
-/// Exit visual line mode, collapse selections to cursor positions.
+/// Exit visual line mode to visual mode, keeping selections.
 class EscapeVisualLine extends Action {
   const EscapeVisualLine();
 
   @override
   void call(Editor e, FileBuffer f) {
-    f.selections = f.selections.map((s) => s.collapse()).toList();
-    f.setMode(e, .normal);
+    f.setMode(e, .visual);
   }
 }
 
