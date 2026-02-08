@@ -190,15 +190,16 @@ class SelectNextMatch extends Action {
   }
 }
 
-/// Swap anchor and cursor of primary selection (like 'o' in visual mode).
+/// Swap anchor and cursor of all selections (like 'o' in visual mode).
 class SwapEnds extends Action {
   const SwapEnds();
 
   @override
   void call(Editor e, FileBuffer f) {
-    final sel = f.selections.first;
-    if (sel.isCollapsed) return;
-    f.selections[0] = Selection(sel.cursor, sel.anchor);
+    f.selections = [
+      for (final sel in f.selections)
+        if (sel.isCollapsed) sel else Selection(sel.cursor, sel.anchor),
+    ];
   }
 }
 
