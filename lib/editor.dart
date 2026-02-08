@@ -950,14 +950,42 @@ class Editor {
     bool collapsed = false,
   }) {
     final newSelections = <Selection>[];
+    final isVisualLineMode = file.mode == .visualLine;
+
     for (final sel in file.selections) {
       var newCursor = sel.cursor;
       for (int i = 0; i < count; i++) {
         newCursor = motion.fn(this, file, newCursor);
       }
-      newSelections.add(
-        collapsed ? Selection.collapsed(newCursor) : sel.withCursor(newCursor),
-      );
+
+      if (collapsed) {
+        newSelections.add(Selection.collapsed(newCursor));
+      } else if (isVisualLineMode) {
+        // In visual line mode, expand anchor and cursor to line boundaries
+        final anchorLine = file.lineNumber(sel.anchor);
+        final cursorLine = file.lineNumber(newCursor);
+
+        // Determine direction and set appropriate line boundaries
+        if (cursorLine >= anchorLine) {
+          // Forward: anchor at start of anchor line, cursor at end of cursor line
+          final anchorPos = file.lines[anchorLine].start;
+          final cursorLineEnd = file.lines[cursorLine].end;
+          final cursorPos = cursorLineEnd > file.lines[cursorLine].start
+              ? cursorLineEnd - 1
+              : cursorLineEnd;
+          newSelections.add(Selection(anchorPos, cursorPos));
+        } else {
+          // Backward: anchor at end of anchor line, cursor at start of cursor line
+          final anchorLineEnd = file.lines[anchorLine].end;
+          final anchorPos = anchorLineEnd > file.lines[anchorLine].start
+              ? anchorLineEnd - 1
+              : anchorLineEnd;
+          final cursorPos = file.lines[cursorLine].start;
+          newSelections.add(Selection(anchorPos, cursorPos));
+        }
+      } else {
+        newSelections.add(sel.withCursor(newCursor));
+      }
     }
     file.selections = mergeSelections(newSelections);
     file.clampCursor();
