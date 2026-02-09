@@ -1,6 +1,7 @@
 import '../actions/buffer_actions.dart';
 import '../actions/line_edit_actions.dart';
 import '../actions/popup_command_actions.dart';
+import '../config.dart';
 import '../features/lsp/lsp_command_actions.dart';
 import 'line_edit_action_base.dart';
 import 'line_edit_type.dart';
@@ -19,9 +20,9 @@ extension LineEditTypeExt on LineEditType {
     .writeAndQuit => const CmdWriteAndQuit(),
 
     // Wrap modes
-    .setNoWrap => const CmdSetNoWrap(),
-    .setCharWrap => const CmdSetCharWrap(),
-    .setWordWrap => const CmdSetWordWrap(),
+    .setNoWrap => const CmdSetWrap(WrapMode.none, 'off'),
+    .setCharWrap => const CmdSetWrap(WrapMode.char, 'char'),
+    .setWordWrap => const CmdSetWrap(WrapMode.word, 'word'),
 
     // Buffer commands
     .nextBuffer => const CmdNextBuffer(),

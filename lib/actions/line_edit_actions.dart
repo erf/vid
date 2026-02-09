@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../config.dart';
 import '../editor.dart';
 import '../error_or.dart';
 import '../features/lsp/lsp_command_actions.dart';
@@ -200,39 +201,17 @@ class CmdForceQuit extends LineEditAction {
 
 // ===== Wrap mode commands =====
 
-/// Set no wrap (:nowrap).
-class CmdSetNoWrap extends LineEditAction {
-  const CmdSetNoWrap();
+/// Set wrap mode (:nowrap, :charwrap, :wordwrap).
+class CmdSetWrap extends LineEditAction {
+  final WrapMode mode;
+  final String label;
+  const CmdSetWrap(this.mode, this.label);
 
   @override
   void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
-    e.setWrapMode(.none);
-    e.showMessage(.info('Wrap: off'));
-  }
-}
-
-/// Set char wrap (:charwrap).
-class CmdSetCharWrap extends LineEditAction {
-  const CmdSetCharWrap();
-
-  @override
-  void call(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    e.setWrapMode(.char);
-    e.showMessage(.info('Wrap: char'));
-  }
-}
-
-/// Set word wrap (:wordwrap).
-class CmdSetWordWrap extends LineEditAction {
-  const CmdSetWordWrap();
-
-  @override
-  void call(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    e.setWrapMode(.word);
-    e.showMessage(.info('Wrap: word'));
+    e.setWrapMode(mode);
+    e.showMessage(.info('Wrap: $label'));
   }
 }
 
