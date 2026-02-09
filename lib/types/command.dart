@@ -1,4 +1,4 @@
-import 'package:vid/edit_builder.dart';
+import '../edit_builder.dart';
 
 import '../actions/operator_actions.dart';
 import '../editor.dart';

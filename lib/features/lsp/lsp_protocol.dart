@@ -1,4 +1,4 @@
-import 'package:vid/highlighting/token.dart';
+import '../../highlighting/token.dart';
 
 import 'lsp_client.dart';
 import 'lsp_server_config.dart';

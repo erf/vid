@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:vid/xdg_paths.dart';
+import '../../xdg_paths.dart';
 import 'package:yaml/yaml.dart';
 
 import 'lsp_server_config.dart';

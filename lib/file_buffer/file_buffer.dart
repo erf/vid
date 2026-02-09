@@ -1,9 +1,10 @@
 // Barrel file - exports all file_buffer extensions
 import 'package:termio/termio.dart';
-import 'package:vid/edit_builder.dart';
-import 'package:vid/edit_operation.dart';
-import 'package:vid/input_state.dart';
-import 'package:vid/selection.dart';
+
+import '../edit_builder.dart';
+import '../edit_operation.dart';
+import '../input_state.dart';
+import '../selection.dart';
 
 import '../line_info.dart';
 import '../modes.dart';

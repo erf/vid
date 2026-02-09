@@ -1,5 +1,5 @@
-import 'package:vid/modes.dart';
-import 'package:vid/selection.dart';
+import 'modes.dart';
+import 'selection.dart';
 
 /// Represents a text operation consisting of an insertion or deletion.
 class TextOp {

@@ -1,6 +1,6 @@
-import 'package:vid/types/motion_action_base.dart';
-import 'package:vid/actions/motion_actions.dart';
-import 'package:vid/motion/motion_type.dart';
+import '../actions/motion_actions.dart';
+import '../types/motion_action_base.dart';
+import 'motion_type.dart';
 
 extension MotionTypeExt on MotionType {
   /// The action that implements this motion

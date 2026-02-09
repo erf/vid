@@ -1,5 +1,6 @@
 import 'package:termio/termio.dart';
-import 'package:vid/selection.dart';
+
+import '../selection.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';

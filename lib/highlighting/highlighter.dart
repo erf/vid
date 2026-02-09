@@ -1,5 +1,5 @@
-import 'package:vid/features/lsp/lsp_protocol.dart';
-import 'package:vid/highlighting/theme.dart';
+import '../features/lsp/lsp_protocol.dart';
+import 'theme.dart';
 
 import 'languages/bash_tokenizer.dart';
 import 'languages/c_tokenizer.dart';

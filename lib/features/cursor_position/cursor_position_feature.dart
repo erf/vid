@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:termio/termio.dart';
-import 'package:vid/xdg_paths.dart';
+
+import '../../xdg_paths.dart';
 
 import '../../file_buffer/file_buffer.dart';
 import '../feature.dart';

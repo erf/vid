@@ -2,8 +2,9 @@ import 'dart:math' as math;
 
 import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
-import 'package:vid/selection.dart';
-import 'package:vid/string_ext.dart';
+
+import '../selection.dart';
+import '../string_ext.dart';
 
 import '../editor.dart';
 import '../modes.dart';

@@ -1,6 +1,7 @@
 import 'package:termio/termio.dart';
-import 'package:vid/mode_bindings.dart';
-import 'package:vid/motion/motion.dart';
+
+import 'mode_bindings.dart';
+import 'motion/motion.dart';
 
 import 'actions/insert_actions.dart';
 import 'actions/line_edit_input_actions.dart';

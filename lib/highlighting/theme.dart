@@ -1,5 +1,6 @@
 import 'package:termio/termio.dart';
-import 'package:vid/highlighting/token.dart';
+
+import 'token.dart';
 
 /// Available syntax highlighting themes.
 enum ThemeType {

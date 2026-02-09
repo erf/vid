@@ -1,6 +1,6 @@
-import 'package:vid/types/operator_action_base.dart';
-import 'package:vid/edit_operation.dart';
-import 'package:vid/motion/motion.dart';
+import 'edit_operation.dart';
+import 'motion/motion.dart';
+import 'types/operator_action_base.dart';
 
 /// Accumulates input to build an EditOperation.
 ///

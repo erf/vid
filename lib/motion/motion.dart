@@ -1,6 +1,6 @@
-import 'package:vid/types/motion_action_base.dart';
-import 'package:vid/motion/motion_type.dart';
-import 'package:vid/motion/motion_type_ext.dart';
+import '../types/motion_action_base.dart';
+import 'motion_type.dart';
+import 'motion_type_ext.dart';
 
 /// A motion defined by type.
 ///

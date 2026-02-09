@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:vid/config.dart';
-import 'package:vid/modes.dart';
-import 'package:vid/selection.dart';
-import 'package:vid/yank_buffer.dart';
+import '../config.dart';
+import '../modes.dart';
+import '../selection.dart';
+import '../yank_buffer.dart';
 
 import '../editor.dart';
 import '../error_or.dart';

@@ -1,5 +1,6 @@
-import 'package:vid/actions/text_object_actions.dart';
-import 'package:vid/selection.dart';
+import 'text_object_actions.dart';
+
+import '../selection.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';

@@ -1,5 +1,5 @@
-import 'package:vid/features/feature.dart';
-import 'package:vid/file_buffer/file_buffer.dart';
+import 'feature.dart';
+import '../file_buffer/file_buffer.dart';
 
 class FeatureRegistry {
   final List<Feature> _features;

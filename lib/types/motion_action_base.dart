@@ -1,11 +1,12 @@
 import 'dart:math';
 
 import 'package:characters/characters.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer/file_buffer.dart';
-import 'package:vid/regex.dart';
-import 'package:vid/regex_ext.dart';
-import 'package:vid/string_ext.dart';
+
+import '../editor.dart';
+import '../file_buffer/file_buffer.dart';
+import '../regex.dart';
+import '../regex_ext.dart';
+import '../string_ext.dart';
 
 /// Base class for motion actions.
 ///

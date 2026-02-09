@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
-import 'package:vid/yank_buffer.dart';
+
+import '../yank_buffer.dart';
 
 import '../config.dart';
 import '../editor.dart';

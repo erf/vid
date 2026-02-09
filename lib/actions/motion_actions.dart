@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:vid/types/motion_action_base.dart';
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer/file_buffer.dart';
-import 'package:vid/regex.dart';
-import 'package:vid/regex_ext.dart';
+import '../editor.dart';
+import '../file_buffer/file_buffer.dart';
+import '../regex.dart';
+import '../regex_ext.dart';
+import '../types/motion_action_base.dart';
 
 // ===== Character motions =====
 

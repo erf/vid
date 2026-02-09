@@ -1,6 +1,6 @@
-import 'package:vid/editor.dart';
-import 'package:vid/file_buffer/file_buffer.dart';
-import 'package:vid/range.dart';
+import '../editor.dart';
+import '../file_buffer/file_buffer.dart';
+import '../range.dart';
 
 /// Base class for text object actions.
 ///

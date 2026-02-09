@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:vid/config.dart';
-import 'package:vid/modes.dart';
-import 'package:vid/selection.dart';
+import '../config.dart';
+import '../modes.dart';
+import '../selection.dart';
 
 import '../text_op.dart';
 import 'file_buffer.dart';
