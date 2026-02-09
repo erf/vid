@@ -146,14 +146,15 @@ class WordPrev extends MotionAction {
   }
 }
 
-/// Move to end of word (e) - inclusive
+/// Move to end of word/WORD (e/E) - inclusive
 /// Returns the position of the last character of the word.
-class WordEnd extends MotionAction {
-  const WordEnd();
+class WordEndMotion extends MotionAction {
+  final RegExp pattern;
+  const WordEndMotion(this.pattern);
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    final matches = Regex.word.allMatches(f.text, offset);
+    final matches = pattern.allMatches(f.text, offset);
     if (matches.isEmpty) return offset;
     final match = matches.firstWhere(
       (m) => offset < m.end - 1,
@@ -163,16 +164,17 @@ class WordEnd extends MotionAction {
   }
 }
 
-/// Move to end of previous word (ge) - inclusive
-class WordEndPrev extends MotionAction {
-  const WordEndPrev();
+/// Move to end of previous word/WORD (ge/gE) - inclusive
+class WordEndPrevMotion extends MotionAction {
+  final RegExp pattern;
+  const WordEndPrevMotion(this.pattern);
 
   @override
   int call(Editor e, FileBuffer f, int offset, {int chunkSize = 1000}) {
     int searchStart = max(0, offset - chunkSize);
 
     while (true) {
-      final matches = Regex.word.allMatchesEndingBefore(
+      final matches = pattern.allMatchesEndingBefore(
         f.text,
         start: searchStart,
         endBefore: offset,
@@ -204,47 +206,6 @@ class WordCapPrev extends MotionAction {
   @override
   int call(Editor e, FileBuffer f, int offset) {
     return regexPrev(f, offset, Regex.wordCap);
-  }
-}
-
-/// Move to end of WORD (E) - inclusive
-/// Returns the position of the last character of the WORD.
-class WordCapEnd extends MotionAction {
-  const WordCapEnd();
-
-  @override
-  int call(Editor e, FileBuffer f, int offset) {
-    final matches = Regex.wordCap.allMatches(f.text, offset);
-    if (matches.isEmpty) return offset;
-    final match = matches.firstWhere(
-      (m) => offset < m.end - 1,
-      orElse: () => matches.first,
-    );
-    return match.end - 1; // Position ON the last char
-  }
-}
-
-/// Move to end of previous WORD (gE) - inclusive
-class WordCapEndPrev extends MotionAction {
-  const WordCapEndPrev();
-
-  @override
-  int call(Editor e, FileBuffer f, int offset, {int chunkSize = 1000}) {
-    int searchStart = max(0, offset - chunkSize);
-
-    while (true) {
-      final matches = Regex.wordCap.allMatchesEndingBefore(
-        f.text,
-        start: searchStart,
-        endBefore: offset,
-      );
-      final lastMatch = matches.lastOrNull;
-      if (lastMatch != null) return lastMatch.end - 1;
-
-      // No match found - expand search or give up
-      if (searchStart == 0) return offset;
-      searchStart = max(0, searchStart - chunkSize);
-    }
   }
 }
 

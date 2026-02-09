@@ -4,6 +4,7 @@ import 'package:vid/types/motion_action_base.dart';
 import 'package:vid/actions/motion_actions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
+import 'package:vid/regex.dart';
 
 void main() {
   test('motionCharNext', () {
@@ -229,11 +230,11 @@ void main() {
     );
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
-    expect(const WordEnd()(e, f, 0), 2); // abc -> c
-    expect(const WordEnd()(e, f, 3), 6); // space -> f
-    expect(const WordEnd()(e, f, 4), 6); // def -> f
-    expect(const WordEnd()(e, f, 8), 10); // ghi -> i
-    expect(const WordEnd()(e, f, 10), 14); // i -> l (next line)
+    expect(WordEndMotion(Regex.word)(e, f, 0), 2); // abc -> c
+    expect(WordEndMotion(Regex.word)(e, f, 3), 6); // space -> f
+    expect(WordEndMotion(Regex.word)(e, f, 4), 6); // def -> f
+    expect(WordEndMotion(Regex.word)(e, f, 8), 10); // ghi -> i
+    expect(WordEndMotion(Regex.word)(e, f, 10), 14); // i -> l (next line)
   });
 
   test('motionWordPrev', () {
@@ -298,9 +299,9 @@ void main() {
     final f = e.file;
     f.text = 'café мир\n';
     // café: 4 chars, end at index 3
-    expect(const WordEnd()(e, f, 0), 3);
+    expect(WordEndMotion(Regex.word)(e, f, 0), 3);
     // мир: starts at 5, 3 chars, end at index 7
-    expect(const WordEnd()(e, f, 5), 7);
+    expect(WordEndMotion(Regex.word)(e, f, 5), 7);
   });
 
   test('motionWord treats emoji as separate word', () {
@@ -326,7 +327,7 @@ void main() {
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
     // Going backwards to end of previous word
-    expect(const WordEndPrev()(e, f, 4), 2); // space -> c
+    expect(WordEndPrevMotion(Regex.word)(e, f, 4), 2); // space -> c
   });
 
   test('motionFindWordOnCursorNext', () {

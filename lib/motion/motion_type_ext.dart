@@ -1,4 +1,5 @@
 import '../actions/motion_actions.dart';
+import '../regex.dart';
 import '../types/motion_action_base.dart';
 import 'motion_type.dart';
 
@@ -14,12 +15,12 @@ extension MotionTypeExt on MotionType {
     .firstNonBlank => const FirstNonBlank(),
     .wordNext => const WordNext(),
     .wordPrev => const WordPrev(),
-    .wordEnd => const WordEnd(),
-    .wordEndPrev => const WordEndPrev(),
+    .wordEnd => WordEndMotion(Regex.word),
+    .wordEndPrev => WordEndPrevMotion(Regex.word),
     .wordCapNext => const WordCapNext(),
     .wordCapPrev => const WordCapPrev(),
-    .wordCapEnd => const WordCapEnd(),
-    .wordCapEndPrev => const WordCapEndPrev(),
+    .wordCapEnd => WordEndMotion(Regex.wordCap),
+    .wordCapEndPrev => WordEndPrevMotion(Regex.wordCap),
     .fileStart => const FileStart(),
     .fileEnd => const FileEnd(),
     .findNextChar => const FindNextChar(),
