@@ -126,23 +126,25 @@ class FirstNonBlank extends MotionAction {
 
 // ===== Word motions =====
 
-/// Move to next word (w)
-class WordNext extends MotionAction {
-  const WordNext();
+/// Move to next word/WORD (w/W)
+class WordNextMotion extends MotionAction {
+  final RegExp pattern;
+  const WordNextMotion(this.pattern);
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexNext(f, offset, Regex.word);
+    return regexNext(f, offset, pattern);
   }
 }
 
-/// Move to previous word (b)
-class WordPrev extends MotionAction {
-  const WordPrev();
+/// Move to previous word/WORD (b/B)
+class WordPrevMotion extends MotionAction {
+  final RegExp pattern;
+  const WordPrevMotion(this.pattern);
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexPrev(f, offset, Regex.word);
+    return regexPrev(f, offset, pattern);
   }
 }
 
@@ -186,26 +188,6 @@ class WordEndPrevMotion extends MotionAction {
       if (searchStart == 0) return offset;
       searchStart = max(0, searchStart - chunkSize);
     }
-  }
-}
-
-/// Move to next WORD (W)
-class WordCapNext extends MotionAction {
-  const WordCapNext();
-
-  @override
-  int call(Editor e, FileBuffer f, int offset) {
-    return regexNext(f, offset, Regex.wordCap);
-  }
-}
-
-/// Move to previous WORD (B)
-class WordCapPrev extends MotionAction {
-  const WordCapPrev();
-
-  @override
-  int call(Editor e, FileBuffer f, int offset) {
-    return regexPrev(f, offset, Regex.wordCap);
   }
 }
 

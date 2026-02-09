@@ -205,11 +205,11 @@ void main() {
     );
     final f = e.file;
     f.text = 'abc def ghi\njkl mno pqr\n';
-    expect(const WordNext()(e, f, 0), 4); // abc -> def
-    expect(const WordNext()(e, f, 3), 4); // space -> def
-    expect(const WordNext()(e, f, 4), 8); // def -> ghi
-    expect(const WordNext()(e, f, 8), 12); // ghi -> jkl (next line)
-    expect(const WordNext()(e, f, 14), 16); // jkl -> mno
+    expect(WordNextMotion(Regex.word)(e, f, 0), 4); // abc -> def
+    expect(WordNextMotion(Regex.word)(e, f, 3), 4); // space -> def
+    expect(WordNextMotion(Regex.word)(e, f, 4), 8); // def -> ghi
+    expect(WordNextMotion(Regex.word)(e, f, 8), 12); // ghi -> jkl (next line)
+    expect(WordNextMotion(Regex.word)(e, f, 14), 16); // jkl -> mno
   });
 
   test('motionWordCapNext', () {
@@ -220,7 +220,7 @@ void main() {
     final f = e.file;
     f.text = 'abc,def ghi\n';
     // WORD skips punctuation
-    expect(const WordCapNext()(e, f, 0), 8); // abc,def -> ghi
+    expect(WordNextMotion(Regex.wordCap)(e, f, 0), 8); // abc,def -> ghi
   });
 
   test('motionWordEnd', () {
@@ -244,12 +244,12 @@ void main() {
     );
     final f = e.file;
     f.text = 'abc d❤️‍🔥f ghi\njkl mno pqr\n';
-    expect(const WordPrev()(e, f, 0), 0); // at start, stay
+    expect(WordPrevMotion(Regex.word)(e, f, 0), 0); // at start, stay
     // Note: emoji sequence has length 14 bytes
     // 'abc d❤️‍🔥f ghi\n' = 'abc ' (4) + 'd' (1) + emoji (14) + 'f ghi\n' (6)
     int emojiStart = 5;
-    expect(const WordPrev()(e, f, 4), 0); // space -> abc
-    expect(const WordPrev()(e, f, emojiStart), 4); // d -> space/abc
+    expect(WordPrevMotion(Regex.word)(e, f, 4), 0); // space -> abc
+    expect(WordPrevMotion(Regex.word)(e, f, emojiStart), 4); // d -> space/abc
   });
 
   test('motionWordCapPrev', () {
@@ -260,7 +260,7 @@ void main() {
     final f = e.file;
     f.text = 'abc def, ghi\n';
     // WORD skips punctuation when going backwards
-    expect(const WordCapPrev()(e, f, 9), 4); // ghi -> def,
+    expect(WordPrevMotion(Regex.wordCap)(e, f, 9), 4); // ghi -> def,
   });
 
   test('motionWordNext with Unicode', () {
@@ -273,9 +273,9 @@ void main() {
     // Dart strings use UTF-16 code units
     f.text = 'café мир 你好\n';
     // café (4) + space (1) = 5 -> мир starts at 5
-    expect(const WordNext()(e, f, 0), 5);
+    expect(WordNextMotion(Regex.word)(e, f, 0), 5);
     // мир (3) + space (1) = 4 -> 你好 starts at 9
-    expect(const WordNext()(e, f, 5), 9);
+    expect(WordNextMotion(Regex.word)(e, f, 5), 9);
   });
 
   test('motionWordPrev with Unicode', () {
@@ -286,9 +286,9 @@ void main() {
     final f = e.file;
     f.text = 'café мир 你好\n';
     // 你好 (at 9) -> мир (at 5)
-    expect(const WordPrev()(e, f, 9), 5);
+    expect(WordPrevMotion(Regex.word)(e, f, 9), 5);
     // мир (at 5) -> café (at 0)
-    expect(const WordPrev()(e, f, 5), 0);
+    expect(WordPrevMotion(Regex.word)(e, f, 5), 0);
   });
 
   test('motionWordEnd with Unicode', () {
@@ -314,9 +314,9 @@ void main() {
     // 🎉 is 2 UTF-16 code units (surrogate pair)
     f.text = 'hello🎉world\n';
     // hello (5) -> 🎉 at 5
-    expect(const WordNext()(e, f, 0), 5);
+    expect(WordNextMotion(Regex.word)(e, f, 0), 5);
     // 🎉 (2 code units) -> world at 7
-    expect(const WordNext()(e, f, 5), 7);
+    expect(WordNextMotion(Regex.word)(e, f, 5), 7);
   });
 
   test('motionWordEndPrev', () {
@@ -424,13 +424,13 @@ void main() {
       final offset = lastLineStart + 5; // somewhere in last line
 
       // Should find previous word on same line
-      final result = const WordPrev()(e, f, offset);
+      final result = WordPrevMotion(Regex.word)(e, f, offset);
       expect(result < offset, true);
 
       // Should eventually be able to reach the first word
       var pos = f.text.length - 2;
       for (int i = 0; i < 500 && pos > 0; i++) {
-        final newPos = const WordPrev()(e, f, pos);
+        final newPos = WordPrevMotion(Regex.word)(e, f, pos);
         if (newPos == pos) break; // stuck
         pos = newPos;
       }
