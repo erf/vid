@@ -219,12 +219,7 @@ class ToggleCaseUnderCursor extends Action {
     }
 
     if (textOps.isNotEmpty) {
-      f.undoList.add(UndoGroup(textOps));
-      if (f.undoList.length > e.config.maxNumUndo) {
-        final removeEnd = f.undoList.length - e.config.maxNumUndo;
-        f.undoList.removeRange(0, removeEnd);
-      }
-      f.redoList.clear();
+      f.pushUndo(UndoGroup(textOps), e.config.maxNumUndo);
     }
 
     // Write back updated cursor positions, preserving original selection order.

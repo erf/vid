@@ -111,17 +111,8 @@ List<TextOp> applyEdits(
     );
   }
 
-  // Add grouped undo entry to unified undo list
-  buffer.undoList.add(UndoGroup(textOps));
-
-  // Limit undo operations
-  if (buffer.undoList.length > config.maxNumUndo) {
-    int removeEnd = buffer.undoList.length - config.maxNumUndo;
-    buffer.undoList.removeRange(0, removeEnd);
-  }
-
-  // Clear redo list (new edit invalidates redo history)
-  buffer.redoList.clear();
+  // Add grouped undo entry
+  buffer.pushUndo(UndoGroup(textOps), config.maxNumUndo);
 
   return textOps;
 }

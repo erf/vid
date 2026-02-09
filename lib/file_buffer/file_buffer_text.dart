@@ -61,16 +61,7 @@ extension FileBufferText on FileBuffer {
       mode: restoreMode,
     );
 
-    undoList.add(UndoGroup([textOp]));
-
-    // limit undo operations
-    if (undoList.length > config.maxNumUndo) {
-      int removeEnd = undoList.length - config.maxNumUndo;
-      undoList.removeRange(0, removeEnd);
-    }
-
-    // clear redo list
-    redoList.clear();
+    pushUndo(UndoGroup([textOp]), config.maxNumUndo);
     // Note: yankBuffer is set explicitly by operators (delete/yank) with linewise info,
     // so we don't auto-yank here anymore.
   }

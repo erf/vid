@@ -140,6 +140,15 @@ class FileBuffer {
   // list of redo operations (same structure as undoList)
   List<UndoGroup> redoList = [];
 
+  /// Add an undo group, cap the list to [maxNumUndo], and clear redo history.
+  void pushUndo(UndoGroup group, int maxNumUndo) {
+    undoList.add(group);
+    if (undoList.length > maxNumUndo) {
+      undoList.removeRange(0, undoList.length - maxNumUndo);
+    }
+    redoList.clear();
+  }
+
   // the savepoint for undo operations
   int savepoint = 0;
 
