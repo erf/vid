@@ -17,46 +17,23 @@ class EscapeVisual extends Action {
   }
 }
 
-/// Cycle to next selection (make it primary).
-class NextSelection extends Action {
-  const NextSelection();
+/// Cycle to next or previous selection (make it primary).
+class CycleSelection extends Action {
+  final int direction; // +1 for next, -1 for previous
+  const CycleSelection(this.direction);
 
   @override
   void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) return;
-    // Sort by document position, find current, move to next
     final sorted = f.selections.sortedByStart();
     final current = f.selections.first;
     final currentIdx = sorted.indexWhere(
       (s) => s.start == current.start && s.end == current.end,
     );
-    final nextIdx = (currentIdx + 1) % sorted.length;
-    // Reorder: next becomes first, then others in document order
+    final targetIdx = (currentIdx + direction + sorted.length) % sorted.length;
     f.selections = [
       for (int i = 0; i < sorted.length; i++)
-        sorted[(nextIdx + i) % sorted.length],
-    ];
-  }
-}
-
-/// Cycle to previous selection (make it primary).
-class PrevSelection extends Action {
-  const PrevSelection();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (f.selections.length <= 1) return;
-    // Sort by document position, find current, move to previous
-    final sorted = f.selections.sortedByStart();
-    final current = f.selections.first;
-    final currentIdx = sorted.indexWhere(
-      (s) => s.start == current.start && s.end == current.end,
-    );
-    final prevIdx = (currentIdx - 1 + sorted.length) % sorted.length;
-    // Reorder: prev becomes first, then others in document order
-    f.selections = [
-      for (int i = 0; i < sorted.length; i++)
-        sorted[(prevIdx + i) % sorted.length],
+        sorted[(targetIdx + i) % sorted.length],
     ];
   }
 }
