@@ -18,9 +18,17 @@ class EscapeVisual extends Action {
   }
 }
 
+enum CycleDir {
+  next(1),
+  prev(-1);
+
+  const CycleDir(this.value);
+  final int value;
+}
+
 /// Cycle to next or previous selection (make it primary).
 class CycleSelection extends Action {
-  final int direction; // +1 for next, -1 for previous
+  final CycleDir direction;
   const CycleSelection(this.direction);
 
   @override
@@ -31,7 +39,8 @@ class CycleSelection extends Action {
     final currentIdx = sorted.indexWhere(
       (s) => s.start == current.start && s.end == current.end,
     );
-    final targetIdx = (currentIdx + direction + sorted.length) % sorted.length;
+    final targetIdx =
+        (currentIdx + direction.value + sorted.length) % sorted.length;
     f.selections = [
       for (int i = 0; i < sorted.length; i++)
         sorted[(targetIdx + i) % sorted.length],
@@ -278,20 +287,27 @@ class VisualLineInsert extends Action {
   }
 }
 
-/// Add a new cursor on the line below the bottommost cursor.
+enum CursorDir {
+  below(1),
+  above(-1);
+
+  const CursorDir(this.value);
+  final int value;
+}
+
 /// Add a new cursor on the line below or above the extreme cursor.
 class AddCursor extends Action {
-  final int direction; // +1 below, -1 above
+  final CursorDir direction;
   const AddCursor(this.direction);
 
   @override
   void call(Editor e, FileBuffer f) {
     // Find the extreme cursor in the given direction
-    int extremeLine = direction > 0 ? -1 : f.totalLines;
+    int extremeLine = direction == .below ? -1 : f.totalLines;
     Selection? extremeSel;
     for (final sel in f.selections) {
       final lineNum = f.lineNumber(sel.cursor);
-      if (direction > 0 ? lineNum > extremeLine : lineNum < extremeLine) {
+      if (direction == .below ? lineNum > extremeLine : lineNum < extremeLine) {
         extremeLine = lineNum;
         extremeSel = sel;
       }
@@ -299,8 +315,8 @@ class AddCursor extends Action {
     if (extremeSel == null) return;
 
     // Check boundary
-    if (direction > 0 && extremeLine >= f.totalLines - 1) return;
-    if (direction < 0 && extremeLine <= 0) return;
+    if (direction == .below && extremeLine >= f.totalLines - 1) return;
+    if (direction == .above && extremeLine <= 0) return;
 
     // Get current visual column position
     final curVisualCol = Action.visualColumn(
@@ -312,7 +328,7 @@ class AddCursor extends Action {
     // Get position on adjacent line at same visual column
     final newPos = Action.offsetAtVisualColumn(
       f,
-      extremeLine + direction,
+      extremeLine + direction.value,
       curVisualCol,
       e.config.tabWidth,
     );

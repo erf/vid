@@ -338,8 +338,8 @@ void main() {
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
     // Find next occurrence of word under cursor
-    expect(const SameWordMotion(forward: true)(e, f, 0), 21); // det -> det
-    expect(const SameWordMotion(forward: true)(e, f, 7), 13); // fint -> fint
+    expect(const SameWordMotion(.next)(e, f, 0), 21); // det -> det
+    expect(const SameWordMotion(.next)(e, f, 7), 13); // fint -> fint
   });
 
   test('motionFindWordOnCursorPrev', () {
@@ -349,7 +349,7 @@ void main() {
     );
     final f = e.file;
     f.text = 'det er fint, fint er det saus\n';
-    expect(const SameWordMotion(forward: false)(e, f, 13), 7); // fint -> fint
+    expect(const SameWordMotion(.prev)(e, f, 13), 7); // fint -> fint
   });
 
   test('motionFirstNoneBlank', () {

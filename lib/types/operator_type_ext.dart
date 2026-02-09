@@ -8,7 +8,7 @@ extension OperatorTypeExt on OperatorType {
     .change => const Change(),
     .delete => const Delete(),
     .yank => const Yank(),
-    .lowerCase => const ChangeCase(toUpper: false),
-    .upperCase => const ChangeCase(toUpper: true),
+    .lowerCase => const ChangeCase(.lower),
+    .upperCase => const ChangeCase(.upper),
   };
 }

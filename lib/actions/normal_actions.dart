@@ -232,10 +232,18 @@ class ToggleCaseUnderCursor extends Action {
   }
 }
 
+enum HalfPageDir {
+  down(1),
+  up(-1);
+
+  const HalfPageDir(this.value);
+  final int value;
+}
+
 /// Scroll viewport by half page (Ctrl-D/Ctrl-U).
 /// Both viewport and cursor move by the same number of lines.
 class MoveHalfPage extends Action {
-  final int direction; // +1 down, -1 up
+  final HalfPageDir direction;
   const MoveHalfPage(this.direction);
 
   @override
@@ -244,17 +252,16 @@ class MoveHalfPage extends Action {
     final cursorLine = f.lineNumber(f.cursor);
 
     // Do nothing if cursor is already at boundary
-    if (direction > 0 && cursorLine >= f.totalLines - 1) return;
-    if (direction < 0 && cursorLine <= 0) return;
+    if (direction == .down && cursorLine >= f.totalLines - 1) return;
+    if (direction == .up && cursorLine <= 0) return;
 
     // Calculate current cursor column for preservation
     final cursorCol = f.cursor - f.lines[cursorLine].start;
 
     // Calculate new cursor line (clamped to valid range)
-    final newCursorLine = (cursorLine + direction * halfPage).clamp(
-      0,
-      f.totalLines - 1,
-    );
+    final newCursorLine =
+        (cursorLine + direction.value * halfPage).clamp(0, f.totalLines - 1)
+            as int;
 
     // Move cursor, preserving column
     final lineInfo = f.lines[newCursorLine];
@@ -265,10 +272,9 @@ class MoveHalfPage extends Action {
     final viewportLine = f.lineNumber(f.viewport);
     final visibleLines = e.terminal.height - 1;
     final maxViewportLine = max(0, f.totalLines - visibleLines);
-    final newViewportLine = (viewportLine + direction * halfPage).clamp(
-      0,
-      maxViewportLine,
-    );
+    final newViewportLine =
+        (viewportLine + direction.value * halfPage).clamp(0, maxViewportLine)
+            as int;
     f.viewport = f.lineOffset(newViewportLine);
   }
 }
