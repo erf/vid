@@ -2,60 +2,23 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../types/action_base.dart';
 
-/// Move selection down (j or down arrow).
-class PopupMoveDown extends Action {
-  const PopupMoveDown();
+enum PopupMoveType { down, up, pageDown, pageUp }
+
+/// Move popup selection (j/k/Ctrl-D/Ctrl-U).
+class PopupMove extends Action {
+  final PopupMoveType type;
+  const PopupMove(this.type);
 
   @override
   void call(Editor e, FileBuffer f) {
     if (e.popup == null) return;
     final oldIndex = e.popup!.selectedIndex;
-    e.popup = e.popup!.moveDown();
-    if (e.popup!.selectedIndex != oldIndex) {
-      e.notifyPopupHighlight();
-    }
-  }
-}
-
-/// Move selection up (k or up arrow).
-class PopupMoveUp extends Action {
-  const PopupMoveUp();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (e.popup == null) return;
-    final oldIndex = e.popup!.selectedIndex;
-    e.popup = e.popup!.moveUp();
-    if (e.popup!.selectedIndex != oldIndex) {
-      e.notifyPopupHighlight();
-    }
-  }
-}
-
-/// Move selection down by one page (Ctrl+D).
-class PopupPageDown extends Action {
-  const PopupPageDown();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (e.popup == null) return;
-    final oldIndex = e.popup!.selectedIndex;
-    e.popup = e.popup!.pageDown();
-    if (e.popup!.selectedIndex != oldIndex) {
-      e.notifyPopupHighlight();
-    }
-  }
-}
-
-/// Move selection up by one page (Ctrl+U).
-class PopupPageUp extends Action {
-  const PopupPageUp();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (e.popup == null) return;
-    final oldIndex = e.popup!.selectedIndex;
-    e.popup = e.popup!.pageUp();
+    e.popup = switch (type) {
+      .down => e.popup!.moveDown(),
+      .up => e.popup!.moveUp(),
+      .pageDown => e.popup!.pageDown(),
+      .pageUp => e.popup!.pageUp(),
+    };
     if (e.popup!.selectedIndex != oldIndex) {
       e.notifyPopupHighlight();
     }

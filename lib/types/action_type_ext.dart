@@ -95,14 +95,14 @@ extension ActionTypeExt on ActionType {
     // Popup
     .popupCancel => const PopupCancel(),
     .popupSelect => const PopupSelect(),
-    .popupMoveDown => const PopupMoveDown(),
-    .popupMoveUp => const PopupMoveUp(),
+    .popupMoveDown => const PopupMove(.down),
+    .popupMoveUp => const PopupMove(.up),
     .popupFilterBackspace => const PopupFilterBackspace(),
     .popupFilterCursorLeft => const PopupFilterCursorLeft(),
     .popupFilterCursorRight => const PopupFilterCursorRight(),
     .popupFilterCursorToStart => const PopupFilterCursorToStart(),
     .popupFilterCursorToEnd => const PopupFilterCursorToEnd(),
-    .popupPageDown => const PopupPageDown(),
-    .popupPageUp => const PopupPageUp(),
+    .popupPageDown => const PopupMove(.pageDown),
+    .popupPageUp => const PopupMove(.pageUp),
   };
 }
