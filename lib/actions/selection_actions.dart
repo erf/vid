@@ -25,8 +25,7 @@ class NextSelection extends Action {
   void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) return;
     // Sort by document position, find current, move to next
-    final sorted = [...f.selections]
-      ..sort((a, b) => a.start.compareTo(b.start));
+    final sorted = f.selections.sortedByStart();
     final current = f.selections.first;
     final currentIdx = sorted.indexWhere(
       (s) => s.start == current.start && s.end == current.end,
@@ -48,8 +47,7 @@ class PrevSelection extends Action {
   void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) return;
     // Sort by document position, find current, move to previous
-    final sorted = [...f.selections]
-      ..sort((a, b) => a.start.compareTo(b.start));
+    final sorted = f.selections.sortedByStart();
     final current = f.selections.first;
     final currentIdx = sorted.indexWhere(
       (s) => s.start == current.start && s.end == current.end,

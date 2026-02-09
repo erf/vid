@@ -11,8 +11,7 @@ class InsertActions {
   /// Insert character(s) at all cursor positions.
   static void insert(Editor e, FileBuffer f, String s) {
     // Sort selections by position (ascending)
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    final sorted = f.selections.sortedByCursor();
 
     // Build edit list - insert at each cursor position
     final edits = sorted.map((sel) => TextEdit.insert(sel.cursor, s)).toList();
@@ -95,8 +94,7 @@ class InsertActions {
   /// Delete character before all cursor positions.
   static void backspaceImpl(Editor e, FileBuffer f) {
     // Sort selections by position (ascending)
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    final sorted = f.selections.sortedByCursor();
 
     // Build deletions - skip cursors at start of file
     final deletions = <(int, int)>[];
@@ -143,8 +141,7 @@ class InsertEnter extends Action {
   @override
   void call(Editor e, FileBuffer f) {
     // Sort selections by position (ascending)
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    final sorted = f.selections.sortedByCursor();
 
     // Build insertions - compute indent for each position
     final insertions = <(int, String)>[];

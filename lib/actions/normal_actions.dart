@@ -54,8 +54,7 @@ class NormalActionsUtils {
     if (!f.selections.every((s) => s.isCollapsed)) return;
 
     // Sort cursors by position ascending
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    final sorted = f.selections.sortedByCursor();
 
     // Build edits and track new cursor positions
     final edits = <TextEdit>[];
@@ -547,8 +546,7 @@ class OpenLineAbove extends Action {
   @override
   void call(Editor e, FileBuffer f) {
     // Sort cursors by position (ascending)
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    final sorted = f.selections.sortedByCursor();
 
     // Build insertions - compute indent and position for each cursor
     final insertions = <(int, String)>[];
@@ -591,8 +589,7 @@ class OpenLineBelow extends Action {
   @override
   void call(Editor e, FileBuffer f) {
     // Sort cursors by position (ascending)
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    final sorted = f.selections.sortedByCursor();
 
     // Build insertions - compute indent and position for each cursor
     final insertions = <(int, String)>[];

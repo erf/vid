@@ -58,6 +58,17 @@ class Selection {
       isCollapsed ? 'Selection($cursor)' : 'Selection($anchor→$cursor)';
 }
 
+/// Convenience sorting methods for selection lists.
+extension SelectionListExt on List<Selection> {
+  /// Return a sorted copy ordered by cursor position (ascending).
+  List<Selection> sortedByCursor() =>
+      toList()..sort((a, b) => a.cursor.compareTo(b.cursor));
+
+  /// Return a sorted copy ordered by start position (ascending).
+  List<Selection> sortedByStart() =>
+      toList()..sort((a, b) => a.start.compareTo(b.start));
+}
+
 /// Find all matches of a regex pattern and return as selections.
 ///
 /// Each match becomes a selection with anchor at match.start and cursor
@@ -98,8 +109,7 @@ List<Selection> mergeSelections(
   final mainCursor = selections.first.cursor;
 
   // Sort by start position
-  final sorted = selections.toList()
-    ..sort((a, b) => a.start.compareTo(b.start));
+  final sorted = selections.sortedByStart();
 
   final merged = <Selection>[];
   var current = sorted.first;

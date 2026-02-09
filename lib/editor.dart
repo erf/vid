@@ -653,8 +653,7 @@ class Editor {
     final f = file;
 
     // Sort selections by position (ascending)
-    final sorted = f.selections.toList()
-      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    final sorted = f.selections.sortedByCursor();
 
     // Build edits for all cursor positions
     final edits = sorted

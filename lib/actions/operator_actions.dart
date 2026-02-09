@@ -81,16 +81,19 @@ class OperatorActions {
   static List<Selection> getVisualRanges(FileBuffer f, bool isVisualLineMode) {
     if (isVisualLineMode) {
       // Expand each selection to full lines
-      return f.selections.map((s) {
-        final startLine = f.lineNumber(s.start);
-        final endLine = f.lineNumber(s.end);
-        final minLine = startLine < endLine ? startLine : endLine;
-        final maxLine = startLine < endLine ? endLine : startLine;
-        final lineStart = f.lines[minLine].start;
-        var lineEnd = f.lines[maxLine].end + 1; // Include newline
-        if (lineEnd > f.text.length) lineEnd = f.text.length;
-        return Selection(lineStart, lineEnd);
-      }).toList()..sort((a, b) => a.start.compareTo(b.start));
+      return f.selections
+          .map((s) {
+            final startLine = f.lineNumber(s.start);
+            final endLine = f.lineNumber(s.end);
+            final minLine = startLine < endLine ? startLine : endLine;
+            final maxLine = startLine < endLine ? endLine : startLine;
+            final lineStart = f.lines[minLine].start;
+            var lineEnd = f.lines[maxLine].end + 1; // Include newline
+            if (lineEnd > f.text.length) lineEnd = f.text.length;
+            return Selection(lineStart, lineEnd);
+          })
+          .toList()
+          .sortedByStart();
     }
 
     // Visual mode is inclusive - extend each selection by one grapheme to
@@ -98,15 +101,17 @@ class OperatorActions {
     // - Collapsed selections (single char under cursor)
     // - Non-collapsed selections (extend to include end char)
     if (f.mode == .visual) {
-      return f.selections.map((s) {
-        final newEnd = f.nextGrapheme(s.end);
-        return Selection(s.start, newEnd);
-      }).toList()..sort((a, b) => a.start.compareTo(b.start));
+      return f.selections
+          .map((s) {
+            final newEnd = f.nextGrapheme(s.end);
+            return Selection(s.start, newEnd);
+          })
+          .toList()
+          .sortedByStart();
     }
 
     // Other modes: only operate on non-collapsed selections
-    final selections = f.selections.where((s) => !s.isCollapsed).toList();
-    return selections..sort((a, b) => a.start.compareTo(b.start));
+    return f.selections.where((s) => !s.isCollapsed).toList().sortedByStart();
   }
 
   /// Yank text from sorted ranges, delete them, and collapse selections.
