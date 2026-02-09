@@ -6,173 +6,59 @@ import '../range.dart';
 
 // ===== Bracket text objects =====
 
-/// Inside parentheses: i( or ib
-class InsideParens extends TextObjectAction {
-  const InsideParens();
+/// Inside a bracket pair: selects content between matching open/close brackets.
+class InsidePair extends TextObjectAction {
+  final String open;
+  final String close;
+  const InsidePair(this.open, this.close);
 
   @override
   Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '(', ')');
-    if (open == -1) return Range(offset, offset);
-    return Range(open + 1, close);
+    final (o, c) = findMatchingPair(f, offset, open, close);
+    if (o == -1) return Range(offset, offset);
+    return Range(o + 1, c);
   }
 }
 
-/// Around parentheses: a( or ab
-class AroundParens extends TextObjectAction {
-  const AroundParens();
+/// Around a bracket pair: selects content including the brackets themselves.
+class AroundPair extends TextObjectAction {
+  final String open;
+  final String close;
+  const AroundPair(this.open, this.close);
 
   @override
   Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '(', ')');
-    if (open == -1) return Range(offset, offset);
-    return Range(open, close + 1);
-  }
-}
-
-/// Inside braces: i{ or iB
-class InsideBraces extends TextObjectAction {
-  const InsideBraces();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '{', '}');
-    if (open == -1) return Range(offset, offset);
-    return Range(open + 1, close);
-  }
-}
-
-/// Around braces: a{ or aB
-class AroundBraces extends TextObjectAction {
-  const AroundBraces();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '{', '}');
-    if (open == -1) return Range(offset, offset);
-    return Range(open, close + 1);
-  }
-}
-
-/// Inside brackets: i[
-class InsideBrackets extends TextObjectAction {
-  const InsideBrackets();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '[', ']');
-    if (open == -1) return Range(offset, offset);
-    return Range(open + 1, close);
-  }
-}
-
-/// Around brackets: a[
-class AroundBrackets extends TextObjectAction {
-  const AroundBrackets();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '[', ']');
-    if (open == -1) return Range(offset, offset);
-    return Range(open, close + 1);
-  }
-}
-
-/// Inside angle brackets: i<
-class InsideAngleBrackets extends TextObjectAction {
-  const InsideAngleBrackets();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '<', '>');
-    if (open == -1) return Range(offset, offset);
-    return Range(open + 1, close);
-  }
-}
-
-/// Around angle brackets: a<
-class AroundAngleBrackets extends TextObjectAction {
-  const AroundAngleBrackets();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findMatchingPair(f, offset, '<', '>');
-    if (open == -1) return Range(offset, offset);
-    return Range(open, close + 1);
+    final (o, c) = findMatchingPair(f, offset, open, close);
+    if (o == -1) return Range(offset, offset);
+    return Range(o, c + 1);
   }
 }
 
 // ===== Quote text objects =====
 
-/// Inside double quotes: i"
-class InsideDoubleQuote extends TextObjectAction {
-  const InsideDoubleQuote();
+/// Inside a quote pair: selects content between matching quotes.
+class InsideQuote extends TextObjectAction {
+  final String quote;
+  const InsideQuote(this.quote);
 
   @override
   Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findQuotePair(f, offset, '"');
-    if (open == -1) return Range(offset, offset);
-    return Range(open + 1, close);
+    final (o, c) = findQuotePair(f, offset, quote);
+    if (o == -1) return Range(offset, offset);
+    return Range(o + 1, c);
   }
 }
 
-/// Around double quotes: a"
-class AroundDoubleQuote extends TextObjectAction {
-  const AroundDoubleQuote();
+/// Around a quote pair: selects content including the quotes themselves.
+class AroundQuote extends TextObjectAction {
+  final String quote;
+  const AroundQuote(this.quote);
 
   @override
   Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findQuotePair(f, offset, '"');
-    if (open == -1) return Range(offset, offset);
-    return Range(open, close + 1);
-  }
-}
-
-/// Inside single quotes: i'
-class InsideSingleQuote extends TextObjectAction {
-  const InsideSingleQuote();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findQuotePair(f, offset, "'");
-    if (open == -1) return Range(offset, offset);
-    return Range(open + 1, close);
-  }
-}
-
-/// Around single quotes: a'
-class AroundSingleQuote extends TextObjectAction {
-  const AroundSingleQuote();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findQuotePair(f, offset, "'");
-    if (open == -1) return Range(offset, offset);
-    return Range(open, close + 1);
-  }
-}
-
-/// Inside backticks: i`
-class InsideBacktick extends TextObjectAction {
-  const InsideBacktick();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findQuotePair(f, offset, '`');
-    if (open == -1) return Range(offset, offset);
-    return Range(open + 1, close);
-  }
-}
-
-/// Around backticks: a`
-class AroundBacktick extends TextObjectAction {
-  const AroundBacktick();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final (open, close) = findQuotePair(f, offset, '`');
-    if (open == -1) return Range(offset, offset);
-    return Range(open, close + 1);
+    final (o, c) = findQuotePair(f, offset, quote);
+    if (o == -1) return Range(offset, offset);
+    return Range(o, c + 1);
   }
 }
 
