@@ -186,3 +186,15 @@ List<Selection> collapseAfterDelete(
 
   return mergeSelections(newSelections);
 }
+
+/// Find the index of the range containing [cursorPos] in a sorted list.
+/// Returns 0 if no range contains the cursor.
+int findMainIndex(List<Selection> sortedRanges, int cursorPos) {
+  for (int i = 0; i < sortedRanges.length; i++) {
+    if (sortedRanges[i].start <= cursorPos &&
+        cursorPos <= sortedRanges[i].end) {
+      return i;
+    }
+  }
+  return 0;
+}

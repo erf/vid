@@ -998,18 +998,14 @@ class Editor {
     OperatorAction op,
     bool linewise,
   ) {
-    // Remember main cursor position before processing
-    final mainCursorPos = file.selections.first.cursor;
-
     // Calculate ranges for each cursor position
-    final ranges = <Range>[];
+    final ranges = <Selection>[];
     for (final sel in file.selections) {
       final start = sel.cursor;
       var end = start;
       for (int i = 0; i < count; i++) {
         end = motion.fn(this, file, end);
       }
-      // For inclusive motions, extend end to include the character under cursor
       if (motion.inclusive && end < file.text.length) {
         end = file.nextGrapheme(end);
       }
@@ -1017,60 +1013,34 @@ class Editor {
       if (linewise) {
         range = _expandToFullLines(range);
       }
-      ranges.add(range);
+      ranges.add(Selection(range.start, range.end));
     }
 
-    // Sort ranges by position (in document order), keeping track of main cursor index
-    final rangesWithIndex = ranges.asMap().entries.toList();
-    rangesWithIndex.sort((a, b) => a.value.start.compareTo(b.value.start));
+    // Sort by position and find main cursor index
+    ranges.sort((a, b) => a.start.compareTo(b.start));
+    final mainIndex = findMainIndex(ranges, file.selections.first.cursor);
 
-    // Find which sorted index corresponds to main cursor
-    int mainIndex = 0;
-    for (int i = 0; i < rangesWithIndex.length; i++) {
-      if (rangesWithIndex[i].value.start == mainCursorPos ||
-          (rangesWithIndex[i].value.start <= mainCursorPos &&
-              mainCursorPos < rangesWithIndex[i].value.end)) {
-        mainIndex = i;
-        break;
-      }
-    }
-
-    final sortedRanges = rangesWithIndex.map((e) => e.value).toList();
-
-    // Yank all text first (for delete/change operations)
-    final pieces = sortedRanges
-        .map((range) => file.text.substring(range.start, range.end))
-        .toList();
-    yankBuffer = YankBuffer(pieces, linewise: linewise);
-    terminal.write(Ansi.copyToClipboard(yankBuffer!.text));
-
-    // For yank, we're done after copying
+    // For yank, just copy text
     if (op is Yank) {
+      final pieces = ranges
+          .map((r) => file.text.substring(r.start, r.end))
+          .toList();
+      yankBuffer = YankBuffer(pieces, linewise: linewise);
+      terminal.write(Ansi.copyToClipboard(yankBuffer!.text));
       file.setMode(this, .normal);
       return;
     }
 
-    // For delete/change, apply from end to start to preserve positions
-    // Build edit list
-    final edits = sortedRanges.reversed
-        .map((r) => TextEdit.delete(r.start, r.end))
-        .toList();
+    // For delete/change: yank, delete, and collapse selections
+    OperatorActions.deleteRanges(
+      this,
+      file,
+      ranges,
+      mainIndex,
+      linewise: linewise,
+    );
 
-    // Apply the deletions
-    applyEdits(file, edits, config);
-
-    // Collapse selections adjusted for deleted text
-    final sortedSelections = sortedRanges
-        .map((r) => Selection(r.start, r.end))
-        .toList();
-    file.selections = collapseAfterDelete(sortedSelections, mainIndex);
-    file.clampCursor();
-
-    if (op is Change) {
-      file.setMode(this, .insert);
-    } else {
-      file.setMode(this, .normal);
-    }
+    file.setMode(this, op is Change ? .insert : .normal);
   }
 
   /// Expand range to include full lines (for linewise operations).
