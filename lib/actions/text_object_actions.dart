@@ -121,19 +121,20 @@ class InsideWord extends TextObjectAction {
   }
 }
 
-/// Around word: aw
+/// Around word/WORD: aw/aW
 /// Selects the word under cursor plus trailing whitespace (or leading if at end)
-class AroundWord extends TextObjectAction {
-  const AroundWord();
+class AroundWordObj extends TextObjectAction {
+  final TextObjectAction inner;
+  const AroundWordObj(this.inner);
 
   @override
   Range call(Editor e, FileBuffer f, int offset) {
     final text = f.text;
-    final inner = const InsideWord().call(e, f, offset);
-    if (inner.start == inner.end) return inner;
+    final innerRange = inner.call(e, f, offset);
+    if (innerRange.start == innerRange.end) return innerRange;
 
-    int start = inner.start;
-    int end = inner.end;
+    int start = innerRange.start;
+    int end = innerRange.end;
 
     // Try to include trailing whitespace first
     int trailingEnd = end;
@@ -191,39 +192,6 @@ class InsideWORD extends TextObjectAction {
       end++;
     }
     return Range(start, end);
-  }
-}
-
-/// Around WORD: aW (whitespace-delimited + whitespace)
-class AroundWORD extends TextObjectAction {
-  const AroundWORD();
-
-  @override
-  Range call(Editor e, FileBuffer f, int offset) {
-    final text = f.text;
-    final inner = const InsideWORD().call(e, f, offset);
-    if (inner.start == inner.end) return inner;
-
-    int start = inner.start;
-    int end = inner.end;
-
-    // Try trailing whitespace first
-    int trailingEnd = end;
-    while (trailingEnd < text.length && isWhitespace(text[trailingEnd])) {
-      trailingEnd++;
-    }
-
-    if (trailingEnd > end) {
-      return Range(start, trailingEnd);
-    }
-
-    // No trailing whitespace, try leading
-    int leadingStart = start;
-    while (leadingStart > 0 && isWhitespace(text[leadingStart - 1])) {
-      leadingStart--;
-    }
-
-    return Range(leadingStart, end);
   }
 }
 
