@@ -644,13 +644,7 @@ class Editor {
 
     // Insert paste content as a single bulk operation (one undo entry)
     // This bypasses insert mode's per-character processing
-    if (file.mode == Mode.insert) {
-      _insertPasteContent(content);
-    } else {
-      // In normal mode, just show a message - user should enter insert mode first
-      // Or we could auto-enter insert mode. For now, insert at cursor anyway.
-      _insertPasteContent(content);
-    }
+    _insertPasteContent(content);
   }
 
   /// Insert paste content at all cursor positions as a single undo operation.
