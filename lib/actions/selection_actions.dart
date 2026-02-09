@@ -243,17 +243,18 @@ class EscapeVisualLine extends Action {
   }
 }
 
+enum LinePosition { start, end }
+
 /// In visual line mode, 'I'/'A' converts each line in the selection to a
 /// cursor at the start or end of each line (multi-cursor mode).
 class VisualLineInsert extends Action {
-  /// If true, cursors go at line ends; if false, at line starts.
-  final bool atEnd;
-  const VisualLineInsert({required this.atEnd});
+  final LinePosition position;
+  const VisualLineInsert(this.position);
 
-  int _position(FileBuffer f, LineInfo line) {
-    if (!atEnd) return line.start;
-    return line.end > line.start ? f.prevGrapheme(line.end) : line.start;
-  }
+  int _offset(FileBuffer f, LineInfo line) => switch (position) {
+    .start => line.start,
+    .end => line.end > line.start ? f.prevGrapheme(line.end) : line.start,
+  };
 
   @override
   void call(Editor e, FileBuffer f) {
@@ -264,12 +265,12 @@ class VisualLineInsert extends Action {
 
     // Main cursor at current cursor's line first, then others in order
     final newSelections = <Selection>[
-      Selection.collapsed(_position(f, f.lines[cursorLine])),
+      Selection.collapsed(_offset(f, f.lines[cursorLine])),
     ];
 
     for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
       if (lineNum == cursorLine) continue;
-      newSelections.add(Selection.collapsed(_position(f, f.lines[lineNum])));
+      newSelections.add(Selection.collapsed(_offset(f, f.lines[lineNum])));
     }
 
     f.selections = newSelections;
