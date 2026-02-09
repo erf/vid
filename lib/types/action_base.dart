@@ -5,7 +5,6 @@ import 'package:characters/characters.dart';
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../string_ext.dart';
-import '../utils.dart';
 
 /// Base class for general editor actions (normal mode, insert mode, etc.)
 ///
@@ -55,7 +54,7 @@ abstract class Action {
 
     // Clamp to valid position in target line
     final targetCharLen = targetLineText.characters.length;
-    final charIndex = clamp(chars.length, 0, max(0, targetCharLen - 1));
+    final charIndex = chars.length.clamp(0, max<int>(0, targetCharLen - 1));
 
     // Convert char index to byte offset
     return targetLineStart +

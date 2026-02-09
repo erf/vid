@@ -6,7 +6,6 @@ import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/regex.dart';
 import 'package:vid/regex_ext.dart';
 import 'package:vid/string_ext.dart';
-import 'package:vid/utils.dart';
 
 /// Base class for motion actions.
 ///
@@ -58,7 +57,7 @@ abstract class MotionAction {
 
     // Clamp to valid position in target line
     int targetCharLen = targetLineText.characters.length;
-    int charIndex = clamp(chars.length, 0, max(0, targetCharLen));
+    int charIndex = chars.length.clamp(0, max<int>(0, targetCharLen));
 
     // Convert char index to byte offset
     return targetLineStart +
