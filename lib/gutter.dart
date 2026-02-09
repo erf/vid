@@ -16,21 +16,6 @@ enum GutterSignType {
 
   /// Code action available (lightbulb).
   codeAction,
-
-  /// Git: line was added (future).
-  gitAdded,
-
-  /// Git: line was modified (future).
-  gitModified,
-
-  /// Git: line was deleted (future).
-  gitDeleted,
-
-  /// Debugger breakpoint (future).
-  breakpoint,
-
-  /// User bookmark (future).
-  bookmark,
 }
 
 /// A sign to display in the gutter for a specific line.
@@ -67,11 +52,6 @@ class GutterSign {
       GutterSignType.warning => '●',
       GutterSignType.hint => '●',
       GutterSignType.codeAction => '*',
-      GutterSignType.gitAdded => '┃',
-      GutterSignType.gitModified => '┃',
-      GutterSignType.gitDeleted => '▁',
-      GutterSignType.breakpoint => '●',
-      GutterSignType.bookmark => '★',
     };
   }
 
@@ -81,11 +61,6 @@ class GutterSign {
     GutterSignType.warning => theme.diagnosticWarning ?? Ansi.fg(Color.yellow),
     GutterSignType.hint => theme.diagnosticHint ?? Ansi.fg(Color.blue),
     GutterSignType.codeAction => Ansi.fg(Color.cyan),
-    GutterSignType.gitAdded => Ansi.fg(Color.green),
-    GutterSignType.gitModified => Ansi.fg(Color.yellow),
-    GutterSignType.gitDeleted => Ansi.fg(Color.red),
-    GutterSignType.breakpoint => Ansi.fg(Color.red),
-    GutterSignType.bookmark => Ansi.fg(Color.blue),
   };
 
   /// Priority for display when multiple signs exist on same line.
