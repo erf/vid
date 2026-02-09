@@ -11,7 +11,7 @@ class EscapeVisual extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    f.selections = f.selections.map((s) => s.collapse()).toList();
+    f.collapseSelections();
     f.setMode(e, .normal);
   }
 }
@@ -365,7 +365,7 @@ class AddCursorBelow extends Action {
     );
 
     // Get position on next line at same visual column
-    final newPos = offsetAtVisualColumn(
+    final newPos = Action.offsetAtVisualColumn(
       f,
       maxLineNum + 1,
       curVisualCol,
@@ -407,7 +407,7 @@ class AddCursorAbove extends Action {
     );
 
     // Get position on previous line at same visual column
-    final newPos = offsetAtVisualColumn(
+    final newPos = Action.offsetAtVisualColumn(
       f,
       minLineNum - 1,
       curVisualCol,

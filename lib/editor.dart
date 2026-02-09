@@ -1059,22 +1059,11 @@ class Editor {
     // Apply the deletions
     applyEdits(file, edits, config);
 
-    // Compute new collapsed selection positions, adjusted for deleted text
-    int offset = 0;
-    final newSelections = <Selection>[];
-    for (int i = 0; i < sortedRanges.length; i++) {
-      final r = sortedRanges[i];
-      newSelections.add(Selection.collapsed(r.start - offset));
-      offset += r.end - r.start;
-    }
-
-    // Move main cursor to front
-    if (mainIndex > 0 && mainIndex < newSelections.length) {
-      final mainSel = newSelections.removeAt(mainIndex);
-      newSelections.insert(0, mainSel);
-    }
-
-    file.selections = mergeSelections(newSelections);
+    // Collapse selections adjusted for deleted text
+    final sortedSelections = sortedRanges
+        .map((r) => Selection(r.start, r.end))
+        .toList();
+    file.selections = collapseAfterDelete(sortedSelections, mainIndex);
     file.clampCursor();
 
     if (op is Change) {

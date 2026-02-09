@@ -33,7 +33,7 @@ class OperatorActions {
     final mainCursorPos = f.selections.first.cursor;
 
     // Get the ranges to operate on (expanded for visual line / inclusive for visual)
-    final ranges = _getOperatorRanges(f, isVisualLineMode);
+    final ranges = getVisualRanges(f, isVisualLineMode);
     if (ranges.isEmpty) return false;
 
     // Find which sorted index corresponds to main cursor
@@ -89,10 +89,7 @@ class OperatorActions {
 
   /// Get the ranges to operate on, sorted by position.
   /// Handles visual line expansion and visual mode inclusive extension.
-  static List<Selection> _getOperatorRanges(
-    FileBuffer f,
-    bool isVisualLineMode,
-  ) {
+  static List<Selection> getVisualRanges(FileBuffer f, bool isVisualLineMode) {
     if (isVisualLineMode) {
       // Expand each selection to full lines
       return f.selections.map((s) {
@@ -132,20 +129,7 @@ class OperatorActions {
     List<Selection> ranges,
     int mainIndex,
   ) {
-    int offset = 0;
-    final newSelections = <Selection>[];
-    for (final s in ranges) {
-      newSelections.add(Selection.collapsed(s.start - offset));
-      offset += s.end - s.start;
-    }
-
-    // Move main cursor to front before merging
-    if (mainIndex > 0 && mainIndex < newSelections.length) {
-      final mainSel = newSelections.removeAt(mainIndex);
-      newSelections.insert(0, mainSel);
-    }
-
-    f.selections = mergeSelections(newSelections);
+    f.selections = collapseAfterDelete(ranges, mainIndex);
     f.clampCursor();
   }
 

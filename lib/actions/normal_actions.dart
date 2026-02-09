@@ -19,6 +19,7 @@ import '../text_op.dart';
 import '../types/action_base.dart';
 import '../types/motion_action_base.dart';
 import 'insert_actions.dart';
+import 'operator_actions.dart';
 
 /// Utility methods for normal actions.
 class NormalActionsUtils {
@@ -113,33 +114,8 @@ class ToggleCaseUnderCursor extends Action {
     if (f.mode == .visual || f.mode == .visualLine) {
       final isVisualLineMode = f.mode == .visualLine;
 
-      // Collect selections, sorted by position.
-      List<Selection> selections;
-      if (isVisualLineMode) {
-        // In visual line mode, expand each selection to full lines.
-        selections = f.selections.map((s) {
-          final startLineNum = f.lineNumber(s.start);
-          final endLineNum = f.lineNumber(s.end);
-          final minLine = startLineNum < endLineNum ? startLineNum : endLineNum;
-          final maxLine = startLineNum < endLineNum ? endLineNum : startLineNum;
-          final lineStart = f.lines[minLine].start;
-          var lineEnd = f.lines[maxLine].end + 1; // include newline
-          if (lineEnd > f.text.length) lineEnd = f.text.length;
-          return Selection(lineStart, lineEnd);
-        }).toList()..sort((a, b) => a.start.compareTo(b.start));
-      } else {
-        // Visual mode: make selections inclusive (include char under cursor).
-        // Collapsed selections become single-char selections.
-        selections = f.selections.toList()
-          ..sort((a, b) => a.start.compareTo(b.start));
-
-        selections = selections.map((s) {
-          final end = s.isCollapsed
-              ? f.nextGrapheme(s.cursor)
-              : f.nextGrapheme(s.end);
-          return Selection(s.start, end);
-        }).toList();
-      }
+      // Get expanded/inclusive ranges, sorted by position
+      final selections = OperatorActions.getVisualRanges(f, isVisualLineMode);
 
       final edits = <TextEdit>[];
       final deltas = <int>[];
@@ -432,7 +408,7 @@ class VisualPaste extends Action {
     }
 
     // Get ranges to replace - use same logic as operator actions
-    final ranges = _getVisualRanges(f, isVisualLineMode);
+    final ranges = OperatorActions.getVisualRanges(f, isVisualLineMode);
     if (ranges.isEmpty) return;
 
     final yank = e.yankBuffer!;
@@ -472,28 +448,6 @@ class VisualPaste extends Action {
     f.clampCursor();
 
     f.setMode(e, .normal);
-  }
-
-  /// Get visual ranges to operate on (expanded for visual line / inclusive for visual).
-  static List<Selection> _getVisualRanges(FileBuffer f, bool isVisualLineMode) {
-    if (isVisualLineMode) {
-      return f.selections.map((s) {
-        final startLine = f.lineNumber(s.start);
-        final endLine = f.lineNumber(s.end);
-        final minLine = startLine < endLine ? startLine : endLine;
-        final maxLine = startLine < endLine ? endLine : startLine;
-        final lineStart = f.lines[minLine].start;
-        var lineEnd = f.lines[maxLine].end + 1; // Include newline
-        if (lineEnd > f.text.length) lineEnd = f.text.length;
-        return Selection(lineStart, lineEnd);
-      }).toList()..sort((a, b) => a.start.compareTo(b.start));
-    }
-
-    // Visual mode is inclusive - extend by one grapheme
-    return f.selections.map((s) {
-      final newEnd = f.nextGrapheme(s.end);
-      return Selection(s.start, newEnd);
-    }).toList()..sort((a, b) => a.start.compareTo(b.start));
   }
 }
 
@@ -968,7 +922,7 @@ class Escape extends Action {
 
     // Collapse all selections to their cursor position, then keep only the first
     if (f.selections.length > 1 || !f.selections.first.isCollapsed) {
-      f.selections = [Selection.collapsed(f.selections.first.cursor)];
+      f.collapseToPrimaryCursor();
     }
     // If already single collapsed cursor, escape does nothing in normal mode
   }

@@ -4,7 +4,6 @@ import 'package:characters/characters.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../selection.dart';
 import '../string_ext.dart';
 import '../utils.dart';
 
@@ -29,35 +28,6 @@ abstract class Action {
 
   // ===== Utility methods for action implementations =====
 
-  /// Move the selection with cursor at [cursorPos] to front of list.
-  void moveToFront(List<Selection> selections, int cursorPos) {
-    for (int i = 0; i < selections.length; i++) {
-      if (selections[i].cursor == cursorPos) {
-        final sel = selections.removeAt(i);
-        selections.insert(0, sel);
-        return;
-      }
-    }
-  }
-
-  /// Promote the selection closest to [offset] to front of list.
-  void promoteClosest(List<Selection> selections, int offset) {
-    if (selections.length <= 1) return;
-    int bestIdx = 0;
-    int bestDist = (selections[0].cursor - offset).abs();
-    for (int i = 1; i < selections.length; i++) {
-      final dist = (selections[i].cursor - offset).abs();
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestIdx = i;
-      }
-    }
-    if (bestIdx != 0) {
-      final nearest = selections.removeAt(bestIdx);
-      selections.insert(0, nearest);
-    }
-  }
-
   /// Get visual column of offset.
   static int visualColumn(FileBuffer f, int offset, int tabWidth) {
     final lineStart = f.lineStart(offset);
@@ -66,7 +36,7 @@ abstract class Action {
   }
 
   /// Get byte offset at target visual column on a line.
-  int offsetAtVisualColumn(
+  static int offsetAtVisualColumn(
     FileBuffer f,
     int targetLine,
     int targetVisualCol,
