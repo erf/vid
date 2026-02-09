@@ -232,24 +232,27 @@ class ToggleCaseUnderCursor extends Action {
   }
 }
 
-/// Scroll viewport down by half page (vim Ctrl-D behavior).
+/// Scroll viewport by half page (Ctrl-D/Ctrl-U).
 /// Both viewport and cursor move by the same number of lines.
-class MoveDownHalfPage extends Action {
-  const MoveDownHalfPage();
+class MoveHalfPage extends Action {
+  final int direction; // +1 down, -1 up
+  const MoveHalfPage(this.direction);
 
   @override
   void call(Editor e, FileBuffer f) {
     final halfPage = e.terminal.height ~/ 2;
     final cursorLine = f.lineNumber(f.cursor);
 
-    // Do nothing if cursor is already on the last line
-    if (cursorLine >= f.totalLines - 1) return;
+    // Do nothing if cursor is already at boundary
+    if (direction > 0 && cursorLine >= f.totalLines - 1) return;
+    if (direction < 0 && cursorLine <= 0) return;
 
     // Calculate current cursor column for preservation
     final cursorCol = f.cursor - f.lines[cursorLine].start;
 
-    // Calculate new cursor line (clamped to last line)
-    final newCursorLine = min(cursorLine + halfPage, f.totalLines - 1);
+    // Calculate new cursor line (clamped to valid range)
+    final newCursorLine =
+        (cursorLine + direction * halfPage).clamp(0, f.totalLines - 1);
 
     // Move cursor, preserving column
     final lineInfo = f.lines[newCursorLine];
@@ -260,38 +263,8 @@ class MoveDownHalfPage extends Action {
     final viewportLine = f.lineNumber(f.viewport);
     final visibleLines = e.terminal.height - 1;
     final maxViewportLine = max(0, f.totalLines - visibleLines);
-    final newViewportLine = min(viewportLine + halfPage, maxViewportLine);
-    f.viewport = f.lineOffset(newViewportLine);
-  }
-}
-
-/// Scroll viewport up by half page (vim Ctrl-U behavior).
-/// Both viewport and cursor move by the same number of lines.
-class MoveUpHalfPage extends Action {
-  const MoveUpHalfPage();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    final halfPage = e.terminal.height ~/ 2;
-    final cursorLine = f.lineNumber(f.cursor);
-
-    // Do nothing if cursor is already on the first line
-    if (cursorLine <= 0) return;
-
-    // Calculate current cursor column for preservation
-    final cursorCol = f.cursor - f.lines[cursorLine].start;
-
-    // Calculate new cursor line (clamped to first line)
-    final newCursorLine = max(cursorLine - halfPage, 0);
-
-    // Move cursor, preserving column
-    final lineInfo = f.lines[newCursorLine];
-    f.cursor = min(lineInfo.start + cursorCol, lineInfo.end);
-    f.clampCursor();
-
-    // Scroll viewport by same amount (clamped to valid range)
-    final viewportLine = f.lineNumber(f.viewport);
-    final newViewportLine = max(viewportLine - halfPage, 0);
+    final newViewportLine =
+        (viewportLine + direction * halfPage).clamp(0, maxViewportLine);
     f.viewport = f.lineOffset(newViewportLine);
   }
 }
