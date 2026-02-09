@@ -179,25 +179,15 @@ class Yank extends OperatorAction {
   }
 }
 
-/// LowerCase operator (gu) - convert range to lowercase
-class LowerCase extends OperatorAction {
-  const LowerCase();
+/// Case change operator (gu/gU) - convert range to lower/uppercase
+class ChangeCase extends OperatorAction {
+  final bool toUpper;
+  const ChangeCase({required this.toUpper});
 
   @override
   void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
-    String replacement = f.text.substring(range.start, range.end).toLowerCase();
-    f.replace(range.start, range.end, replacement, config: e.config);
-    f.setMode(e, .normal);
-  }
-}
-
-/// UpperCase operator (gU) - convert range to uppercase
-class UpperCase extends OperatorAction {
-  const UpperCase();
-
-  @override
-  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
-    String replacement = f.text.substring(range.start, range.end).toUpperCase();
+    final text = f.text.substring(range.start, range.end);
+    final replacement = toUpper ? text.toUpperCase() : text.toLowerCase();
     f.replace(range.start, range.end, replacement, config: e.config);
     f.setMode(e, .normal);
   }
