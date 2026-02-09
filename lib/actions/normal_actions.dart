@@ -251,8 +251,10 @@ class MoveHalfPage extends Action {
     final cursorCol = f.cursor - f.lines[cursorLine].start;
 
     // Calculate new cursor line (clamped to valid range)
-    final newCursorLine =
-        (cursorLine + direction * halfPage).clamp(0, f.totalLines - 1);
+    final newCursorLine = (cursorLine + direction * halfPage).clamp(
+      0,
+      f.totalLines - 1,
+    );
 
     // Move cursor, preserving column
     final lineInfo = f.lines[newCursorLine];
@@ -263,8 +265,10 @@ class MoveHalfPage extends Action {
     final viewportLine = f.lineNumber(f.viewport);
     final visibleLines = e.terminal.height - 1;
     final maxViewportLine = max(0, f.totalLines - visibleLines);
-    final newViewportLine =
-        (viewportLine + direction * halfPage).clamp(0, maxViewportLine);
+    final newViewportLine = (viewportLine + direction * halfPage).clamp(
+      0,
+      maxViewportLine,
+    );
     f.viewport = f.lineOffset(newViewportLine);
   }
 }
