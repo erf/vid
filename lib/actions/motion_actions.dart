@@ -322,27 +322,14 @@ class SentencePrev extends MotionAction {
 
 // ===== Same word motions =====
 
-/// Move to next same word (*)
-class SameWordNext extends MotionAction {
-  const SameWordNext();
+/// Move to next/previous same word (* / #)
+class SameWordMotion extends MotionAction {
+  final bool forward;
+  const SameWordMotion({required this.forward});
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    final result = matchCursorWord(f, offset, forward: true);
-    if (result == null) return offset;
-    final (destOffset, word) = result;
-    f.edit.findStr = word;
-    return destOffset;
-  }
-}
-
-/// Move to previous same word (#)
-class SameWordPrev extends MotionAction {
-  const SameWordPrev();
-
-  @override
-  int call(Editor e, FileBuffer f, int offset) {
-    final result = matchCursorWord(f, offset, forward: false);
+    final result = matchCursorWord(f, offset, forward: forward);
     if (result == null) return offset;
     final (destOffset, word) = result;
     f.edit.findStr = word;
