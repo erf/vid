@@ -4,6 +4,7 @@ import '../selection.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
+import '../line_info.dart';
 import '../types/action_base.dart';
 
 /// Exit visual mode, collapse selections to multiple cursors (collapsed selections).
@@ -242,42 +243,17 @@ class EscapeVisualLine extends Action {
   }
 }
 
-/// In visual line mode, 'I' converts each line in the selection to a cursor
-/// at the start of each line (multi-cursor mode).
-class VisualLineInsertAtLineStarts extends Action {
-  const VisualLineInsertAtLineStarts();
+/// In visual line mode, 'I'/'A' converts each line in the selection to a
+/// cursor at the start or end of each line (multi-cursor mode).
+class VisualLineInsert extends Action {
+  /// If true, cursors go at line ends; if false, at line starts.
+  final bool atEnd;
+  const VisualLineInsert({required this.atEnd});
 
-  @override
-  void call(Editor e, FileBuffer f) {
-    final sel = f.selections.first;
-    final startLine = f.lineNumber(sel.start);
-    final endLine = f.lineNumber(sel.end);
-    final cursorLine = f.lineNumber(sel.cursor);
-
-    // Create collapsed selection at start of each line
-    // Put the cursor's line first (main cursor), then others in order
-    final newSelections = <Selection>[];
-
-    // Main cursor at current cursor's line
-    final mainLineStart = f.lines[cursorLine].start;
-    newSelections.add(Selection.collapsed(mainLineStart));
-
-    // Add other lines
-    for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
-      if (lineNum == cursorLine) continue; // Skip main cursor line
-      final lineStart = f.lines[lineNum].start;
-      newSelections.add(Selection.collapsed(lineStart));
-    }
-
-    f.selections = newSelections;
-    f.setMode(e, .normal);
+  int _position(FileBuffer f, LineInfo line) {
+    if (!atEnd) return line.start;
+    return line.end > line.start ? f.prevGrapheme(line.end) : line.start;
   }
-}
-
-/// In visual line mode, 'A' converts each line in the selection to a cursor
-/// at the end of each line (multi-cursor mode).
-class VisualLineInsertAtLineEnds extends Action {
-  const VisualLineInsertAtLineEnds();
 
   @override
   void call(Editor e, FileBuffer f) {
@@ -286,26 +262,14 @@ class VisualLineInsertAtLineEnds extends Action {
     final endLine = f.lineNumber(sel.end);
     final cursorLine = f.lineNumber(sel.cursor);
 
-    // Create collapsed selection at end of each line (before newline)
-    // Put the cursor's line first (main cursor), then others in order
-    final newSelections = <Selection>[];
+    // Main cursor at current cursor's line first, then others in order
+    final newSelections = <Selection>[
+      Selection.collapsed(_position(f, f.lines[cursorLine])),
+    ];
 
-    // Main cursor at current cursor's line
-    final mainLine = f.lines[cursorLine];
-    // Position at end of content (before newline), or line start if empty
-    final mainLineEnd = mainLine.end > mainLine.start
-        ? f.prevGrapheme(mainLine.end)
-        : mainLine.start;
-    newSelections.add(Selection.collapsed(mainLineEnd));
-
-    // Add other lines
     for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
-      if (lineNum == cursorLine) continue; // Skip main cursor line
-      final line = f.lines[lineNum];
-      final lineEnd = line.end > line.start
-          ? f.prevGrapheme(line.end)
-          : line.start;
-      newSelections.add(Selection.collapsed(lineEnd));
+      if (lineNum == cursorLine) continue;
+      newSelections.add(Selection.collapsed(_position(f, f.lines[lineNum])));
     }
 
     f.selections = newSelections;

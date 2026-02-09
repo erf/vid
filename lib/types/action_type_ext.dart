@@ -72,8 +72,8 @@ extension ActionTypeExt on ActionType {
     .selectNextMatch => const SelectNextMatch(),
     .splitSelectionIntoLines => const SplitSelectionIntoLines(),
     .visualPaste => const VisualPaste(),
-    .visualLineInsertAtLineStarts => const VisualLineInsertAtLineStarts(),
-    .visualLineInsertAtLineEnds => const VisualLineInsertAtLineEnds(),
+    .visualLineInsertAtLineStarts => const VisualLineInsert(atEnd: false),
+    .visualLineInsertAtLineEnds => const VisualLineInsert(atEnd: true),
 
     // LSP
     .goToDefinition => const GoToDefinition(),
