@@ -279,78 +279,40 @@ class VisualLineInsert extends Action {
 }
 
 /// Add a new cursor on the line below the bottommost cursor.
-class AddCursorBelow extends Action {
-  const AddCursorBelow();
+/// Add a new cursor on the line below or above the extreme cursor.
+class AddCursor extends Action {
+  final int direction; // +1 below, -1 above
+  const AddCursor(this.direction);
 
   @override
   void call(Editor e, FileBuffer f) {
-    // Find the bottommost cursor (highest line number)
-    int maxLineNum = -1;
-    Selection? bottomSel;
+    // Find the extreme cursor in the given direction
+    int extremeLine = direction > 0 ? -1 : f.totalLines;
+    Selection? extremeSel;
     for (final sel in f.selections) {
       final lineNum = f.lineNumber(sel.cursor);
-      if (lineNum > maxLineNum) {
-        maxLineNum = lineNum;
-        bottomSel = sel;
+      if (direction > 0 ? lineNum > extremeLine : lineNum < extremeLine) {
+        extremeLine = lineNum;
+        extremeSel = sel;
       }
     }
-    if (bottomSel == null) return;
+    if (extremeSel == null) return;
 
-    if (maxLineNum >= f.totalLines - 1) return; // Already at last line
+    // Check boundary
+    if (direction > 0 && extremeLine >= f.totalLines - 1) return;
+    if (direction < 0 && extremeLine <= 0) return;
 
     // Get current visual column position
     final curVisualCol = Action.visualColumn(
       f,
-      bottomSel.cursor,
+      extremeSel.cursor,
       e.config.tabWidth,
     );
 
-    // Get position on next line at same visual column
+    // Get position on adjacent line at same visual column
     final newPos = Action.offsetAtVisualColumn(
       f,
-      maxLineNum + 1,
-      curVisualCol,
-      e.config.tabWidth,
-    );
-    final newCursor = Selection.collapsed(newPos);
-    f.selections.add(newCursor);
-    f.selections = mergeSelections(f.selections);
-    // Move new cursor to front (main cursor)
-    moveToFront(f.selections, newPos);
-  }
-}
-
-/// Add a new cursor on the line above the topmost cursor.
-class AddCursorAbove extends Action {
-  const AddCursorAbove();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    // Find the topmost cursor (lowest line number)
-    int minLineNum = f.totalLines;
-    Selection? topSel;
-    for (final sel in f.selections) {
-      final lineNum = f.lineNumber(sel.cursor);
-      if (lineNum < minLineNum) {
-        minLineNum = lineNum;
-        topSel = sel;
-      }
-    }
-    if (topSel == null) return;
-
-    if (minLineNum <= 0) return; // Already at first line
-
-    // Get current visual column position
-    final curVisualCol = Action.visualColumn(
-      f,
-      topSel.cursor,
-      e.config.tabWidth,
-    );
-
-    // Get position on previous line at same visual column
-    final newPos = Action.offsetAtVisualColumn(
-      f,
-      minLineNum - 1,
+      extremeLine + direction,
       curVisualCol,
       e.config.tabWidth,
     );

@@ -59,8 +59,8 @@ extension ActionTypeExt on ActionType {
     .replaceBackspace => const ReplaceBackspace(),
 
     // Selection
-    .addCursorBelow => const AddCursorBelow(),
-    .addCursorAbove => const AddCursorAbove(),
+    .addCursorBelow => const AddCursor(1),
+    .addCursorAbove => const AddCursor(-1),
     .escapeVisual => const EscapeVisual(),
     .escapeVisualLine => const EscapeVisualLine(),
     .swapEnds => const SwapEnds(),
