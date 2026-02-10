@@ -5,9 +5,13 @@ import '../types/line_edit_action_base.dart';
 
 // ===== Buffer commands =====
 
-/// Switch to next buffer (:bn, :bnext).
-class CmdNextBuffer extends LineEditAction {
-  const CmdNextBuffer();
+/// Buffer cycle direction.
+enum BufferDir { next, prev }
+
+/// Switch to next or previous buffer (:bn/:bp).
+class CmdCycleBuffer extends LineEditAction {
+  final BufferDir dir;
+  const CmdCycleBuffer(this.dir);
 
   @override
   void call(Editor e, FileBuffer f, List<String> args) {
@@ -16,23 +20,12 @@ class CmdNextBuffer extends LineEditAction {
       e.showMessage(.info('Only one buffer open'));
       return;
     }
-    e.nextBuffer();
-    e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
-  }
-}
-
-/// Switch to previous buffer (:bp, :bprev).
-class CmdPrevBuffer extends LineEditAction {
-  const CmdPrevBuffer();
-
-  @override
-  void call(Editor e, FileBuffer f, List<String> args) {
-    f.setMode(e, .normal);
-    if (e.bufferCount <= 1) {
-      e.showMessage(.info('Only one buffer open'));
-      return;
+    switch (dir) {
+      case .next:
+        e.nextBuffer();
+      case .prev:
+        e.prevBuffer();
     }
-    e.prevBuffer();
     e.showMessage(.info('Buffer ${e.currentBufferIndex + 1}/${e.bufferCount}'));
   }
 }

@@ -25,8 +25,8 @@ extension LineEditTypeExt on LineEditType {
     .setWordWrap => const CmdSetWrap(WrapMode.word, 'word'),
 
     // Buffer commands
-    .nextBuffer => const CmdNextBuffer(),
-    .prevBuffer => const CmdPrevBuffer(),
+    .nextBuffer => const CmdCycleBuffer(.next),
+    .prevBuffer => const CmdCycleBuffer(.prev),
     .switchToBuffer => const CmdSwitchToBuffer(),
     .closeBuffer => const CmdCloseBuffer(),
     .forceCloseBuffer => const CmdForceCloseBuffer(),
