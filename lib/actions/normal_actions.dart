@@ -705,23 +705,23 @@ class RepeatFindStrReverse extends Action {
   }
 }
 
-/// Increase number under cursor.
-class Increase extends Action {
-  const Increase();
+/// Number change direction.
+enum NumberChange {
+  increase(1),
+  decrease(-1);
 
-  @override
-  void call(Editor e, FileBuffer f) {
-    NormalActionsUtils.increaseNextWordMulti(e, f, 1);
-  }
+  final int value;
+  const NumberChange(this.value);
 }
 
-/// Decrease number under cursor.
-class Decrease extends Action {
-  const Decrease();
+/// Increase or decrease number under cursor.
+class ChangeNumber extends Action {
+  final NumberChange change;
+  const ChangeNumber(this.change);
 
   @override
   void call(Editor e, FileBuffer f) {
-    NormalActionsUtils.increaseNextWordMulti(e, f, -1);
+    NormalActionsUtils.increaseNextWordMulti(e, f, change.value);
   }
 }
 
