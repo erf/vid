@@ -5,7 +5,6 @@ import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
 import '../../types/line_edit_action_base.dart';
 import 'diagnostics_popup.dart';
-import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 import 'rename_popup.dart';
 import 'symbols_popup.dart';
@@ -35,7 +34,7 @@ class CmdLsp extends LineEditAction {
 
   void _restart(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -45,7 +44,7 @@ class CmdLsp extends LineEditAction {
 
   void _status(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.info('LSP: not loaded'));
       return;
@@ -138,7 +137,7 @@ Future<FormatResult> formatBuffer(
   bool showMessages = true,
   bool redraw = true,
 }) async {
-  final lsp = e.featureRegistry?.get<LspFeature>();
+  final lsp = e.lsp;
   if (lsp == null) {
     if (showMessages) e.showMessage(Message.error('LSP not available'));
     return FormatResult.noLsp;

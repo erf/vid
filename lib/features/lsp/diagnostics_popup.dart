@@ -2,7 +2,6 @@ import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
 import '../../popup/popup.dart';
-import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 
 /// Diagnostic item value containing location info.
@@ -22,7 +21,7 @@ class _DiagnosticLocation {
 class DiagnosticsPopup {
   /// Show diagnostics popup for current file.
   static void show(Editor editor) {
-    final lsp = editor.featureRegistry?.get<LspFeature>();
+    final lsp = editor.lsp;
     if (lsp == null || !lsp.isConnected) {
       editor.showMessage(Message.error('LSP not connected'));
       return;
@@ -56,7 +55,7 @@ class DiagnosticsPopup {
 
   /// Show diagnostics popup for all open files.
   static void showAll(Editor editor) {
-    final lsp = editor.featureRegistry?.get<LspFeature>();
+    final lsp = editor.lsp;
     if (lsp == null || !lsp.isConnected) {
       editor.showMessage(Message.error('LSP not connected'));
       return;

@@ -4,7 +4,6 @@ import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
 import '../../popup/popup.dart';
-import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 
 /// Code action popup for quick fixes and refactorings.
@@ -16,7 +15,7 @@ class CodeActionsPopup {
       return;
     }
 
-    final lsp = editor.featureRegistry?.get<LspFeature>();
+    final lsp = editor.lsp;
     if (lsp == null) {
       editor.showMessage(Message.error('LSP not available'));
       return;

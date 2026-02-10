@@ -52,6 +52,10 @@ class Editor {
   String? logPath;
   File? logFile;
   FeatureRegistry? featureRegistry;
+
+  /// Convenience getter for the LSP feature.
+  LspFeature? get lsp => featureRegistry?.get<LspFeature>();
+
   late final Highlighter _highlighter;
   late final Renderer renderer;
   final InputParser _inputParser = InputParser();
@@ -400,11 +404,13 @@ class Editor {
     int diagnosticCount = 0;
     List<SemanticToken>? semanticTokens;
     GutterSigns? gutterSigns;
-    final lsp = featureRegistry?.get<LspFeature>();
-    if (lsp != null && lsp.isConnected && file.absolutePath != null) {
+    final lspFeature = lsp;
+    if (lspFeature != null &&
+        lspFeature.isConnected &&
+        file.absolutePath != null) {
       final uri = 'file://${file.absolutePath}';
-      final diagnostics = lsp.getDiagnostics(uri);
-      final linesWithCodeActions = lsp.getLinesWithCodeActions(uri);
+      final diagnostics = lspFeature.getDiagnostics(uri);
+      final linesWithCodeActions = lspFeature.getLinesWithCodeActions(uri);
       diagnosticCount = diagnostics.length;
 
       // Build gutter signs from diagnostics and code actions
@@ -414,8 +420,8 @@ class Editor {
       }
 
       // Get cached semantic tokens if available
-      if (config.semanticHighlighting && lsp.supportsSemanticTokens) {
-        semanticTokens = lsp.getSemanticTokens(uri);
+      if (config.semanticHighlighting && lspFeature.supportsSemanticTokens) {
+        semanticTokens = lspFeature.getSemanticTokens(uri);
       }
     }
 

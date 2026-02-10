@@ -2,7 +2,6 @@ import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
 import '../../popup/popup.dart';
-import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 
 /// Symbol location value for popup items.
@@ -17,7 +16,7 @@ class SymbolLocation {
 class SymbolsPopup {
   /// Show document symbols popup.
   static Future<void> show(Editor editor, FileBuffer file) async {
-    final lsp = editor.featureRegistry?.get<LspFeature>();
+    final lsp = editor.lsp;
     if (lsp == null || !lsp.isConnected) {
       editor.showMessage(Message.error('LSP not connected'));
       return;

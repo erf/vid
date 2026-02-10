@@ -2,7 +2,6 @@ import '../../types/action_base.dart';
 import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import 'code_actions_popup.dart';
-import 'lsp_feature.dart';
 import 'lsp_protocol.dart';
 import 'references_popup.dart';
 import 'rename_popup.dart';
@@ -14,7 +13,7 @@ class GoToDefinition extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -30,7 +29,7 @@ class FindReferences extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -45,7 +44,7 @@ class ShowSymbols extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -60,7 +59,7 @@ class Hover extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -75,7 +74,7 @@ class ShowLineDiagnostic extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.error('LSP not available'));
       return;
@@ -168,7 +167,7 @@ class JumpForward extends Action {
 class LspActions {
   /// Show LSP status.
   static void showStatus(Editor e, FileBuffer f) {
-    final lsp = e.featureRegistry?.get<LspFeature>();
+    final lsp = e.lsp;
     if (lsp == null) {
       e.showMessage(.info('LSP: not loaded'));
       return;
