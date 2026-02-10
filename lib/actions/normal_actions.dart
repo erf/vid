@@ -748,33 +748,24 @@ class ToggleWrap extends Action {
   }
 }
 
-/// Center view.
-class CenterView extends Action {
-  const CenterView();
+/// Scroll view position.
+enum ViewPosition { center, top, bottom }
+
+/// Scroll view to position cursor at center/top/bottom.
+class ScrollView extends Action {
+  final ViewPosition position;
+  const ScrollView(this.position);
 
   @override
   void call(Editor e, FileBuffer f) {
-    f.centerViewport(e.terminal);
-  }
-}
-
-/// Top view.
-class TopView extends Action {
-  const TopView();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    f.topViewport();
-  }
-}
-
-/// Bottom view.
-class BottomView extends Action {
-  const BottomView();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    f.bottomViewport(e.terminal);
+    switch (position) {
+      case .center:
+        f.centerViewport(e.terminal);
+      case .top:
+        f.topViewport();
+      case .bottom:
+        f.bottomViewport(e.terminal);
+    }
   }
 }
 
