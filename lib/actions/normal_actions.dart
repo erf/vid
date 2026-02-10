@@ -665,43 +665,38 @@ class Repeat extends Action {
   }
 }
 
-/// Repeat find string (;).
-class RepeatFindStr extends Action {
-  const RepeatFindStr();
+/// Repeat find direction.
+enum RepeatFindDir { forward, reverse }
+
+/// Repeat find string (; or ,).
+class RepeatFind extends Action {
+  final RepeatFindDir dir;
+  const RepeatFind(this.dir);
 
   @override
   void call(Editor e, FileBuffer f) {
     if (f.prevEdit == null || !f.prevEdit!.canRepeatFind) {
       return;
     }
-    e.commitEdit(f.prevEdit!);
-  }
-}
+    switch (dir) {
+      case .forward:
+        e.commitEdit(f.prevEdit!);
+      case .reverse:
+        final prev = f.prevEdit!;
+        final reversedMotion = prev.motion.reversed;
+        if (reversedMotion == null) return;
 
-/// Repeat find string reverse (,).
-class RepeatFindStrReverse extends Action {
-  const RepeatFindStrReverse();
+        // Set findStr for the motion to use
+        f.edit.findStr = prev.findStr;
 
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (f.prevEdit == null || !f.prevEdit!.canRepeatFind) {
-      return;
+        // Execute the motion count times
+        var newPos = f.cursor;
+        for (int i = 0; i < prev.count; i++) {
+          newPos = reversedMotion.fn(e, f, newPos);
+        }
+        f.cursor = newPos;
+        f.edit.reset();
     }
-    // Execute reversed motion directly without updating prevEdit
-    final prev = f.prevEdit!;
-    final reversedMotion = prev.motion.reversed;
-    if (reversedMotion == null) return;
-
-    // Set findStr for the motion to use
-    f.edit.findStr = prev.findStr;
-
-    // Execute the motion count times
-    var newPos = f.cursor;
-    for (int i = 0; i < prev.count; i++) {
-      newPos = reversedMotion.fn(e, f, newPos);
-    }
-    f.cursor = newPos;
-    f.edit.reset();
   }
 }
 
