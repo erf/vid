@@ -36,72 +36,18 @@ class NormalActionsUtils {
     if (upper == lower) return s;
     return s == upper ? lower : upper;
   }
+}
 
-  /// Find number match at or after cursor position in line.
-  static RegExpMatch? _findNumberMatch(String lineText, int cursorInLine) {
-    final matches = Regex.number.allMatches(lineText);
-    if (matches.isEmpty) return null;
+/// Find number match at or after cursor position in line.
+RegExpMatch? _findNumberMatch(String lineText, int cursorInLine) {
+  final matches = Regex.number.allMatches(lineText);
+  if (matches.isEmpty) return null;
 
-    final m = matches.firstWhere(
-      (m) => cursorInLine < m.end,
-      orElse: () => matches.last,
-    );
-    return cursorInLine < m.end ? m : null;
-  }
-
-  static void increaseNextWordMulti(Editor e, FileBuffer f, int count) {
-    // Only operate on collapsed selections (cursors)
-    if (!f.selections.every((s) => s.isCollapsed)) return;
-
-    // Sort cursors by position ascending
-    final sorted = f.selections.sortedByCursor();
-
-    // Build edits and track new cursor positions
-    final edits = <TextEdit>[];
-    final cursorOffsets = <int>[]; // offset from matchStart to new cursor
-
-    for (final sel in sorted) {
-      final pos = sel.cursor;
-      final lineNum = f.lineNumber(pos);
-      final lineStartOffset = f.lines[lineNum].start;
-      final lineText = f.lineTextAt(lineNum);
-      final cursorInLine = pos - lineStartOffset;
-
-      final m = _findNumberMatch(lineText, cursorInLine);
-      if (m == null) continue;
-
-      final numStr = m.group(1)!;
-      final num = int.parse(numStr);
-      final newNumStr = (num + count).toString();
-
-      final matchStart = lineStartOffset + m.start;
-      final matchEnd = lineStartOffset + m.end;
-      edits.add(TextEdit(matchStart, matchEnd, newNumStr));
-      cursorOffsets.add(newNumStr.length - 1);
-    }
-
-    if (edits.isEmpty) {
-      f.edit.reset();
-      return;
-    }
-
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions - each cursor at end of new number
-    final newSelections = <Selection>[];
-    var offset = 0;
-    for (int i = 0; i < edits.length; i++) {
-      final edit = edits[i];
-      final delta = edit.newText.length - (edit.end - edit.start);
-      final newCursor = edit.start + offset + cursorOffsets[i];
-      newSelections.add(Selection.collapsed(newCursor));
-      offset += delta;
-    }
-
-    f.selections = newSelections;
-    f.clampCursor();
-    f.edit.reset();
-  }
+  final m = matches.firstWhere(
+    (m) => cursorInLine < m.end,
+    orElse: () => matches.last,
+  );
+  return cursorInLine < m.end ? m : null;
 }
 
 /// Toggle case of the grapheme under each cursor (vim-like `~`).
@@ -718,7 +664,59 @@ class ChangeNumber extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    NormalActionsUtils.increaseNextWordMulti(e, f, change.value);
+    final count = change.value;
+
+    // Only operate on collapsed selections (cursors)
+    if (!f.selections.every((s) => s.isCollapsed)) return;
+
+    // Sort cursors by position ascending
+    final sorted = f.selections.sortedByCursor();
+
+    // Build edits and track new cursor positions
+    final edits = <TextEdit>[];
+    final cursorOffsets = <int>[]; // offset from matchStart to new cursor
+
+    for (final sel in sorted) {
+      final pos = sel.cursor;
+      final lineNum = f.lineNumber(pos);
+      final lineStartOffset = f.lines[lineNum].start;
+      final lineText = f.lineTextAt(lineNum);
+      final cursorInLine = pos - lineStartOffset;
+
+      final m = _findNumberMatch(lineText, cursorInLine);
+      if (m == null) continue;
+
+      final numStr = m.group(1)!;
+      final num = int.parse(numStr);
+      final newNumStr = (num + count).toString();
+
+      final matchStart = lineStartOffset + m.start;
+      final matchEnd = lineStartOffset + m.end;
+      edits.add(TextEdit(matchStart, matchEnd, newNumStr));
+      cursorOffsets.add(newNumStr.length - 1);
+    }
+
+    if (edits.isEmpty) {
+      f.edit.reset();
+      return;
+    }
+
+    applyEdits(f, edits, e.config);
+
+    // Update cursor positions - each cursor at end of new number
+    final newSelections = <Selection>[];
+    var offset = 0;
+    for (int i = 0; i < edits.length; i++) {
+      final edit = edits[i];
+      final delta = edit.newText.length - (edit.end - edit.start);
+      final newCursor = edit.start + offset + cursorOffsets[i];
+      newSelections.add(Selection.collapsed(newCursor));
+      offset += delta;
+    }
+
+    f.selections = newSelections;
+    f.clampCursor();
+    f.edit.reset();
   }
 }
 
