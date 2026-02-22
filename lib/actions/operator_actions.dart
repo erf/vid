@@ -145,7 +145,12 @@ class Change extends OperatorAction {
   @override
   void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
     f.yankRange(e, range, linewise: linewise);
-    f.replace(range.start, range.end, '', config: e.config);
+    if (linewise) {
+      // cc should clear the line content but leave an empty line
+      f.replace(range.start, range.end, '\n', config: e.config);
+    } else {
+      f.replace(range.start, range.end, '', config: e.config);
+    }
     f.cursor = range.start;
     // Set insert mode BEFORE clamping so cursor can stay on newline
     f.setMode(e, .insert);

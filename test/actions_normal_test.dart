@@ -16,9 +16,9 @@ void main() {
     // 'abc\ndef\nghi\n' - line 1 ('def') starts at offset 4, 'e' is at offset 5
     f.cursor = 5; // at 'e' in 'def'
     e.input('D');
-    // D deletes from 'e' to newline (inclusive), joining with next line
-    expect(f.text, 'abc\ndghi\n');
-    expect(f.cursor, 5); // cursor stays at deletion point (now on 'g')
+    // D deletes from cursor to end of line, preserving the newline
+    expect(f.text, 'abc\nd\nghi\n');
+    expect(f.cursor, 5); // cursor on newline (deletion start point)
   });
 
   test('actionChangeLineEnd', () {
@@ -481,9 +481,9 @@ void main() {
     f.text = 'abc\ndef\nghi\njkl\n';
     f.cursor = 0;
     e.input('Dj.j');
-    // D at offset 0 deletes 'abc\n', cursor stays at 0, j moves down, . repeats D
-    expect(f.text, 'def\njkl\n');
-    expect(f.lineNumber(f.cursor), 1);
+    // D at offset 0 deletes 'abc' (preserving newline), j moves down, . repeats D
+    expect(f.text, '\n\nghi\njkl\n');
+    expect(f.lineNumber(f.cursor), 2);
   });
 
   test('go down one line with j', () {

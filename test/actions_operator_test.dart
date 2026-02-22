@@ -76,7 +76,8 @@ void main() {
     // 'def' line starts at 4, 'e' at offset 5
     f.cursor = 5;
     e.input('cc');
-    expect(f.text, 'abc\nghi\n');
+    // cc clears the line content but leaves an empty line
+    expect(f.text, 'abc\n\nghi\n');
     expect(f.lineNumber(f.cursor), 1);
     expect(f.columnInLine(f.cursor), 0);
     expect(f.mode, Mode.insert);

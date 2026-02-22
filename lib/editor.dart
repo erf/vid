@@ -908,9 +908,13 @@ class Editor {
       // No operator - just move cursor to end of motion
       file.cursor = end;
     } else {
-      // For inclusive motions, extend end to include the character under cursor
+      // For inclusive motions, extend end to include the character under cursor.
+      // For characterwise motions, don't extend past a newline — d$ and C
+      // should not delete the line terminator.
       if (motion.inclusive && end < file.text.length) {
-        end = file.nextGrapheme(end);
+        if (linewise || file.text[end] != '\n') {
+          end = file.nextGrapheme(end);
+        }
       }
 
       // Apply operator to the normalized range
@@ -1007,7 +1011,9 @@ class Editor {
         end = motion.fn(this, file, end);
       }
       if (motion.inclusive && end < file.text.length) {
-        end = file.nextGrapheme(end);
+        if (linewise || file.text[end] != '\n') {
+          end = file.nextGrapheme(end);
+        }
       }
       var range = Range(start, end).norm;
       if (linewise) {
