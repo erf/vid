@@ -2,8 +2,12 @@ name: CI
 
 on:
   push:
-  release:
-    types: [created]
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Nightly at 03:00 UTC
+    - cron: '0 3 * * *'
 
 jobs:
   test:
@@ -18,6 +22,8 @@ jobs:
 
   build:
     needs: test
+    # Build on push to main or nightly schedule (not PRs)
+    if: github.event_name != 'pull_request'
     strategy:
       matrix:
         include:
@@ -26,7 +32,7 @@ jobs:
           - os: macos-latest
             binary: vid-macos
     runs-on: ${{ matrix.os }}
-    
+
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
@@ -34,8 +40,7 @@ jobs:
         run: dart pub get
       - name: Build binary
         run: dart compile exe bin/vid.dart -o ${{ matrix.binary }}
-      
-      # Upload artifacts for collection
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -45,25 +50,41 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    # Only release on nightly schedule
+    if: github.event_name == 'schedule'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Skip release if no changes in last 24h
+      - name: Check for recent changes
+        id: changes
+        run: |
+          if git log --since="24 hours ago" --oneline | grep -q .; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download all artifacts
+        if: steps.changes.outputs.has_changes == 'true'
         uses: actions/download-artifact@v4
-        
-      # Delete existing releases and tag
+
       - name: Clean up existing release
+        if: steps.changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release delete latest --yes || true
           git push origin :refs/tags/latest || true
         continue-on-error: true
-      
-      # Create new release with all artifacts
+
       - name: Update latest release
-        uses: softprops/action-gh-release@v1
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: softprops/action-gh-release@v2
         with:
-          name: 'Latest Build'
+          name: 'Latest Nightly Build'
           tag_name: 'latest'
           prerelease: true
           draft: false
@@ -71,10 +92,8 @@ jobs:
             vid-linux/vid-linux
             vid-macos/vid-macos
           body: |
-            Automated build from the latest changes
-            
+            Automated nightly build from the latest changes
+
             Commit: ${{ github.sha }}
-            Message: ${{ github.event.head_commit.message }}
-            Build time: ${{ github.event.head_commit.timestamp }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
