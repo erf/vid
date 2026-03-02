@@ -3,12 +3,12 @@ import 'package:termio/termio.dart';
 import 'mode_bindings.dart';
 import 'motion/motion.dart';
 
-import 'actions/insert_actions.dart';
-import 'actions/line_edit_input_actions.dart';
-import 'actions/popup_actions.dart';
-import 'actions/replace_actions.dart';
+import 'action/insert_actions.dart';
+import 'action/line_edit_input_actions.dart';
+import 'action/popup_actions.dart';
+import 'action/replace_actions.dart';
 import 'modes.dart';
-import 'types/command.dart';
+import 'command.dart';
 
 const normalCommands = <String, Command>{
   'q': ActionCommand(.quit),

@@ -1,11 +1,11 @@
-import 'text_object_actions.dart';
+import '../text_object/text_object_actions.dart';
 
 import '../selection.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../line_info.dart';
-import '../types/action_base.dart';
+import 'action_base.dart';
 
 /// Exit visual mode, collapse selections to multiple cursors (collapsed selections).
 class EscapeVisual extends Action {

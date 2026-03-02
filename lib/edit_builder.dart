@@ -1,6 +1,6 @@
 import 'edit_operation.dart';
 import 'motion/motion.dart';
-import 'types/operator_action_base.dart';
+import 'operator/operator_base.dart';
 
 /// Accumulates input to build an EditOperation.
 ///

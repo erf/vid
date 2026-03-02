@@ -1,5 +1,5 @@
 import 'motion/motion.dart';
-import 'types/operator_action_base.dart';
+import 'operator/operator_base.dart';
 
 /// Immutable operation that can be repeated
 class EditOperation {

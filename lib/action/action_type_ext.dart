@@ -1,11 +1,15 @@
 import 'action_base.dart';
-import '../actions/completion_actions.dart';
-import '../actions/insert_actions.dart';
-import '../actions/line_edit_input_actions.dart';
-import '../actions/normal_actions.dart';
-import '../actions/popup_actions.dart';
-import '../actions/replace_actions.dart';
-import '../actions/selection_actions.dart';
+import 'completion_actions.dart';
+import 'insert_actions.dart';
+import 'line_edit_input_actions.dart';
+import 'normal_actions.dart';
+import 'file_actions.dart';
+import 'paste_actions.dart';
+import 'scroll_actions.dart';
+import 'history_actions.dart';
+import 'popup_actions.dart';
+import 'replace_actions.dart';
+import 'selection_actions.dart';
 import '../features/lsp/lsp_actions.dart';
 import 'action_type.dart';
 

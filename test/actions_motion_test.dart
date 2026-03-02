@@ -1,7 +1,7 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/types/motion_action_base.dart';
-import 'package:vid/actions/motion_actions.dart';
+import 'package:vid/motion/motion_base.dart';
+import 'package:vid/motion/motion_actions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/regex.dart';

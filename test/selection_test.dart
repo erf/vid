@@ -1,8 +1,8 @@
 import 'package:termio/termio.dart';
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/actions/line_edit_actions.dart';
-import 'package:vid/actions/selection_actions.dart';
+import 'package:vid/line_edit/line_edit_actions.dart';
+import 'package:vid/action/selection_actions.dart';
 import 'package:vid/config.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/modes.dart';

@@ -4,7 +4,7 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../features/lsp/lsp_feature.dart';
 import '../popup/popup.dart';
-import '../types/action_base.dart';
+import 'action_base.dart';
 
 /// Show word completion popup using LSP.
 class ShowCompletion extends Action {

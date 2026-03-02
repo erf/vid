@@ -1,18 +1,18 @@
-import '../edit_builder.dart';
+import 'edit_builder.dart';
 
-import '../actions/operator_actions.dart';
-import '../editor.dart';
-import '../file_buffer/file_buffer.dart';
-import '../modes.dart';
-import '../motion/motion.dart';
-import 'action_type.dart';
-import 'action_type_ext.dart';
-import 'line_edit_type.dart';
-import 'line_edit_type_ext.dart';
-import 'operator_type.dart';
-import 'operator_type_ext.dart';
-import 'text_object_type.dart';
-import 'text_object_type_ext.dart';
+import 'operator/operator_actions.dart';
+import 'editor.dart';
+import 'file_buffer/file_buffer.dart';
+import 'modes.dart';
+import 'motion/motion.dart';
+import 'action/action_type.dart';
+import 'action/action_type_ext.dart';
+import 'line_edit/line_edit_type.dart';
+import 'line_edit/line_edit_type_ext.dart';
+import 'operator/operator_type.dart';
+import 'operator/operator_type_ext.dart';
+import 'text_object/text_object_type.dart';
+import 'text_object/text_object_type_ext.dart';
 
 abstract class Command {
   const Command();

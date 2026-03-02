@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:termio/termio.dart';
 
-import 'actions/operator_actions.dart';
+import 'operator/operator_actions.dart';
 import 'edit_operation.dart';
 import 'features/cursor_position/cursor_position_feature.dart';
 import 'features/feature_registry.dart';
@@ -18,12 +18,12 @@ import 'popup/file_browser.dart';
 import 'popup/popup.dart';
 import 'renderer.dart';
 import 'selection.dart';
-import 'types/operator_action_base.dart';
+import 'operator/operator_base.dart';
 import 'yank_buffer.dart';
 
 import 'bindings.dart';
 import 'jump_list.dart';
-import 'types/command.dart';
+import 'command.dart';
 import 'config.dart';
 import 'error_or.dart';
 import 'file_buffer/file_buffer.dart';

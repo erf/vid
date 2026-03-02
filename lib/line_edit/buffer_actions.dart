@@ -1,7 +1,7 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/buffer_selector.dart';
-import '../types/line_edit_action_base.dart';
+import 'line_edit_base.dart';
 
 // ===== Buffer commands =====
 

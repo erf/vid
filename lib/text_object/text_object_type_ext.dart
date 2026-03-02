@@ -1,5 +1,5 @@
-import 'text_object_action_base.dart';
-import '../actions/text_object_actions.dart';
+import 'text_object_base.dart';
+import 'text_object_actions.dart';
 import 'text_object_type.dart';
 
 extension TextObjectTypeExt on TextObjectType {

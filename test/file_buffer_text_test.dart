@@ -1,6 +1,6 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/actions/normal_actions.dart';
+import 'package:vid/action/history_actions.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/modes.dart';

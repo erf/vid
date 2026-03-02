@@ -1,6 +1,6 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../types/action_base.dart';
+import 'action_base.dart';
 
 enum PopupMoveType { down, up, pageDown, pageUp }
 

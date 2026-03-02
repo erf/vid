@@ -3,7 +3,7 @@ import 'package:characters/characters.dart';
 import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
-import '../../types/line_edit_action_base.dart';
+import '../../line_edit/line_edit_base.dart';
 import 'diagnostics_popup.dart';
 import 'lsp_protocol.dart';
 import 'rename_popup.dart';

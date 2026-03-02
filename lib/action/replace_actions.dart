@@ -1,7 +1,7 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../range.dart';
-import '../types/action_base.dart';
+import 'action_base.dart';
 
 /// Utility methods for replace mode actions.
 class ReplaceActions {

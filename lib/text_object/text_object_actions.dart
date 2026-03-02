@@ -1,4 +1,4 @@
-import '../types/text_object_action_base.dart';
+import 'text_object_base.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';

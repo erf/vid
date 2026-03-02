@@ -3,8 +3,8 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../motion/motion.dart';
 import '../regex.dart';
-import '../types/action_base.dart';
-import 'line_edit_actions.dart';
+import 'action_base.dart';
+import '../line_edit/line_edit_actions.dart';
 
 /// Utility methods for line edit input mode.
 class LineEditInputActions {

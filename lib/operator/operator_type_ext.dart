@@ -1,5 +1,5 @@
-import 'operator_action_base.dart';
-import '../actions/operator_actions.dart';
+import 'operator_base.dart';
+import 'operator_actions.dart';
 import 'operator_type.dart';
 
 extension OperatorTypeExt on OperatorType {

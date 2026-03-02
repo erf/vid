@@ -4,7 +4,7 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../regex.dart';
 import '../regex_ext.dart';
-import '../types/motion_action_base.dart';
+import 'motion_base.dart';
 
 // ===== Character motions =====
 

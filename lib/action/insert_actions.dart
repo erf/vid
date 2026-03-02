@@ -4,7 +4,7 @@ import '../selection.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../types/action_base.dart';
+import 'action_base.dart';
 
 /// Utility methods for insert mode actions.
 class InsertActions {

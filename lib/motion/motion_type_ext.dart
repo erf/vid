@@ -1,6 +1,6 @@
-import '../actions/motion_actions.dart';
+import 'motion_actions.dart';
 import '../regex.dart';
-import '../types/motion_action_base.dart';
+import 'motion_base.dart';
 import 'motion_type.dart';
 
 extension MotionTypeExt on MotionType {

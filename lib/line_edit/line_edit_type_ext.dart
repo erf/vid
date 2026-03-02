@@ -1,9 +1,9 @@
-import '../actions/buffer_actions.dart';
-import '../actions/line_edit_actions.dart';
-import '../actions/popup_command_actions.dart';
+import 'buffer_actions.dart';
+import 'line_edit_actions.dart';
+import 'popup_command_actions.dart';
 import '../config.dart';
 import '../features/lsp/lsp_command_actions.dart';
-import 'line_edit_action_base.dart';
+import 'line_edit_base.dart';
 import 'line_edit_type.dart';
 
 extension LineEditTypeExt on LineEditType {

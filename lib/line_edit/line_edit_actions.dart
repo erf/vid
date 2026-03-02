@@ -7,8 +7,8 @@ import '../features/lsp/lsp_command_actions.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/file_browser.dart';
 import '../selection.dart';
-import '../types/line_edit_action_base.dart';
-import 'normal_actions.dart';
+import 'line_edit_base.dart';
+import '../action/file_actions.dart';
 
 // ===== Basic commands =====
 

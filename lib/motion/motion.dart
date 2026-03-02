@@ -1,4 +1,4 @@
-import '../types/motion_action_base.dart';
+import 'motion_base.dart';
 import 'motion_type.dart';
 import 'motion_type_ext.dart';
 

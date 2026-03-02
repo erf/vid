@@ -1,4 +1,4 @@
-import '../../types/action_base.dart';
+import '../../action/action_base.dart';
 import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import 'code_actions_popup.dart';

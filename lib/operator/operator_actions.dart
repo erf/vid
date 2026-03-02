@@ -1,7 +1,7 @@
 import 'package:termio/termio.dart';
 
-import '../types/operator_action_base.dart';
-import '../types/operator_type.dart';
+import 'operator_base.dart';
+import 'operator_type.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';

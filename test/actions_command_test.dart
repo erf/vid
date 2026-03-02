@@ -1,6 +1,6 @@
 import 'package:termio/testing.dart';
 import 'package:test/test.dart';
-import 'package:vid/actions/line_edit_actions.dart';
+import 'package:vid/line_edit/line_edit_actions.dart';
 import 'package:vid/editor.dart';
 
 void main() {
