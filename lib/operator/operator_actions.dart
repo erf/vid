@@ -6,7 +6,6 @@ import 'operator_type_ext.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../range.dart';
 import '../selection.dart';
 import '../yank_buffer.dart';
 
@@ -108,21 +107,6 @@ class Change extends OperatorAction {
   const Change();
 
   @override
-  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
-    f.yankRange(e, range, linewise: linewise);
-    if (linewise) {
-      // cc should clear the line content but leave an empty line
-      f.replace(range.start, range.end, '\n', config: e.config);
-    } else {
-      f.replace(range.start, range.end, '', config: e.config);
-    }
-    f.cursor = range.start;
-    // Set insert mode BEFORE clamping so cursor can stay on newline
-    f.setMode(e, .insert);
-    f.clampCursor();
-  }
-
-  @override
   void applyToRanges(
     Editor e,
     FileBuffer f,
@@ -130,29 +114,19 @@ class Change extends OperatorAction {
     int mainIndex, {
     bool linewise = false,
   }) {
-    if (ranges.length == 1) {
-      call(
-        e,
-        f,
-        Range(ranges.first.start, ranges.first.end),
-        linewise: linewise,
-      );
-      return;
-    }
-
-    // Multi-range: yank pieces, delete, enter insert mode
+    // Yank all ranges
     final pieces = ranges.map((r) => f.text.substring(r.start, r.end)).toList();
     e.yankBuffer = YankBuffer(pieces, linewise: linewise);
     e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
 
+    // Apply edits
     final edits = linewise
         ? ranges.reversed.map((r) => TextEdit(r.start, r.end, '\n')).toList()
         : ranges.reversed.map((r) => TextEdit.delete(r.start, r.end)).toList();
     applyEdits(f, edits, e.config);
 
-    // Collapse selections to range starts, adjusted for cumulative offset
+    // Collapse selections
     if (linewise) {
-      // For linewise change, cursor goes to start of each (now empty) line
       int offset = 0;
       final newSelections = <Selection>[];
       for (final r in ranges) {
@@ -168,6 +142,8 @@ class Change extends OperatorAction {
     } else {
       f.selections = collapseAfterDelete(ranges, mainIndex);
     }
+
+    // Set insert mode BEFORE clamping so cursor can stay on newline
     f.setMode(e, .insert);
     f.clampCursor();
   }
@@ -178,15 +154,6 @@ class Delete extends OperatorAction {
   const Delete();
 
   @override
-  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
-    f.yankRange(e, range, linewise: linewise);
-    f.replace(range.start, range.end, '', config: e.config);
-    f.cursor = range.start;
-    f.setMode(e, .normal);
-    f.clampCursor();
-  }
-
-  @override
   void applyToRanges(
     Editor e,
     FileBuffer f,
@@ -194,17 +161,6 @@ class Delete extends OperatorAction {
     int mainIndex, {
     bool linewise = false,
   }) {
-    if (ranges.length == 1) {
-      call(
-        e,
-        f,
-        Range(ranges.first.start, ranges.first.end),
-        linewise: linewise,
-      );
-      return;
-    }
-
-    // Multi-range: yank, delete, collapse
     OperatorActions.deleteRanges(e, f, ranges, mainIndex, linewise: linewise);
     f.setMode(e, .normal);
   }
@@ -215,13 +171,6 @@ class Yank extends OperatorAction {
   const Yank();
 
   @override
-  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
-    f.yankRange(e, range, linewise: linewise);
-    e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
-    f.setMode(e, .normal);
-  }
-
-  @override
   void applyToRanges(
     Editor e,
     FileBuffer f,
@@ -229,17 +178,6 @@ class Yank extends OperatorAction {
     int mainIndex, {
     bool linewise = false,
   }) {
-    if (ranges.length == 1) {
-      call(
-        e,
-        f,
-        Range(ranges.first.start, ranges.first.end),
-        linewise: linewise,
-      );
-      return;
-    }
-
-    // Multi-range: build multi-piece yank buffer
     final pieces = ranges.map((r) => f.text.substring(r.start, r.end)).toList();
     e.yankBuffer = YankBuffer(pieces, linewise: linewise);
     e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
@@ -264,17 +202,6 @@ class ChangeCase extends OperatorAction {
   const ChangeCase(this.type);
 
   @override
-  void call(Editor e, FileBuffer f, Range range, {bool linewise = false}) {
-    final text = f.text.substring(range.start, range.end);
-    final replacement = switch (type) {
-      .lower => text.toLowerCase(),
-      .upper => text.toUpperCase(),
-    };
-    f.replace(range.start, range.end, replacement, config: e.config);
-    f.setMode(e, .normal);
-  }
-
-  @override
   void applyToRanges(
     Editor e,
     FileBuffer f,
@@ -282,17 +209,6 @@ class ChangeCase extends OperatorAction {
     int mainIndex, {
     bool linewise = false,
   }) {
-    if (ranges.length == 1) {
-      call(
-        e,
-        f,
-        Range(ranges.first.start, ranges.first.end),
-        linewise: linewise,
-      );
-      return;
-    }
-
-    // Multi-range: build TextEdits with transformed text
     final edits = ranges.reversed.map((s) {
       final original = f.text.substring(s.start, s.end);
       final text = switch (type) {

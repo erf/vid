@@ -921,7 +921,8 @@ class Editor {
       if (linewise) {
         range = _expandToFullLines(range);
       }
-      op(this, file, range, linewise: linewise);
+      final sel = Selection(range.start, range.end);
+      op.applyToRanges(this, file, [sel], 0, linewise: linewise);
 
       // For linewise operations, move cursor to start of affected range
       if (linewise) {

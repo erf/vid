@@ -3,7 +3,6 @@ import 'dart:io';
 import '../config.dart';
 import '../modes.dart';
 import '../selection.dart';
-import '../yank_buffer.dart';
 
 import '../editor.dart';
 import '../error_or.dart';
@@ -88,14 +87,6 @@ extension FileBufferText on FileBuffer {
   void deleteAt(int offset, {Config? config}) {
     int nextOffset = nextGrapheme(offset);
     replace(offset, nextOffset, '', config: config);
-  }
-
-  void yankRange(Editor e, Range range, {bool linewise = false}) {
-    final Range r = range.norm;
-    e.yankBuffer = YankBuffer.single(
-      text.substring(r.start, r.end),
-      linewise: linewise,
-    );
   }
 
   TextOp? undo() {
