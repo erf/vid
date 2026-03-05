@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 import 'package:vid/editor.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/modes.dart';
+import 'package:vid/selection.dart';
 
 void main() {
   test('dd', () {
@@ -342,5 +343,65 @@ void main() {
       expect(f.text, 'hello\nworld\nFOO\n');
       expect(f.mode, Mode.normal);
     });
+  });
+
+  test('guu lowercases current line', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'ABC\nDEF\n';
+    f.cursor = 0;
+    e.input('guu');
+    expect(f.text, 'abc\nDEF\n');
+    expect(f.mode, Mode.normal);
+  });
+
+  test('gUU uppercases current line', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc\ndef\n';
+    f.cursor = 0;
+    e.input('gUU');
+    expect(f.text, 'ABC\ndef\n');
+    expect(f.mode, Mode.normal);
+  });
+
+  test('gu with multi-cursor changes case (not deletes)', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'ABC DEF\n';
+    f.cursor = 0;
+
+    // Add multi-cursor at 'D' (offset 4)
+    f.selections = [Selection.collapsed(0), Selection.collapsed(4)];
+
+    e.input('gue');
+    expect(f.text, 'abc def\n');
+    expect(f.mode, Mode.normal);
+  });
+
+  test('gU with multi-cursor changes case (not deletes)', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'abc def\n';
+    f.cursor = 0;
+
+    // Add multi-cursor at 'd' (offset 4)
+    f.selections = [Selection.collapsed(0), Selection.collapsed(4)];
+
+    e.input('gUe');
+    expect(f.text, 'ABC DEF\n');
+    expect(f.mode, Mode.normal);
   });
 }

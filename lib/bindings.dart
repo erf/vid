@@ -164,6 +164,8 @@ const operatorPendingSameCommands = <String, Command>{
   'c': OperatorPendingSameCommand(.change),
   'd': OperatorPendingSameCommand(.delete),
   'y': OperatorPendingSameCommand(.yank),
+  'u': OperatorPendingSameCommand(.lowerCase),
+  'U': OperatorPendingSameCommand(.upperCase),
 };
 
 // Text objects for use in operator-pending mode (di(, da{, ciw, etc.)

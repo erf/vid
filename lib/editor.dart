@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:termio/termio.dart';
 
-import 'operator/operator_actions.dart';
 import 'edit_operation.dart';
 import 'features/cursor_position/cursor_position_feature.dart';
 import 'features/feature_registry.dart';
@@ -1026,27 +1025,8 @@ class Editor {
     ranges.sort((a, b) => a.start.compareTo(b.start));
     final mainIndex = findMainIndex(ranges, file.selections.first.cursor);
 
-    // For yank, just copy text
-    if (op is Yank) {
-      final pieces = ranges
-          .map((r) => file.text.substring(r.start, r.end))
-          .toList();
-      yankBuffer = YankBuffer(pieces, linewise: linewise);
-      terminal.write(Ansi.copyToClipboard(yankBuffer!.text));
-      file.setMode(this, .normal);
-      return;
-    }
-
-    // For delete/change: yank, delete, and collapse selections
-    OperatorActions.deleteRanges(
-      this,
-      file,
-      ranges,
-      mainIndex,
-      linewise: linewise,
-    );
-
-    file.setMode(this, op is Change ? .insert : .normal);
+    // Delegate to unified operator implementation
+    op.applyToRanges(this, file, ranges, mainIndex, linewise: linewise);
   }
 
   /// Expand range to include full lines (for linewise operations).

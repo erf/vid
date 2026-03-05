@@ -2,6 +2,7 @@ import 'package:termio/termio.dart';
 
 import 'operator_base.dart';
 import 'operator_type.dart';
+import 'operator_type_ext.dart';
 
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
@@ -36,43 +37,7 @@ class OperatorActions {
     final mainIndex = findMainIndex(ranges, f.selections.first.cursor);
     final isLinewise = linewise || isVisualLineMode;
 
-    switch (op) {
-      case .delete || .change:
-        deleteRanges(e, f, ranges, mainIndex, linewise: isLinewise);
-        break;
-
-      case .yank:
-        final pieces = ranges
-            .map((s) => f.text.substring(s.start, s.end))
-            .toList();
-        e.yankBuffer = YankBuffer(pieces, linewise: isLinewise);
-        e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
-        break;
-
-      case .lowerCase || .upperCase:
-        final edits = ranges.reversed.map((s) {
-          final original = f.text.substring(s.start, s.end);
-          final text = op == .lowerCase
-              ? original.toLowerCase()
-              : original.toUpperCase();
-          return TextEdit(s.start, s.end, text);
-        }).toList();
-        applyEdits(f, edits, e.config);
-
-        // Collapse to range starts, promote main cursor
-        final collapsed = ranges
-            .map((s) => Selection.collapsed(s.start))
-            .toList();
-        if (mainIndex > 0 && mainIndex < collapsed.length) {
-          final mainSel = collapsed.removeAt(mainIndex);
-          collapsed.insert(0, mainSel);
-        }
-        f.selections = mergeSelections(collapsed);
-        f.clampCursor();
-        break;
-    }
-
-    f.setMode(e, op == .change ? .insert : .normal);
+    op.fn.applyToRanges(e, f, ranges, mainIndex, linewise: isLinewise);
     return true;
   }
 
@@ -156,6 +121,56 @@ class Change extends OperatorAction {
     f.setMode(e, .insert);
     f.clampCursor();
   }
+
+  @override
+  void applyToRanges(
+    Editor e,
+    FileBuffer f,
+    List<Selection> ranges,
+    int mainIndex, {
+    bool linewise = false,
+  }) {
+    if (ranges.length == 1) {
+      call(
+        e,
+        f,
+        Range(ranges.first.start, ranges.first.end),
+        linewise: linewise,
+      );
+      return;
+    }
+
+    // Multi-range: yank pieces, delete, enter insert mode
+    final pieces = ranges.map((r) => f.text.substring(r.start, r.end)).toList();
+    e.yankBuffer = YankBuffer(pieces, linewise: linewise);
+    e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
+
+    final edits = linewise
+        ? ranges.reversed.map((r) => TextEdit(r.start, r.end, '\n')).toList()
+        : ranges.reversed.map((r) => TextEdit.delete(r.start, r.end)).toList();
+    applyEdits(f, edits, e.config);
+
+    // Collapse selections to range starts, adjusted for cumulative offset
+    if (linewise) {
+      // For linewise change, cursor goes to start of each (now empty) line
+      int offset = 0;
+      final newSelections = <Selection>[];
+      for (final r in ranges) {
+        newSelections.add(Selection.collapsed(r.start - offset));
+        // We replaced range with '\n', so offset is (deleted - 1)
+        offset += (r.end - r.start) - 1;
+      }
+      if (mainIndex > 0 && mainIndex < newSelections.length) {
+        final mainSel = newSelections.removeAt(mainIndex);
+        newSelections.insert(0, mainSel);
+      }
+      f.selections = mergeSelections(newSelections);
+    } else {
+      f.selections = collapseAfterDelete(ranges, mainIndex);
+    }
+    f.setMode(e, .insert);
+    f.clampCursor();
+  }
 }
 
 /// Delete operator (d) - delete range
@@ -170,6 +185,29 @@ class Delete extends OperatorAction {
     f.setMode(e, .normal);
     f.clampCursor();
   }
+
+  @override
+  void applyToRanges(
+    Editor e,
+    FileBuffer f,
+    List<Selection> ranges,
+    int mainIndex, {
+    bool linewise = false,
+  }) {
+    if (ranges.length == 1) {
+      call(
+        e,
+        f,
+        Range(ranges.first.start, ranges.first.end),
+        linewise: linewise,
+      );
+      return;
+    }
+
+    // Multi-range: yank, delete, collapse
+    OperatorActions.deleteRanges(e, f, ranges, mainIndex, linewise: linewise);
+    f.setMode(e, .normal);
+  }
 }
 
 /// Yank operator (y) - copy range to yank buffer
@@ -181,6 +219,40 @@ class Yank extends OperatorAction {
     f.yankRange(e, range, linewise: linewise);
     e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
     f.setMode(e, .normal);
+  }
+
+  @override
+  void applyToRanges(
+    Editor e,
+    FileBuffer f,
+    List<Selection> ranges,
+    int mainIndex, {
+    bool linewise = false,
+  }) {
+    if (ranges.length == 1) {
+      call(
+        e,
+        f,
+        Range(ranges.first.start, ranges.first.end),
+        linewise: linewise,
+      );
+      return;
+    }
+
+    // Multi-range: build multi-piece yank buffer
+    final pieces = ranges.map((r) => f.text.substring(r.start, r.end)).toList();
+    e.yankBuffer = YankBuffer(pieces, linewise: linewise);
+    e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
+
+    // Collapse selections to range starts
+    final collapsed = ranges.map((s) => Selection.collapsed(s.start)).toList();
+    if (mainIndex > 0 && mainIndex < collapsed.length) {
+      final mainSel = collapsed.removeAt(mainIndex);
+      collapsed.insert(0, mainSel);
+    }
+    f.selections = mergeSelections(collapsed);
+    f.setMode(e, .normal);
+    f.clampCursor();
   }
 }
 
@@ -200,5 +272,45 @@ class ChangeCase extends OperatorAction {
     };
     f.replace(range.start, range.end, replacement, config: e.config);
     f.setMode(e, .normal);
+  }
+
+  @override
+  void applyToRanges(
+    Editor e,
+    FileBuffer f,
+    List<Selection> ranges,
+    int mainIndex, {
+    bool linewise = false,
+  }) {
+    if (ranges.length == 1) {
+      call(
+        e,
+        f,
+        Range(ranges.first.start, ranges.first.end),
+        linewise: linewise,
+      );
+      return;
+    }
+
+    // Multi-range: build TextEdits with transformed text
+    final edits = ranges.reversed.map((s) {
+      final original = f.text.substring(s.start, s.end);
+      final text = switch (type) {
+        .lower => original.toLowerCase(),
+        .upper => original.toUpperCase(),
+      };
+      return TextEdit(s.start, s.end, text);
+    }).toList();
+    applyEdits(f, edits, e.config);
+
+    // Collapse to range starts, promote main cursor
+    final collapsed = ranges.map((s) => Selection.collapsed(s.start)).toList();
+    if (mainIndex > 0 && mainIndex < collapsed.length) {
+      final mainSel = collapsed.removeAt(mainIndex);
+      collapsed.insert(0, mainSel);
+    }
+    f.selections = mergeSelections(collapsed);
+    f.setMode(e, .normal);
+    f.clampCursor();
   }
 }

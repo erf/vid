@@ -5,6 +5,7 @@ import 'editor.dart';
 import 'file_buffer/file_buffer.dart';
 import 'modes.dart';
 import 'motion/motion.dart';
+import 'selection.dart';
 import 'action/action_type.dart';
 import 'action/action_type_ext.dart';
 import 'line_edit/line_edit_type.dart';
@@ -175,22 +176,27 @@ class TextObjectCommand extends Command {
       return;
     }
 
-    // Get the range from the text object
-    final range = type.fn(e, f, f.cursor);
+    // Build ranges for all cursors (multi-cursor support)
+    final ranges = <Selection>[];
+    for (final sel in f.selections) {
+      final range = type.fn(e, f, sel.cursor);
+      if (range.start == range.end) continue;
+      final norm = range.norm;
+      ranges.add(Selection(norm.start, norm.end));
+    }
 
-    // If range is empty (no match found), cancel
-    if (range.start == range.end) {
+    // If no valid ranges found, cancel
+    if (ranges.isEmpty) {
       f.setMode(e, .normal);
       f.edit.reset();
       return;
     }
 
-    // Apply count by expanding range (for text objects, count usually means
-    // include more levels of nesting, but for simplicity we just apply once)
-    // TODO: Support count for nested brackets
+    ranges.sort((a, b) => a.start.compareTo(b.start));
+    final mainIndex = findMainIndex(ranges, f.selections.first.cursor);
 
-    // Execute the operator on the range
-    op(e, f, range.norm, linewise: false);
+    // Execute the operator on the ranges
+    op.applyToRanges(e, f, ranges, mainIndex, linewise: false);
     f.edit.reset();
   }
 }
