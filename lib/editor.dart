@@ -885,51 +885,22 @@ class Editor {
       return;
     }
 
-    // In normal/operatorPending mode with multiple cursors and an operator, apply to all cursors
-    if ((file.mode == .normal || file.mode == .operatorPending) &&
-        file.hasMultipleCursors &&
-        op != null) {
-      _applyOperatorToMultipleCursors(motion, edit.count, op, linewise);
+    // Apply operator with motion to all cursors (works for single and multi-cursor)
+    if (op != null) {
+      _applyOperator(motion, edit.count, op, linewise);
       _saveForRepeat(edit);
       _clearDesiredColumnIfNeeded(motion.type);
       file.edit.reset();
       return;
     }
 
-    // Calculate the end position by running motion count times
+    // Single cursor, no operator - just move cursor
     final start = file.cursor;
     var end = start;
     for (int i = 0; i < edit.count; i++) {
       end = motion.fn(this, file, end);
     }
-
-    if (op == null) {
-      // No operator - just move cursor to end of motion
-      file.cursor = end;
-    } else {
-      // For inclusive motions, extend end to include the character under cursor.
-      // For characterwise motions, don't extend past a newline — d$ and C
-      // should not delete the line terminator.
-      if (motion.inclusive && end < file.text.length) {
-        if (linewise || file.text[end] != '\n') {
-          end = file.nextGrapheme(end);
-        }
-      }
-
-      // Apply operator to the normalized range
-      var range = Range(start, end).norm;
-      if (linewise) {
-        range = _expandToFullLines(range);
-      }
-      final sel = Selection(range.start, range.end);
-      op.applyToRanges(this, file, [sel], 0, linewise: linewise);
-
-      // For linewise operations, move cursor to start of affected range
-      if (linewise) {
-        file.cursor = range.start;
-        file.clampCursor();
-      }
-    }
+    file.cursor = end;
 
     _saveForRepeat(edit);
     _clearDesiredColumnIfNeeded(motion.type);
@@ -995,8 +966,8 @@ class Editor {
     file.clampCursor();
   }
 
-  /// Apply operator with motion to all collapsed selections (multi-cursor mode).
-  void _applyOperatorToMultipleCursors(
+  /// Apply operator with motion to all cursors.
+  void _applyOperator(
     Motion motion,
     int count,
     OperatorAction op,

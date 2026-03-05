@@ -9,6 +9,18 @@ import '../file_buffer/file_buffer.dart';
 import '../selection.dart';
 import '../yank_buffer.dart';
 
+/// Yank text from ranges to yank buffer and clipboard.
+void yankRanges(
+  Editor e,
+  FileBuffer f,
+  List<Selection> ranges, {
+  required bool linewise,
+}) {
+  final pieces = ranges.map((r) => f.text.substring(r.start, r.end)).toList();
+  e.yankBuffer = YankBuffer(pieces, linewise: linewise);
+  e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
+}
+
 /// Utility class for operator-related helper functions.
 class OperatorActions {
   /// Check if there are visual selections and apply operator to them.
@@ -86,11 +98,7 @@ class OperatorActions {
     int mainIndex, {
     required bool linewise,
   }) {
-    final pieces = sortedRanges
-        .map((r) => f.text.substring(r.start, r.end))
-        .toList();
-    e.yankBuffer = YankBuffer(pieces, linewise: linewise);
-    e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
+    yankRanges(e, f, sortedRanges, linewise: linewise);
 
     final edits = sortedRanges.reversed
         .map((r) => TextEdit.delete(r.start, r.end))
@@ -115,9 +123,7 @@ class Change extends OperatorAction {
     bool linewise = false,
   }) {
     // Yank all ranges
-    final pieces = ranges.map((r) => f.text.substring(r.start, r.end)).toList();
-    e.yankBuffer = YankBuffer(pieces, linewise: linewise);
-    e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
+    yankRanges(e, f, ranges, linewise: linewise);
 
     // Apply edits
     final edits = linewise
@@ -178,17 +184,10 @@ class Yank extends OperatorAction {
     int mainIndex, {
     bool linewise = false,
   }) {
-    final pieces = ranges.map((r) => f.text.substring(r.start, r.end)).toList();
-    e.yankBuffer = YankBuffer(pieces, linewise: linewise);
-    e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
+    yankRanges(e, f, ranges, linewise: linewise);
 
     // Collapse selections to range starts
-    final collapsed = ranges.map((s) => Selection.collapsed(s.start)).toList();
-    if (mainIndex > 0 && mainIndex < collapsed.length) {
-      final mainSel = collapsed.removeAt(mainIndex);
-      collapsed.insert(0, mainSel);
-    }
-    f.selections = mergeSelections(collapsed);
+    f.selections = collapseToStarts(ranges, mainIndex);
     f.setMode(e, .normal);
     f.clampCursor();
   }
@@ -220,12 +219,7 @@ class ChangeCase extends OperatorAction {
     applyEdits(f, edits, e.config);
 
     // Collapse to range starts, promote main cursor
-    final collapsed = ranges.map((s) => Selection.collapsed(s.start)).toList();
-    if (mainIndex > 0 && mainIndex < collapsed.length) {
-      final mainSel = collapsed.removeAt(mainIndex);
-      collapsed.insert(0, mainSel);
-    }
-    f.selections = mergeSelections(collapsed);
+    f.selections = collapseToStarts(ranges, mainIndex);
     f.setMode(e, .normal);
     f.clampCursor();
   }

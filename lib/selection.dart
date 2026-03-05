@@ -175,6 +175,22 @@ void promoteClosest(List<Selection> selections, int offset) {
   }
 }
 
+/// Collapse selections to their start positions (no offset adjustment).
+/// Moves [mainIndex] to front, then merges overlapping selections.
+/// Use for non-destructive operators like yank and case change.
+List<Selection> collapseToStarts(List<Selection> sortedRanges, int mainIndex) {
+  final newSelections = sortedRanges
+      .map((s) => Selection.collapsed(s.start))
+      .toList();
+
+  if (mainIndex > 0 && mainIndex < newSelections.length) {
+    final mainSel = newSelections.removeAt(mainIndex);
+    newSelections.insert(0, mainSel);
+  }
+
+  return mergeSelections(newSelections);
+}
+
 /// Collapse selections to their start positions after delete operations.
 /// Adjusts positions based on cumulative deleted text length.
 /// Moves [mainIndex] to front, then merges overlapping selections.
