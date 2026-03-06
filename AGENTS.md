@@ -19,14 +19,16 @@ dart analyze            # Check code
 
 ```
 lib/
-  actions/         # Action handlers (*Actions classes with static methods)
-  types/           # Command types (ActionCommand, MotionCommand, type enums)
+  action/          # Action handlers (static method classes)
   features/        # Feature modules (LSP, cursor position) with Feature interface
   file_buffer/     # Buffer ops split by concern (io, nav, text)
   grapheme/        # Unicode/grapheme utilities
   highlighting/    # Syntax highlighting and themes
+  line_edit/       # Command-line (:) editing
   motion/          # Movement operations
+  operator/        # Operators (delete, change, yank, case change)
   popup/           # Popup UI components
+  text_object/     # Text objects (iw, i", a(, etc.)
   bindings.dart    # All keybindings - DON'T MODIFY unless requested
   editor.dart      # Main editor class
 test/              # Mirrors lib/ structure, *_test.dart files

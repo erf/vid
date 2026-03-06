@@ -96,7 +96,7 @@ Operators can be combined with motions or text objects (e.g., `dw` deletes a wor
 | `gu` | Convert to lowercase |
 | `gU` | Convert to uppercase |
 
-Double an operator to apply to the whole line: `dd` (delete line), `cc` (change line), `yy` (yank line).
+Double an operator to apply to the whole line: `dd` (delete line), `cc` (change line), `yy` (yank line), `guu` (lowercase line), `gUU` (uppercase line).
 
 ### View Control
 
