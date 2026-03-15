@@ -26,8 +26,8 @@ extension FileBufferIo on FileBuffer {
 
     // load file if it exists
     final file = File(path);
-    final String absolutePath = file.absolute.path;
     if (file.existsSync()) {
+      final String absolutePath = file.resolveSymbolicLinksSync();
       try {
         String text = file.readAsStringSync();
         // add newline at end of file if missing
@@ -49,6 +49,7 @@ extension FileBufferIo on FileBuffer {
 
     // create new file if allowed
     if (createIfNotExists) {
+      final absolutePath = _normalizeAbsolutePath(file.absolute.path);
       return ErrorOr.value(
         FileBuffer(path: path, absolutePath: absolutePath, cwd: cwd),
       );
@@ -92,8 +93,17 @@ extension FileBufferIo on FileBuffer {
     return utf8.decode([stdin.readByteSync()]);
   }
 
-  /// Convert a path to absolute path
+  /// Convert a path to absolute path, resolving symlinks and normalizing.
   static String toAbsolutePath(String path) {
-    return File(path).absolute.path;
+    final file = File(path);
+    if (file.existsSync()) {
+      return file.resolveSymbolicLinksSync();
+    }
+    return _normalizeAbsolutePath(file.absolute.path);
+  }
+
+  /// Normalize an absolute path by resolving '..' and '.' segments.
+  static String _normalizeAbsolutePath(String path) {
+    return Uri.file(path).toFilePath();
   }
 }
