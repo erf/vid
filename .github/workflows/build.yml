@@ -9,12 +9,15 @@ on:
     # Nightly at 03:00 UTC
     - cron: '0 3 * * *'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: dart-lang/setup-dart@v2
+      - uses: dart-lang/setup-dart@v1
       - name: Install dependencies
         run: dart pub get
       - name: Run tests
@@ -35,7 +38,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - uses: dart-lang/setup-dart@v2
+      - uses: dart-lang/setup-dart@v1
       - name: Install dependencies
         run: dart pub get
       - name: Build binary
