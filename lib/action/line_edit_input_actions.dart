@@ -53,28 +53,21 @@ class LineEditExecuteCommand extends Action {
   }
 }
 
-/// Execute search with the pattern in line edit buffer.
+/// Search direction for line-edit search.
+enum SearchDir { forward, backward }
+
+/// Execute the search pattern in line edit buffer.
 class LineEditExecuteSearch extends Action {
-  const LineEditExecuteSearch();
+  final SearchDir dir;
+  const LineEditExecuteSearch([this.dir = SearchDir.forward]);
 
   @override
   void call(Editor e, FileBuffer f) {
     f.setMode(e, .normal);
-    f.edit.motion = Motion(.searchNext);
-    f.edit.findStr = f.input.lineEdit;
-    f.input.lineEdit = '';
-    e.commitEdit(f.edit.build());
-  }
-}
-
-/// Execute backward search with the pattern in line edit buffer.
-class LineEditExecuteSearchBackward extends Action {
-  const LineEditExecuteSearchBackward();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    f.setMode(e, .normal);
-    f.edit.motion = Motion(.searchPrev);
+    f.edit.motion = switch (dir) {
+      .forward => Motion(.searchNext),
+      .backward => Motion(.searchPrev),
+    };
     f.edit.findStr = f.input.lineEdit;
     f.input.lineEdit = '';
     e.commitEdit(f.edit.build());

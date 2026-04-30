@@ -93,8 +93,8 @@ extension ActionTypeExt on ActionType {
     // Line edit input
     .lineEditBackspace => const LineEditBackspace(),
     .lineEditExecuteCommand => const LineEditExecuteCommand(),
-    .lineEditExecuteSearch => const LineEditExecuteSearch(),
-    .lineEditExecuteSearchBackward => const LineEditExecuteSearchBackward(),
+    .lineEditExecuteSearch => const LineEditExecuteSearch(.forward),
+    .lineEditExecuteSearchBackward => const LineEditExecuteSearch(.backward),
 
     // Popup
     .popupCancel => const PopupCancel(),
