@@ -133,8 +133,10 @@ Had 11+ maps tracking different concerns. Extracted into `lib/features/lsp/lsp_c
       static state. The `file` getter/setter now indexes directly; an
       invariant violation throws cleanly.
 
-## ARCHITECTURE.md is thin (13 lines)
+## ARCHITECTURE.md is thin (was 13 lines)
 
-Worth expanding now that the folder reorganization has stabilized:
-action/motion/operator/text_object pipeline, multi-cursor model, feature
-registry.
+- [x] Expanded into a navigable reference: data model, input → edit
+      pipeline, rendering layout, feature interface, critical invariants,
+      and extension points (motion / operator / text object / feature /
+      ex-command / language tokenizer).
+
