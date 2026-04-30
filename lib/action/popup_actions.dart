@@ -69,47 +69,22 @@ class PopupFilterBackspace extends Action {
   }
 }
 
-/// Move filter cursor left (Left arrow).
-class PopupFilterCursorLeft extends Action {
-  const PopupFilterCursorLeft();
+enum FilterCursorPos { left, right, start, end }
+
+/// Move filter cursor (Left/Right/Home/End/Ctrl-A/Ctrl-E).
+class PopupFilterCursor extends Action {
+  final FilterCursorPos position;
+  const PopupFilterCursor(this.position);
 
   @override
   void call(Editor e, FileBuffer f) {
     if (e.popup == null) return;
-    e.popup = e.popup!.moveFilterCursorLeft();
-  }
-}
-
-/// Move filter cursor right (Right arrow).
-class PopupFilterCursorRight extends Action {
-  const PopupFilterCursorRight();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (e.popup == null) return;
-    e.popup = e.popup!.moveFilterCursorRight();
-  }
-}
-
-/// Move filter cursor to start (Home, Ctrl+A).
-class PopupFilterCursorToStart extends Action {
-  const PopupFilterCursorToStart();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (e.popup == null) return;
-    e.popup = e.popup!.moveFilterCursorToStart();
-  }
-}
-
-/// Move filter cursor to end (End, Ctrl+E).
-class PopupFilterCursorToEnd extends Action {
-  const PopupFilterCursorToEnd();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (e.popup == null) return;
-    e.popup = e.popup!.moveFilterCursorToEnd();
+    e.popup = switch (position) {
+      .left => e.popup!.moveFilterCursorLeft(),
+      .right => e.popup!.moveFilterCursorRight(),
+      .start => e.popup!.moveFilterCursorToStart(),
+      .end => e.popup!.moveFilterCursorToEnd(),
+    };
   }
 }
 
