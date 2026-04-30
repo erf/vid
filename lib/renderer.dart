@@ -6,8 +6,10 @@ import 'highlighting/highlighter.dart';
 import 'highlighting/token.dart';
 import 'features/lsp/lsp_protocol.dart';
 import 'message.dart';
+import 'message_renderer.dart';
 import 'popup/popup.dart';
 import 'popup/popup_renderer.dart';
+import 'status_bar.dart';
 import 'string_ext.dart';
 
 /// Result of layout pass for a line
@@ -61,6 +63,18 @@ class Renderer {
 
   /// Renders the popup overlay; owns its own bounds + row map state.
   late final PopupRenderer popupRenderer = PopupRenderer(
+    terminal: terminal,
+    highlighter: highlighter,
+  );
+
+  /// Renders the bottom status bar and command/search input line.
+  late final StatusBar statusBar = StatusBar(
+    terminal: terminal,
+    highlighter: highlighter,
+  );
+
+  /// Renders transient messages above the status bar.
+  late final MessageRenderer messageRenderer = MessageRenderer(
     terminal: terminal,
     highlighter: highlighter,
   );
@@ -181,10 +195,11 @@ class Renderer {
     );
 
     if (file.mode case .command || .search || .searchBackward) {
-      _drawLineEdit(file);
+      statusBar.drawLineEdit(buffer, file);
     } else if (file.mode == .popup && popup != null) {
-      if (message != null) _drawMessage(message);
-      _drawStatusBar(
+      if (message != null) messageRenderer.draw(buffer, message);
+      statusBar.draw(
+        buffer,
         file,
         config,
         cursorLine,
@@ -194,8 +209,9 @@ class Renderer {
       );
       popupRenderer.draw(buffer, popup, config);
     } else {
-      if (message != null) _drawMessage(message);
-      _drawStatusBar(
+      if (message != null) messageRenderer.draw(buffer, message);
+      statusBar.draw(
+        buffer,
         file,
         config,
         cursorLine,
@@ -1148,128 +1164,5 @@ class Renderer {
     }
 
     buffer.write(Ansi.cursor(x: screenCol, y: cursorScreenRow));
-  }
-
-  // draw the command input line
-  void _drawLineEdit(FileBuffer file) {
-    final String lineEdit = file.input.lineEdit;
-
-    buffer.write(Ansi.cursor(x: 1, y: terminal.height));
-    if (file.mode == .search) {
-      buffer.write('/$lineEdit ');
-    } else if (file.mode == .searchBackward) {
-      buffer.write('?$lineEdit ');
-    } else {
-      buffer.write(':$lineEdit ');
-    }
-    int cursor = lineEdit.length + 2;
-    buffer.write(Ansi.cursorStyle(.steadyBar));
-    buffer.write(Ansi.cursor(x: cursor, y: terminal.height));
-  }
-
-  /// Draw message above status bar.
-  void _drawMessage(Message message) {
-    final text = message.text;
-    final contentWidth = terminal.width - 2; // Leave space for padding
-
-    // Split text into lines, respecting embedded newlines and wrapping long lines
-    final lines = <String>[];
-    for (final paragraph in text.split('\n')) {
-      if (lines.length >= 5) break;
-      var remaining = paragraph;
-      while (remaining.isNotEmpty && lines.length < 5) {
-        if (remaining.length <= contentWidth) {
-          lines.add(remaining);
-          break;
-        }
-        // Find a good break point (prefer space)
-        var breakAt = contentWidth;
-        for (var i = contentWidth; i > contentWidth ~/ 2; i--) {
-          if (remaining[i] == ' ') {
-            breakAt = i;
-            break;
-          }
-        }
-        lines.add(remaining.substring(0, breakAt));
-        remaining = remaining.substring(breakAt).trimLeft();
-      }
-    }
-
-    final msgRow = terminal.height - lines.length;
-
-    switch (message.type) {
-      case MessageType.info:
-        buffer.write(Ansi.fg(Color.green));
-      case MessageType.error:
-        buffer.write(Ansi.fg(Color.red));
-    }
-    buffer.write(Ansi.inverse(true));
-
-    for (var i = 0; i < lines.length; i++) {
-      buffer.write(Ansi.cursor(x: 1, y: msgRow + i));
-      buffer.write(' ${lines[i]} ');
-    }
-
-    buffer.write(Ansi.inverse(false));
-    highlighter.theme.resetCode(buffer);
-  }
-
-  /// Draw status bar at bottom of screen.
-  void _drawStatusBar(
-    FileBuffer file,
-    Config config,
-    int cursorLine,
-    int bufferIndex,
-    int bufferCount,
-    int diagnosticCount,
-  ) {
-    buffer.write(Ansi.inverse(true));
-    buffer.write(Ansi.cursor(x: 1, y: terminal.height));
-
-    int cursorCol = file.columnInLine(file.cursor);
-    String mode = file.mode.label;
-    // Show selection count when multiple selections exist
-    if (file.selections.length > 1) {
-      mode = '$mode[${file.selections.length}]';
-    }
-    String path = file.relativePath ?? '[No Name]';
-    String modified = file.modified ? '*' : '';
-    String pathWithMod = '$path$modified';
-    String wrap = config.wrapSymbol;
-
-    // Build left side with special formatting for buffer indicator and diagnostics
-    final leftParts = <String>[mode, pathWithMod];
-    if (wrap.isNotEmpty) leftParts.add(wrap);
-    String left = leftParts.join(' ');
-
-    // Calculate extra parts that need special formatting
-    // After Ansi.reset(), we must restore theme colors before continuing
-    final theme = highlighter.theme;
-    final themeRestore = '${theme.background ?? ''}${theme.foreground ?? ''}';
-
-    String bufferPart = '';
-    if (bufferCount > 1) {
-      bufferPart =
-          ' ${Ansi.dim()}${bufferIndex + 1}/$bufferCount${Ansi.reset()}$themeRestore${Ansi.inverse(true)}';
-    }
-    String diagPart = '';
-    if (diagnosticCount > 0) {
-      diagPart =
-          ' ${Ansi.fg(Color.red)}!$diagnosticCount${Ansi.reset()}$themeRestore${Ansi.inverse(true)}';
-    }
-
-    // Calculate visible lengths (without ANSI codes)
-    int bufferVisibleLen = bufferCount > 1
-        ? ' ${bufferIndex + 1}/$bufferCount'.length
-        : 0;
-    int diagVisibleLen = diagnosticCount > 0 ? ' !$diagnosticCount'.length : 0;
-
-    String right = ' ${cursorLine + 1}, ${cursorCol + 1} ';
-    int padLeft =
-        terminal.width - left.length - bufferVisibleLen - diagVisibleLen - 2;
-    String padding = right.padLeft(padLeft);
-
-    buffer.write(' $left$bufferPart$diagPart $padding');
-    buffer.write(Ansi.inverse(false));
   }
 }
