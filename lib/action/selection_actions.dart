@@ -7,14 +7,28 @@ import '../file_buffer/file_buffer.dart';
 import '../line_info.dart';
 import 'action_base.dart';
 
-/// Exit visual mode, collapse selections to multiple cursors (collapsed selections).
+enum VisualEscape {
+  /// Exit visual mode → normal (collapses selections to cursors).
+  toNormal,
+
+  /// Exit visual line mode → visual (preserves selections).
+  toVisual,
+}
+
+/// Exit visual or visual-line mode.
 class EscapeVisual extends Action {
-  const EscapeVisual();
+  final VisualEscape target;
+  const EscapeVisual(this.target);
 
   @override
   void call(Editor e, FileBuffer f) {
-    f.collapseSelections();
-    f.setMode(e, .normal);
+    switch (target) {
+      case .toNormal:
+        f.collapseSelections();
+        f.setMode(e, .normal);
+      case .toVisual:
+        f.setMode(e, .visual);
+    }
   }
 }
 
@@ -56,7 +70,7 @@ class RemoveSelection extends Action {
   void call(Editor e, FileBuffer f) {
     if (f.selections.length <= 1) {
       // Can't remove last selection, just escape
-      const EscapeVisual()(e, f);
+      const EscapeVisual(.toNormal)(e, f);
       return;
     }
     final removed = f.selections.removeAt(0);
@@ -239,16 +253,6 @@ class SplitSelectionIntoLines extends Action {
     }
 
     f.selections = newSelections;
-  }
-}
-
-/// Exit visual line mode to visual mode, keeping selections.
-class EscapeVisualLine extends Action {
-  const EscapeVisualLine();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    f.setMode(e, .visual);
   }
 }
 

@@ -65,8 +65,8 @@ extension ActionTypeExt on ActionType {
     // Selection
     .addCursorBelow => const AddCursor(.below),
     .addCursorAbove => const AddCursor(.above),
-    .escapeVisual => const EscapeVisual(),
-    .escapeVisualLine => const EscapeVisualLine(),
+    .escapeVisual => const EscapeVisual(.toNormal),
+    .escapeVisualLine => const EscapeVisual(.toVisual),
     .swapEnds => const SwapEnds(),
     .nextSelection => const CycleSelection(.next),
     .prevSelection => const CycleSelection(.prev),
