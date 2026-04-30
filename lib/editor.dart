@@ -15,6 +15,7 @@ import 'input_state.dart';
 import 'motion/motion_type.dart';
 import 'popup/file_browser.dart';
 import 'popup/popup.dart';
+import 'popup/popup_renderer.dart';
 import 'renderer.dart';
 import 'selection.dart';
 import 'operator/operator_base.dart';
@@ -784,31 +785,23 @@ class Editor {
   void _handlePopupClick(int x, int y) {
     if (popup == null) return;
 
-    // Check if click is within popup bounds (1-based coordinates)
-    if (x < renderer.popupLeft + 1 ||
-        x > renderer.popupRight ||
-        y < renderer.popupTop + 1 ||
-        y > renderer.popupBottom) {
-      // Click outside popup - cancel
-      popup!.onCancel?.call();
-      return;
-    }
+    final hit = renderer.popupRenderer.hitTest(x, y);
+    switch (hit) {
+      case PopupHitOutside():
+        // Click outside popup - cancel
+        popup!.onCancel?.call();
+      case PopupHitInside():
+        // Click inside popup but not on an item (header/filter/empty row)
+        break;
+      case PopupHitItem(:final itemIndex):
+        if (itemIndex < popup!.items.length) {
+          // Update selection and select the item
+          popup = popup!.copyWith(selectedIndex: itemIndex);
+          draw();
 
-    // Calculate which row was clicked (0-based, relative to popup content)
-    final contentRowStart = renderer.popupTop + 2; // After title bar
-    final clickedRow = y - contentRowStart;
-
-    // Check if click is on an item row
-    if (clickedRow >= 0 && clickedRow < renderer.popupRowMap.length) {
-      final itemIndex = renderer.popupRowMap[clickedRow];
-      if (itemIndex >= 0 && itemIndex < popup!.items.length) {
-        // Update selection and select the item
-        popup = popup!.copyWith(selectedIndex: itemIndex);
-        draw();
-
-        // Use invokeSelect for type-safe callback invocation
-        popup!.invokeSelect();
-      }
+          // Use invokeSelect for type-safe callback invocation
+          popup!.invokeSelect();
+        }
     }
   }
 
