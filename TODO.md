@@ -97,16 +97,15 @@ Resolved across 5 commits (`cfa44fc`, `93ed9e3`, `548ef3f`, `5bf27ae`,
       `GutterSign` / `GutterSigns`). Owns `width`, gutter cell rendering, and
       end-of-line newline-symbol rendering.
 
-## LspFeature (837 lines)
+## LspFeature (837 → 757 lines)
 
-Has 11+ maps tracking different concerns. Could extract:
+Had 11+ maps tracking different concerns. Extracted into `lib/features/lsp/lsp_caches.dart`:
 
-- `LspDiagnosticsCache` — diagnostics per URI
-- `LspSemanticTokensCache` — tokens, previousTokens, request timers
-- `LspCodeActionsCache` — linesWithCodeActions, code action timers
-- `LspDocumentTracker` — document versions, open documents
-
-Likely high payoff because each cache is testable in isolation.
+- [x] `LspDiagnosticsCache` — diagnostics per URI, with `firstErrorMessage`
+- [x] `LspSemanticTokensCache` — current + previous tokens + debounce timers,
+      owns the token line-shift invalidation logic
+- [x] `LspCodeActionsCache` — `linesWithCodeActions` + per-URI debounce timers
+- [x] `LspDocumentTracker` — document versions and open-document → server map
 
 ## `commitEdit` has duplicated tail across 4 branches
 

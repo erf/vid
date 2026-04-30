@@ -4,6 +4,7 @@ import '../../editor.dart';
 import '../feature.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
+import 'lsp_caches.dart';
 import 'lsp_client.dart';
 import 'lsp_protocol.dart';
 import 'lsp_server_config.dart';
@@ -29,29 +30,17 @@ class LspFeature extends Feature {
   /// Map of server key to notification subscription.
   final Map<String, StreamSubscription<LspNotification>> _notificationSubs = {};
 
-  /// Document versions per file URI (for incremental sync).
-  final Map<String, int> _documentVersions = {};
+  /// Tracks open documents (uri -> serverKey) and per-uri sync versions.
+  final LspDocumentTracker _documents = LspDocumentTracker();
 
-  /// Current diagnostics per file URI.
-  final Map<String, List<LspDiagnostic>> _diagnostics = {};
+  /// Diagnostics cache, per file URI.
+  final LspDiagnosticsCache _diagnosticsCache = LspDiagnosticsCache();
 
-  /// Lines with code actions available per file URI.
-  final Map<String, Set<int>> _linesWithCodeActions = {};
+  /// Code-action availability cache (lines + pending timers), per file URI.
+  final LspCodeActionsCache _codeActionsCache = LspCodeActionsCache();
 
-  /// Pending code action check timers.
-  final Map<String, Timer> _codeActionTimers = {};
-
-  /// Files that have been opened with the LSP server, mapped to server key.
-  final Map<String, String> _openDocuments = {}; // uri -> serverKey
-
-  /// Cached semantic tokens per file URI (for rendering).
-  final Map<String, List<SemanticToken>> _semanticTokens = {};
-
-  /// Previous semantic tokens for delta requests (kept even when display cleared).
-  final Map<String, List<SemanticToken>> _previousTokens = {};
-
-  /// Pending semantic token requests.
-  final Map<String, Timer> _semanticTokenTimers = {};
+  /// Semantic-token cache (current + previous + debounce timers), per file URI.
+  final LspSemanticTokensCache _semanticTokensCache = LspSemanticTokensCache();
 
   LspFeature(super.editor);
 
@@ -99,10 +88,8 @@ class LspFeature extends Feature {
   }
 
   /// Get cached semantic tokens for a file.
-  List<SemanticToken> getSemanticTokens(String? uri) {
-    if (uri == null) return [];
-    return _semanticTokens[uri] ?? [];
-  }
+  List<SemanticToken> getSemanticTokens(String? uri) =>
+      _semanticTokensCache.getCurrent(uri);
 
   /// Debounce delay for semantic token requests.
   static const _semanticTokenDebounce = Duration(milliseconds: 50);
@@ -111,17 +98,16 @@ class LspFeature extends Feature {
   void requestSemanticTokens(String uri, {bool immediate = false}) {
     final path = Uri.parse(uri).toFilePath();
     if (!supportsSemanticTokensFor(path)) return;
-    if (!_openDocuments.containsKey(uri)) return;
-
-    // Cancel any pending request for this file
-    _semanticTokenTimers[uri]?.cancel();
+    if (!_documents.isOpen(uri)) return;
 
     if (immediate || _semanticTokenDebounce == Duration.zero) {
+      _semanticTokensCache.cancelTimer(uri);
       _fetchSemanticTokens(uri);
     } else {
-      _semanticTokenTimers[uri] = Timer(_semanticTokenDebounce, () {
-        _fetchSemanticTokens(uri);
-      });
+      _semanticTokensCache.setTimer(
+        uri,
+        Timer(_semanticTokenDebounce, () => _fetchSemanticTokens(uri)),
+      );
     }
   }
 
@@ -132,14 +118,13 @@ class LspFeature extends Feature {
       if (protocol == null) return;
 
       // Pass previous tokens to enable delta updates
-      final previousTokens = _previousTokens[uri];
+      final previousTokens = _semanticTokensCache.getPrevious(uri);
       final result = await protocol.semanticTokensFull(
         uri,
         previousTokens: previousTokens,
       );
       if (result != null) {
-        _semanticTokens[uri] = result.tokens;
-        _previousTokens[uri] = result.tokens;
+        _semanticTokensCache.setBoth(uri, result.tokens);
         editor.draw();
       }
     } catch (_) {
@@ -148,34 +133,19 @@ class LspFeature extends Feature {
   }
 
   /// Clear cached semantic tokens for a file (e.g., on close).
-  void clearSemanticTokens(String uri) {
-    _semanticTokens.remove(uri);
-    _previousTokens.remove(uri);
-    _semanticTokenTimers[uri]?.cancel();
-    _semanticTokenTimers.remove(uri);
-  }
+  void clearSemanticTokens(String uri) => _semanticTokensCache.clear(uri);
 
   /// Get diagnostics for a file.
-  List<LspDiagnostic> getDiagnostics(String? uri) {
-    if (uri == null) return [];
-    return _diagnostics[uri] ?? [];
-  }
+  List<LspDiagnostic> getDiagnostics(String? uri) =>
+      _diagnosticsCache.get(uri);
 
   /// Get lines that have code actions available.
-  Set<int> getLinesWithCodeActions(String? uri) {
-    if (uri == null) return {};
-    return _linesWithCodeActions[uri] ?? {};
-  }
+  Set<int> getLinesWithCodeActions(String? uri) =>
+      _codeActionsCache.getLines(uri);
 
   /// Get first error diagnostic message for display.
-  String? getFirstErrorMessage(String? uri) {
-    final diags = getDiagnostics(uri);
-    if (diags.isEmpty) return null;
-    final errors = diags.where((d) => d.severity == DiagnosticSeverity.error);
-    if (errors.isEmpty) return null;
-    final first = errors.first;
-    return 'L${first.startLine + 1}: ${first.message}';
-  }
+  String? getFirstErrorMessage(String? uri) =>
+      _diagnosticsCache.firstErrorMessage(uri);
 
   @override
   void onInit() {
@@ -192,7 +162,7 @@ class LspFeature extends Feature {
     if (file.absolutePath == null) return;
 
     final uri = _fileUri(file.absolutePath!);
-    if (_openDocuments.containsKey(uri)) return;
+    if (_documents.isOpen(uri)) return;
 
     final ext = file.absolutePath!.split('.').last;
     final config = LspServerRegistry.getForExtension(ext);
@@ -223,12 +193,11 @@ class LspFeature extends Feature {
     if (client == null || !client.isConnected || protocol == null) return;
 
     // Check if already open (might have been opened while waiting for server)
-    if (_openDocuments.containsKey(uri)) return;
+    if (_documents.isOpen(uri)) return;
 
     final languageId = languageIdFromPath(file.absolutePath!);
-    _documentVersions[uri] = 1;
+    _documents.open(uri, serverKey);
     protocol.didOpen(uri, languageId, 1, file.text);
-    _openDocuments[uri] = serverKey;
 
     // Request semantic tokens immediately for the whole file
     requestSemanticTokens(uri, immediate: true);
@@ -239,15 +208,14 @@ class LspFeature extends Feature {
     if (file.absolutePath == null) return;
 
     final uri = _fileUri(file.absolutePath!);
-    final serverKey = _openDocuments[uri];
+    final serverKey = _documents.serverFor(uri);
     if (serverKey == null) return;
 
     final protocol = _protocols[serverKey];
     protocol?.didClose(uri);
 
-    _openDocuments.remove(uri);
-    _documentVersions.remove(uri);
-    _diagnostics.remove(uri);
+    _documents.close(uri);
+    _diagnosticsCache.remove(uri);
     clearSemanticTokens(uri);
   }
 
@@ -264,11 +232,11 @@ class LspFeature extends Feature {
     final uri = _fileUri(file.absolutePath!);
 
     // Ensure document is open
-    if (!_openDocuments.containsKey(uri)) {
+    if (!_documents.isOpen(uri)) {
       onFileOpen(file);
     }
 
-    final serverKey = _openDocuments[uri];
+    final serverKey = _documents.serverFor(uri);
     if (serverKey == null) return;
 
     final client = _clients[serverKey];
@@ -276,8 +244,7 @@ class LspFeature extends Feature {
     if (client == null || protocol == null) return;
 
     // Increment version
-    final version = (_documentVersions[uri] ?? 0) + 1;
-    _documentVersions[uri] = version;
+    final version = _documents.incrementVersion(uri);
 
     // Use incremental sync if server supports it, otherwise full sync
     if (client.supportsIncrementalSync) {
@@ -297,7 +264,7 @@ class LspFeature extends Feature {
     }
 
     // Only invalidate tokens on affected lines, keep the rest
-    _invalidateTokensForEdit(uri, file, start, oldText, newText);
+    _semanticTokensCache.invalidateForEdit(uri, file, start, oldText, newText);
 
     // Re-fetch semantic tokens (debounced)
     requestSemanticTokens(uri);
@@ -339,49 +306,6 @@ class LspFeature extends Feature {
     }
 
     return _RangePositions(startLine, startChar, endLine, endChar);
-  }
-
-  /// Invalidate only tokens on lines affected by an edit.
-  /// Tokens on unaffected lines remain valid and avoid flashing.
-  void _invalidateTokensForEdit(
-    String uri,
-    FileBuffer file,
-    int editStart,
-    String oldText,
-    String newText,
-  ) {
-    final tokens = _semanticTokens[uri];
-    if (tokens == null || tokens.isEmpty) return;
-
-    final oldLines = '\n'.allMatches(oldText).length;
-    final newLines = '\n'.allMatches(newText).length;
-    final lineDelta = newLines - oldLines;
-
-    final editLine = file.lineNumber(editStart);
-    final affectedEndLine = editLine + oldLines;
-
-    final adjusted = <SemanticToken>[];
-    for (final token in tokens) {
-      if (token.line < editLine) {
-        // Before edit - keep unchanged
-        adjusted.add(token);
-      } else if (token.line <= affectedEndLine) {
-        // On affected lines - skip (will use regex highlighting)
-      } else {
-        // After edit - shift line number
-        adjusted.add(
-          SemanticToken(
-            line: token.line + lineDelta,
-            character: token.character,
-            length: token.length,
-            type: token.type,
-            modifiers: token.modifiers,
-          ),
-        );
-      }
-    }
-
-    _semanticTokens[uri] = adjusted;
   }
 
   /// Go to definition at current cursor position.
@@ -571,15 +495,10 @@ class LspFeature extends Feature {
     editor.draw();
 
     _stopAllLspServers();
-    _openDocuments.clear();
-    _documentVersions.clear();
-    _diagnostics.clear();
-    _semanticTokens.clear();
-    _previousTokens.clear();
-    for (final timer in _semanticTokenTimers.values) {
-      timer.cancel();
-    }
-    _semanticTokenTimers.clear();
+    _documents.clear();
+    _diagnosticsCache.clear();
+    _codeActionsCache.cancelAllTimers();
+    _semanticTokensCache.clearAll();
 
     await _startLspServers();
 
@@ -608,7 +527,7 @@ class LspFeature extends Feature {
         .toList();
 
     if (connectedServers.isNotEmpty) {
-      final openCount = _openDocuments.length;
+      final openCount = _documents.openCount();
       editor.showMessage(
         Message.info(
           'LSP: ${connectedServers.join(", ")} ($openCount open docs)',
@@ -753,7 +672,7 @@ class LspFeature extends Feature {
     if (uri == null) return;
 
     final diags = parseDiagnostics(params);
-    _diagnostics[uri] = diags;
+    _diagnosticsCache.set(uri, diags);
 
     // Check for code actions on diagnostic lines (debounced)
     _checkCodeActionsForDiagnostics(uri, diags);
@@ -764,54 +683,55 @@ class LspFeature extends Feature {
 
   /// Check for code actions on lines with diagnostics.
   void _checkCodeActionsForDiagnostics(String uri, List<LspDiagnostic> diags) {
-    // Cancel any pending request for this URI
-    _codeActionTimers[uri]?.cancel();
-
     if (diags.isEmpty) {
-      _linesWithCodeActions.remove(uri);
+      _codeActionsCache.cancelTimer(uri);
+      _codeActionsCache.removeLines(uri);
       return;
     }
 
     // Debounce to avoid spamming requests
-    _codeActionTimers[uri] = Timer(Duration(milliseconds: 200), () async {
-      final protocol = _getProtocolForUri(uri);
-      if (protocol == null) return;
+    _codeActionsCache.setTimer(
+      uri,
+      Timer(Duration(milliseconds: 200), () async {
+        final protocol = _getProtocolForUri(uri);
+        if (protocol == null) return;
 
-      final linesWithActions = <int>{};
+        final linesWithActions = <int>{};
 
-      // Group diagnostics by line to minimize requests
-      final diagsByLine = <int, List<LspDiagnostic>>{};
-      for (final diag in diags) {
-        diagsByLine.putIfAbsent(diag.startLine, () => []).add(diag);
-      }
-
-      // Check each line with diagnostics
-      for (final entry in diagsByLine.entries) {
-        final line = entry.key;
-        final lineDiags = entry.value;
-        final firstDiag = lineDiags.first;
-
-        try {
-          final actions = await protocol.codeAction(
-            uri,
-            firstDiag.startLine,
-            firstDiag.startChar,
-            firstDiag.endLine,
-            firstDiag.endChar,
-            diagnostics: lineDiags,
-          );
-
-          if (actions != null && actions.isNotEmpty) {
-            linesWithActions.add(line);
-          }
-        } catch (_) {
-          // Ignore errors - code actions are optional
+        // Group diagnostics by line to minimize requests
+        final diagsByLine = <int, List<LspDiagnostic>>{};
+        for (final diag in diags) {
+          diagsByLine.putIfAbsent(diag.startLine, () => []).add(diag);
         }
-      }
 
-      _linesWithCodeActions[uri] = linesWithActions;
-      editor.draw();
-    });
+        // Check each line with diagnostics
+        for (final entry in diagsByLine.entries) {
+          final line = entry.key;
+          final lineDiags = entry.value;
+          final firstDiag = lineDiags.first;
+
+          try {
+            final actions = await protocol.codeAction(
+              uri,
+              firstDiag.startLine,
+              firstDiag.startChar,
+              firstDiag.endLine,
+              firstDiag.endChar,
+              diagnostics: lineDiags,
+            );
+
+            if (actions != null && actions.isNotEmpty) {
+              linesWithActions.add(line);
+            }
+          } catch (_) {
+            // Ignore errors - code actions are optional
+          }
+        }
+
+        _codeActionsCache.setLines(uri, linesWithActions);
+        editor.draw();
+      }),
+    );
   }
 
   /// Get protocol for a URI.
