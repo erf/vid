@@ -116,3 +116,60 @@ List<TextOp> applyEdits(
 
   return textOps;
 }
+
+/// A [TextEdit] paired with where the resulting cursor should land,
+/// expressed as a byte offset from the edit's start into the *new* text.
+///
+/// - `cursorOffset = 0` places the cursor at `edit.start` (e.g. paste-before).
+/// - `cursorOffset = edit.newText.length` places it just past the inserted
+///   text (e.g. typed character — cursor advances).
+/// - Negative or intermediate values are allowed (e.g. `newText.length - 1`
+///   for charwise paste-after).
+class CursorEdit {
+  final TextEdit edit;
+  final int cursorOffset;
+  const CursorEdit(this.edit, this.cursorOffset);
+
+  /// Cursor lands at the end of the inserted text plus [extra] (typically 0
+  /// or -1).
+  factory CursorEdit.atEnd(TextEdit edit, [int extra = 0]) =>
+      CursorEdit(edit, edit.newText.length + extra);
+
+  /// Cursor lands at the start of the edit plus [extra].
+  factory CursorEdit.atStart(TextEdit edit, [int extra = 0]) =>
+      CursorEdit(edit, extra);
+}
+
+/// Apply a list of [CursorEdit]s and return one collapsed [Selection] per
+/// edit, with cumulative offset shifts accounted for.
+///
+/// Edits do not need to be pre-sorted — they are sorted ascending by
+/// `edit.start` internally. The returned selections are in the same sorted
+/// order (callers usually assign them directly to `f.selections`).
+///
+/// This is the standard helper for multi-cursor edit operations: insert,
+/// backspace, paste, open-line-above/below, change-number, etc.
+List<Selection> applyEditsWithCursors(
+  FileBuffer buffer,
+  Config config,
+  List<CursorEdit> items,
+) {
+  if (items.isEmpty) return const [];
+
+  // Sort ascending by edit start; ties broken by original order (stable).
+  final sorted = items.toList()
+    ..sort((a, b) => a.edit.start.compareTo(b.edit.start));
+
+  applyEdits(buffer, sorted.map((c) => c.edit).toList(), config);
+
+  // Walk in sorted order with a running offset (delta = newLen - oldLen).
+  final selections = <Selection>[];
+  var shift = 0;
+  for (final item in sorted) {
+    final pos = item.edit.start + shift + item.cursorOffset;
+    selections.add(Selection.collapsed(pos));
+    final delta = item.edit.newText.length - (item.edit.end - item.edit.start);
+    shift += delta;
+  }
+  return selections;
+}

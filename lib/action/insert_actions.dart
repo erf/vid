@@ -10,24 +10,10 @@ import 'action_base.dart';
 class InsertActions {
   /// Insert character(s) at all cursor positions.
   static void insert(Editor e, FileBuffer f, String s) {
-    // Sort selections by position (ascending)
-    final sorted = f.selections.sortedByCursor();
-
-    // Build edit list - insert at each cursor position
-    final edits = sorted.map((sel) => TextEdit.insert(sel.cursor, s)).toList();
-
-    // Apply the insertions
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions - each cursor moves forward by the text length
-    // plus any text inserted before it
-    final newSelections = <Selection>[];
-    int offset = 0;
-    for (final sel in sorted) {
-      newSelections.add(Selection.collapsed(sel.cursor + offset + s.length));
-      offset += s.length;
-    }
-    f.selections = newSelections;
+    final items = f.selections
+        .map((sel) => CursorEdit.atEnd(TextEdit.insert(sel.cursor, s)))
+        .toList();
+    f.selections = applyEditsWithCursors(f, e.config, items);
   }
 
   /// Get the leading whitespace of the line containing [offset].
@@ -93,44 +79,27 @@ class InsertActions {
 
   /// Delete character before all cursor positions.
   static void backspaceImpl(Editor e, FileBuffer f) {
-    // Sort selections by position (ascending)
-    final sorted = f.selections.sortedByCursor();
-
-    // Build deletions - skip cursors at start of file
-    final deletions = <(int, int)>[];
-    for (final sel in sorted) {
-      if (sel.cursor == 0) continue;
-      int prevPos = f.prevGrapheme(sel.cursor);
-      deletions.add((prevPos, sel.cursor));
-    }
-
-    if (deletions.isEmpty) return;
-
-    // Build edit list
-    final edits = deletions
-        .map((del) => TextEdit.delete(del.$1, del.$2))
-        .toList();
-
-    // Apply the deletions
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions
-    final newSelections = <Selection>[];
-    int offset = 0;
-    int delIdx = 0;
-    for (final sel in sorted) {
-      if (delIdx < deletions.length && deletions[delIdx].$2 == sel.cursor) {
-        // This cursor had a deletion
-        final delLen = deletions[delIdx].$2 - deletions[delIdx].$1;
-        newSelections.add(Selection.collapsed(deletions[delIdx].$1 - offset));
-        offset += delLen;
-        delIdx++;
-      } else {
-        // Cursor at start of file, no deletion
-        newSelections.add(Selection.collapsed(sel.cursor - offset));
+    // Build deletions - skip cursors at start of file.
+    final items = <CursorEdit>[];
+    final unchanged = <Selection>[]; // cursors at start-of-file (no edit)
+    for (final sel in f.selections) {
+      if (sel.cursor == 0) {
+        unchanged.add(Selection.collapsed(sel.cursor));
+        continue;
       }
+      final prev = f.prevGrapheme(sel.cursor);
+      items.add(CursorEdit.atStart(TextEdit.delete(prev, sel.cursor)));
     }
-    f.selections = newSelections;
+
+    if (items.isEmpty) return;
+
+    final edited = applyEditsWithCursors(f, e.config, items);
+
+    // Cursors at start-of-file are unaffected by deletions that occur after
+    // them; merge and re-sort by position.
+    f.selections = [...unchanged, ...edited]..sort(
+      (a, b) => a.cursor.compareTo(b.cursor),
+    );
   }
 }
 
@@ -140,43 +109,16 @@ class InsertEnter extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    // Sort selections by position (ascending)
-    final sorted = f.selections.sortedByCursor();
-
-    // Build insertions - compute indent for each position
-    final insertions = <(int, String)>[];
-    for (final sel in sorted) {
-      String indent = '';
-      if (e.config.autoIndent) {
-        indent = InsertActions.getSmartIndent(
-          e,
-          f,
-          sel.cursor,
-          fullLine: false,
-        );
-      }
-      insertions.add((sel.cursor, Keys.newline + indent));
-    }
-
-    // Build edit list
-    final edits = insertions
-        .map((ins) => TextEdit.insert(ins.$1, ins.$2))
-        .toList();
-
-    // Apply the insertions
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions
-    final newSelections = <Selection>[];
-    int offset = 0;
-    for (int i = 0; i < sorted.length; i++) {
-      final textLen = insertions[i].$2.length;
-      newSelections.add(
-        Selection.collapsed(sorted[i].cursor + offset + textLen),
+    final items = <CursorEdit>[];
+    for (final sel in f.selections) {
+      final indent = e.config.autoIndent
+          ? InsertActions.getSmartIndent(e, f, sel.cursor, fullLine: false)
+          : '';
+      items.add(
+        CursorEdit.atEnd(TextEdit.insert(sel.cursor, Keys.newline + indent)),
       );
-      offset += textLen;
     }
-    f.selections = newSelections;
+    f.selections = applyEditsWithCursors(f, e.config, items);
     f.clampCursor();
   }
 }

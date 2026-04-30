@@ -317,4 +317,108 @@ void main() {
       expect(f.redoList, isEmpty);
     });
   });
+
+  group('applyEditsWithCursors', () {
+    test('returns empty list for empty input', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final result = applyEditsWithCursors(e.file, e.config, []);
+      expect(result, isEmpty);
+    });
+
+    test('atEnd places cursor after inserted text with running offset', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abc def\n';
+
+      // Insert 'X' at offsets 0 and 4. After applying, text is 'Xabc Xdef\n'
+      // and cursors land just past each insertion: at 1 and 6.
+      final sels = applyEditsWithCursors(f, e.config, [
+        CursorEdit.atEnd(TextEdit.insert(0, 'X')),
+        CursorEdit.atEnd(TextEdit.insert(4, 'X')),
+      ]);
+
+      expect(f.text, 'Xabc Xdef\n');
+      expect(sels.map((s) => s.cursor).toList(), [1, 6]);
+    });
+
+    test('atStart places cursor at edit start with running offset', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\n';
+
+      // Insert 'XY' at 0 and 'Z' at 3. After: 'XYabcZdef\n'.
+      // atStart: cursors at edit.start in new coordinates -> 0 and 5.
+      final sels = applyEditsWithCursors(f, e.config, [
+        CursorEdit.atStart(TextEdit.insert(0, 'XY')),
+        CursorEdit.atStart(TextEdit.insert(3, 'Z')),
+      ]);
+
+      expect(f.text, 'XYabcZdef\n');
+      expect(sels.map((s) => s.cursor).toList(), [0, 5]);
+    });
+
+    test('handles unsorted input by sorting ascending internally', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\n';
+
+      final sels = applyEditsWithCursors(f, e.config, [
+        CursorEdit.atEnd(TextEdit.insert(4, 'Y')),
+        CursorEdit.atEnd(TextEdit.insert(0, 'X')),
+      ]);
+
+      // Returned in ascending order regardless of input order.
+      expect(f.text, 'XabcdYef\n');
+      expect(sels.map((s) => s.cursor).toList(), [1, 6]);
+    });
+
+    test('handles replacements (deletion + insertion)', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = '111 222\n';
+
+      // Replace '111' with '99' and '222' with '8'. After: '99 8\n'.
+      // atEnd(-1) lands on the last char of each replacement.
+      final sels = applyEditsWithCursors(f, e.config, [
+        CursorEdit.atEnd(TextEdit(0, 3, '99'), -1),
+        CursorEdit.atEnd(TextEdit(4, 7, '8'), -1),
+      ]);
+
+      expect(f.text, '99 8\n');
+      expect(sels.map((s) => s.cursor).toList(), [1, 3]);
+    });
+
+    test('atStart on deletion places cursor at deletion start', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\n';
+
+      // Delete 'b' (1..2) and 'e' (4..5). After: 'acdf\n'.
+      final sels = applyEditsWithCursors(f, e.config, [
+        CursorEdit.atStart(TextEdit.delete(1, 2)),
+        CursorEdit.atStart(TextEdit.delete(4, 5)),
+      ]);
+
+      expect(f.text, 'acdf\n');
+      expect(sels.map((s) => s.cursor).toList(), [1, 3]);
+    });
+  });
 }

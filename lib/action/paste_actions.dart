@@ -1,7 +1,6 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../operator/operator_actions.dart';
-import '../selection.dart';
 import '../yank_buffer.dart';
 import 'action_base.dart';
 
@@ -15,32 +14,18 @@ void _pasteAtCursors(
   bool cursorAtEnd,
 ) {
   final n = f.selections.length;
-  // Sort by position, keep original indices for piece mapping
-  final sorted = List.generate(n, (i) => i)
-    ..sort((a, b) => f.selections[a].cursor.compareTo(f.selections[b].cursor));
-
-  // Build edits and track insert info (from end to preserve positions)
-  final edits = <TextEdit>[];
-  final insertInfo = <(int, String)>[]; // (pos, text) in sorted order
-  for (int i = sorted.length - 1; i >= 0; i--) {
-    final idx = sorted[i];
-    final pos = getInsertPos(f.selections[idx].cursor);
-    final text = yank.textForCursor(idx, n);
-    edits.add(TextEdit(pos, pos, text));
-    insertInfo.insert(0, (pos, text));
+  // Build one edit per cursor, tagged with the original index for piece mapping.
+  final items = <CursorEdit>[];
+  for (int i = 0; i < n; i++) {
+    final pos = getInsertPos(f.selections[i].cursor);
+    final text = yank.textForCursor(i, n);
+    final edit = TextEdit.insert(pos, text);
+    items.add(
+      cursorAtEnd ? CursorEdit.atEnd(edit, -1) : CursorEdit.atStart(edit),
+    );
   }
 
-  applyEdits(f, edits, e.config);
-
-  // Update cursor positions
-  var offset = 0;
-  final newSels = <Selection>[];
-  for (final (pos, text) in insertInfo) {
-    final cur = pos + offset + (cursorAtEnd ? text.length - 1 : 0);
-    newSels.add(Selection.collapsed(cur));
-    offset += text.length;
-  }
-  f.selections = newSels;
+  f.selections = applyEditsWithCursors(f, e.config, items);
   f.clampCursor();
 }
 
@@ -127,24 +112,17 @@ class VisualPaste extends Action {
         .toList();
     e.yankBuffer = YankBuffer(selectedPieces, linewise: isVisualLineMode);
 
-    // Build edits: replace each selection with its corresponding paste content
-    final edits = <TextEdit>[];
-    for (int i = ranges.length - 1; i >= 0; i--) {
-      edits.add(TextEdit(ranges[i].start, ranges[i].end, pasteTexts[i]));
-    }
-    applyEdits(f, edits, e.config);
-
-    // Collapse selections to start of pasted content
-    var offset = 0;
-    final newSelections = <Selection>[];
+    // Build edits: replace each selection with its corresponding paste content,
+    // cursor lands at start of pasted text.
+    final items = <CursorEdit>[];
     for (int i = 0; i < ranges.length; i++) {
-      final range = ranges[i];
-      final newCursor = range.start + offset;
-      newSelections.add(Selection.collapsed(newCursor));
-      // Adjust offset: old range removed, paste text added
-      offset += pasteTexts[i].length - (range.end - range.start);
+      items.add(
+        CursorEdit.atStart(
+          TextEdit(ranges[i].start, ranges[i].end, pasteTexts[i]),
+        ),
+      );
     }
-    f.selections = newSelections;
+    f.selections = applyEditsWithCursors(f, e.config, items);
     f.clampCursor();
 
     f.setMode(e, .normal);

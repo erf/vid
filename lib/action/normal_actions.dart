@@ -197,39 +197,16 @@ class OpenLineAbove extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    // Sort cursors by position (ascending)
-    final sorted = f.selections.sortedByCursor();
-
-    // Build insertions - compute indent and position for each cursor
-    final insertions = <(int, String)>[];
-    for (final sel in sorted) {
-      String indent = '';
-      if (e.config.autoIndent) {
-        indent = InsertActions.getIndent(f, sel.cursor, fullLine: true);
-      }
-      int lineStart = f.lineStart(sel.cursor);
-      insertions.add((lineStart, indent + '\n'));
+    final items = <CursorEdit>[];
+    for (final sel in f.selections) {
+      final indent = e.config.autoIndent
+          ? InsertActions.getIndent(f, sel.cursor, fullLine: true)
+          : '';
+      final lineStart = f.lineStart(sel.cursor);
+      // Cursor lands at end of indent (just before the inserted newline).
+      items.add(CursorEdit.atEnd(TextEdit.insert(lineStart, indent + '\n'), -1));
     }
-
-    // Build edit list
-    final edits = insertions
-        .map((ins) => TextEdit.insert(ins.$1, ins.$2))
-        .toList();
-
-    // Apply the insertions
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions - each cursor is at the indent position
-    final newSelections = <Selection>[];
-    int offset = 0;
-    for (int i = 0; i < sorted.length; i++) {
-      final lineStart = insertions[i].$1;
-      final insertedText = insertions[i].$2;
-      final indentLen = insertedText.length - 1; // minus newline
-      newSelections.add(Selection.collapsed(lineStart + offset + indentLen));
-      offset += insertedText.length;
-    }
-    f.selections = newSelections;
+    f.selections = applyEditsWithCursors(f, e.config, items);
     f.setMode(e, .insert);
   }
 }
@@ -240,40 +217,16 @@ class OpenLineBelow extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    // Sort cursors by position (ascending)
-    final sorted = f.selections.sortedByCursor();
-
-    // Build insertions - compute indent and position for each cursor
-    final insertions = <(int, String)>[];
-    for (final sel in sorted) {
-      String indent = '';
-      if (e.config.autoIndent) {
-        indent = InsertActions.getSmartIndent(e, f, sel.cursor, fullLine: true);
-      }
-      int lineEnd = f.lineEnd(sel.cursor);
-      insertions.add((lineEnd, '\n' + indent));
+    final items = <CursorEdit>[];
+    for (final sel in f.selections) {
+      final indent = e.config.autoIndent
+          ? InsertActions.getSmartIndent(e, f, sel.cursor, fullLine: true)
+          : '';
+      final lineEnd = f.lineEnd(sel.cursor);
+      // Cursor lands at end of inserted text (after newline + indent).
+      items.add(CursorEdit.atEnd(TextEdit.insert(lineEnd, '\n' + indent)));
     }
-
-    // Build edit list
-    final edits = insertions
-        .map((ins) => TextEdit.insert(ins.$1, ins.$2))
-        .toList();
-
-    // Apply the insertions
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions - each cursor is after newline + indent
-    final newSelections = <Selection>[];
-    int offset = 0;
-    for (int i = 0; i < sorted.length; i++) {
-      final lineEnd = insertions[i].$1;
-      final insertedText = insertions[i].$2;
-      newSelections.add(
-        Selection.collapsed(lineEnd + offset + insertedText.length),
-      );
-      offset += insertedText.length;
-    }
-    f.selections = newSelections;
+    f.selections = applyEditsWithCursors(f, e.config, items);
     f.setMode(e, .insert);
   }
 }
@@ -321,14 +274,8 @@ class ChangeNumber extends Action {
     // Only operate on collapsed selections (cursors)
     if (!f.selections.every((s) => s.isCollapsed)) return;
 
-    // Sort cursors by position ascending
-    final sorted = f.selections.sortedByCursor();
-
-    // Build edits and track new cursor positions
-    final edits = <TextEdit>[];
-    final cursorOffsets = <int>[]; // offset from matchStart to new cursor
-
-    for (final sel in sorted) {
+    final items = <CursorEdit>[];
+    for (final sel in f.selections) {
       final pos = sel.cursor;
       final lineNum = f.lineNumber(pos);
       final lineStartOffset = f.lines[lineNum].start;
@@ -338,35 +285,23 @@ class ChangeNumber extends Action {
       final m = _findNumberMatch(lineText, cursorInLine);
       if (m == null) continue;
 
-      final numStr = m.group(1)!;
-      final num = int.parse(numStr);
+      final num = int.parse(m.group(1)!);
       final newNumStr = (num + count).toString();
-
       final matchStart = lineStartOffset + m.start;
       final matchEnd = lineStartOffset + m.end;
-      edits.add(TextEdit(matchStart, matchEnd, newNumStr));
-      cursorOffsets.add(newNumStr.length - 1);
+
+      // Cursor lands on the last character of the new number.
+      items.add(
+        CursorEdit.atEnd(TextEdit(matchStart, matchEnd, newNumStr), -1),
+      );
     }
 
-    if (edits.isEmpty) {
+    if (items.isEmpty) {
       f.edit.reset();
       return;
     }
 
-    applyEdits(f, edits, e.config);
-
-    // Update cursor positions - each cursor at end of new number
-    final newSelections = <Selection>[];
-    var offset = 0;
-    for (int i = 0; i < edits.length; i++) {
-      final edit = edits[i];
-      final delta = edit.newText.length - (edit.end - edit.start);
-      final newCursor = edit.start + offset + cursorOffsets[i];
-      newSelections.add(Selection.collapsed(newCursor));
-      offset += delta;
-    }
-
-    f.selections = newSelections;
+    f.selections = applyEditsWithCursors(f, e.config, items);
     f.clampCursor();
     f.edit.reset();
   }
