@@ -344,7 +344,7 @@ class Renderer {
           isCursorLine: isCursorLine,
           cursorRenderCol: cursorRenderCol,
         ),
-        .char => _layoutLineCharWrap(
+        .char => _layoutLineWrapped(
           rendered: rendered,
           lineNum: currentFileLineNum,
           lineStartByte: offset,
@@ -353,7 +353,7 @@ class Renderer {
           isCursorLine: isCursorLine,
           cursorRenderCol: cursorRenderCol,
         ),
-        .word => _layoutLineWordWrap(
+        .word => _layoutLineWrapped(
           rendered: rendered,
           lineNum: currentFileLineNum,
           lineStartByte: offset,
@@ -406,8 +406,10 @@ class Renderer {
     );
   }
 
-  /// Layout a line with character wrap
-  RenderLineResult _layoutLineCharWrap({
+  /// Layout a wrapped line. When [breakat] is null, uses character wrap
+  /// (chunk == contentWidth). When non-null, attempts to break at a character
+  /// in [breakat] within the latter half of the chunk (word wrap).
+  RenderLineResult _layoutLineWrapped({
     required String rendered,
     required int lineNum,
     required int lineStartByte,
@@ -415,6 +417,7 @@ class Renderer {
     required int numLines,
     required bool isCursorLine,
     required int cursorRenderCol,
+    String? breakat,
   }) {
     int? cursorScreenRow;
     int cursorWrapCol = 0;
@@ -434,8 +437,12 @@ class Renderer {
         ),
       );
 
+      // Find chunk end. Char wrap: contentWidth. Word wrap: try break point.
       int chunkEnd = wrapCol + contentWidth;
       if (chunkEnd > rendered.length) chunkEnd = rendered.length;
+      if (breakat != null && chunkEnd < rendered.length) {
+        chunkEnd = _findWordBreakPoint(rendered, wrapCol, chunkEnd, breakat);
+      }
 
       if (isCursorLine) {
         if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
@@ -446,7 +453,9 @@ class Renderer {
         lastWrapCol = wrapCol;
       }
 
-      wrapCol += contentWidth;
+      // Char wrap advances by contentWidth (matches old behavior); word wrap
+      // advances by the chosen break point.
+      wrapCol = breakat == null ? wrapCol + contentWidth : chunkEnd;
       screenRow++;
       firstWrap = false;
 
@@ -465,78 +474,27 @@ class Renderer {
     );
   }
 
-  /// Layout a line with word wrap
-  RenderLineResult _layoutLineWordWrap({
-    required String rendered,
-    required int lineNum,
-    required int lineStartByte,
-    required int screenRow,
-    required int numLines,
-    required bool isCursorLine,
-    required int cursorRenderCol,
-    required String breakat,
-  }) {
-    int? cursorScreenRow;
-    int cursorWrapCol = 0;
-    int wrapCol = 0;
-    bool firstWrap = true;
-    int lastScreenRow = screenRow;
-    int lastWrapCol = 0;
-
-    while (wrapCol < rendered.length || firstWrap) {
-      if (screenRow >= numLines) break;
-
-      screenRowMap.add(
-        ScreenRowInfo(
-          lineNum: lineNum,
-          wrapCol: wrapCol,
-          lineStartByte: lineStartByte,
-        ),
-      );
-
-      // Find wrap point - try to break at word boundary
-      int chunkEnd = wrapCol + contentWidth;
-      if (chunkEnd < rendered.length) {
-        int breakAt = chunkEnd;
-        for (int i = chunkEnd - 1; i > wrapCol; i--) {
-          if (breakat.contains(rendered[i])) {
-            breakAt = i + 1;
-            break;
-          }
-        }
-        if (breakAt > wrapCol + contentWidth ~/ 2) {
-          chunkEnd = breakAt;
-        }
-      } else {
-        chunkEnd = rendered.length;
+  /// Find a word-break point within `[wrapCol, chunkEnd)` by searching
+  /// backward from `chunkEnd - 1` for a character in [breakat]. Returns
+  /// the adjusted chunkEnd if a break was found in the latter half of the
+  /// chunk; otherwise returns the original [chunkEnd] unchanged.
+  int _findWordBreakPoint(
+    String rendered,
+    int wrapCol,
+    int chunkEnd,
+    String breakat,
+  ) {
+    int breakAt = chunkEnd;
+    for (int i = chunkEnd - 1; i > wrapCol; i--) {
+      if (breakat.contains(rendered[i])) {
+        breakAt = i + 1;
+        break;
       }
-
-      if (isCursorLine) {
-        if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
-          cursorScreenRow = screenRow + 1;
-          cursorWrapCol = wrapCol;
-        }
-        lastScreenRow = screenRow + 1;
-        lastWrapCol = wrapCol;
-      }
-
-      wrapCol = chunkEnd;
-      screenRow++;
-      firstWrap = false;
-
-      if (rendered.isEmpty) break;
     }
-
-    if (isCursorLine && cursorScreenRow == null) {
-      cursorScreenRow = lastScreenRow;
-      cursorWrapCol = lastWrapCol;
+    if (breakAt > wrapCol + contentWidth ~/ 2) {
+      return breakAt;
     }
-
-    return RenderLineResult(
-      screenRow: screenRow,
-      cursorScreenRow: cursorScreenRow,
-      cursorWrapCol: cursorWrapCol,
-    );
+    return chunkEnd;
   }
 
   /// Pass 2: Render lines to buffer using pre-calculated screenRowMap
@@ -661,7 +619,7 @@ class Renderer {
           showLineNumbers: config.showLineNumbers,
           newlineSymbol: config.newlineSymbol,
         ),
-        .char => _renderLineCharWrap(
+        .char => _renderLineWrapped(
           original: lineText,
           rendered: rendered,
           lineStartByte: offset,
@@ -679,7 +637,7 @@ class Renderer {
           showLineNumbers: config.showLineNumbers,
           newlineSymbol: config.newlineSymbol,
         ),
-        .word => _renderLineWordWrap(
+        .word => _renderLineWrapped(
           original: lineText,
           rendered: rendered,
           lineStartByte: offset,
@@ -912,8 +870,9 @@ class Renderer {
     return screenRow + 1;
   }
 
-  /// Render line with character wrap
-  int _renderLineCharWrap({
+  /// Render a wrapped line. When [breakat] is null, uses character wrap;
+  /// otherwise attempts to break at characters in [breakat] (word wrap).
+  int _renderLineWrapped({
     required String original,
     required String rendered,
     required int lineStartByte,
@@ -927,6 +886,7 @@ class Renderer {
     required int cursorLine,
     required int totalLines,
     required String newlineSymbol,
+    String? breakat,
     GutterSign? sign,
     bool showSigns = false,
     bool showLineNumbers = true,
@@ -956,49 +916,39 @@ class Renderer {
         tabWidth: tabWidth,
       );
 
-      String chunk = rendered.ch.skip(wrapCol).take(availableWidth).string;
-
-      if (chunk.isNotEmpty) {
-        if (syntaxHighlighting) {
-          final byteOffset = original.renderedToOriginalOffset(
-            wrapCol,
-            tabWidth,
-          );
-          final originalSlice = original.originalSlice(
-            wrapCol,
-            chunk.length,
-            tabWidth,
-          );
-          highlighter.style(
-            buffer,
-            originalSlice,
-            lineStartByte + byteOffset,
-            tabWidth: tabWidth,
-            selectionRanges: selectionRanges,
-            secondaryCursorRanges: secondaryCursorRanges,
-          );
+      // Extract chunk and compute next wrapCol. Char wrap uses grapheme-aware
+      // chunking and advances by contentWidth. Word wrap uses byte substring
+      // with break-point adjustment and advances by the chunk end.
+      String chunk;
+      int nextWrapCol;
+      if (breakat == null) {
+        chunk = rendered.ch.skip(wrapCol).take(availableWidth).string;
+        nextWrapCol = wrapCol + contentWidth;
+      } else {
+        int chunkEnd = wrapCol + availableWidth;
+        if (chunkEnd < rendered.length) {
+          chunkEnd = _findWordBreakPoint(rendered, wrapCol, chunkEnd, breakat);
         } else {
-          // No syntax highlighting but may have selections
-          if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
-            final byteOffset = original.renderedToOriginalOffset(
-              wrapCol,
-              tabWidth,
-            );
-            highlighter.style(
-              buffer,
-              chunk,
-              lineStartByte + byteOffset,
-              tabWidth: tabWidth,
-              selectionRanges: selectionRanges,
-              secondaryCursorRanges: secondaryCursorRanges,
-            );
-          } else {
-            buffer.write(chunk);
-          }
+          chunkEnd = rendered.length;
         }
+        chunk = rendered.substring(wrapCol, chunkEnd);
+        nextWrapCol = chunkEnd;
       }
 
-      wrapCol += contentWidth;
+      if (chunk.isNotEmpty) {
+        _styleChunk(
+          original: original,
+          chunk: chunk,
+          wrapCol: wrapCol,
+          lineStartByte: lineStartByte,
+          tabWidth: tabWidth,
+          syntaxHighlighting: syntaxHighlighting,
+          selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
+        );
+      }
+
+      wrapCol = nextWrapCol;
       screenRow++;
       firstWrap = false;
 
@@ -1017,124 +967,47 @@ class Renderer {
     return screenRow;
   }
 
-  /// Render line with word wrap
-  int _renderLineWordWrap({
+  /// Style and emit a chunk of a wrapped line, mapping rendered offsets back
+  /// to original byte offsets so highlighting/selections align correctly.
+  void _styleChunk({
     required String original,
-    required String rendered,
+    required String chunk,
+    required int wrapCol,
     required int lineStartByte,
-    required int screenRow,
-    required int numLines,
-    required bool syntaxHighlighting,
-    required String breakat,
     required int tabWidth,
+    required bool syntaxHighlighting,
     required List<(int, int)> selectionRanges,
     required List<(int, int)> secondaryCursorRanges,
-    required int lineNum,
-    required int cursorLine,
-    required int totalLines,
-    required String newlineSymbol,
-    GutterSign? sign,
-    bool showSigns = false,
-    bool showLineNumbers = true,
   }) {
-    int wrapCol = 0;
-    bool firstWrap = true;
-
-    while (wrapCol < rendered.length || firstWrap) {
-      if (screenRow >= numLines) break;
-      if (screenRow > 0) buffer.write(Keys.newline);
-
-      // Render gutter (only show line number on first wrap)
-      _renderGutter(
-        lineNum,
-        cursorLine,
-        totalLines,
-        isFirstWrap: firstWrap,
-        sign: sign,
-        showSigns: showSigns,
-        showLineNumbers: showLineNumbers,
+    if (syntaxHighlighting) {
+      final byteOffset = original.renderedToOriginalOffset(wrapCol, tabWidth);
+      final originalSlice = original.originalSlice(
+        wrapCol,
+        chunk.length,
+        tabWidth,
       );
-
-      final availableWidth = _availableWidthForWrap(
-        rendered: rendered,
-        wrapCol: wrapCol,
-        newlineSymbol: newlineSymbol,
+      highlighter.style(
+        buffer,
+        originalSlice,
+        lineStartByte + byteOffset,
         tabWidth: tabWidth,
+        selectionRanges: selectionRanges,
+        secondaryCursorRanges: secondaryCursorRanges,
       );
-
-      int chunkEnd = wrapCol + availableWidth;
-      if (chunkEnd < rendered.length) {
-        int breakAt = chunkEnd;
-        for (int i = chunkEnd - 1; i > wrapCol; i--) {
-          if (breakat.contains(rendered[i])) {
-            breakAt = i + 1;
-            break;
-          }
-        }
-        if (breakAt > wrapCol + contentWidth ~/ 2) {
-          chunkEnd = breakAt;
-        }
-      } else {
-        chunkEnd = rendered.length;
-      }
-
-      String chunk = rendered.substring(wrapCol, chunkEnd);
-
-      if (syntaxHighlighting) {
-        final byteOffset = original.renderedToOriginalOffset(
-          wrapCol,
-          tabWidth,
-        );
-        final originalSlice = original.originalSlice(
-          wrapCol,
-          chunk.length,
-          tabWidth,
-        );
-        highlighter.style(
-          buffer,
-          originalSlice,
-          lineStartByte + byteOffset,
-          tabWidth: tabWidth,
-          selectionRanges: selectionRanges,
-          secondaryCursorRanges: secondaryCursorRanges,
-        );
-      } else {
-        // No syntax highlighting but may have selections
-        if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
-          final byteOffset = original.renderedToOriginalOffset(
-            wrapCol,
-            tabWidth,
-          );
-          highlighter.style(
-            buffer,
-            chunk,
-            lineStartByte + byteOffset,
-            tabWidth: tabWidth,
-            selectionRanges: selectionRanges,
-            secondaryCursorRanges: secondaryCursorRanges,
-          );
-        } else {
-          buffer.write(chunk);
-        }
-      }
-
-      wrapCol = chunkEnd;
-      screenRow++;
-      firstWrap = false;
-
-      if (rendered.isEmpty) break;
+    } else if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
+      // No syntax highlighting but may have selections
+      final byteOffset = original.renderedToOriginalOffset(wrapCol, tabWidth);
+      highlighter.style(
+        buffer,
+        chunk,
+        lineStartByte + byteOffset,
+        tabWidth: tabWidth,
+        selectionRanges: selectionRanges,
+        secondaryCursorRanges: secondaryCursorRanges,
+      );
+    } else {
+      buffer.write(chunk);
     }
-
-    // Render newline symbol after all wraps
-    _renderNewlineSymbol(
-      newlineSymbol: newlineSymbol,
-      lineStartByte: lineStartByte,
-      originalLength: original.length,
-      selectionRanges: selectionRanges,
-      secondaryCursorRanges: secondaryCursorRanges,
-    );
-
-    return screenRow;
   }
 
   void _drawCursor(
