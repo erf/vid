@@ -1,3 +1,4 @@
+import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
 
 import 'operator_base.dart';
@@ -223,4 +224,40 @@ class ChangeCase extends OperatorAction {
     f.setMode(e, .normal);
     f.clampCursor();
   }
+}
+
+/// Toggle case operator (g~) - flip case of each grapheme in range.
+/// Also used by `~` in visual / visual-line mode.
+class ToggleCase extends OperatorAction {
+  const ToggleCase();
+
+  @override
+  void applyToRanges(
+    Editor e,
+    FileBuffer f,
+    List<Selection> ranges,
+    int mainIndex, {
+    bool linewise = false,
+  }) {
+    final edits = ranges.reversed.map((s) {
+      final original = f.text.substring(s.start, s.end);
+      final text = original.characters.map(toggleCaseOfGrapheme).join();
+      return TextEdit(s.start, s.end, text);
+    }).toList();
+    applyEdits(f, edits, e.config);
+
+    f.selections = collapseToStarts(ranges, mainIndex);
+    f.setMode(e, .normal);
+    f.clampCursor();
+  }
+}
+
+/// Toggle the case of a single grapheme cluster. Returns the input unchanged
+/// if it has no case mapping (digits, punctuation, etc.).
+String toggleCaseOfGrapheme(String s) {
+  if (s.isEmpty) return s;
+  final upper = s.toUpperCase();
+  final lower = s.toLowerCase();
+  if (upper == lower) return s;
+  return s == upper ? lower : upper;
 }

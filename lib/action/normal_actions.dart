@@ -13,24 +13,14 @@ import '../popup/file_browser.dart';
 import '../popup/theme_selector.dart';
 import '../regex.dart';
 import '../selection.dart';
-import '../text_op.dart';
 import 'action_base.dart';
 import 'insert_actions.dart';
 
 /// Utility methods for normal actions.
 class NormalActionsUtils {
-  static String toggleCase(String s) {
-    if (s.isEmpty) return s;
-
-    final upper = s.toUpperCase();
-    final lower = s.toLowerCase();
-
-    // If the string changes when uppercased, and it's currently equal to that
-    // uppercased form, toggle to lower. Otherwise toggle to upper.
-    // If upper/lower are identical (no case mapping), leave it unchanged.
-    if (upper == lower) return s;
-    return s == upper ? lower : upper;
-  }
+  /// Toggle the case of a single grapheme. Re-exports the operator helper
+  /// so existing call sites keep their import surface.
+  static String toggleCase(String s) => toggleCaseOfGrapheme(s);
 }
 
 /// Find number match at or after cursor position in line.
@@ -45,50 +35,26 @@ RegExpMatch? _findNumberMatch(String lineText, int cursorInLine) {
   return cursorInLine < m.end ? m : null;
 }
 
-/// Toggle case of the grapheme under each cursor (vim-like `~`).
+/// Toggle case of the grapheme(s) under each cursor (vim-like `~`).
+///
+/// In visual / visual-line mode this delegates to the [ToggleCase] operator
+/// via [OperatorActions.handleVisualSelections]. In normal mode it builds a
+/// per-cursor range covering the next `count` graphemes (stopping at line
+/// end / EOF) and applies edits via [applyEditsWithCursors], leaving each
+/// cursor at the end of the toggled range — matching vim's `~` behavior.
 class ToggleCaseUnderCursor extends Action {
   const ToggleCaseUnderCursor();
 
   @override
   void call(Editor e, FileBuffer f) {
-    // Visual mode: toggle within selection(s) and return to normal mode.
+    // Visual / visual-line: route through the ToggleCase operator.
     if (f.mode == .visual || f.mode == .visualLine) {
-      final isVisualLineMode = f.mode == .visualLine;
-
-      // Get expanded/inclusive ranges, sorted by position
-      final selections = OperatorActions.getVisualRanges(f, isVisualLineMode);
-
-      final edits = <TextEdit>[];
-      final deltas = <int>[];
-      for (final sel in selections) {
-        final start = sel.start;
-        final end = sel.end;
-        final prevText = f.text.substring(start, end);
-        final replacement = prevText.characters
-            .map(NormalActionsUtils.toggleCase)
-            .join();
-        edits.add(TextEdit(start, end, replacement));
-        deltas.add(replacement.length - (end - start));
-      }
-
-      applyEdits(f, edits, e.config);
-
-      // Collapse selections to their starts, adjusted for length changes.
-      var offset = 0;
-      final newSelections = <Selection>[];
-      for (int i = 0; i < selections.length; i++) {
-        newSelections.add(Selection.collapsed(selections[i].start + offset));
-        offset += deltas[i];
-      }
-
-      f.selections = newSelections;
-      f.setMode(e, .normal);
-      f.clampCursor();
+      OperatorActions.handleVisualSelections(e, f, .toggleCase);
       f.edit.reset();
       return;
     }
 
-    // Normal mode: toggle under cursors (multi-cursor supported).
+    // Normal mode: only operates on collapsed cursors.
     if (!f.selections.every((s) => s.isCollapsed)) return;
 
     final count = f.edit.count ?? 1;
@@ -97,76 +63,43 @@ class ToggleCaseUnderCursor extends Action {
       return;
     }
 
-    // Sort cursors by position ascending so we can adjust subsequent offsets
-    // as text length changes.
-    final indexed = f.selections.asMap().entries.toList()
-      ..sort((a, b) => a.value.cursor.compareTo(b.value.cursor));
-
-    final cursorByIndex = <int, int>{
-      for (final entry in indexed) entry.key: entry.value.cursor,
-    };
-
-    final selectionsBefore = List<Selection>.unmodifiable(f.selections);
-    final textOps = <TextOp>[];
-
-    void shiftCursorsAfterEdit(int start, int end, int delta) {
-      if (delta == 0) return;
-      cursorByIndex.updateAll((idx, cur) {
-        if (cur <= start) return cur;
-        if (cur >= end) return cur + delta;
-        // Cursor was inside the replaced range: move to end of inserted text.
-        return end + delta;
-      });
-    }
-
-    for (final entry in indexed) {
-      final idx = entry.key;
-      var pos = cursorByIndex[idx]!;
-
+    // Build a CursorEdit per cursor: replace the next `count` graphemes
+    // (capped at line end / EOF) with their case-toggled form. Skip cursors
+    // that have nothing to toggle.
+    final items = <CursorEdit>[];
+    final unchanged = <Selection>[];
+    for (final sel in f.selections) {
+      final start = sel.cursor;
+      var end = start;
       for (int i = 0; i < count; i++) {
-        if (pos < 0 || pos >= f.text.length) break;
-        if (f.text[pos] == '\n') break;
-
-        final end = f.nextGrapheme(pos);
-        if (end <= pos) break;
-
-        final prevText = f.text.substring(pos, end);
-        final newText = NormalActionsUtils.toggleCase(prevText);
-
-        if (newText != prevText) {
-          // Apply without per-edit undo entries; we group them below.
-          f.replace(pos, end, newText, undo: false);
-          textOps.add(
-            TextOp(
-              newText: newText,
-              prevText: prevText,
-              start: pos,
-              selections: selectionsBefore,
-            ),
-          );
-
-          final delta = newText.length - (end - pos);
-          shiftCursorsAfterEdit(pos, end, delta);
-
-          // Adjust our local position to account for any length change.
-          pos = pos + newText.length;
-        } else {
-          pos = end;
-        }
+        if (end >= f.text.length) break;
+        if (f.text[end] == '\n') break;
+        final next = f.nextGrapheme(end);
+        if (next <= end) break;
+        end = next;
       }
-
-      // Vim-like behavior: cursor advances as toggles are applied.
-      cursorByIndex[idx] = pos;
+      if (end == start) {
+        unchanged.add(Selection.collapsed(start));
+        continue;
+      }
+      final original = f.text.substring(start, end);
+      final replacement = original.characters
+          .map(NormalActionsUtils.toggleCase)
+          .join();
+      // Cursor lands at the end of the replacement (vim's `~` advances).
+      items.add(CursorEdit.atEnd(TextEdit(start, end, replacement)));
     }
 
-    if (textOps.isNotEmpty) {
-      f.pushUndo(UndoGroup(textOps), e.config.maxNumUndo);
+    if (items.isEmpty) {
+      f.edit.reset();
+      return;
     }
 
-    // Write back updated cursor positions, preserving original selection order.
-    f.selections = List.generate(
-      f.selections.length,
-      (i) => Selection.collapsed(cursorByIndex[i] ?? f.selections[i].cursor),
+    final edited = applyEditsWithCursors(f, e.config, items);
+
+    // Cursors with no toggle stay put; merge and re-sort.
+    f.selections = [...unchanged, ...edited]..sort(
+      (a, b) => a.cursor.compareTo(b.cursor),
     );
     f.clampCursor();
     f.edit.reset();

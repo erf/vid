@@ -10,5 +10,6 @@ extension OperatorTypeExt on OperatorType {
     .yank => const Yank(),
     .lowerCase => const ChangeCase(.lower),
     .upperCase => const ChangeCase(.upper),
+    .toggleCase => const ToggleCase(),
   };
 }
