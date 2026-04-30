@@ -848,15 +848,13 @@ class Renderer {
       final visible = rendered.renderLine(viewportCol, contentWidth);
       if (syntaxHighlighting) {
         // Map viewportCol in rendered string to byte offset in original
-        final byteOffset = _renderedToOriginalOffset(
-          original,
+        final byteOffset = original.renderedToOriginalOffset(
           viewportCol,
           tabWidth,
         );
         // Get the original text slice corresponding to visible
         final visibleLen = visible.length;
-        final originalSlice = _getOriginalSlice(
-          original,
+        final originalSlice = original.originalSlice(
           viewportCol,
           visibleLen,
           tabWidth,
@@ -949,13 +947,11 @@ class Renderer {
 
       if (chunk.isNotEmpty) {
         if (syntaxHighlighting) {
-          final byteOffset = _renderedToOriginalOffset(
-            original,
+          final byteOffset = original.renderedToOriginalOffset(
             wrapCol,
             tabWidth,
           );
-          final originalSlice = _getOriginalSlice(
-            original,
+          final originalSlice = original.originalSlice(
             wrapCol,
             chunk.length,
             tabWidth,
@@ -971,8 +967,7 @@ class Renderer {
         } else {
           // No syntax highlighting but may have selections
           if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
-            final byteOffset = _renderedToOriginalOffset(
-              original,
+            final byteOffset = original.renderedToOriginalOffset(
               wrapCol,
               tabWidth,
             );
@@ -1073,13 +1068,11 @@ class Renderer {
       String chunk = rendered.substring(wrapCol, chunkEnd);
 
       if (syntaxHighlighting) {
-        final byteOffset = _renderedToOriginalOffset(
-          original,
+        final byteOffset = original.renderedToOriginalOffset(
           wrapCol,
           tabWidth,
         );
-        final originalSlice = _getOriginalSlice(
-          original,
+        final originalSlice = original.originalSlice(
           wrapCol,
           chunk.length,
           tabWidth,
@@ -1095,8 +1088,7 @@ class Renderer {
       } else {
         // No syntax highlighting but may have selections
         if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
-          final byteOffset = _renderedToOriginalOffset(
-            original,
+          final byteOffset = original.renderedToOriginalOffset(
             wrapCol,
             tabWidth,
           );
@@ -1408,71 +1400,5 @@ class Renderer {
       // Hide cursor
       buffer.write(Ansi.cursor(x: 1, y: terminal.height));
     }
-  }
-
-  /// Map a position in the rendered (tab-expanded) string to a byte offset
-  /// in the original string.
-  int _renderedToOriginalOffset(
-    String original,
-    int renderedPos,
-    int tabWidth,
-  ) {
-    int rendered = 0;
-    int origBytes = 0;
-
-    for (var i = 0; i < original.length && rendered < renderedPos; i++) {
-      final c = original.codeUnitAt(i);
-      if (c == 0x09) {
-        // tab
-        rendered += tabWidth;
-      } else {
-        rendered++;
-      }
-      origBytes++;
-    }
-    return origBytes;
-  }
-
-  /// Get the original text slice that corresponds to a rendered position and length.
-  String _getOriginalSlice(
-    String original,
-    int renderedStart,
-    int renderedLen,
-    int tabWidth,
-  ) {
-    // Find start byte offset
-    int rendered = 0;
-    int startByte = 0;
-
-    for (var i = 0; i < original.length && rendered < renderedStart; i++) {
-      final c = original.codeUnitAt(i);
-      if (c == 0x09) {
-        rendered += tabWidth;
-      } else {
-        rendered++;
-      }
-      startByte++;
-    }
-
-    // Find end byte offset
-    int endByte = startByte;
-    int sliceRenderedLen = 0;
-
-    for (
-      var i = startByte;
-      i < original.length && sliceRenderedLen < renderedLen;
-      i++
-    ) {
-      final c = original.codeUnitAt(i);
-      if (c == 0x09) {
-        sliceRenderedLen += tabWidth;
-      } else {
-        sliceRenderedLen++;
-      }
-      endByte++;
-    }
-
-    if (startByte >= original.length) return '';
-    return original.substring(startByte, endByte.clamp(0, original.length));
   }
 }
