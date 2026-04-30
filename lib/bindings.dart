@@ -158,6 +158,7 @@ const operatorCommands = <String, Command>{
   'y': OperatorCommand(.yank),
   'gu': OperatorCommand(.lowerCase),
   'gU': OperatorCommand(.upperCase),
+  'g~': OperatorCommand(.toggleCase),
 };
 
 const operatorPendingSameCommands = <String, Command>{
@@ -166,6 +167,7 @@ const operatorPendingSameCommands = <String, Command>{
   'y': OperatorPendingSameCommand(.yank),
   'u': OperatorPendingSameCommand(.lowerCase),
   'U': OperatorPendingSameCommand(.upperCase),
+  '~': OperatorPendingSameCommand(.toggleCase),
 };
 
 // Text objects for use in operator-pending mode (di(, da{, ciw, etc.)

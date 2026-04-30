@@ -404,4 +404,56 @@ void main() {
     expect(f.text, 'ABC DEF\n');
     expect(f.mode, Mode.normal);
   });
+
+  test('g~ toggles case over a motion', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aBcD eF\n';
+    f.cursor = 0;
+    e.input('g~e');
+    expect(f.text, 'AbCd eF\n');
+    expect(f.mode, Mode.normal);
+  });
+
+  test('g~~ toggles case of current line', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aB Cd\nEFgh\n';
+    f.cursor = 0;
+    e.input('g~~');
+    expect(f.text, 'Ab cD\nEFgh\n');
+    expect(f.mode, Mode.normal);
+  });
+
+  test('g~ with text object iw toggles inner word', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aBcD efgh\n';
+    f.cursor = 1;
+    e.input('g~iw');
+    expect(f.text, 'AbCd efgh\n');
+    expect(f.mode, Mode.normal);
+  });
+
+  test('g~ with multi-cursor toggles case at each cursor', () {
+    final e = Editor(
+      terminal: TestTerminal(width: 80, height: 24),
+      redraw: false,
+    );
+    final f = e.file;
+    f.text = 'aBc dEf\n';
+    f.selections = [Selection.collapsed(0), Selection.collapsed(4)];
+    e.input('g~e');
+    expect(f.text, 'AbC DeF\n');
+    expect(f.mode, Mode.normal);
+  });
 }
