@@ -405,43 +405,26 @@ class ToggleSyntax extends Action {
   }
 }
 
-/// Open file picker.
-class OpenFilePicker extends Action {
-  const OpenFilePicker();
+/// Built-in popup that can be opened from normal mode.
+enum PopupKind { filePicker, bufferSelector, themeSelector, diagnostics }
+
+/// Open one of the built-in popups.
+class OpenPopup extends Action {
+  final PopupKind kind;
+  const OpenPopup(this.kind);
 
   @override
   void call(Editor e, FileBuffer f) {
-    FileBrowser.show(e);
-  }
-}
-
-/// Open buffer selector.
-class OpenBufferSelector extends Action {
-  const OpenBufferSelector();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    BufferSelector.show(e);
-  }
-}
-
-/// Open theme selector.
-class OpenThemeSelector extends Action {
-  const OpenThemeSelector();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    ThemeSelector.show(e);
-  }
-}
-
-/// Open diagnostics popup.
-class OpenDiagnostics extends Action {
-  const OpenDiagnostics();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    DiagnosticsPopup.show(e);
+    switch (kind) {
+      case .filePicker:
+        FileBrowser.show(e);
+      case .bufferSelector:
+        BufferSelector.show(e);
+      case .themeSelector:
+        ThemeSelector.show(e);
+      case .diagnostics:
+        DiagnosticsPopup.show(e);
+    }
   }
 }
 
