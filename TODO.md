@@ -115,8 +115,8 @@ Had 11+ maps tracking different concerns. Extracted into `lib/features/lsp/lsp_c
 
 ## Magic numbers → Config
 
-Inline constants like `scrollLines = 3`, `scrollPadding = 3` should move to
-`Config`.
+- [x] Move `scrollLines = 3` and `scrollPadding = 3` from `Editor` to `Config`,
+      load from YAML, and document in `config.example.yaml`.
 
 ## `_loadInitialFiles` error handling
 

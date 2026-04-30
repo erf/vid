@@ -729,8 +729,8 @@ class Editor {
     // Don't scroll if all content fits in viewport
     if (file.totalLines <= visibleLines) return;
 
-    const scrollLines = 3;
-    const scrollPadding = 3; // Empty lines to allow past end of file
+    final scrollLines = config.scrollLines;
+    final scrollPadding = config.scrollPadding;
     final currentLine = file.lineNumber(file.viewport);
     final delta = dir == ScrollDirection.up ? -scrollLines : scrollLines;
     // Max viewport line: last line at bottom of screen + padding
@@ -809,7 +809,7 @@ class Editor {
   void _handlePopupScroll(ScrollDirection dir) {
     if (popup == null) return;
 
-    const scrollLines = 3; // Same as editor scroll
+    final scrollLines = config.scrollLines;
     final delta = dir == ScrollDirection.up ? -scrollLines : scrollLines;
 
     final oldIndex = popup!.selectedIndex;

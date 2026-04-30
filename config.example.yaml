@@ -16,6 +16,12 @@ maxNumUndo: 100
 # Lines of scroll margin at top/bottom of viewport
 scrollMargin: 10
 
+# Lines advanced per mouse wheel tick (editor and popup)
+scrollLines: 3
+
+# Empty lines allowed past the end of file when scrolling
+scrollPadding: 3
+
 # Text wrap mode: none, char, or word
 wrapMode: none
 

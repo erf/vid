@@ -31,6 +31,12 @@ class Config {
   /// Number of lines to keep visible above/below the cursor when scrolling.
   final int scrollMargin;
 
+  /// Number of lines to advance per mouse wheel tick (editor and popup).
+  final int scrollLines;
+
+  /// Number of empty lines allowed past the end of file when scrolling.
+  final int scrollPadding;
+
   /// Symbols displayed at line wrap points for each [WrapMode].
   /// Index corresponds to [WrapMode.index]: none, char, word.
   final List<String> wrapSymbols;
@@ -137,6 +143,8 @@ class Config {
     this.tabWidth = 4,
     this.maxNumUndo = 100,
     this.scrollMargin = 10,
+    this.scrollLines = 3,
+    this.scrollPadding = 3,
     this.wrapSymbols = const ['', '|↵', '↵'],
     this.newlineSymbol = ' ',
     this.wrapMode = .none,
@@ -169,6 +177,8 @@ class Config {
       tabWidth: _parseInt(map['tabWidth']),
       maxNumUndo: _parseInt(map['maxNumUndo']),
       scrollMargin: _parseInt(map['scrollMargin']),
+      scrollLines: _parseInt(map['scrollLines']),
+      scrollPadding: _parseInt(map['scrollPadding']),
       newlineSymbol: map['newlineSymbol'] as String?,
       wrapMode: _parseEnum(map['wrapMode'], WrapMode.values),
       breakat: map['breakat'] as String?,
@@ -241,6 +251,8 @@ class Config {
     int? tabWidth,
     int? maxNumUndo,
     int? scrollMargin,
+    int? scrollLines,
+    int? scrollPadding,
     List<String>? wrapSymbols,
     String? newlineSymbol,
     WrapMode? wrapMode,
@@ -268,6 +280,8 @@ class Config {
       tabWidth: tabWidth ?? this.tabWidth,
       maxNumUndo: maxNumUndo ?? this.maxNumUndo,
       scrollMargin: scrollMargin ?? this.scrollMargin,
+      scrollLines: scrollLines ?? this.scrollLines,
+      scrollPadding: scrollPadding ?? this.scrollPadding,
       wrapSymbols: wrapSymbols ?? this.wrapSymbols,
       newlineSymbol: newlineSymbol ?? this.newlineSymbol,
       wrapMode: wrapMode ?? this.wrapMode,
