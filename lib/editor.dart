@@ -117,12 +117,18 @@ class Editor {
     _buffers.add(buffer);
   }
 
-  void init(List<String> args) {
+  /// Initialize the editor with command-line arguments.
+  ///
+  /// Returns an [ErrorOr] with an error if a requested file could not be
+  /// loaded. On success the editor is fully initialized and the first frame
+  /// has been drawn.
+  ErrorOr<void> init(List<String> args) {
     final List<_FileArg> fileArgs = _parseArgs(args);
     final String? directoryArg = _getDirectoryArg(args);
 
     if (fileArgs.isNotEmpty) {
-      _loadInitialFiles(fileArgs);
+      final loadResult = _loadInitialFiles(fileArgs);
+      if (loadResult.hasError) return ErrorOr.error(loadResult.error!);
     }
     _initTerminal(fileArgs.firstOrNull?.path);
     _initFeatures();
@@ -133,6 +139,7 @@ class Editor {
     if (directoryArg != null) {
       FileBrowser.show(this, directoryArg);
     }
+    return ErrorOr.value(null);
   }
 
   List<_FileArg> _parseArgs(List<String> args) {
@@ -168,17 +175,14 @@ class Editor {
     return null;
   }
 
-  void _loadInitialFiles(List<_FileArg> fileArgs) {
+  ErrorOr<void> _loadInitialFiles(List<_FileArg> fileArgs) {
     for (int i = 0; i < fileArgs.length; i++) {
       final result = FileBuffer.load(
         fileArgs[i].path,
         createIfNotExists: true,
         cwd: workingDirectory,
       );
-      if (result.hasError) {
-        print(result.error);
-        exit(0);
-      }
+      if (result.hasError) return ErrorOr.error(result.error!);
       final buffer = result.value!;
       if (i == 0) {
         _buffers[0] = buffer;
@@ -187,6 +191,7 @@ class Editor {
         _addBuffer(buffer);
       }
     }
+    return ErrorOr.value(null);
   }
 
   void _initFeatures() {

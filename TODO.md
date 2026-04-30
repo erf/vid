@@ -120,9 +120,10 @@ Had 11+ maps tracking different concerns. Extracted into `lib/features/lsp/lsp_c
 
 ## `_loadInitialFiles` error handling
 
-`Editor._loadInitialFiles` (editor.dart:170) calls `print(...); exit(0)` on
-load error. Not testable, bypasses cleanup. Should bubble up via `ErrorOr`
-and let `init` decide.
+- [x] `Editor._loadInitialFiles` and `Editor.init` now return
+      `ErrorOr<void>`. `bin/vid.dart` writes the error to stderr and
+      exits with code 1, replacing the previous `print(...); exit(0)`
+      that incorrectly exited with success.
 
 ## `_emptyBuffer` static fallback
 
