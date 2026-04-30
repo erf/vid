@@ -858,42 +858,26 @@ class Editor {
     // Motions may also write to this during execution (capturing char for repeat).
     file.edit.findStr = edit.findStr;
 
-    // In visual/visualLine mode with no operator, apply motion to all selection cursors
-    if ((file.mode == .visual || file.mode == .visualLine) && op == null) {
-      _applyMotionToSelections(motion, edit.count);
-      _saveForRepeat(edit);
-      _clearDesiredColumnIfNeeded(motion.type);
-      file.edit.reset();
-      return;
-    }
-
-    // In normal/operatorPending mode with multiple cursors, apply motion to all cursors
-    if ((file.mode == .normal || file.mode == .operatorPending) &&
-        file.hasMultipleCursors &&
-        op == null) {
-      _applyMotionToSelections(motion, edit.count, collapsed: true);
-      _saveForRepeat(edit);
-      _clearDesiredColumnIfNeeded(motion.type);
-      file.edit.reset();
-      return;
-    }
-
-    // Apply operator with motion to all cursors (works for single and multi-cursor)
     if (op != null) {
+      // Apply operator with motion to all cursors (works for single and multi-cursor)
       _applyOperator(motion, edit.count, op, linewise);
-      _saveForRepeat(edit);
-      _clearDesiredColumnIfNeeded(motion.type);
-      file.edit.reset();
-      return;
+    } else if (file.mode == .visual || file.mode == .visualLine) {
+      // Visual/visualLine with no operator: apply motion to all selection cursors,
+      // preserving anchors.
+      _applyMotionToSelections(motion, edit.count);
+    } else if ((file.mode == .normal || file.mode == .operatorPending) &&
+        file.hasMultipleCursors) {
+      // Multi-cursor normal/operator-pending with no operator: apply motion to
+      // all cursors, collapsing selections.
+      _applyMotionToSelections(motion, edit.count, collapsed: true);
+    } else {
+      // Single cursor, no operator - just move cursor.
+      var pos = file.cursor;
+      for (int i = 0; i < edit.count; i++) {
+        pos = motion.fn(this, file, pos);
+      }
+      file.cursor = pos;
     }
-
-    // Single cursor, no operator - just move cursor
-    final start = file.cursor;
-    var end = start;
-    for (int i = 0; i < edit.count; i++) {
-      end = motion.fn(this, file, end);
-    }
-    file.cursor = end;
 
     _saveForRepeat(edit);
     _clearDesiredColumnIfNeeded(motion.type);

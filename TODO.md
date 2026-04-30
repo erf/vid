@@ -109,9 +109,9 @@ Had 11+ maps tracking different concerns. Extracted into `lib/features/lsp/lsp_c
 
 ## `commitEdit` has duplicated tail across 4 branches
 
-`Editor.commitEdit` (editor.dart:859) has 4 conditional branches that each end
-with the same trio: `_saveForRepeat`, `_clearDesiredColumnIfNeeded`,
-`file.edit.reset()`. Restructure so the tail runs once at the end.
+- [x] Restructure `Editor.commitEdit` so each branch only does its
+      mode-specific work and the shared trio (`_saveForRepeat`,
+      `_clearDesiredColumnIfNeeded`, `file.edit.reset()`) runs once at the end.
 
 ## Magic numbers → Config
 
