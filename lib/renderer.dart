@@ -3,7 +3,6 @@ import 'config.dart';
 import 'file_buffer/file_buffer.dart';
 import 'gutter.dart';
 import 'highlighting/highlighter.dart';
-import 'highlighting/token.dart';
 import 'features/lsp/lsp_protocol.dart';
 import 'message.dart';
 import 'message_renderer.dart';
@@ -79,9 +78,14 @@ class Renderer {
     highlighter: highlighter,
   );
 
+  /// Renders gutter (line numbers + signs) and end-of-line newline symbol.
+  late final GutterRenderer gutterRenderer = GutterRenderer(
+    highlighter: highlighter,
+  );
+
   /// Current gutter width in characters (0 if gutter is disabled).
   /// Updated each draw() call based on total line count.
-  int gutterWidth = 0;
+  int get gutterWidth => gutterRenderer.width;
 
   Renderer({required this.terminal, required this.highlighter});
 
@@ -119,7 +123,7 @@ class Renderer {
     // Calculate gutter width early (needed for horizontal scroll calculation)
     // Always reserve sign column space when showDiagnosticSigns is enabled
     // to prevent view shifting when diagnostics appear
-    gutterWidth = _calculateGutterWidth(
+    gutterRenderer.calculateWidth(
       file.totalLines,
       config.showLineNumbers,
       config.showDiagnosticSigns,
@@ -228,23 +232,6 @@ class Renderer {
       );
     }
     terminal.write(buffer);
-  }
-
-  /// Calculate gutter width based on total line count and sign column.
-  /// Format: "● 123 " where ● is optional sign, 123 is line number.
-  /// Returns 0 if gutter is disabled.
-  /// Can show signs only (no line numbers) with width of 2 (sign + space).
-  int _calculateGutterWidth(
-    int totalLines,
-    bool showLineNumbers,
-    bool showSigns,
-  ) {
-    if (!showLineNumbers && !showSigns) return 0;
-    final signWidth = showSigns ? 2 : 0; // 1 char for sign + 1 space
-    if (!showLineNumbers) return signWidth;
-    // Digits + 1 space before + 1 space after = digits + 2
-    final digits = totalLines.toString().length;
-    return signWidth + digits + 2; // e.g., "● 42 " = 5 chars with sign
   }
 
   /// Get the available content width (terminal width minus gutter).
@@ -578,7 +565,8 @@ class Renderer {
       // Past end of file - draw '~' with empty gutter
       if (offset >= file.text.length) {
         if (screenRow > 0) buffer.write(Keys.newline);
-        _renderGutter(
+        gutterRenderer.render(
+          buffer,
           -1,
           cursorLine,
           file.totalLines,
@@ -663,113 +651,6 @@ class Renderer {
     }
   }
 
-  /// Render the gutter (line number column) for a screen row.
-  /// [lineNum] is 0-based, -1 for empty rows (past end of file).
-  /// [isFirstWrap] indicates if this is the first row of a wrapped line.
-  /// [sign] is an optional gutter sign to display (e.g., diagnostic indicator).
-  /// [showSigns] indicates whether sign column is enabled.
-  void _renderGutter(
-    int lineNum,
-    int cursorLine,
-    int totalLines, {
-    bool isFirstWrap = true,
-    GutterSign? sign,
-    bool showSigns = false,
-    bool showLineNumbers = true,
-  }) {
-    if (gutterWidth == 0) return;
-
-    final theme = highlighter.theme;
-
-    // Render sign column if enabled
-    if (showSigns) {
-      if (sign != null && isFirstWrap) {
-        buffer.write(sign.colorCode(theme));
-        buffer.write(sign.char);
-        theme.resetCode(buffer);
-      } else {
-        buffer.write(' ');
-      }
-      buffer.write(' ');
-    }
-
-    // Render line numbers if enabled
-    if (showLineNumbers) {
-      final digits = totalLines.toString().length;
-      String gutterContent;
-      if (lineNum < 0 || !isFirstWrap) {
-        // Empty line or wrapped continuation - just spaces
-        gutterContent = ' ' * (digits + 1);
-      } else {
-        // Format line number (1-based for display)
-        final numStr = (lineNum + 1).toString().padLeft(digits);
-        gutterContent = ' $numStr';
-
-        // Apply active line highlight or muted color
-        if (lineNum == cursorLine) {
-          if (theme.gutterActiveLine != null) {
-            buffer.write(theme.gutterActiveLine);
-          }
-        } else {
-          if (theme.gutterForeground != null) {
-            buffer.write(theme.gutterForeground);
-          } else {
-            // Fallback: use dim for non-active lines
-            buffer.write(Ansi.dim());
-          }
-        }
-      }
-
-      buffer.write(gutterContent);
-      buffer.write(' ');
-
-      // Reset colors back to theme defaults
-      theme.resetCode(buffer);
-    }
-  }
-
-  /// Render newline symbol with optional highlighting for secondary cursors
-  void _renderNewlineSymbol({
-    required String newlineSymbol,
-    required int lineStartByte,
-    required int originalLength,
-    required List<(int, int)> selectionRanges,
-    required List<(int, int)> secondaryCursorRanges,
-  }) {
-    final newlineOffset = lineStartByte + originalLength;
-
-    // Check if a secondary cursor is on the newline (takes precedence)
-    final hasSecondaryCursor = secondaryCursorRanges.any(
-      (range) => range.$1 == newlineOffset && range.$2 > range.$1,
-    );
-
-    // Check if newline is in any selection
-    final inSelection = selectionRanges.any(
-      (range) => range.$1 <= newlineOffset && newlineOffset < range.$2,
-    );
-
-    if (hasSecondaryCursor) {
-      // Use distinct secondary cursor color
-      final cursorBg =
-          highlighter.theme.secondaryCursorBackground ??
-          Ansi.bg(Color.brightBlack);
-      buffer.write(cursorBg);
-      buffer.write(newlineSymbol);
-      highlighter.theme.resetCode(buffer);
-    } else if (inSelection) {
-      final selBg =
-          highlighter.theme.selectionBackground ?? Ansi.bg(Color.brightBlack);
-      buffer.write(selBg);
-      buffer.write(newlineSymbol);
-      highlighter.theme.resetCode(buffer);
-    } else {
-      final newlineColor = highlighter.theme.colorFor(TokenType.lineComment);
-      buffer.write(newlineColor);
-      buffer.write(newlineSymbol);
-      highlighter.theme.resetCode(buffer);
-    }
-  }
-
   /// Calculate available width for wrapping, reserving space for newline symbol on last chunk.
   int _availableWidthForWrap({
     required String rendered,
@@ -806,7 +687,8 @@ class Renderer {
     if (screenRow > 0) buffer.write(Keys.newline);
 
     // Render gutter first
-    _renderGutter(
+    gutterRenderer.render(
+      buffer,
       lineNum,
       cursorLine,
       totalLines,
@@ -858,7 +740,8 @@ class Renderer {
     // Render newline symbol if visible in viewport
     final lineRenderLength = rendered.renderLength(tabWidth);
     if (viewportCol + contentWidth > lineRenderLength) {
-      _renderNewlineSymbol(
+      gutterRenderer.renderNewlineSymbol(
+        buffer,
         newlineSymbol: newlineSymbol,
         lineStartByte: lineStartByte,
         originalLength: original.length,
@@ -899,7 +782,8 @@ class Renderer {
       if (screenRow > 0) buffer.write(Keys.newline);
 
       // Render gutter (only show line number on first wrap)
-      _renderGutter(
+      gutterRenderer.render(
+        buffer,
         lineNum,
         cursorLine,
         totalLines,
@@ -956,7 +840,8 @@ class Renderer {
     }
 
     // Render newline symbol after all wraps
-    _renderNewlineSymbol(
+    gutterRenderer.renderNewlineSymbol(
+      buffer,
       newlineSymbol: newlineSymbol,
       lineStartByte: lineStartByte,
       originalLength: original.length,
