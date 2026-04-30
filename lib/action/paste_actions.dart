@@ -44,44 +44,40 @@ void _pasteAtCursors(
   f.clampCursor();
 }
 
-/// Paste after cursor.
-class PasteAfter extends Action {
-  const PasteAfter();
+/// Where to paste relative to the cursor.
+enum PasteWhere { after, before }
+
+/// Paste from yank buffer relative to each cursor.
+class Paste extends Action {
+  final PasteWhere where;
+  const Paste(this.where);
 
   @override
   void call(Editor e, FileBuffer f) {
     if (e.yankBuffer == null) return;
     final yank = e.yankBuffer!;
 
-    if (yank.linewise) {
-      _pasteAtCursors(e, f, yank, (c) {
-        final pos = f.lineEnd(c) + 1;
-        return pos > f.text.length ? f.text.length : pos;
-      }, false);
-    } else {
-      _pasteAtCursors(e, f, yank, (c) {
-        final line = f.lineText(c);
-        return (line.isEmpty || line == ' ')
-            ? f.lineStart(c)
-            : f.nextGrapheme(c);
-      }, true);
-    }
-  }
-}
-
-/// Paste before cursor.
-class PasteBefore extends Action {
-  const PasteBefore();
-
-  @override
-  void call(Editor e, FileBuffer f) {
-    if (e.yankBuffer == null) return;
-    final yank = e.yankBuffer!;
-
-    if (yank.linewise) {
-      _pasteAtCursors(e, f, yank, (c) => f.lineStart(c), false);
-    } else {
-      _pasteAtCursors(e, f, yank, (c) => c, false);
+    switch (where) {
+      case .after:
+        if (yank.linewise) {
+          _pasteAtCursors(e, f, yank, (c) {
+            final pos = f.lineEnd(c) + 1;
+            return pos > f.text.length ? f.text.length : pos;
+          }, false);
+        } else {
+          _pasteAtCursors(e, f, yank, (c) {
+            final line = f.lineText(c);
+            return (line.isEmpty || line == ' ')
+                ? f.lineStart(c)
+                : f.nextGrapheme(c);
+          }, true);
+        }
+      case .before:
+        if (yank.linewise) {
+          _pasteAtCursors(e, f, yank, (c) => f.lineStart(c), false);
+        } else {
+          _pasteAtCursors(e, f, yank, (c) => c, false);
+        }
     }
   }
 }
@@ -101,13 +97,13 @@ class VisualPaste extends Action {
     // In visual line mode, even collapsed selections represent full line selection.
     // In visual mode, we need actual non-collapsed selections.
     if (!isVisualLineMode && !isVisualMode) {
-      const PasteAfter().call(e, f);
+      const Paste(.after).call(e, f);
       return;
     }
 
     // In visual mode (not visual line), if selection is collapsed, fall back
     if (isVisualMode && !f.hasVisualSelection) {
-      const PasteAfter().call(e, f);
+      const Paste(.after).call(e, f);
       return;
     }
 
