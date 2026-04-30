@@ -75,19 +75,17 @@ class Editor {
   /// Jump list for Ctrl-o / Ctrl-i navigation.
   final JumpList jumpList = JumpList();
 
-  // Static fields
-  static final _emptyBuffer = FileBuffer(); // Fallback for empty buffer list
-
   // Getters and setters
-  FileBuffer get file =>
-      _buffers.isEmpty ? _emptyBuffer : _buffers[_currentBufferIndex];
+  //
+  // Invariant: `_buffers` is never empty during normal operation. The
+  // constructor seeds it with one buffer, and the only path that drains it is
+  // `closeBuffer` which calls `quit()` (which exits the process) before
+  // returning. Accessing `file` when buffers is empty would be a programming
+  // error and intentionally throws.
+  FileBuffer get file => _buffers[_currentBufferIndex];
 
   set file(FileBuffer buffer) {
-    if (_buffers.isEmpty) {
-      _addBuffer(buffer);
-    } else {
-      _buffers[_currentBufferIndex] = buffer;
-    }
+    _buffers[_currentBufferIndex] = buffer;
   }
 
   List<FileBuffer> get buffers => _buffers; // Expose for features

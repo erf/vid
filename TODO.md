@@ -127,9 +127,11 @@ Had 11+ maps tracking different concerns. Extracted into `lib/features/lsp/lsp_c
 
 ## `_emptyBuffer` static fallback
 
-`static final _emptyBuffer = FileBuffer();` (editor.dart:78) is shared across
-all `Editor` instances and tests — potential test bleed. Make per-instance,
-or rely on the invariant that buffer list is never empty.
+- [x] Removed. `_buffers` is never empty in normal operation (constructor
+      seeds one; the only drain path, `closeBuffer`, calls `quit()` which
+      exits). The fallback was dead code that risked test bleed via shared
+      static state. The `file` getter/setter now indexes directly; an
+      invariant violation throws cleanly.
 
 ## ARCHITECTURE.md is thin (13 lines)
 
