@@ -4,27 +4,24 @@ import '../features/lsp/lsp_command_actions.dart';
 import '../file_buffer/file_buffer.dart';
 import 'action_base.dart';
 
-/// Quit editor if no unsaved changes.
+/// Whether quit forces (discards unsaved changes) or checks first.
+enum QuitMode { check, force }
+
+/// Quit editor. With [QuitMode.check], aborts if any buffer has unsaved
+/// changes. With [QuitMode.force], quits unconditionally.
 class Quit extends Action {
-  const Quit();
+  final QuitMode mode;
+  const Quit([this.mode = QuitMode.check]);
 
   @override
   void call(Editor e, FileBuffer f) {
-    final unsavedCount = e.unsavedBufferCount;
-    if (unsavedCount > 0) {
-      e.showMessage(.error('$unsavedCount buffer(s) have unsaved changes'));
-    } else {
-      e.quit();
+    if (mode == .check) {
+      final unsavedCount = e.unsavedBufferCount;
+      if (unsavedCount > 0) {
+        e.showMessage(.error('$unsavedCount buffer(s) have unsaved changes'));
+        return;
+      }
     }
-  }
-}
-
-/// Quit without saving.
-class QuitWithoutSaving extends Action {
-  const QuitWithoutSaving();
-
-  @override
-  void call(Editor e, FileBuffer f) {
     e.quit();
   }
 }
