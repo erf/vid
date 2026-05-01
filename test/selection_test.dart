@@ -2055,4 +2055,245 @@ void main() {
       expect(f.selections[0].start, 0);
     });
   });
+
+  group('findMainIndex', () {
+    test('returns 0 for empty list', () {
+      expect(findMainIndex([], 0), 0);
+      expect(findMainIndex([], 42), 0);
+    });
+
+    test('finds range containing cursor', () {
+      final ranges = [Selection(0, 3), Selection(10, 15), Selection(20, 25)];
+      expect(findMainIndex(ranges, 12), 1);
+      expect(findMainIndex(ranges, 22), 2);
+      expect(findMainIndex(ranges, 1), 0);
+    });
+
+    test('matches at start boundary', () {
+      final ranges = [Selection(0, 3), Selection(10, 15)];
+      expect(findMainIndex(ranges, 10), 1);
+    });
+
+    test('matches at end boundary', () {
+      final ranges = [Selection(0, 3), Selection(10, 15)];
+      expect(findMainIndex(ranges, 15), 1);
+    });
+
+    test('returns 0 when no range contains cursor', () {
+      final ranges = [Selection(0, 3), Selection(10, 15)];
+      expect(findMainIndex(ranges, 100), 0);
+      expect(findMainIndex(ranges, 5), 0);
+    });
+
+    test('single range', () {
+      final ranges = [Selection(5, 10)];
+      expect(findMainIndex(ranges, 7), 0);
+      expect(findMainIndex(ranges, 100), 0);
+    });
+  });
+
+  group('moveToFront', () {
+    test('moves selection with matching cursor to front', () {
+      final list = [Selection.collapsed(0), Selection.collapsed(10), Selection.collapsed(20)];
+      moveToFront(list, 20);
+      expect(list[0].cursor, 20);
+      expect(list.length, 3);
+    });
+
+    test('no-op when cursor not present', () {
+      final list = [Selection.collapsed(0), Selection.collapsed(10)];
+      moveToFront(list, 99);
+      expect(list[0].cursor, 0);
+      expect(list[1].cursor, 10);
+    });
+
+    test('no-op when already at front', () {
+      final list = [Selection.collapsed(5), Selection.collapsed(10)];
+      moveToFront(list, 5);
+      expect(list[0].cursor, 5);
+      expect(list[1].cursor, 10);
+    });
+
+    test('first match wins on duplicates', () {
+      final list = [
+        Selection.collapsed(0),
+        Selection.collapsed(10),
+        Selection.collapsed(10),
+      ];
+      // First occurrence at index 1 should be promoted
+      moveToFront(list, 10);
+      expect(list[0].cursor, 10);
+      // The other 10 should still be present
+      expect(list[2].cursor, 10);
+    });
+  });
+
+  group('promoteClosest', () {
+    test('no-op for empty or single-item list', () {
+      final empty = <Selection>[];
+      promoteClosest(empty, 5);
+      expect(empty, isEmpty);
+
+      final single = [Selection.collapsed(10)];
+      promoteClosest(single, 5);
+      expect(single.length, 1);
+      expect(single[0].cursor, 10);
+    });
+
+    test('promotes nearest by cursor distance', () {
+      final list = [
+        Selection.collapsed(0),
+        Selection.collapsed(50),
+        Selection.collapsed(100),
+      ];
+      promoteClosest(list, 60);
+      expect(list[0].cursor, 50);
+    });
+
+    test('first wins on ties', () {
+      final list = [
+        Selection.collapsed(0),
+        Selection.collapsed(20),
+      ];
+      // Equidistant from 10
+      promoteClosest(list, 10);
+      // index 0 already at front, distance 10; index 1 also distance 10.
+      // bestIdx stays 0 (strict <).
+      expect(list[0].cursor, 0);
+    });
+
+    test('no-op when nearest already at front', () {
+      final list = [Selection.collapsed(10), Selection.collapsed(100)];
+      promoteClosest(list, 12);
+      expect(list[0].cursor, 10);
+    });
+  });
+
+  group('collapseToStarts', () {
+    test('produces collapsed selections at start of each range', () {
+      final ranges = [Selection(0, 3), Selection(10, 15), Selection(20, 25)];
+      final result = collapseToStarts(ranges, 0);
+      expect(result.length, 3);
+      expect(result[0], Selection.collapsed(0));
+      expect(result[1], Selection.collapsed(10));
+      expect(result[2], Selection.collapsed(20));
+    });
+
+    test('promotes mainIndex to front', () {
+      final ranges = [Selection(0, 3), Selection(10, 15), Selection(20, 25)];
+      final result = collapseToStarts(ranges, 2);
+      expect(result[0], Selection.collapsed(20));
+      expect(result[1], Selection.collapsed(0));
+      expect(result[2], Selection.collapsed(10));
+    });
+
+    test('mainIndex 0 leaves order untouched', () {
+      final ranges = [Selection(0, 3), Selection(10, 15)];
+      final result = collapseToStarts(ranges, 0);
+      expect(result[0], Selection.collapsed(0));
+      expect(result[1], Selection.collapsed(10));
+    });
+
+    test('merges adjacent collapsed selections', () {
+      // Two ranges starting at the same position collapse to same point
+      final ranges = [Selection(5, 8), Selection(5, 10)];
+      final result = collapseToStarts(ranges, 0);
+      expect(result.length, 1);
+      expect(result[0], Selection.collapsed(5));
+    });
+  });
+
+  group('collapseAfterDelete', () {
+    test('adjusts positions for cumulative deleted length', () {
+      // Delete 'aaa' at 0-3 and 'bbb' at 10-13.
+      // After first delete: second range start moves from 10 to 7.
+      final ranges = [Selection(0, 3), Selection(10, 13)];
+      final result = collapseAfterDelete(ranges, 0);
+      expect(result.length, 2);
+      expect(result[0], Selection.collapsed(0));
+      expect(result[1], Selection.collapsed(7));
+    });
+
+    test('three ranges accumulate offsets correctly', () {
+      // Delete 5 bytes at 0-5, 3 bytes at 10-13, 2 bytes at 20-22.
+      // After first: 10 -> 5, 20 -> 15.
+      // After second: 15 -> 12.
+      final ranges = [Selection(0, 5), Selection(10, 13), Selection(20, 22)];
+      final result = collapseAfterDelete(ranges, 0);
+      expect(result[0], Selection.collapsed(0));
+      expect(result[1], Selection.collapsed(5));
+      expect(result[2], Selection.collapsed(12));
+    });
+
+    test('promotes mainIndex to front', () {
+      final ranges = [Selection(0, 3), Selection(10, 13), Selection(20, 23)];
+      final result = collapseAfterDelete(ranges, 2);
+      // Adjusted positions: 0, 7, 14. Main is the 14 one.
+      expect(result[0], Selection.collapsed(14));
+      expect(result[1], Selection.collapsed(0));
+      expect(result[2], Selection.collapsed(7));
+    });
+
+    test('merges adjacent positions after offset adjustment', () {
+      // Two ranges 0-5 and 5-10. After deleting first (5 bytes),
+      // second range's start (5) becomes 0 — same as first collapsed cursor.
+      final ranges = [Selection(0, 5), Selection(5, 10)];
+      final result = collapseAfterDelete(ranges, 0);
+      expect(result.length, 1);
+      expect(result[0], Selection.collapsed(0));
+    });
+  });
+
+  group('mergeSelections preserveMain', () {
+    test('main found by exact cursor equality', () {
+      // First selection has cursor=20; after sorting by start it would not be first.
+      final selections = [
+        Selection.collapsed(20),
+        Selection.collapsed(0),
+        Selection.collapsed(10),
+      ];
+      final result = mergeSelections(selections);
+      expect(result[0].cursor, 20);
+    });
+
+    test('main found by containment', () {
+      // First selection cursor=15, gets merged into a larger range that
+      // contains 15. The merged range should be promoted.
+      final selections = [
+        Selection(15, 15), // collapsed at 15 (will be merged)
+        Selection(0, 5),
+        Selection(10, 20), // contains 15
+      ];
+      final result = mergeSelections(selections);
+      // Merged: [(0,5), (10,20)] (the collapsed 15 is absorbed by 10-20).
+      expect(result.length, 2);
+      // Main should be the (10,20) range that contains original cursor 15.
+      expect(result[0].start, 10);
+      expect(result[0].end, 20);
+    });
+
+    test('preserveMain false skips promotion', () {
+      final selections = [
+        Selection.collapsed(20),
+        Selection.collapsed(0),
+        Selection.collapsed(10),
+      ];
+      final result = mergeSelections(selections, preserveMain: false);
+      // Sorted by start; no promotion.
+      expect(result[0].cursor, 0);
+      expect(result[1].cursor, 10);
+      expect(result[2].cursor, 20);
+    });
+
+    test('single selection short-circuits', () {
+      final selections = [Selection.collapsed(5)];
+      final result = mergeSelections(selections);
+      expect(result, selections);
+    });
+
+    test('empty list short-circuits', () {
+      final result = mergeSelections([]);
+      expect(result, isEmpty);
+    });
+  });
 }
