@@ -141,10 +141,7 @@ class Change extends OperatorAction {
         // We replaced range with '\n', so offset is (deleted - 1)
         offset += (r.end - r.start) - 1;
       }
-      if (mainIndex > 0 && mainIndex < newSelections.length) {
-        final mainSel = newSelections.removeAt(mainIndex);
-        newSelections.insert(0, mainSel);
-      }
+      promoteIndex(newSelections, mainIndex);
       f.selections = mergeSelections(newSelections);
     } else {
       f.selections = collapseAfterDelete(ranges, mainIndex);

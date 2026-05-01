@@ -134,10 +134,7 @@ List<Selection> mergeSelections(
       // Check if this selection contains or is at the main cursor position
       if (sel.cursor == mainCursor ||
           (sel.start <= mainCursor && mainCursor <= sel.end)) {
-        if (i != 0) {
-          merged.removeAt(i);
-          merged.insert(0, sel);
-        }
+        promoteIndex(merged, i);
         break;
       }
     }
@@ -146,12 +143,22 @@ List<Selection> mergeSelections(
   return merged;
 }
 
+/// Move the item at [index] to the front of [list].
+///
+/// No-op if [index] is `<= 0` or out of bounds. This is the canonical
+/// "promote main to front" operation used everywhere selections need a
+/// stable primary at index 0.
+void promoteIndex(List<Selection> list, int index) {
+  if (index <= 0 || index >= list.length) return;
+  final sel = list.removeAt(index);
+  list.insert(0, sel);
+}
+
 /// Move the selection with cursor at [cursorPos] to front of list.
 void moveToFront(List<Selection> selections, int cursorPos) {
   for (int i = 0; i < selections.length; i++) {
     if (selections[i].cursor == cursorPos) {
-      final sel = selections.removeAt(i);
-      selections.insert(0, sel);
+      promoteIndex(selections, i);
       return;
     }
   }
@@ -169,10 +176,7 @@ void promoteClosest(List<Selection> selections, int offset) {
       bestIdx = i;
     }
   }
-  if (bestIdx != 0) {
-    final nearest = selections.removeAt(bestIdx);
-    selections.insert(0, nearest);
-  }
+  promoteIndex(selections, bestIdx);
 }
 
 /// Collapse selections to their start positions (no offset adjustment).
@@ -183,10 +187,7 @@ List<Selection> collapseToStarts(List<Selection> sortedRanges, int mainIndex) {
       .map((s) => Selection.collapsed(s.start))
       .toList();
 
-  if (mainIndex > 0 && mainIndex < newSelections.length) {
-    final mainSel = newSelections.removeAt(mainIndex);
-    newSelections.insert(0, mainSel);
-  }
+  promoteIndex(newSelections, mainIndex);
 
   return mergeSelections(newSelections);
 }
@@ -205,10 +206,7 @@ List<Selection> collapseAfterDelete(
     offset += r.end - r.start;
   }
 
-  if (mainIndex > 0 && mainIndex < newSelections.length) {
-    final mainSel = newSelections.removeAt(mainIndex);
-    newSelections.insert(0, mainSel);
-  }
+  promoteIndex(newSelections, mainIndex);
 
   return mergeSelections(newSelections);
 }

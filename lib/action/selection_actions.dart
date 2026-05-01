@@ -247,10 +247,7 @@ class SplitSelectionIntoLines extends Action {
     if (newSelections.isEmpty) return;
 
     // Move primary to front
-    if (primaryIdx > 0) {
-      final primary = newSelections.removeAt(primaryIdx);
-      newSelections.insert(0, primary);
-    }
+    promoteIndex(newSelections, primaryIdx);
 
     f.selections = newSelections;
   }
