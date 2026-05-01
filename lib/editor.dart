@@ -906,6 +906,7 @@ class Editor {
   }) {
     final newSelections = <Selection>[];
     final isVisualLineMode = file.mode == .visualLine;
+    int? primaryCursor;
 
     for (final sel in file.selections) {
       var newCursor = sel.cursor;
@@ -941,8 +942,15 @@ class Editor {
       } else {
         newSelections.add(sel.withCursor(newCursor));
       }
+      // Capture the post-motion cursor of the original primary so we can
+      // re-promote after mergeSelections sorts by start position.
+      primaryCursor ??= newSelections.first.cursor;
     }
-    file.selections = mergeSelections(newSelections);
+    final merged = mergeSelections(newSelections);
+    if (primaryCursor != null) {
+      promoteByCursor(merged, primaryCursor);
+    }
+    file.selections = merged;
     file.clampCursor();
   }
 

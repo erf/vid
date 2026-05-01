@@ -2244,42 +2244,14 @@ void main() {
     });
   });
 
-  group('mergeSelections preserveMain', () {
-    test('main found by exact cursor equality', () {
-      // First selection has cursor=20; after sorting by start it would not be first.
+  group('mergeSelections (pure)', () {
+    test('does not preserve primary; sorts by start', () {
       final selections = [
         Selection.collapsed(20),
         Selection.collapsed(0),
         Selection.collapsed(10),
       ];
       final result = mergeSelections(selections);
-      expect(result[0].cursor, 20);
-    });
-
-    test('main found by containment', () {
-      // First selection cursor=15, gets merged into a larger range that
-      // contains 15. The merged range should be promoted.
-      final selections = [
-        Selection(15, 15), // collapsed at 15 (will be merged)
-        Selection(0, 5),
-        Selection(10, 20), // contains 15
-      ];
-      final result = mergeSelections(selections);
-      // Merged: [(0,5), (10,20)] (the collapsed 15 is absorbed by 10-20).
-      expect(result.length, 2);
-      // Main should be the (10,20) range that contains original cursor 15.
-      expect(result[0].start, 10);
-      expect(result[0].end, 20);
-    });
-
-    test('preserveMain false skips promotion', () {
-      final selections = [
-        Selection.collapsed(20),
-        Selection.collapsed(0),
-        Selection.collapsed(10),
-      ];
-      final result = mergeSelections(selections, preserveMain: false);
-      // Sorted by start; no promotion.
       expect(result[0].cursor, 0);
       expect(result[1].cursor, 10);
       expect(result[2].cursor, 20);
@@ -2294,6 +2266,51 @@ void main() {
     test('empty list short-circuits', () {
       final result = mergeSelections([]);
       expect(result, isEmpty);
+    });
+  });
+
+  group('promoteByCursor', () {
+    test('exact cursor match wins', () {
+      final list = [
+        Selection.collapsed(0),
+        Selection.collapsed(10),
+        Selection.collapsed(20),
+      ];
+      promoteByCursor(list, 20);
+      expect(list[0].cursor, 20);
+    });
+
+    test('containment match when no equality', () {
+      final list = [Selection(0, 5), Selection(10, 20)];
+      promoteByCursor(list, 15);
+      expect(list[0].start, 10);
+      expect(list[0].end, 20);
+    });
+
+    test('equality preferred over containment', () {
+      // First range contains 5; second has cursor exactly at 5.
+      final list = [Selection(0, 10), Selection(5, 5)];
+      promoteByCursor(list, 5);
+      // Equality (the collapsed 5) wins.
+      expect(list[0].cursor, 5);
+      expect(list[0].anchor, 5);
+    });
+
+    test('no-op when no match', () {
+      final list = [Selection.collapsed(0), Selection.collapsed(10)];
+      promoteByCursor(list, 99);
+      expect(list[0].cursor, 0);
+      expect(list[1].cursor, 10);
+    });
+
+    test('no-op for empty or single-item list', () {
+      final empty = <Selection>[];
+      promoteByCursor(empty, 5);
+      expect(empty, isEmpty);
+
+      final single = [Selection.collapsed(10)];
+      promoteByCursor(single, 10);
+      expect(single.length, 1);
     });
   });
 }

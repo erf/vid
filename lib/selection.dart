@@ -96,17 +96,15 @@ List<Selection> selectAllMatches(
 /// Merge overlapping or adjacent selections into a single list.
 ///
 /// Selections are sorted by start position and then merged if they overlap
-/// or touch. The resulting selections preserve forward direction (anchor < cursor).
-/// If [preserveMain] is true (default), the first selection in the input list
-/// is preserved as the first selection in the output (main cursor).
-List<Selection> mergeSelections(
-  List<Selection> selections, {
-  bool preserveMain = true,
-}) {
+/// or touch. The resulting selections preserve forward direction
+/// (anchor < cursor).
+///
+/// This is a pure structural merge: it does not preserve which selection
+/// was the "main" one. Callers that need primary preservation should
+/// capture the primary cursor before calling and use [promoteByCursor]
+/// (or [moveToFront] / [promoteIndex]) afterwards.
+List<Selection> mergeSelections(List<Selection> selections) {
   if (selections.length <= 1) return selections;
-
-  // Remember the main cursor position before sorting
-  final mainCursor = selections.first.cursor;
 
   // Sort by start position
   final sorted = selections.sortedByStart();
@@ -127,20 +125,29 @@ List<Selection> mergeSelections(
   }
   merged.add(current);
 
-  // Move the selection containing the main cursor to front
-  if (preserveMain && merged.length > 1) {
-    for (int i = 0; i < merged.length; i++) {
-      final sel = merged[i];
-      // Check if this selection contains or is at the main cursor position
-      if (sel.cursor == mainCursor ||
-          (sel.start <= mainCursor && mainCursor <= sel.end)) {
-        promoteIndex(merged, i);
-        break;
-      }
+  return merged;
+}
+
+/// Promote the selection whose cursor equals [cursorPos], or which contains
+/// [cursorPos], to the front of [list]. Equality wins over containment.
+/// No-op if no match is found.
+void promoteByCursor(List<Selection> list, int cursorPos) {
+  if (list.length <= 1) return;
+  // Pass 1: exact cursor match.
+  for (int i = 0; i < list.length; i++) {
+    if (list[i].cursor == cursorPos) {
+      promoteIndex(list, i);
+      return;
     }
   }
-
-  return merged;
+  // Pass 2: containment.
+  for (int i = 0; i < list.length; i++) {
+    final sel = list[i];
+    if (sel.start <= cursorPos && cursorPos <= sel.end) {
+      promoteIndex(list, i);
+      return;
+    }
+  }
 }
 
 /// Move the item at [index] to the front of [list].
@@ -205,8 +212,15 @@ List<Selection> _collapseRanges(
   }
 
   promoteIndex(newSelections, mainIndex);
+  // Capture the (post-promotion, pre-merge) main cursor so we can restore
+  // primacy after merge potentially re-sorts.
+  final mainCursor = newSelections.isNotEmpty
+      ? newSelections.first.cursor
+      : 0;
 
-  return mergeSelections(newSelections);
+  final merged = mergeSelections(newSelections);
+  promoteByCursor(merged, mainCursor);
+  return merged;
 }
 
 /// Collapse selections to their start positions (no offset adjustment).

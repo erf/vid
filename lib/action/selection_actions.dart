@@ -334,9 +334,14 @@ class AddCursor extends Action {
       e.config.tabWidth,
     );
     final newCursor = Selection.collapsed(newPos);
+    // Remember previous primary so it stays at index 1 after the new cursor
+    // is promoted to front.
+    final prevPrimaryCursor = f.selections.first.cursor;
     f.selections.add(newCursor);
     f.selections = mergeSelections(f.selections);
-    // Move new cursor to front (main cursor)
+    // Promote previous primary first, then the new cursor — leaves the new
+    // cursor at index 0 and the previous primary at index 1.
+    promoteByCursor(f.selections, prevPrimaryCursor);
     moveToFront(f.selections, newPos);
   }
 }
