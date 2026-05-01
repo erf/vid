@@ -46,6 +46,11 @@ configure editor settings and LSP servers.
   across `file_buffer_io.dart`, `file_buffer_nav.dart`, `file_buffer_text.dart`,
   and `file_buffer_edits.dart`.
 
+- **`LineInfo`** (`lib/line_info.dart`) — two byte offsets per line:
+  `start` (line start) and `end` (the `\n`, or `text.length` for the last
+  line). `length => end - start` excludes the newline. `FileBuffer.lines`
+  is a `List<LineInfo>` rebuilt on every text change.
+
 - **`Selection`** (`lib/selection.dart`) — `(anchor, cursor)` byte-offset pair.
   `isCollapsed` when anchor == cursor (a bare cursor); otherwise a visual
   range. Multiple selections drive Kakoune-style multi-cursor editing;
@@ -142,12 +147,22 @@ clients keyed by server config. Per-URI caches live in
 1. **Text always ends with `\n`** — enforced by `FileBuffer`. All edits must
    preserve this; tests that set `f.text` must include the trailing newline.
 2. **Byte offsets, not char indices** — `cursor`, `viewport`, line `start`/`end`
-   are UTF-8 byte offsets. Use `string_ext.dart` helpers for tab expansion
-   and `originalSlice`.
+   are UTF-8 byte offsets, not character or grapheme indices. Use
+   `string_ext.dart` helpers for tab expansion and `originalSlice`. Convert
+   between offsets and (line, column) via `FileBuffer`:
+   - `lineNumber(offset)` — binary search, O(log n).
+   - `lineOffset(lineNum)` — `lines[lineNum].start`, O(1).
+   - `lineStart(offset)` / `lineEnd(offset)` — bounds of the line at offset.
+   - `lineText(offset)` / `lineTextAt(lineNum)` — line content (excludes `\n`).
+   - `columnInLine(offset)` — grapheme-cluster column within the line.
+
+   To iterate a single line's characters, slice the buffer with
+   `text.substring(line.start, line.end)` and walk it via the `characters`
+   package (e.g. `lineText(offset).characters`).
 3. **Cursor at grapheme boundaries** — never position the cursor mid-grapheme.
    Width and movement use grapheme-aware utilities in `lib/grapheme/`.
 4. **`lines` is rebuilt on every change** — don't cache `LineInfo` across
-   edits; reread `file.lines[i]`.
+   edits; always go through `lines[i]` or `lineNumber(...)`.
 5. **Bindings are `const`** — the maps in `bindings.dart` and
    `mode_bindings.dart` are immutable. Don't mutate at runtime.
 6. **`_buffers` is never empty during normal operation** — the constructor
