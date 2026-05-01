@@ -179,18 +179,41 @@ void promoteClosest(List<Selection> selections, int offset) {
   promoteIndex(selections, bestIdx);
 }
 
-/// Collapse selections to their start positions (no offset adjustment).
-/// Moves [mainIndex] to front, then merges overlapping selections.
-/// Use for non-destructive operators like yank and case change.
-List<Selection> collapseToStarts(List<Selection> sortedRanges, int mainIndex) {
-  final newSelections = sortedRanges
-      .map((s) => Selection.collapsed(s.start))
-      .toList();
+/// Collapse a sorted list of ranges to single-cursor selections at each
+/// range's `start - cumulativeOffset`, where the per-range offset increment
+/// is supplied by [deltaFor].
+///
+/// After collapsing, [mainIndex] is promoted to the front and overlapping
+/// selections are merged.
+///
+/// - For non-destructive ops (yank, case change), `deltaFor` returns 0.
+///   See [collapseToStarts].
+/// - For full-range deletions, `deltaFor` returns `r.end - r.start`.
+///   See [collapseAfterDelete].
+/// - For linewise change (range replaced by `\n`), `deltaFor` returns
+///   `(r.end - r.start) - 1`.
+List<Selection> _collapseRanges(
+  List<Selection> sortedRanges,
+  int mainIndex,
+  int Function(Selection r) deltaFor,
+) {
+  int offset = 0;
+  final newSelections = <Selection>[];
+  for (final r in sortedRanges) {
+    newSelections.add(Selection.collapsed(r.start - offset));
+    offset += deltaFor(r);
+  }
 
   promoteIndex(newSelections, mainIndex);
 
   return mergeSelections(newSelections);
 }
+
+/// Collapse selections to their start positions (no offset adjustment).
+/// Moves [mainIndex] to front, then merges overlapping selections.
+/// Use for non-destructive operators like yank and case change.
+List<Selection> collapseToStarts(List<Selection> sortedRanges, int mainIndex) =>
+    _collapseRanges(sortedRanges, mainIndex, (_) => 0);
 
 /// Collapse selections to their start positions after delete operations.
 /// Adjusts positions based on cumulative deleted text length.
@@ -198,18 +221,15 @@ List<Selection> collapseToStarts(List<Selection> sortedRanges, int mainIndex) {
 List<Selection> collapseAfterDelete(
   List<Selection> sortedRanges,
   int mainIndex,
-) {
-  int offset = 0;
-  final newSelections = <Selection>[];
-  for (final r in sortedRanges) {
-    newSelections.add(Selection.collapsed(r.start - offset));
-    offset += r.end - r.start;
-  }
+) => _collapseRanges(sortedRanges, mainIndex, (r) => r.end - r.start);
 
-  promoteIndex(newSelections, mainIndex);
-
-  return mergeSelections(newSelections);
-}
+/// Collapse selections after a linewise range replacement (range replaced
+/// by a single `\n`). Adjusts positions accounting for the inserted newline.
+/// Moves [mainIndex] to front, then merges overlapping selections.
+List<Selection> collapseAfterLinewiseReplace(
+  List<Selection> sortedRanges,
+  int mainIndex,
+) => _collapseRanges(sortedRanges, mainIndex, (r) => (r.end - r.start) - 1);
 
 /// Find the index of the range containing [cursorPos] in a sorted list.
 /// Returns 0 if no range contains the cursor.

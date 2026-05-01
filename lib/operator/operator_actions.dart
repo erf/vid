@@ -134,15 +134,7 @@ class Change extends OperatorAction {
 
     // Collapse selections
     if (linewise) {
-      int offset = 0;
-      final newSelections = <Selection>[];
-      for (final r in ranges) {
-        newSelections.add(Selection.collapsed(r.start - offset));
-        // We replaced range with '\n', so offset is (deleted - 1)
-        offset += (r.end - r.start) - 1;
-      }
-      promoteIndex(newSelections, mainIndex);
-      f.selections = mergeSelections(newSelections);
+      f.selections = collapseAfterLinewiseReplace(ranges, mainIndex);
     } else {
       f.selections = collapseAfterDelete(ranges, mainIndex);
     }
