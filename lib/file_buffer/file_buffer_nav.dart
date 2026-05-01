@@ -192,4 +192,39 @@ extension FileBufferNav on FileBuffer {
 
     return lineStart + byteOffset;
   }
+
+  /// Expand a selection to cover full lines, with the cursor on the last
+  /// character of the cursor's line (or line start for empty lines).
+  ///
+  /// Direction is preserved relative to the selection's anchor and cursor:
+  /// - Forward / collapsed (`cursor >= anchor`): anchor at start of anchor
+  ///   line, cursor at last-char of cursor line.
+  /// - Backward (`cursor < anchor`): anchor at last-char of anchor line,
+  ///   cursor at start of cursor line.
+  ///
+  /// Used by visual-line mode entry, visual-line motions, and similar
+  /// linewise operations.
+  Selection expandSelectionToLines(Selection sel) {
+    final anchorLine = lineNumber(sel.anchor);
+    final cursorLine = lineNumber(sel.cursor);
+    if (sel.isCollapsed || sel.cursor >= sel.anchor) {
+      // Forward or collapsed
+      final anchorPos = lines[anchorLine].start;
+      final cursorPos = _lastCharOf(cursorLine);
+      return Selection(anchorPos, cursorPos);
+    } else {
+      // Backward
+      final anchorPos = _lastCharOf(anchorLine);
+      final cursorPos = lines[cursorLine].start;
+      return Selection(anchorPos, cursorPos);
+    }
+  }
+
+  /// Position of the last grapheme on [lineNum], or line start for empty
+  /// lines. Grapheme-aware (uses [prevGrapheme] from the line's newline
+  /// position).
+  int _lastCharOf(int lineNum) {
+    final line = lines[lineNum];
+    return line.end > line.start ? prevGrapheme(line.end) : line.start;
+  }
 }

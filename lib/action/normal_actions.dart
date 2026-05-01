@@ -321,32 +321,9 @@ class EnterVisualLineMode extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    final newSelections = <Selection>[];
-
-    for (final sel in f.selections) {
-      // Get line range for the selection
-      final startLine = f.lineNumber(sel.start);
-      final endLine = f.lineNumber(sel.end);
-      final minLine = startLine < endLine ? startLine : endLine;
-      final maxLine = startLine < endLine ? endLine : startLine;
-
-      final lineStart = f.lines[minLine].start;
-      // lineEnd is the newline position, cursor should be on last char before it
-      // For empty lines, cursor stays at line start
-      final lineEndPos = f.lines[maxLine].end;
-      final lineEnd = lineEndPos > f.lines[maxLine].start
-          ? lineEndPos - 1
-          : lineEndPos;
-
-      // Preserve selection direction
-      if (sel.isCollapsed || sel.cursor >= sel.anchor) {
-        // Forward selection or collapsed: anchor at line start, cursor at line end
-        newSelections.add(Selection(lineStart, lineEnd));
-      } else {
-        // Backward selection: anchor at line end, cursor at line start
-        newSelections.add(Selection(lineEnd, lineStart));
-      }
-    }
+    final newSelections = f.selections
+        .map((sel) => f.expandSelectionToLines(sel))
+        .toList();
 
     f.selections = newSelections;
     // Set desiredColumn to end-of-line so j/k movements stay at line ends
