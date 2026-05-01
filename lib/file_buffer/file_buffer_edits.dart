@@ -144,17 +144,30 @@ class CursorEdit {
 /// edit, with cumulative offset shifts accounted for.
 ///
 /// Edits do not need to be pre-sorted — they are sorted ascending by
-/// `edit.start` internally. The returned selections are in the same sorted
-/// order (callers usually assign them directly to `f.selections`).
+/// `edit.start` internally. The returned selections are in sorted order,
+/// **except** when [primaryEditIndex] is non-null: in that case, the
+/// selection produced by `items[primaryEditIndex]` (input-order index) is
+/// promoted to the front of the result, so callers can preserve the
+/// "primary cursor at index 0" convention across edit operations.
 ///
 /// This is the standard helper for multi-cursor edit operations: insert,
 /// backspace, paste, open-line-above/below, change-number, etc.
 List<Selection> applyEditsWithCursors(
   FileBuffer buffer,
   Config config,
-  List<CursorEdit> items,
-) {
+  List<CursorEdit> items, {
+  int? primaryEditIndex,
+}) {
   if (items.isEmpty) return const [];
+
+  // Track which item came from the primary cursor (by identity) before
+  // sorting reorders things.
+  final CursorEdit? primaryItem =
+      (primaryEditIndex != null &&
+              primaryEditIndex >= 0 &&
+              primaryEditIndex < items.length)
+          ? items[primaryEditIndex]
+          : null;
 
   // Sort ascending by edit start; ties broken by original order (stable).
   final sorted = items.toList()
@@ -165,11 +178,20 @@ List<Selection> applyEditsWithCursors(
   // Walk in sorted order with a running offset (delta = newLen - oldLen).
   final selections = <Selection>[];
   var shift = 0;
-  for (final item in sorted) {
+  int? primarySortedIndex;
+  for (int i = 0; i < sorted.length; i++) {
+    final item = sorted[i];
     final pos = item.edit.start + shift + item.cursorOffset;
     selections.add(Selection.collapsed(pos));
+    if (primaryItem != null && identical(item, primaryItem)) {
+      primarySortedIndex = i;
+    }
     final delta = item.edit.newText.length - (item.edit.end - item.edit.start);
     shift += delta;
+  }
+
+  if (primarySortedIndex != null) {
+    promoteIndex(selections, primarySortedIndex);
   }
   return selections;
 }

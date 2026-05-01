@@ -420,5 +420,56 @@ void main() {
       expect(f.text, 'acdf\n');
       expect(sels.map((s) => s.cursor).toList(), [1, 3]);
     });
+
+    test('primaryEditIndex promotes the matching item to front', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\n';
+
+      // Inputs are in cursor order [primary=second-edit-position, other].
+      // The primary inserts at offset 4 ('X'); the other inserts at offset 1.
+      // Without preservation, the result would sort by edit-start: insert@1
+      // first, insert@4 second.
+      final sels = applyEditsWithCursors(
+        f,
+        e.config,
+        [
+          CursorEdit.atEnd(TextEdit.insert(4, 'X')),  // primary (input idx 0)
+          CursorEdit.atEnd(TextEdit.insert(1, 'Y')),  // input idx 1
+        ],
+        primaryEditIndex: 0,
+      );
+
+      expect(f.text, 'aYbcdXef\n');
+      // Primary's cursor is just after 'X' at original 4 + Y's offset (1) + 1.
+      // Insert at 4 with 'X', after insert at 1 'Y': edit at 4 is shifted by
+      // 1, lands at 5+1 = 6 (atEnd, so cursor = 5+1 = 6).
+      // Insert at 1 with 'Y' (no prior shift): cursor at 1+1 = 2.
+      // Sorted-by-start would be [2, 6]; with preservation, primary (6) is
+      // promoted to front.
+      expect(sels[0].cursor, 6);
+      expect(sels[1].cursor, 2);
+    });
+
+    test('primaryEditIndex null preserves sort-by-start (default)', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'abcdef\n';
+
+      final sels = applyEditsWithCursors(f, e.config, [
+        CursorEdit.atEnd(TextEdit.insert(4, 'X')),
+        CursorEdit.atEnd(TextEdit.insert(1, 'Y')),
+      ]);
+
+      // Sorted by start: insert@1 first, insert@4 second.
+      expect(sels[0].cursor, 2);
+      expect(sels[1].cursor, 6);
+    });
   });
 }

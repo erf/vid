@@ -68,7 +68,10 @@ class ToggleCaseUnderCursor extends Action {
     // that have nothing to toggle.
     final items = <CursorEdit>[];
     final unchanged = <Selection>[];
+    int? primaryItemIndex; // index into `items` of the primary cursor's edit
+    final primaryCursor = f.selections.first.cursor;
     for (final sel in f.selections) {
+      final isPrimary = sel.cursor == primaryCursor;
       final start = sel.cursor;
       var end = start;
       for (int i = 0; i < count; i++) {
@@ -87,6 +90,7 @@ class ToggleCaseUnderCursor extends Action {
           .map(NormalActionsUtils.toggleCase)
           .join();
       // Cursor lands at the end of the replacement (vim's `~` advances).
+      if (isPrimary) primaryItemIndex = items.length;
       items.add(CursorEdit.atEnd(TextEdit(start, end, replacement)));
     }
 
@@ -95,12 +99,23 @@ class ToggleCaseUnderCursor extends Action {
       return;
     }
 
-    final edited = applyEditsWithCursors(f, e.config, items);
-
-    // Cursors with no toggle stay put; merge and re-sort.
-    f.selections = [...unchanged, ...edited]..sort(
-      (a, b) => a.cursor.compareTo(b.cursor),
+    final edited = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: primaryItemIndex,
     );
+
+    // Determine the post-edit primary cursor position. If the primary had no
+    // toggle (primaryItemIndex == null), it's an unchanged cursor at the
+    // original primary position. Otherwise it's edited.first (post-promotion).
+    final newPrimaryCursor = primaryItemIndex == null
+        ? primaryCursor
+        : edited.first.cursor;
+    final combined = [...unchanged, ...edited]
+      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    promoteByCursor(combined, newPrimaryCursor);
+    f.selections = combined;
     f.clampCursor();
     f.edit.reset();
   }
@@ -139,7 +154,12 @@ class OpenLineAbove extends Action {
       // Cursor lands at end of indent (just before the inserted newline).
       items.add(CursorEdit.atEnd(TextEdit.insert(lineStart, indent + '\n'), -1));
     }
-    f.selections = applyEditsWithCursors(f, e.config, items);
+    f.selections = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: 0,
+    );
     f.setMode(e, .insert);
   }
 }
@@ -159,7 +179,12 @@ class OpenLineBelow extends Action {
       // Cursor lands at end of inserted text (after newline + indent).
       items.add(CursorEdit.atEnd(TextEdit.insert(lineEnd, '\n' + indent)));
     }
-    f.selections = applyEditsWithCursors(f, e.config, items);
+    f.selections = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: 0,
+    );
     f.setMode(e, .insert);
   }
 }
@@ -208,7 +233,10 @@ class ChangeNumber extends Action {
     if (!f.selections.every((s) => s.isCollapsed)) return;
 
     final items = <CursorEdit>[];
+    int? primaryItemIndex;
+    final primaryCursor = f.selections.first.cursor;
     for (final sel in f.selections) {
+      final isPrimary = sel.cursor == primaryCursor;
       final pos = sel.cursor;
       final lineNum = f.lineNumber(pos);
       final lineStartOffset = f.lines[lineNum].start;
@@ -224,6 +252,7 @@ class ChangeNumber extends Action {
       final matchEnd = lineStartOffset + m.end;
 
       // Cursor lands on the last character of the new number.
+      if (isPrimary) primaryItemIndex = items.length;
       items.add(
         CursorEdit.atEnd(TextEdit(matchStart, matchEnd, newNumStr), -1),
       );
@@ -234,7 +263,12 @@ class ChangeNumber extends Action {
       return;
     }
 
-    f.selections = applyEditsWithCursors(f, e.config, items);
+    f.selections = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: primaryItemIndex,
+    );
     f.clampCursor();
     f.edit.reset();
   }

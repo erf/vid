@@ -13,7 +13,12 @@ class InsertActions {
     final items = f.selections
         .map((sel) => CursorEdit.atEnd(TextEdit.insert(sel.cursor, s)))
         .toList();
-    f.selections = applyEditsWithCursors(f, e.config, items);
+    f.selections = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: 0,
+    );
   }
 
   /// Get the leading whitespace of the line containing [offset].
@@ -82,24 +87,37 @@ class InsertActions {
     // Build deletions - skip cursors at start of file.
     final items = <CursorEdit>[];
     final unchanged = <Selection>[]; // cursors at start-of-file (no edit)
+    final primaryAtStart = f.selections.first.cursor == 0;
     for (final sel in f.selections) {
       if (sel.cursor == 0) {
         unchanged.add(Selection.collapsed(sel.cursor));
         continue;
       }
-      final prev = f.prevGrapheme(sel.cursor);
-      items.add(CursorEdit.atStart(TextEdit.delete(prev, sel.cursor)));
+      items.add(CursorEdit.atStart(TextEdit.delete(f.prevGrapheme(sel.cursor), sel.cursor)));
     }
 
     if (items.isEmpty) return;
 
-    final edited = applyEditsWithCursors(f, e.config, items);
-
-    // Cursors at start-of-file are unaffected by deletions that occur after
-    // them; merge and re-sort by position.
-    f.selections = [...unchanged, ...edited]..sort(
-      (a, b) => a.cursor.compareTo(b.cursor),
+    // Primary is at items[0] unless the original primary was already at SOF.
+    final edited = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: primaryAtStart ? null : 0,
     );
+
+    // Combine, then sort by cursor position. Primary preservation:
+    // - If primary was at SOF, it's the first 'unchanged' (already cursor 0,
+    //   sorts to front naturally).
+    // - Otherwise primary is edited.first (post-promotion); re-promote after
+    //   sort to keep it at index 0.
+    final primaryCursor = primaryAtStart
+        ? unchanged.first.cursor
+        : edited.first.cursor;
+    final combined = [...unchanged, ...edited]
+      ..sort((a, b) => a.cursor.compareTo(b.cursor));
+    promoteByCursor(combined, primaryCursor);
+    f.selections = combined;
   }
 }
 
@@ -118,7 +136,12 @@ class InsertEnter extends Action {
         CursorEdit.atEnd(TextEdit.insert(sel.cursor, Keys.newline + indent)),
       );
     }
-    f.selections = applyEditsWithCursors(f, e.config, items);
+    f.selections = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: 0,
+    );
     f.clampCursor();
   }
 }

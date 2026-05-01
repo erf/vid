@@ -1,6 +1,7 @@
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../operator/operator_actions.dart';
+import '../selection.dart';
 import '../yank_buffer.dart';
 import 'action_base.dart';
 
@@ -25,7 +26,12 @@ void _pasteAtCursors(
     );
   }
 
-  f.selections = applyEditsWithCursors(f, e.config, items);
+  f.selections = applyEditsWithCursors(
+    f,
+    e.config,
+    items,
+    primaryEditIndex: 0,
+  );
   f.clampCursor();
 }
 
@@ -114,6 +120,7 @@ class VisualPaste extends Action {
 
     // Build edits: replace each selection with its corresponding paste content,
     // cursor lands at start of pasted text.
+    final mainIndex = findMainIndex(ranges, f.selections.first.cursor);
     final items = <CursorEdit>[];
     for (int i = 0; i < ranges.length; i++) {
       items.add(
@@ -122,7 +129,12 @@ class VisualPaste extends Action {
         ),
       );
     }
-    f.selections = applyEditsWithCursors(f, e.config, items);
+    f.selections = applyEditsWithCursors(
+      f,
+      e.config,
+      items,
+      primaryEditIndex: mainIndex,
+    );
     f.clampCursor();
 
     f.setMode(e, .normal);
