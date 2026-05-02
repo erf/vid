@@ -5,6 +5,7 @@ import 'languages/bash_tokenizer.dart';
 import 'languages/c_tokenizer.dart';
 import 'languages/css_tokenizer.dart';
 import 'languages/dart_tokenizer.dart';
+import 'languages/go_tokenizer.dart';
 import 'languages/javascript_tokenizer.dart';
 import 'languages/json_tokenizer.dart';
 import 'languages/lua_tokenizer.dart';
@@ -28,6 +29,7 @@ class Highlighter {
   final _cTokenizer = CTokenizer();
   final _cssTokenizer = CssTokenizer();
   final _dartTokenizer = DartTokenizer();
+  final _goTokenizer = GoTokenizer();
   final _javascriptTokenizer = JavaScriptTokenizer();
   final _jsonTokenizer = JsonTokenizer();
   final _luaTokenizer = LuaTokenizer();
@@ -61,6 +63,7 @@ class Highlighter {
       'c' || 'h' => 'c',
       'css' => 'css',
       'dart' => 'dart',
+      'go' => 'go',
       'js' || 'mjs' || 'cjs' || 'jsx' => 'javascript',
       'lua' => 'lua',
       'md' || 'markdown' => 'markdown',
@@ -104,6 +107,7 @@ class Highlighter {
       'c' => _cTokenizer.tokenize(text, start, end),
       'css' => _cssTokenizer.tokenize(text, start, end),
       'dart' => _dartTokenizer.tokenize(text, start, end),
+      'go' => _goTokenizer.tokenize(text, start, end),
       'javascript' => _javascriptTokenizer.tokenize(text, start, end),
       'lua' => _luaTokenizer.tokenize(text, start, end),
       'markdown' => _markdownTokenizer.tokenize(text, start, end),

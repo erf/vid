@@ -73,6 +73,16 @@ class LspServerDefaults {
     projectMarkers: ['tsconfig.json', 'jsconfig.json', 'package.json'],
   );
 
+  /// Go language server configuration (gopls).
+  static const go = LspServerConfig(
+    name: 'gopls',
+    executable: 'gopls',
+    args: [],
+    extensions: {'go'},
+    languageIds: {'go'},
+    projectMarkers: ['go.mod', 'go.sum', 'go.work'],
+  );
+
   /// All default server configurations, keyed by identifier.
   static const Map<String, LspServerConfig> all = {
     'dart': dart,
@@ -80,6 +90,7 @@ class LspServerDefaults {
     'clangd': clangd,
     'swift': swift,
     'typescript': typescript,
+    'go': go,
   };
 
   /// Fallback language ID mappings for extensions without LSP config.

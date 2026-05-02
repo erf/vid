@@ -9,10 +9,10 @@ void main() {
       final config = LspConfig.withDefaults();
 
       expect(config.enabled, isTrue);
-      expect(config.servers, hasLength(5));
+      expect(config.servers, hasLength(6));
       expect(
         config.servers.keys,
-        containsAll(['dart', 'lua', 'clangd', 'swift', 'typescript']),
+        containsAll(['dart', 'lua', 'clangd', 'swift', 'typescript', 'go']),
       );
     });
 
@@ -44,7 +44,7 @@ servers: {}
 ''');
       expect(config.enabled, isFalse);
       // Should still have defaults merged in
-      expect(config.servers, hasLength(5));
+      expect(config.servers, hasLength(6));
     });
 
     test('parseConfig parses enabled true', () {
@@ -72,7 +72,7 @@ servers:
     languageIds: [rust]
     projectMarkers: [Cargo.toml]
 ''');
-      expect(config.servers, hasLength(6)); // 5 defaults + 1 custom
+      expect(config.servers, hasLength(7)); // 6 defaults + 1 custom
       expect(config.servers['rust'], isNotNull);
       expect(config.servers['rust']!.name, equals('rust-analyzer'));
       expect(config.servers['rust']!.extensions, contains('rs'));
@@ -83,7 +83,7 @@ servers:
 servers:
   lua: false
 ''');
-      expect(config.servers, hasLength(4)); // 5 defaults - 1 disabled
+      expect(config.servers, hasLength(5)); // 6 defaults - 1 disabled
       expect(config.servers['lua'], isNull);
       expect(config.servers['dart'], isNotNull);
     });
@@ -112,7 +112,7 @@ servers:
     test('parseConfig returns defaults for non-map yaml', () {
       final config = LspConfigLoader.parseConfig('just a string');
       expect(config.enabled, isTrue);
-      expect(config.servers, hasLength(5));
+      expect(config.servers, hasLength(6));
     });
   });
 
@@ -225,7 +225,7 @@ servers:
       );
       LspServerRegistry.initializeWith(customConfig);
 
-      expect(LspServerRegistry.all, hasLength(5));
+      expect(LspServerRegistry.all, hasLength(6));
     });
 
     test('enabled reflects config value', () {
