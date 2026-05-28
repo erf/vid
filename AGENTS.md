@@ -73,6 +73,6 @@ test('description', () {
 
 ## References
 
-- `ARCHITECTURE.md` — Technical architecture
+- `docs/ARCHITECTURE.md` — Technical architecture
 - `docs/LSP_FEATURE_PLAN.md` — LSP roadmap
 - `config.example.yaml` — Config options
