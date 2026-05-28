@@ -853,6 +853,7 @@ class Editor {
   /// then either moves the cursor (no operator) or applies the operator
   /// to the range.
   void commitEdit(EditOperation edit) {
+    final mode = file.mode;
     final motion = edit.motion;
     final op = edit.op;
     final linewise = motion.linewise;
@@ -864,11 +865,11 @@ class Editor {
     if (op != null) {
       // Apply operator with motion to all cursors (works for single and multi-cursor)
       _applyOperator(motion, edit.count, op, linewise);
-    } else if (file.mode == .visual || file.mode == .visualLine) {
+    } else if (mode == .visual || mode == .visualLine) {
       // Visual/visualLine with no operator: apply motion to all selection cursors,
       // preserving anchors.
       _applyMotionToSelections(motion, edit.count);
-    } else if ((file.mode == .normal || file.mode == .operatorPending) &&
+    } else if ((mode == .normal || mode == .operatorPending) &&
         file.hasMultipleCursors) {
       // Multi-cursor normal/operator-pending with no operator: apply motion to
       // all cursors, collapsing selections.
