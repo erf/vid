@@ -433,15 +433,10 @@ void main() {
       // The primary inserts at offset 4 ('X'); the other inserts at offset 1.
       // Without preservation, the result would sort by edit-start: insert@1
       // first, insert@4 second.
-      final sels = applyEditsWithCursors(
-        f,
-        e.config,
-        [
-          CursorEdit.atEnd(TextEdit.insert(4, 'X')),  // primary (input idx 0)
-          CursorEdit.atEnd(TextEdit.insert(1, 'Y')),  // input idx 1
-        ],
-        primaryEditIndex: 0,
-      );
+      final sels = applyEditsWithCursors(f, e.config, [
+        CursorEdit.atEnd(TextEdit.insert(4, 'X')), // primary (input idx 0)
+        CursorEdit.atEnd(TextEdit.insert(1, 'Y')), // input idx 1
+      ], primaryEditIndex: 0);
 
       expect(f.text, 'aYbcdXef\n');
       // Primary's cursor is just after 'X' at original 4 + Y's offset (1) + 1.

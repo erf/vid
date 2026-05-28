@@ -26,12 +26,7 @@ void _pasteAtCursors(
     );
   }
 
-  f.selections = applyEditsWithCursors(
-    f,
-    e.config,
-    items,
-    primaryEditIndex: 0,
-  );
+  f.selections = applyEditsWithCursors(f, e.config, items, primaryEditIndex: 0);
   f.clampCursor();
 }
 

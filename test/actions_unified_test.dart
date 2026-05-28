@@ -77,24 +77,26 @@ void main() {
   });
 
   group('Quit action', () {
-    test('Quit() with unsaved buffer shows error message and does not quit',
-        () {
-      final e = Editor(
-        terminal: TestTerminal(width: 80, height: 24),
-        redraw: false,
-      );
-      final f = e.file;
-      f.text = 'abc\n';
-      f.replaceAt(0, 'X', config: e.config); // mark modified
-      expect(f.modified, isTrue);
+    test(
+      'Quit() with unsaved buffer shows error message and does not quit',
+      () {
+        final e = Editor(
+          terminal: TestTerminal(width: 80, height: 24),
+          redraw: false,
+        );
+        final f = e.file;
+        f.text = 'abc\n';
+        f.replaceAt(0, 'X', config: e.config); // mark modified
+        expect(f.modified, isTrue);
 
-      // Calling Quit() (default check mode) should NOT exit; it shows error.
-      // We can't actually call e.quit() in tests (calls exit()), so just
-      // verify it doesn't throw and the message is set.
-      const Quit()(e, f);
-      expect(e.message, isNotNull);
-      expect(e.message!.text, contains('unsaved'));
-    });
+        // Calling Quit() (default check mode) should NOT exit; it shows error.
+        // We can't actually call e.quit() in tests (calls exit()), so just
+        // verify it doesn't throw and the message is set.
+        const Quit()(e, f);
+        expect(e.message, isNotNull);
+        expect(e.message!.text, contains('unsaved'));
+      },
+    );
   });
 
   group('LineEditExecuteSearch', () {

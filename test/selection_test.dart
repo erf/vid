@@ -2094,7 +2094,11 @@ void main() {
 
   group('moveToFront', () {
     test('moves selection with matching cursor to front', () {
-      final list = [Selection.collapsed(0), Selection.collapsed(10), Selection.collapsed(20)];
+      final list = [
+        Selection.collapsed(0),
+        Selection.collapsed(10),
+        Selection.collapsed(20),
+      ];
       moveToFront(list, 20);
       expect(list[0].cursor, 20);
       expect(list.length, 3);
@@ -2151,10 +2155,7 @@ void main() {
     });
 
     test('first wins on ties', () {
-      final list = [
-        Selection.collapsed(0),
-        Selection.collapsed(20),
-      ];
+      final list = [Selection.collapsed(0), Selection.collapsed(20)];
       // Equidistant from 10
       promoteClosest(list, 10);
       // index 0 already at front, distance 10; index 1 also distance 10.

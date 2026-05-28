@@ -93,7 +93,11 @@ class InsertActions {
         unchanged.add(Selection.collapsed(sel.cursor));
         continue;
       }
-      items.add(CursorEdit.atStart(TextEdit.delete(f.prevGrapheme(sel.cursor), sel.cursor)));
+      items.add(
+        CursorEdit.atStart(
+          TextEdit.delete(f.prevGrapheme(sel.cursor), sel.cursor),
+        ),
+      );
     }
 
     if (items.isEmpty) return;

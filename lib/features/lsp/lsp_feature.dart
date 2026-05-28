@@ -136,8 +136,7 @@ class LspFeature extends Feature {
   void clearSemanticTokens(String uri) => _semanticTokensCache.clear(uri);
 
   /// Get diagnostics for a file.
-  List<LspDiagnostic> getDiagnostics(String? uri) =>
-      _diagnosticsCache.get(uri);
+  List<LspDiagnostic> getDiagnostics(String? uri) => _diagnosticsCache.get(uri);
 
   /// Get lines that have code actions available.
   Set<int> getLinesWithCodeActions(String? uri) =>

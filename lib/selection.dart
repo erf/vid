@@ -214,9 +214,7 @@ List<Selection> _collapseRanges(
   promoteIndex(newSelections, mainIndex);
   // Capture the (post-promotion, pre-merge) main cursor so we can restore
   // primacy after merge potentially re-sorts.
-  final mainCursor = newSelections.isNotEmpty
-      ? newSelections.first.cursor
-      : 0;
+  final mainCursor = newSelections.isNotEmpty ? newSelections.first.cursor : 0;
 
   final merged = mergeSelections(newSelections);
   promoteByCursor(merged, mainCursor);

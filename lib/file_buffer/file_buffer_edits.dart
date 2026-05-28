@@ -164,10 +164,10 @@ List<Selection> applyEditsWithCursors(
   // sorting reorders things.
   final CursorEdit? primaryItem =
       (primaryEditIndex != null &&
-              primaryEditIndex >= 0 &&
-              primaryEditIndex < items.length)
-          ? items[primaryEditIndex]
-          : null;
+          primaryEditIndex >= 0 &&
+          primaryEditIndex < items.length)
+      ? items[primaryEditIndex]
+      : null;
 
   // Sort ascending by edit start; ties broken by original order (stable).
   final sorted = items.toList()
