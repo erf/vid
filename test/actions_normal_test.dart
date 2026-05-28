@@ -184,10 +184,7 @@ void main() {
     final f = e.file;
     f.text = 'aB cD\n';
     // Two collapsed cursors at offsets 0 and 3.
-    f.selections = [
-      Selection.collapsed(0),
-      Selection.collapsed(3),
-    ];
+    f.selections = [Selection.collapsed(0), Selection.collapsed(3)];
 
     e.input('~');
 
@@ -196,21 +193,24 @@ void main() {
     expect(f.selections.map((s) => s.cursor).toList(), [1, 4]);
   });
 
-  test('toggleCaseUnderCursor ~ stops at line end without crossing newline', () {
-    final e = Editor(
-      terminal: TestTerminal(width: 80, height: 24),
-      redraw: false,
-    );
-    final f = e.file;
-    f.text = 'aB\nXy\n';
-    f.cursor = 1; // on 'B'
+  test(
+    'toggleCaseUnderCursor ~ stops at line end without crossing newline',
+    () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'aB\nXy\n';
+      f.cursor = 1; // on 'B'
 
-    // 5~ would normally toggle 5 chars but should stop at '\n'.
-    e.input('5~');
+      // 5~ would normally toggle 5 chars but should stop at '\n'.
+      e.input('5~');
 
-    expect(f.text, 'ab\nXy\n');
-    expect(f.cursor, 2); // at the '\n' position
-  });
+      expect(f.text, 'ab\nXy\n');
+      expect(f.cursor, 2); // at the '\n' position
+    },
+  );
 
   test('cursorLineBottomOrCount G', () {
     final e = Editor(
@@ -753,7 +753,7 @@ void main() {
 
   group('viewport positioning (zz, zt, zb)', () {
     String manyLines(int count) =>
-        List.generate(count, (i) => 'line$i').join('\n') + '\n';
+        '${List.generate(count, (i) => 'line$i').join('\n')}\n';
 
     test('zz centers viewport on cursor line', () {
       final e = Editor(

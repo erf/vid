@@ -66,7 +66,7 @@ class LspProtocol {
   void didSave(String uri, {String? text}) {
     client.sendNotification('textDocument/didSave', {
       'textDocument': {'uri': uri},
-      if (text != null) 'text': text,
+      'text': ?text,
     });
   }
 
@@ -622,7 +622,7 @@ class LspProtocol {
   Future<void> executeCommand(String command, List<dynamic>? arguments) async {
     final result = await client.sendRequest('workspace/executeCommand', {
       'command': command,
-      if (arguments != null) 'arguments': arguments,
+      'arguments': ?arguments,
     });
 
     if (result != null && result.containsKey('error')) {

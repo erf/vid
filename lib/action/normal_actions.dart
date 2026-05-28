@@ -152,7 +152,7 @@ class OpenLineAbove extends Action {
           : '';
       final lineStart = f.lineStart(sel.cursor);
       // Cursor lands at end of indent (just before the inserted newline).
-      items.add(CursorEdit.atEnd(TextEdit.insert(lineStart, indent + '\n'), -1));
+      items.add(CursorEdit.atEnd(TextEdit.insert(lineStart, '$indent\n'), -1));
     }
     f.selections = applyEditsWithCursors(
       f,
@@ -177,7 +177,7 @@ class OpenLineBelow extends Action {
           : '';
       final lineEnd = f.lineEnd(sel.cursor);
       // Cursor lands at end of inserted text (after newline + indent).
-      items.add(CursorEdit.atEnd(TextEdit.insert(lineEnd, '\n' + indent)));
+      items.add(CursorEdit.atEnd(TextEdit.insert(lineEnd, '\n$indent')));
     }
     f.selections = applyEditsWithCursors(
       f,

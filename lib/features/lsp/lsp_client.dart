@@ -186,7 +186,7 @@ class LspClient {
       'jsonrpc': '2.0',
       'id': id,
       'method': method,
-      if (params != null) 'params': params,
+      'params': ?params,
     };
 
     final completer = Completer<Map<String, dynamic>>();
@@ -215,7 +215,7 @@ class LspClient {
     final notification = {
       'jsonrpc': '2.0',
       'method': method,
-      if (params != null) 'params': params,
+      'params': ?params,
     };
 
     _send(notification);
