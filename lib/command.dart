@@ -185,18 +185,15 @@ class TextObjectCommand extends Command {
       ranges.add(Selection(norm.start, norm.end));
     }
 
-    // If no valid ranges found, cancel
-    if (ranges.isEmpty) {
+    // Sort ranges, resolve main cursor index, and dispatch to the operator.
+    // If no valid ranges found, cancel instead.
+    final applied = applyOperatorToRanges(e, f, op, ranges, linewise: false);
+    if (!applied) {
       f.setMode(e, .normal);
       f.edit.reset();
       return;
     }
 
-    ranges.sort((a, b) => a.start.compareTo(b.start));
-    final mainIndex = findMainIndex(ranges, f.selections.first.cursor);
-
-    // Execute the operator on the ranges
-    op.applyToRanges(e, f, ranges, mainIndex, linewise: false);
     f.edit.reset();
   }
 }

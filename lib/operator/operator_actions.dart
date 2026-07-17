@@ -22,6 +22,29 @@ void yankRanges(
   e.terminal.write(Ansi.copyToClipboard(e.yankBuffer!.text));
 }
 
+/// Sort [ranges] by start position, resolve the main cursor's index relative
+/// to [primaryCursor], and dispatch to [op.applyToRanges].
+///
+/// This is the shared tail used by every path that resolves ranges (motion +
+/// operator, visual selections, text objects) before executing an operator.
+/// Returns `false` without dispatching if [ranges] is empty, so callers can
+/// fall back to their own "nothing to operate on" handling.
+bool applyOperatorToRanges(
+  Editor e,
+  FileBuffer f,
+  OperatorAction op,
+  List<Selection> ranges, {
+  bool linewise = false,
+}) {
+  if (ranges.isEmpty) return false;
+
+  final sorted = ranges.sortedByStart();
+  final primaryCursor = f.selections.first.cursor;
+  final mainIndex = findMainIndex(sorted, primaryCursor);
+  op.applyToRanges(e, f, sorted, mainIndex, linewise: linewise);
+  return true;
+}
+
 /// Utility class for operator-related helper functions.
 class OperatorActions {
   /// Check if there are visual selections and apply operator to them.
@@ -44,13 +67,9 @@ class OperatorActions {
     }
 
     final ranges = getVisualRanges(f, isVisualLineMode);
-    if (ranges.isEmpty) return false;
-
-    final mainIndex = findMainIndex(ranges, f.selections.first.cursor);
     final isLinewise = linewise || isVisualLineMode;
 
-    op.fn.applyToRanges(e, f, ranges, mainIndex, linewise: isLinewise);
-    return true;
+    return applyOperatorToRanges(e, f, op.fn, ranges, linewise: isLinewise);
   }
 
   /// Get the ranges to operate on, sorted by position.

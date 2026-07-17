@@ -18,6 +18,7 @@ import 'popup/popup.dart';
 import 'popup/popup_renderer.dart';
 import 'renderer.dart';
 import 'selection.dart';
+import 'operator/operator_actions.dart';
 import 'operator/operator_base.dart';
 import 'yank_buffer.dart';
 
@@ -966,12 +967,8 @@ class Editor {
       ranges.add(Selection(range.start, range.end));
     }
 
-    // Sort by position and find main cursor index
-    ranges.sort((a, b) => a.start.compareTo(b.start));
-    final mainIndex = findMainIndex(ranges, file.selections.first.cursor);
-
-    // Delegate to unified operator implementation
-    op.applyToRanges(this, file, ranges, mainIndex, linewise: linewise);
+    // Sort ranges, resolve main cursor index, and dispatch to the operator.
+    applyOperatorToRanges(this, file, op, ranges, linewise: linewise);
   }
 
   /// Expand range to include full lines (for linewise operations).
