@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:termio/termio.dart';
 
 import 'bracketed_paste.dart';
+import 'buffer_manager.dart';
 import 'edit_operation.dart';
 import 'features/cursor_position/cursor_position_feature.dart';
 import 'features/feature_registry.dart';
@@ -42,8 +43,7 @@ class Editor {
   final bool redraw;
   final String workingDirectory = Directory.current.path;
 
-  final List<FileBuffer> _buffers = [];
-  int _currentBufferIndex = 0;
+  late final BufferManager _bufferManager;
   YankBuffer? yankBuffer; // Shared across all buffers
   Message? message;
   Timer? _messageTimer;
@@ -77,22 +77,21 @@ class Editor {
   /// Jump list for Ctrl-o / Ctrl-i navigation.
   final JumpList jumpList = JumpList();
 
-  // Getters and setters
+  // Buffer accessors — delegated to the BufferManager.
   //
-  // Invariant: `_buffers` is never empty during normal operation. The
-  // constructor seeds it with one buffer, and the only path that drains it is
-  // `closeBuffer` which calls `quit()` (which exits the process) before
-  // returning. Accessing `file` when buffers is empty would be a programming
-  // error and intentionally throws.
-  FileBuffer get file => _buffers[_currentBufferIndex];
+  // Invariant: buffers are never empty during normal operation. The
+  // constructor seeds one buffer, and the only path that drains it is
+  // `closeBuffer` which quits (exits the process) before returning.
+  // Accessing `file` when empty would be a programming error and throws.
+  FileBuffer get file => _bufferManager.current;
 
   set file(FileBuffer buffer) {
-    _buffers[_currentBufferIndex] = buffer;
+    _bufferManager.current = buffer;
   }
 
-  List<FileBuffer> get buffers => _buffers; // Expose for features
-  int get bufferCount => _buffers.length;
-  int get currentBufferIndex => _currentBufferIndex;
+  List<FileBuffer> get buffers => _bufferManager.buffers; // Expose for features
+  int get bufferCount => _bufferManager.count;
+  int get currentBufferIndex => _bufferManager.currentIndex;
 
   Editor({
     required this.terminal,
@@ -101,20 +100,31 @@ class Editor {
   }) {
     _highlighter = Highlighter(themeType: config.syntaxTheme);
     renderer = Renderer(terminal: terminal, highlighter: _highlighter);
-    _addBuffer(
+    _bufferManager = BufferManager(
+      workingDirectory: workingDirectory,
+      onAttach: _attachBuffer,
+      onActivated: _onBufferActivated,
+      onBufferSwitch: (oldBuffer, newBuffer) =>
+          featureRegistry?.notifyBufferSwitch(oldBuffer, newBuffer),
+      onOpened: (buffer) => featureRegistry?.notifyFileOpen(buffer),
+      onClosing: (buffer) => featureRegistry?.notifyBufferClose(buffer),
+      onEmpty: quit,
+    );
+    _bufferManager.add(
       FileBuffer(cwd: workingDirectory),
     ); // Start with one empty buffer
   }
 
-  void _addBufferListener(FileBuffer buffer) {
+  /// Called when the active buffer changes: update title and redraw.
+  void _onBufferActivated(FileBuffer buffer) {
+    terminal.write(Ansi.setTitle('vid ${buffer.path ?? '[No Name]'}'));
+    draw();
+  }
+
+  void _attachBuffer(FileBuffer buffer) {
     buffer.addListener((buf, start, end, newText, oldText) {
       featureRegistry?.notifyTextChange(buf, start, end, newText, oldText);
     });
-  }
-
-  void _addBuffer(FileBuffer buffer) {
-    _addBufferListener(buffer);
-    _buffers.add(buffer);
   }
 
   /// Initialize the editor with command-line arguments.
@@ -185,10 +195,9 @@ class Editor {
       if (result.hasError) return ErrorOr.error(result.error!);
       final buffer = result.value!;
       if (i == 0) {
-        _buffers[0] = buffer;
-        _addBufferListener(buffer);
+        _bufferManager.replace(0, buffer);
       } else {
-        _addBuffer(buffer);
+        _bufferManager.add(buffer);
       }
     }
     return ErrorOr.value(null);
@@ -201,7 +210,7 @@ class Editor {
     ]);
     featureRegistry?.notifyInit();
 
-    for (final buffer in _buffers) {
+    for (final buffer in buffers) {
       featureRegistry?.notifyFileOpen(buffer);
     }
   }
@@ -210,120 +219,48 @@ class Editor {
     for (int i = 0; i < fileArgs.length; i++) {
       final lineArg = fileArgs[i].lineArg;
       if (lineArg != null) {
-        _buffers[i].parseCliArgs([fileArgs[i].path, lineArg]);
+        buffers[i].parseCliArgs([fileArgs[i].path, lineArg]);
       }
     }
   }
 
   ErrorOr<FileBuffer> loadFile(String path, {bool switchTo = true}) {
-    // Check if file is already open
-    final existingIndex = _buffers.indexWhere(
-      (b) =>
-          b.absolutePath != null &&
-          b.absolutePath == FileBufferIo.toAbsolutePath(path),
-    );
-    if (existingIndex != -1) {
-      if (switchTo) switchBuffer(existingIndex);
-      return ErrorOr.value(_buffers[existingIndex]);
-    }
-
-    final result = FileBuffer.load(
-      path,
-      createIfNotExists: false,
-      cwd: workingDirectory,
-    );
-    if (result.hasError) {
-      return result;
-    }
-    final buffer = result.value!;
-
-    // Replace untouched buffer instead of adding a new one (vim behavior)
-    if (file.isUntouched) {
-      _buffers[_currentBufferIndex] = buffer;
-      _addBufferListener(buffer);
-    } else {
-      _addBuffer(buffer);
-      if (switchTo) {
-        _currentBufferIndex = _buffers.length - 1;
-      }
-    }
-
-    if (switchTo) {
-      terminal.write(Ansi.setTitle('vid $path'));
-      draw();
-    }
-    featureRegistry?.notifyFileOpen(buffer);
-    return result;
+    return _bufferManager.load(path, switchTo: switchTo);
   }
 
   /// Switch to buffer at given index
   void switchBuffer(int index) {
-    if (index < 0 || index >= _buffers.length) return;
-    final oldBuffer = file;
-    _currentBufferIndex = index;
-    terminal.write(Ansi.setTitle('vid ${file.path ?? "[No Name]"}'));
-    featureRegistry?.notifyBufferSwitch(oldBuffer, file);
-    draw();
+    _bufferManager.switchToBuffer(index);
   }
 
   /// Switch to next buffer
   void nextBuffer() {
-    if (_buffers.length <= 1) return;
-    switchBuffer((_currentBufferIndex + 1) % _buffers.length);
+    _bufferManager.next();
   }
 
   /// Switch to previous buffer
   void prevBuffer() {
-    if (_buffers.length <= 1) return;
-    switchBuffer((_currentBufferIndex - 1 + _buffers.length) % _buffers.length);
+    _bufferManager.prev();
   }
 
   /// Close buffer at given index, returns true if closed
   bool closeBuffer(int index, {bool force = false}) {
-    if (index < 0 || index >= _buffers.length) return false;
-    final buffer = _buffers[index];
-
-    if (!force && buffer.modified) {
+    if (index < 0 || index >= _bufferManager.count) return false;
+    if (!force && _bufferManager.buffers[index].modified) {
       showMessage(.error('Buffer has unsaved changes (use :bd! to force)'));
       return false;
     }
-
-    featureRegistry?.notifyBufferClose(buffer);
-    _buffers.removeAt(index);
-
-    if (_buffers.isEmpty) {
-      // Last buffer closed, quit editor
-      quit();
-      return true;
-    }
-
-    // Adjust current index if needed
-    if (_currentBufferIndex >= _buffers.length) {
-      _currentBufferIndex = _buffers.length - 1;
-    } else if (_currentBufferIndex > index) {
-      _currentBufferIndex--;
-    }
-
-    terminal.write(Ansi.setTitle('vid ${file.path ?? "[No Name]"}'));
-    draw();
-    return true;
+    return _bufferManager.close(index, force: force);
   }
 
   /// Check if any buffer has unsaved changes
-  bool get hasUnsavedChanges => _buffers.any((b) => b.modified);
+  bool get hasUnsavedChanges => _bufferManager.hasUnsavedChanges;
 
   /// Get count of buffers with unsaved changes
-  int get unsavedBufferCount => _buffers.where((b) => b.modified).length;
+  int get unsavedBufferCount => _bufferManager.unsavedCount;
 
   /// Get list of buffer info for display
-  List<String> get bufferList => _buffers.asMap().entries.map((e) {
-    final idx = e.key;
-    final buf = e.value;
-    final current = idx == _currentBufferIndex ? '%' : ' ';
-    final modified = buf.modified ? '+' : ' ';
-    final name = buf.relativePath ?? '[No Name]';
-    return '${idx + 1}$current$modified "$name"';
-  }).toList();
+  List<String> get bufferList => _bufferManager.list;
 
   void _initTerminal(String? path) {
     terminal.rawMode = true;
@@ -431,8 +368,8 @@ class Editor {
       file: file,
       config: config,
       message: message,
-      bufferIndex: _currentBufferIndex,
-      bufferCount: _buffers.length,
+      bufferIndex: currentBufferIndex,
+      bufferCount: bufferCount,
       popup: popup,
       diagnosticCount: diagnosticCount,
       semanticTokens: semanticTokens,
