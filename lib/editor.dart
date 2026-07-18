@@ -6,6 +6,7 @@ import 'package:termio/termio.dart';
 
 import 'bracketed_paste.dart';
 import 'buffer_manager.dart';
+import 'cli_args.dart';
 import 'edit_operation.dart';
 import 'features/cursor_position/cursor_position_feature.dart';
 import 'features/feature_registry.dart';
@@ -133,8 +134,8 @@ class Editor {
   /// loaded. On success the editor is fully initialized and the first frame
   /// has been drawn.
   ErrorOr<void> init(List<String> args) {
-    final List<_FileArg> fileArgs = _parseArgs(args);
-    final String? directoryArg = _getDirectoryArg(args);
+    final parsed = CliArgs.parse(args);
+    final fileArgs = parsed.files;
 
     if (fileArgs.isNotEmpty) {
       final loadResult = _loadInitialFiles(fileArgs);
@@ -146,46 +147,13 @@ class Editor {
 
     draw();
 
-    if (directoryArg != null) {
-      FileBrowser.show(this, directoryArg);
+    if (parsed.directory != null) {
+      FileBrowser.show(this, parsed.directory!);
     }
     return ErrorOr.value(null);
   }
 
-  List<_FileArg> _parseArgs(List<String> args) {
-    final files = <_FileArg>[];
-    String? pendingPath;
-
-    for (final arg in args) {
-      if (arg.startsWith('+')) {
-        if (pendingPath != null) {
-          files.add(_FileArg(pendingPath, arg));
-          pendingPath = null;
-        }
-      } else {
-        if (Directory(arg).existsSync()) continue;
-        if (pendingPath != null) {
-          files.add(_FileArg(pendingPath, null));
-        }
-        pendingPath = arg;
-      }
-    }
-    if (pendingPath != null) {
-      files.add(_FileArg(pendingPath, null));
-    }
-    return files;
-  }
-
-  String? _getDirectoryArg(List<String> args) {
-    for (final arg in args) {
-      if (!arg.startsWith('+') && Directory(arg).existsSync()) {
-        return arg;
-      }
-    }
-    return null;
-  }
-
-  ErrorOr<void> _loadInitialFiles(List<_FileArg> fileArgs) {
+  ErrorOr<void> _loadInitialFiles(List<CliFileArg> fileArgs) {
     for (int i = 0; i < fileArgs.length; i++) {
       final result = FileBuffer.load(
         fileArgs[i].path,
@@ -215,7 +183,7 @@ class Editor {
     }
   }
 
-  void _applyLineArgs(List<_FileArg> fileArgs) {
+  void _applyLineArgs(List<CliFileArg> fileArgs) {
     for (int i = 0; i < fileArgs.length; i++) {
       final lineArg = fileArgs[i].lineArg;
       if (lineArg != null) {
@@ -728,12 +696,4 @@ class Editor {
     file.clampCursor();
     file.centerViewport(terminal);
   }
-}
-
-/// A parsed file argument from the command line.
-class _FileArg {
-  final String path;
-  final String? lineArg;
-
-  const _FileArg(this.path, this.lineArg);
 }
