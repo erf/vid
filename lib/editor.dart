@@ -379,7 +379,6 @@ class Editor {
     config = config.copyWith(syntaxHighlighting: !config.syntaxHighlighting);
     final status = config.syntaxHighlighting ? 'enabled' : 'disabled';
     showMessage(.info('Syntax highlighting $status'));
-    draw();
   }
 
   void cycleTheme() {
@@ -387,7 +386,6 @@ class Editor {
         .values[(config.syntaxTheme.index + 1) % ThemeType.values.length];
     setTheme(nextTheme);
     showMessage(.info('Theme: ${nextTheme.theme.name}'));
-    draw();
   }
 
   void setTheme(ThemeType theme) {
@@ -397,7 +395,6 @@ class Editor {
 
   void onResize(ProcessSignal signal) {
     showMessage(.info('${terminal.width}x${terminal.height}'));
-    draw();
   }
 
   void onSigint(ProcessSignal event) {
