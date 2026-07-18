@@ -16,7 +16,6 @@ import 'input_state.dart';
 import 'motion/motion_type.dart';
 import 'popup/file_browser.dart';
 import 'popup/popup.dart';
-import 'popup/popup_renderer.dart';
 import 'renderer.dart';
 import 'selection.dart';
 import 'operator/operator_actions.dart';
@@ -33,6 +32,7 @@ import 'highlighting/highlighter.dart';
 import 'message.dart';
 import 'modes.dart';
 import 'motion/motion.dart';
+import 'mouse_handler.dart';
 import 'range.dart';
 
 class Editor {
@@ -70,6 +70,9 @@ class Editor {
 
   /// Bracketed paste state machine (buffers paste content across chunks).
   final BracketedPasteHandler _pasteHandler = BracketedPasteHandler();
+
+  /// Routes mouse events (clicks and scroll).
+  final MouseHandler _mouseHandler = MouseHandler();
 
   /// Jump list for Ctrl-o / Ctrl-i navigation.
   final JumpList jumpList = JumpList();
@@ -580,145 +583,9 @@ class Editor {
     }
   }
 
-  /// Clamp cursor to top/bottom of viewport if it goes off-screen
-  void _clampCursorToViewport() {
-    final viewportLine = file.lineNumber(file.viewport);
-    final cursorLine = file.lineNumber(file.cursor);
-    final visibleLines = terminal.height - 1; // Account for status line
-
-    if (cursorLine < viewportLine) {
-      // Cursor above viewport - move to first visible line
-      file.cursor = file.lineOffset(viewportLine);
-      file.clampCursor();
-    } else if (cursorLine >= viewportLine + visibleLines) {
-      // Cursor below viewport - move to last visible line
-      final lastVisibleLine = (viewportLine + visibleLines - 1).clamp(
-        0,
-        file.totalLines - 1,
-      );
-      file.cursor = file.lineOffset(lastVisibleLine);
-      file.clampCursor();
-    }
-  }
-
   /// Handle mouse events (clicks and scroll)
   void _handleMouseEvent(MouseEvent mouse) {
-    if (mouse.isScroll) {
-      _handleMouseScroll(mouse);
-    } else if (mouse.isPress && mouse.button == MouseButton.left) {
-      _handleMouseClick(mouse);
-    }
-    // Ignore other events (release, right-click, etc.)
-  }
-
-  /// Handle scroll wheel via mouse event
-  void _handleMouseScroll(MouseEvent mouse) {
-    // Only handle vertical scroll events
-    final dir = mouse.scrollDirection;
-    if (dir != ScrollDirection.up && dir != ScrollDirection.down) return;
-
-    // Handle popup scroll if popup is open
-    if (popup != null && file.mode == Mode.popup) {
-      _handlePopupScroll(dir!);
-      return;
-    }
-
-    final visibleLines = terminal.height - 1;
-
-    // Don't scroll if all content fits in viewport
-    if (file.totalLines <= visibleLines) return;
-
-    final scrollLines = config.scrollLines;
-    final scrollPadding = config.scrollPadding;
-    final currentLine = file.lineNumber(file.viewport);
-    final delta = dir == ScrollDirection.up ? -scrollLines : scrollLines;
-    // Max viewport line: last line at bottom of screen + padding
-    final maxViewportLine = file.totalLines - visibleLines + scrollPadding;
-    final targetLine = (currentLine + delta).clamp(0, maxViewportLine);
-    file.viewport = file.lineOffset(targetLine);
-    _clampCursorToViewport();
-    if (redraw) draw();
-  }
-
-  /// Handle left-click to set cursor position
-  void _handleMouseClick(MouseEvent mouse) {
-    // mouse.x and mouse.y are 1-based screen coordinates
-    final screenRow = mouse.y - 1; // Convert to 0-based
-    final screenCol = mouse.x - 1;
-
-    // Check for popup click first
-    if (popup != null && file.mode == .popup) {
-      _handlePopupClick(mouse.x, mouse.y);
-      return;
-    }
-
-    // Don't handle clicks on status line
-    if (screenRow >= terminal.height - 1) return;
-
-    // Ignore clicks in the gutter area
-    if (screenCol < renderer.gutterWidth) return;
-
-    // Adjust for gutter width
-    final contentCol = screenCol - renderer.gutterWidth;
-
-    // Use the screen row map populated by the renderer
-    if (screenRow >= renderer.screenRowMap.length) return;
-
-    final rowInfo = renderer.screenRowMap[screenRow];
-
-    // Ignore clicks on ~ lines (past end of file)
-    if (rowInfo.lineNum < 0) return;
-
-    // contentCol + wrapCol gives the position within the full line
-    file.cursor = file.screenColToOffset(
-      rowInfo.lineNum,
-      rowInfo.wrapCol + contentCol,
-      config.tabWidth,
-    );
-    file.clampCursor();
-
-    if (redraw) draw();
-  }
-
-  /// Handle click on popup menu
-  void _handlePopupClick(int x, int y) {
-    if (popup == null) return;
-
-    final hit = renderer.popupRenderer.hitTest(x, y);
-    switch (hit) {
-      case PopupHitOutside():
-        // Click outside popup - cancel
-        popup!.onCancel?.call();
-      case PopupHitInside():
-        // Click inside popup but not on an item (header/filter/empty row)
-        break;
-      case PopupHitItem(:final itemIndex):
-        if (itemIndex < popup!.items.length) {
-          // Update selection and select the item
-          popup = popup!.copyWith(selectedIndex: itemIndex);
-          draw();
-
-          // Use invokeSelect for type-safe callback invocation
-          popup!.invokeSelect();
-        }
-    }
-  }
-
-  /// Handle scroll wheel in popup menu
-  void _handlePopupScroll(ScrollDirection dir) {
-    if (popup == null) return;
-
-    final scrollLines = config.scrollLines;
-    final delta = dir == ScrollDirection.up ? -scrollLines : scrollLines;
-
-    final oldIndex = popup!.selectedIndex;
-    popup = popup!.scrollViewport(delta);
-
-    if (popup!.selectedIndex != oldIndex) {
-      notifyPopupHighlight();
-    }
-
-    if (redraw) draw();
+    _mouseHandler.handle(this, mouse);
   }
 
   // match input against key bindings for executing commands
