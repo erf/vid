@@ -12,6 +12,54 @@ import 'popup/popup_renderer.dart';
 import 'status_bar.dart';
 import 'string_ext.dart';
 
+/// Map a render-column window `[startCol, endCol)` over the tab-expanded form
+/// of [original] back to the raw text.
+///
+/// Returns the byte offset where the window starts and the raw substring whose
+/// tab-expansion fills the window. Tabs count as [tabWidth] columns; wide
+/// chars (CJK, emoji) count as their terminal width; never splits a grapheme
+/// cluster. A wide char straddling either edge is excluded (visibleLine
+/// renders a left-edge straddler as a padding space and drops a right-edge
+/// one), so byte ranges line up with what is actually drawn.
+({int byteOffset, String slice}) _renderedToOriginalSlice(
+  String original,
+  int startCol,
+  int endCol,
+  int tabWidth,
+) {
+  int col = 0;
+  int byteOffset = 0;
+  bool straddle = false;
+
+  // Find the byte offset of the first cluster whose cell range reaches
+  // startCol. A wide char straddling the boundary is left out (padding).
+  for (final char in original.characters) {
+    if (col >= startCol) break;
+    final w = char == '\t' ? tabWidth : char.charWidth(tabWidth);
+    if (col + w > startCol) {
+      straddle = true;
+      break; // do not consume: it renders as a padding space, not raw text
+    }
+    col += w;
+    byteOffset += char.length;
+  }
+
+  // Collect clusters until endCol is covered, starting at byteOffset.
+  final buf = StringBuffer();
+  int cur = straddle ? startCol : col;
+  for (final char in original.substring(byteOffset).characters) {
+    if (cur >= endCol) break;
+    final w = char == '\t' ? tabWidth : char.charWidth(tabWidth);
+    // A wide char straddling the right edge is dropped by visibleLine;
+    // exclude it from the slice so byte ranges line up.
+    if (cur + w > endCol && cur >= startCol) break;
+    buf.write(char);
+    cur += w;
+  }
+
+  return (byteOffset: byteOffset, slice: buf.toString());
+}
+
 /// Result of layout pass for a line
 class RenderLineResult {
   final int screenRow;
@@ -738,19 +786,16 @@ class Renderer {
 
     if (rendered.isNotEmpty) {
       final visible = rendered.visibleLine(viewportCol, contentWidth);
+      // Map the visible render-column window back to the original (raw) text
+      // so the highlighter can resolve tokens/selections by byte offset.
+      final endCol = viewportCol + visible.renderLength(tabWidth);
+      final (:byteOffset, slice: originalSlice) = _renderedToOriginalSlice(
+        original,
+        viewportCol,
+        endCol,
+        tabWidth,
+      );
       if (syntaxHighlighting) {
-        // Map viewportCol in rendered string to byte offset in original
-        final byteOffset = original.renderedToOriginalOffset(
-          viewportCol,
-          tabWidth,
-        );
-        // Get the original text slice corresponding to visible
-        final visibleLen = visible.length;
-        final originalSlice = original.originalSlice(
-          viewportCol,
-          visibleLen,
-          tabWidth,
-        );
         highlighter.style(
           buffer,
           originalSlice,
@@ -764,8 +809,8 @@ class Renderer {
         if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
           highlighter.style(
             buffer,
-            visible,
-            lineStartByte,
+            originalSlice,
+            lineStartByte + byteOffset,
             tabWidth: tabWidth,
             selectionRanges: selectionRanges,
             secondaryCursorRanges: secondaryCursorRanges,
@@ -902,37 +947,16 @@ class Renderer {
     if (syntaxHighlighting ||
         selectionRanges.isNotEmpty ||
         secondaryCursorRanges.isNotEmpty) {
-      // Locate the chunk in the original string by walking render columns.
-      // Wide chars skipped count fully, except one straddling the wrap
-      // boundary (rendered as a padding space by visibleLine) counts half.
-      int col = 0;
-      int byteOffset = 0;
-      bool straddle = false;
-      for (final char in original.characters) {
-        if (col >= wrapCol) break;
-        final w = char.charWidth(tabWidth);
-        if (col + w > wrapCol) {
-          straddle = true;
-          col = wrapCol;
-        } else {
-          col += w;
-        }
-        byteOffset += char.length;
-      }
-      // The chunk's original text starts at byteOffset. A straddling char is
-      // rendered as a padding space and not part of the chunk; drop the space
-      // from the width to cover.
-      final widthToCover = chunk.renderLength(tabWidth) - (straddle ? 1 : 0);
-      int byteLen = 0;
-      int cols = 0;
-      for (final char in original.substring(byteOffset).characters) {
-        if (cols >= widthToCover) break;
-        cols += char.charWidth(tabWidth);
-        byteLen += char.length;
-      }
-      final originalSlice = original.substring(
-        byteOffset,
-        (byteOffset + byteLen).clamp(0, original.length),
+      // Map the chunk's render-column window back to the original (raw) text.
+      // The window end is wrapCol + the chunk's rendered width, which covers
+      // exactly the graphemes visibleLine emitted (right-edge straddlers are
+      // dropped identically by both).
+      final chunkWidth = chunk.renderLength(tabWidth);
+      final (:byteOffset, slice: originalSlice) = _renderedToOriginalSlice(
+        original,
+        wrapCol,
+        wrapCol + chunkWidth,
+        tabWidth,
       );
 
       if (syntaxHighlighting) {
@@ -948,7 +972,7 @@ class Renderer {
         // No syntax highlighting but may have selections
         highlighter.style(
           buffer,
-          chunk,
+          originalSlice,
           lineStartByte + byteOffset,
           tabWidth: tabWidth,
           selectionRanges: selectionRanges,

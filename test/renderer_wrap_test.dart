@@ -119,4 +119,40 @@ void main() {
       }
     });
   });
+
+  group('no-wrap rendering (renderedToOriginalSlice)', () {
+    const config = Config(
+      wrapMode: WrapMode.none,
+      syntaxHighlighting: false,
+      showLineNumbers: false,
+      showDiagnosticSigns: false,
+    );
+
+    test('wide chars render at full width within content columns', () {
+      // 😀(2)+abcd(4)=6 cols fits width 6 with no newline symbol space needed.
+      const line = '😀abcd';
+      final e = editorWith(config, '$line\n', width: 6);
+      final rows = drawRows(e);
+      expect(rows[0], '😀abcd');
+      expect(rows[0].renderLength(), 6);
+    });
+
+    test('tab expands to tabWidth columns', () {
+      // \t(4)+xy(2)=6 cols at default tabWidth 4.
+      const line = '\txy';
+      final e = editorWith(config, '$line\n', width: 6);
+      final rows = drawRows(e);
+      expect(rows[0], '    xy');
+      expect(rows[0].renderLength(), 6);
+    });
+
+    test('CJK and ASCII mix keeps columns aligned', () {
+      // 你(2)好(2)a(1)b(1)=6 cols.
+      const line = '你好ab';
+      final e = editorWith(config, '$line\n', width: 6);
+      final rows = drawRows(e);
+      expect(rows[0], '你好ab');
+      expect(rows[0].renderLength(), 6);
+    });
+  });
 }
