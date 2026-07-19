@@ -12,7 +12,7 @@ void benchmarkEastAsianWidth(List<String> unicodeChars) {
   int num1 = 0;
   int num2 = 0;
   for (final unicodeChar in unicodeChars) {
-    if (Unicode.isWide(unicodeChar.runes.first)) {
+    if (Unicode.codePointWidth(unicodeChar.runes.first) == 2) {
       num2++;
     } else {
       num1++;

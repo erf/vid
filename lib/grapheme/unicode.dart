@@ -1,59 +1,53 @@
-import 'east_asian_width.dart';
 import 'emoji_sequence_trie.dart';
+import 'width_table.dart';
 
 /// Unicode class to determine the rendered width of a single character
 /// based on: https://wcwidth.readthedocs.io/en/latest/specs.html
 class Unicode {
-  /// Get the rendered width of a single character
+  /// Per-code-point terminal cell width from the 2-stage lookup table.
+  /// Covers East Asian Wide/Fullwidth, Emoji_Presentation, and zero-width
+  /// (controls, Cf format, Mn/Me combining marks). See width_table.dart.
+  static int codePointWidth(int cp) =>
+      widthStage2[widthStage1[cp >> 8] + (cp & 0xFF)];
+
+  /// Get the rendered width of a single grapheme cluster.
+  ///
+  /// Width is determined by the FIRST code point (base char); trailing
+  /// combining marks, ZWJ, and variation selectors are zero-width and don't
+  /// add cells. Two cases need whole-grapheme handling:
+  ///   - VS15 (text presentation) forces a default-emoji base to width 1
+  ///   - ZWJ emoji sequences (👩‍👩‍👦‍👦) are width 2 via the sequence trie
   static int charWidth(String str, {required int tabWidth}) {
     if (str.isEmpty) return 0;
 
     // Fast path: single code unit (covers ASCII + Latin-1)
-    // Avoids ALL list allocations for the common case (~80%+ of real text)
     if (str.length == 1) {
       final int c = str.codeUnitAt(0);
       if (c == 0x0009) return tabWidth; // tab
-      if (c <= 0x001F || c == 0x007F) return 0; // C0 control chars
-      if (c <= 0x007F) return 1; // ASCII
-      if (c <= 0x009F) return 0; // C1 control chars
-      if (c <= 0x00FF) return 1; // Latin-1 (é, ü, °, etc. - never wide)
+      return codePointWidth(
+        c,
+      ); // handles controls (0), ASCII (1), zero-width (0)
     }
 
-    // TODO handle zero width
-    // https://wcwidth.readthedocs.io/en/latest/specs.html#width-of-0
-
-    // Check for variation selectors without creating a list
-    // VS15 (text) = U+FE0E, VS16 (emoji) = U+FE0F
-    for (int i = 0; i < str.length; i++) {
-      final c = str.codeUnitAt(i);
-      if (c == 0xFE0E) return 1; // text presentation
-      if (c == 0xFE0F) return 2; // emoji presentation
+    // Scan for variation selectors (and remember first code point).
+    // VS15 forces text presentation (width 1) on a default-emoji base.
+    // VS16 forces emoji presentation (width 2) on a default-text base.
+    int firstCodePoint = -1;
+    bool hasZWJ = false;
+    for (final cp in str.runes) {
+      if (firstCodePoint < 0) firstCodePoint = cp;
+      if (cp == 0xFE0E) return 1; // VS15 text presentation
+      if (cp == 0xFE0F) return 2; // VS16 emoji presentation
+      if (cp == 0x200D) hasZWJ = true;
     }
 
-    // Get first code point for east asian width check (no list allocation)
-    final int firstCodePoint = str.runes.first;
-
-    // east asian width wide or fullwidth
-    if (isWide(firstCodePoint)) {
+    // ZWJ emoji sequence (👩‍👩‍👦‍👦) - one emoji, width 2.
+    if (hasZWJ && isEmojiSequenceTrie(str.runes)) {
       return 2;
     }
 
-    // emoji-data
-    // if (isEmoji(firstCodePoint)) {
-    //   return 2;
-    // }
-
-    // emoji-sequences - cheap root pre-check, then lazy runes (no list alloc)
-    if (emojiSequenceTrie.mightStart(firstCodePoint) &&
-        isEmojiSequenceTrie(str.runes)) {
-      return 2;
-    }
-
-    return 1;
-  }
-
-  static bool isWide(int codePoint) {
-    return eastAsianWidth.contains(codePoint);
+    // Width from the base code point (combining marks add no cells).
+    return codePointWidth(firstCodePoint);
   }
 
   static bool isEmojiSequenceTrie(Iterable<int> codePoints) {

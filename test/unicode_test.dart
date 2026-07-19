@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:vid/grapheme/unicode.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {
@@ -110,5 +111,36 @@ void main() {
     expect('°'.charWidth(tabWidth), 1);
     expect('±'.charWidth(tabWidth), 1);
     expect('©'.charWidth(tabWidth), 1);
+  });
+
+  test('zero-width code points have width 0', () {
+    expect('\u0301'.charWidth(tabWidth), 0, reason: 'combining acute');
+    expect('\u200B'.charWidth(tabWidth), 0, reason: 'ZWSP');
+    expect('\u200D'.charWidth(tabWidth), 0, reason: 'ZWJ standalone');
+    expect('\uFE0F'.charWidth(tabWidth), 0, reason: 'VS16 standalone');
+  });
+
+  test('codePointWidth matches table across planes', () {
+    // Spot-check the 2-stage table against known values across all planes.
+    final cases = <int, int>{
+      0x0041: 1, // A
+      0x00E9: 1, // é
+      0x0301: 0, // combining acute
+      0x200D: 0, // ZWJ
+      0x231B: 2, // ⌛ emoji presentation
+      0x2328: 1, // ⌨ text presentation
+      0x5409: 2, // 吉 CJK
+      0x1F495: 2, // 💕
+      0x1F1F3: 2, // regional indicator N (emoji presentation)
+      0x20000: 2, // plane 2 (defaults wide)
+      0xE0001: 0, // tag (Cf format)
+    };
+    cases.forEach((cp, expected) {
+      expect(
+        Unicode.codePointWidth(cp),
+        expected,
+        reason: 'U+${cp.toRadixString(16).toUpperCase()}',
+      );
+    });
   });
 }
