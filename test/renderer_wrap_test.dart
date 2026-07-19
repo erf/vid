@@ -155,4 +155,42 @@ void main() {
       expect(rows[0].renderLength(), 6);
     });
   });
+
+  group('cursor placement in wrap mode', () {
+    final cursorRe = RegExp(r'\x1b\[(\d+);(\d+)H');
+
+    /// Draw and return the last (row, col) cursor position escape.
+    (int, int) cursorPos(Editor e) {
+      e.draw();
+      final out = (e.terminal as TestTerminal).takeOutput();
+      final m = cursorRe.allMatches(out).last;
+      return (int.parse(m.group(1)!), int.parse(m.group(2)!));
+    }
+
+    test('cursor on first wrap row', () {
+      final e = editorWith(_charConfig, 'abcdefghij\n', width: 5);
+      e.file.cursor = 2;
+      expect(cursorPos(e), (1, 3));
+    });
+
+    test('cursor on later wrap row', () {
+      final e = editorWith(_charConfig, 'abcdefghij\n', width: 5);
+      e.file.cursor = 7; // 'h'
+      expect(cursorPos(e), (2, 3));
+    });
+
+    test('end-of-line cursor rests on newline symbol, not a phantom row', () {
+      // 'abcdefghij' at width 5 wraps as abcde / fghi / j(symbol), reserving
+      // one column for the newline symbol on the last chunk.
+      final e = editorWith(_charConfig, 'abcdefghij\n', width: 5);
+      e.file.cursor = 10; // end of line
+      expect(cursorPos(e), (3, 2)); // right after 'j', on the symbol
+    });
+
+    test('end-of-line cursor on short wrapped line', () {
+      final e = editorWith(_charConfig, 'abcdef\n', width: 5);
+      e.file.cursor = 6;
+      expect(cursorPos(e), (2, 2)); // after 'f', on the symbol
+    });
+  });
 }

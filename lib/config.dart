@@ -145,7 +145,7 @@ class Config {
     this.scrollMargin = 10,
     this.scrollLines = 3,
     this.scrollPadding = 3,
-    this.wrapSymbols = const ['', '|↵', '↵'],
+    this.wrapSymbols = const ['', 'c', 'w'],
     this.newlineSymbol = ' ',
     this.wrapMode = .none,
     this.breakat = ' !@*-+;:,./?',

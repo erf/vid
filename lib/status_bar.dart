@@ -3,6 +3,7 @@ import 'package:termio/termio.dart';
 import 'config.dart';
 import 'file_buffer/file_buffer.dart';
 import 'highlighting/highlighter.dart';
+import '../string_ext.dart';
 
 /// Renders the bottom status bar and the command/search input line.
 class StatusBar {
@@ -80,8 +81,33 @@ class StatusBar {
     int diagVisibleLen = diagnosticCount > 0 ? ' !$diagnosticCount'.length : 0;
 
     String right = ' ${cursorLine + 1}, ${cursorCol + 1} ';
+    // Keep the status line one column short of the terminal width: filling
+    // the last column triggers auto-wrap in most terminals, which would
+    // push the content rows up and hide the top row. If the left side is
+    // too long, drop the directory part, then truncate the file name.
+    final budget =
+        terminal.width -
+        bufferVisibleLen -
+        diagVisibleLen -
+        right.renderLength() -
+        3;
+    if (left.renderLength() > budget) {
+      final fileName = path.split('/').last;
+      left = ([
+        mode,
+        '$fileName$modified',
+        if (wrap.isNotEmpty) wrap,
+      ]).join(' ');
+    }
+    if (left.renderLength() > budget) {
+      left = left.visibleLine(0, budget.clamp(0, 1 << 30));
+    }
     int padLeft =
-        terminal.width - left.length - bufferVisibleLen - diagVisibleLen - 2;
+        terminal.width -
+        left.renderLength() -
+        bufferVisibleLen -
+        diagVisibleLen -
+        3;
     String padding = right.padLeft(padLeft);
 
     buffer.write(' $left$bufferPart$diagPart $padding');
