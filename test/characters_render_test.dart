@@ -2,34 +2,34 @@ import 'package:test/test.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {
-  test('takeWhileLessThanRenderedLength', () {
-    expect('abc'.renderLineEnd(1), 'a');
-    expect('abc'.renderLineEnd(3), 'abc');
-    expect('😀😀abc'.renderLineEnd(4), '😀😀');
+  test('renderLine end boundary', () {
+    expect('abc'.visibleLine(0, 1), 'a');
+    expect('abc'.visibleLine(0, 3), 'abc');
+    expect('😀😀abc'.visibleLine(0, 4), '😀😀');
     expect(
-      '😀😀abc'.renderLineEnd(3),
+      '😀😀abc'.visibleLine(0, 3),
       '😀',
-      reason: 'should skip if in middle of emoji',
+      reason: 'should drop wide char straddling the right edge',
     );
   });
 
-  test('skipWhileLessThanRenderedLength', () {
-    expect('abc'.renderLineStart(1), 'bc');
-    expect('abc'.renderLineStart(2), 'c');
-    expect('abc'.renderLineStart(3), '');
-    expect('😀😀abc'.renderLineStart(4), 'abc');
+  test('renderLine start boundary (horizontal scroll)', () {
+    expect('abc'.visibleLine(1, 80), 'bc');
+    expect('abc'.visibleLine(2, 80), 'c');
+    expect('abc'.visibleLine(3, 80), '');
+    expect('😀😀abc'.visibleLine(4, 80), 'abc');
     expect(
-      '😀😀abc'.renderLineStart(3),
+      '😀😀abc'.visibleLine(3, 80),
       ' abc',
-      reason: 'should add space at start if emoji',
+      reason: 'should add space at start if emoji is split',
     );
   });
 
   test('skip initial emoji and make space', () {
-    expect('😀abc'.renderLineStart(0), '😀abc');
-    expect('😀abc'.renderLineStart(1), ' abc');
-    expect('😀abc'.renderLineStart(2), 'abc');
-    expect('😀abc'.renderLineStart(3), 'bc');
+    expect('😀abc'.visibleLine(0, 80), '😀abc');
+    expect('😀abc'.visibleLine(1, 80), ' abc');
+    expect('😀abc'.visibleLine(2, 80), 'abc');
+    expect('😀abc'.visibleLine(3, 80), 'bc');
   });
 
   test('renderedLength', () {
@@ -43,30 +43,30 @@ void main() {
   });
 
   test('renderLine', () {
-    expect('abc'.renderLine(0, 1), 'a');
-    expect('abc'.renderLine(0, 3), 'abc');
-    expect('❤️‍🔥❤️‍🔥ab'.renderLine(2, 4), '❤️‍🔥ab');
+    expect('abc'.visibleLine(0, 1), 'a');
+    expect('abc'.visibleLine(0, 3), 'abc');
+    expect('❤️‍🔥❤️‍🔥ab'.visibleLine(2, 4), '❤️‍🔥ab');
     expect(
-      '❤️‍🔥❤️‍🔥ab'.renderLine(3, 4),
+      '❤️‍🔥❤️‍🔥ab'.visibleLine(3, 4),
       ' ab',
       reason: 'Replace half emoji at start with space',
     );
-    expect('abcd🥹'.renderLine(4, 6), '🥹');
-    expect('abcd🥹'.renderLine(5, 6), ' ');
+    expect('abcd🥹'.visibleLine(4, 6), '🥹');
+    expect('abcd🥹'.visibleLine(5, 6), ' ');
     expect(
-      'abcd🥹'.renderLine(3, 5),
+      'abcd🥹'.visibleLine(3, 5),
       'd🥹',
       reason: 'Draw full emoji even if only half indexed',
     );
-    expect('abcd🥹'.renderLine(3, 6), 'd🥹');
-    expect('abcd🥹'.renderLine(0, 5), 'abcd');
+    expect('abcd🥹'.visibleLine(3, 6), 'd🥹');
+    expect('abcd🥹'.visibleLine(0, 5), 'abcd');
   });
 
   test('"let\'s combine emojis ❤️❤️😃😃" at col 28 fails', () {
     final text = 'let\'s combine emojis ❤️❤️😃😃';
     final index = 0;
     final width = 28;
-    final result = text.renderLine(index, width);
+    final result = text.visibleLine(index, width);
     expect(result, 'let\'s combine emojis ❤️❤️😃');
   });
 }

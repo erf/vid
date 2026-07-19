@@ -28,38 +28,54 @@ extension StringExt on String {
   /// [scrollOffset] is the number of columns to skip (horizontal scroll).
   /// [viewportWidth] is the maximum columns to display.
   /// Assumes tabs are already converted to spaces.
-  String renderLine(int scrollOffset, int viewportWidth) {
-    return renderLineStart(scrollOffset).renderLineEnd(viewportWidth);
-  }
-
-  /// Skip characters until [scrollOffset] render width is reached.
-  /// Returns the remaining string for display.
-  /// If a double-width char is split, a space is prepended.
-  String renderLineStart(int scrollOffset) {
-    if (scrollOffset <= 0) return this;
-
+  ///
+  /// If a wide char straddles the left edge (starts before [scrollOffset]
+  /// and extends past it), it is replaced by a single space. If a wide char
+  /// straddles the right edge, it is dropped entirely (asymmetric with the
+  /// left edge, which pads).
+  ///
+  /// Single-pass implementation: one ASCII scan, one grapheme segmentation,
+  /// one substring allocation.
+  String visibleLine(int scrollOffset, int viewportWidth) {
     // Fast path: for simple ASCII, render width == string length
     if (Unicode.isSimpleAscii(this)) {
-      return scrollOffset >= length ? '' : substring(scrollOffset);
+      if (scrollOffset >= length) return '';
+      final end = scrollOffset + viewportWidth;
+      return end >= length
+          ? substring(scrollOffset)
+          : substring(scrollOffset, end);
     }
 
     int col = 0;
     int skipCount = 0;
     bool needSpace = false;
 
-    for (final char in characters) {
-      final w = char.charWidth();
-      if (col + w > scrollOffset) {
-        // This char crosses the scroll boundary
-        needSpace = (col < scrollOffset); // Split if char starts before offset
-        break;
+    // Phase 1: find start boundary
+    if (scrollOffset > 0) {
+      for (final char in characters) {
+        final w = char.charWidth();
+        if (col + w > scrollOffset) {
+          // This char crosses the scroll boundary.
+          // Split if char starts before offset.
+          needSpace = (col < scrollOffset);
+          break;
+        }
+        col += w;
+        skipCount++;
       }
-      col += w;
-      skipCount++;
     }
 
-    final remaining = characters.skip(skipCount + (needSpace ? 1 : 0)).string;
-    return needSpace ? ' $remaining' : remaining;
+    final rest = characters.skip(skipCount + (needSpace ? 1 : 0));
+
+    // Phase 2: take chars within the width budget.
+    // The padding space (if any) consumes 1 column of the budget.
+    int total = needSpace ? 1 : 0;
+    final taken = rest.takeWhile((char) {
+      total += char.charWidth();
+      return total <= viewportWidth;
+    });
+
+    return needSpace ? ' ${taken.string}' : taken.string;
   }
 
   /// Map a position in the rendered (tab-expanded) version of this string to
@@ -114,21 +130,5 @@ extension StringExt on String {
 
     if (startByte >= length) return '';
     return substring(startByte, endByte.clamp(0, length));
-  }
-
-  /// Take characters until [viewportWidth] render width is reached.
-  /// Returns the visible portion of the string.
-  String renderLineEnd(int viewportWidth) {
-    // Fast path: for simple ASCII, render width == string length
-    if (Unicode.isSimpleAscii(this)) {
-      if (viewportWidth >= length) return this;
-      return substring(0, viewportWidth);
-    }
-
-    int total = 0;
-    return characters.takeWhile((char) {
-      total += char.charWidth();
-      return total <= viewportWidth;
-    }).string;
   }
 }

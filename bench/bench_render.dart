@@ -1,8 +1,7 @@
 // Benchmark for ASCII fast-path optimizations in render functions
 //
-// Tests: renderLength, renderLineStart, renderLineEnd, columnInLine
+// Tests: renderLength, visibleLine, columnInLine
 
-import 'package:characters/characters.dart';
 import 'package:vid/file_buffer/file_buffer.dart';
 import 'package:vid/grapheme/unicode.dart';
 import 'package:vid/string_ext.dart';
@@ -44,18 +43,6 @@ void main() {
   benchmarkRenderLength(longAsciiLine, 'ASCII 1000 chars', iterations);
   benchmarkRenderLength(mixedLine, 'Mixed unicode', iterations);
 
-  // Benchmark renderLineStart
-  print('\n=== renderLineStart (horizontal scroll) ===');
-  benchmarkRenderLineStart(asciiLine, 'ASCII 200 chars', iterations);
-  benchmarkRenderLineStart(longAsciiLine, 'ASCII 1000 chars', iterations);
-  benchmarkRenderLineStart(mixedLine, 'Mixed unicode', iterations);
-
-  // Benchmark renderLineEnd
-  print('\n=== renderLineEnd (visible portion) ===');
-  benchmarkRenderLineEnd(asciiLine, 'ASCII 200 chars', iterations);
-  benchmarkRenderLineEnd(longAsciiLine, 'ASCII 1000 chars', iterations);
-  benchmarkRenderLineEnd(mixedLine, 'Mixed unicode', iterations);
-
   // Benchmark columnInLine
   print('\n=== columnInLine (cursor column) ===');
   benchmarkColumnInLine(fileBuffer, 'Near start', 500, iterations);
@@ -72,16 +59,14 @@ void main() {
     iterations,
   );
 
-  // Benchmark full render pipeline
-  print('\n=== Full render line (renderLineStart + renderLineEnd) ===');
-  benchmarkFullRender(asciiLine, 'ASCII 200 chars', iterations);
-  benchmarkFullRender(longAsciiLine, 'ASCII 1000 chars', iterations);
-  benchmarkFullRender(mixedLine, 'Mixed unicode', iterations);
+  // Benchmark visible line slice
+  print('\n=== visibleLine (visible window slice) ===');
+  benchmarkRenderLine(asciiLine, 'ASCII 200 chars', iterations);
+  benchmarkRenderLine(longAsciiLine, 'ASCII 1000 chars', iterations);
+  benchmarkRenderLine(mixedLine, 'Mixed unicode', iterations);
 }
 
 void benchmarkRenderLength(String line, String label, int iterations) {
-  final chars = line.characters;
-  final count = chars.length;
   const tabWidth = 4;
 
   // Warm up
@@ -89,85 +74,31 @@ void benchmarkRenderLength(String line, String label, int iterations) {
     line.renderLength(tabWidth);
   }
 
-  // With fast path (current implementation)
-  final swFast = Stopwatch()..start();
+  final sw = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
     line.renderLength(tabWidth);
   }
-  swFast.stop();
+  sw.stop();
 
-  // Simulate old implementation (always iterate)
-  final swOld = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
-    _renderLengthOld(chars, count, tabWidth);
-  }
-  swOld.stop();
-
-  final speedup = swOld.elapsedMicroseconds / swFast.elapsedMicroseconds;
-  print('  $label:');
-  print(
-    '    New: ${swFast.elapsedMilliseconds}ms, Old: ${swOld.elapsedMilliseconds}ms, Speedup: ${speedup.toStringAsFixed(1)}x',
-  );
+  print('  $label: ${sw.elapsedMilliseconds}ms');
 }
 
-void benchmarkRenderLineStart(String line, String label, int iterations) {
-  final start = line.length ~/ 2; // scroll to middle
-  const tabWidth = 4;
+void benchmarkRenderLine(String line, String label, int iterations) {
+  const start = 10;
+  const width = 80;
 
   // Warm up
   for (int i = 0; i < 100; i++) {
-    line.renderLineStart(start);
+    line.visibleLine(start, width);
   }
 
-  // With fast path
-  final swFast = Stopwatch()..start();
+  final sw = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
-    line.renderLineStart(start);
+    line.visibleLine(start, width);
   }
-  swFast.stop();
+  sw.stop();
 
-  // Simulate old implementation
-  final swOld = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
-    _renderLineStartOld(line.characters, start, tabWidth);
-  }
-  swOld.stop();
-
-  final speedup = swOld.elapsedMicroseconds / swFast.elapsedMicroseconds;
-  print('  $label:');
-  print(
-    '    New: ${swFast.elapsedMilliseconds}ms, Old: ${swOld.elapsedMilliseconds}ms, Speedup: ${speedup.toStringAsFixed(1)}x',
-  );
-}
-
-void benchmarkRenderLineEnd(String line, String label, int iterations) {
-  const width = 80; // typical terminal width
-  const tabWidth = 4;
-
-  // Warm up
-  for (int i = 0; i < 100; i++) {
-    line.renderLineEnd(width);
-  }
-
-  // With fast path
-  final swFast = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
-    line.renderLineEnd(width);
-  }
-  swFast.stop();
-
-  // Simulate old implementation
-  final swOld = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
-    _renderLineEndOld(line.characters, width, tabWidth);
-  }
-  swOld.stop();
-
-  final speedup = swOld.elapsedMicroseconds / swFast.elapsedMicroseconds;
-  print('  $label:');
-  print(
-    '    New: ${swFast.elapsedMilliseconds}ms, Old: ${swOld.elapsedMilliseconds}ms, Speedup: ${speedup.toStringAsFixed(1)}x',
-  );
+  print('  $label: ${sw.elapsedMilliseconds}ms');
 }
 
 void benchmarkColumnInLine(
@@ -181,110 +112,11 @@ void benchmarkColumnInLine(
     f.columnInLine(offset);
   }
 
-  // With fast path
-  final swFast = Stopwatch()..start();
+  final sw = Stopwatch()..start();
   for (int i = 0; i < iterations; i++) {
     f.columnInLine(offset);
   }
-  swFast.stop();
+  sw.stop();
 
-  // Simulate old implementation
-  final swOld = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
-    _columnInLineOld(f, offset);
-  }
-  swOld.stop();
-
-  final speedup = swOld.elapsedMicroseconds / swFast.elapsedMicroseconds;
-  print('  $label (offset $offset):');
-  print(
-    '    New: ${swFast.elapsedMilliseconds}ms, Old: ${swOld.elapsedMilliseconds}ms, Speedup: ${speedup.toStringAsFixed(1)}x',
-  );
-}
-
-void benchmarkFullRender(String line, String label, int iterations) {
-  const start = 10;
-  const width = 80;
-  const tabWidth = 4;
-
-  // Warm up
-  for (int i = 0; i < 100; i++) {
-    line.renderLine(start, width);
-  }
-
-  // With fast path
-  final swFast = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
-    line.renderLine(start, width);
-  }
-  swFast.stop();
-
-  // Simulate old implementation
-  final swOld = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
-    _renderLineOld(line.characters, start, width, tabWidth);
-  }
-  swOld.stop();
-
-  final speedup = swOld.elapsedMicroseconds / swFast.elapsedMicroseconds;
-  print('  $label:');
-  print(
-    '    New: ${swFast.elapsedMilliseconds}ms, Old: ${swOld.elapsedMilliseconds}ms, Speedup: ${speedup.toStringAsFixed(1)}x',
-  );
-}
-
-// Old implementations (without fast path)
-
-int _renderLengthOld(Characters chars, int count, int tabWidth) {
-  return chars
-      .take(count)
-      .fold(0, (prev, curr) => prev + curr.charWidth(tabWidth));
-}
-
-Characters _renderLineStartOld(Characters chars, int start, int tabWidth) {
-  int total = 0;
-  bool space = false;
-  final line = chars.skipWhile((char) {
-    int charWidth = char.charWidth(tabWidth);
-    total += charWidth;
-    if (charWidth == 2) {
-      if (total - 1 == start) {
-        space = true;
-      }
-      return total - 1 <= start;
-    }
-    return total <= start;
-  });
-  return space ? ' '.characters + line : line;
-}
-
-Characters _renderLineEndOld(Characters chars, int width, int tabWidth) {
-  int total = 0;
-  return chars.takeWhile((char) {
-    total += char.charWidth(tabWidth);
-    return total <= width;
-  });
-}
-
-Characters _renderLineOld(
-  Characters chars,
-  int start,
-  int width,
-  int tabWidth,
-) {
-  return _renderLineStartOld(
-    chars,
-    start,
-    tabWidth,
-  ).let((c) => _renderLineEndOld(c, width, tabWidth));
-}
-
-int _columnInLineOld(FileBuffer f, int offset) {
-  int start = f.lineStart(offset);
-  if (offset <= start) return 0;
-  return f.text.substring(start, offset).characters.length;
-}
-
-extension<T> on T {
-  R let<R>(R Function(T) fn) => fn(this);
+  print('  $label (offset $offset): ${sw.elapsedMilliseconds}ms');
 }

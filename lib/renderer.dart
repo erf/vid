@@ -698,7 +698,7 @@ class Renderer {
     );
 
     if (rendered.isNotEmpty) {
-      final visible = rendered.renderLine(viewportCol, contentWidth);
+      final visible = rendered.visibleLine(viewportCol, contentWidth);
       if (syntaxHighlighting) {
         // Map viewportCol in rendered string to byte offset in original
         final byteOffset = original.renderedToOriginalOffset(
