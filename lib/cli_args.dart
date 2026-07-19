@@ -3,9 +3,11 @@ import 'dart:io';
 /// A parsed file argument from the command line.
 class CliFileArg {
   final String path;
-  final String? lineArg;
 
-  const CliFileArg(this.path, this.lineArg);
+  /// 1-based line number from a `+<line>` modifier, if given and parseable.
+  final int? line;
+
+  const CliFileArg(this.path, this.line);
 }
 
 /// Parses command-line arguments for the editor.
@@ -28,7 +30,7 @@ class CliArgs {
     for (final arg in args) {
       if (arg.startsWith('+')) {
         if (pendingPath != null) {
-          files.add(CliFileArg(pendingPath, arg));
+          files.add(CliFileArg(pendingPath, _parseLineArg(arg)));
           pendingPath = null;
         }
       } else {
@@ -46,5 +48,15 @@ class CliArgs {
       files.add(CliFileArg(pendingPath, null));
     }
     return CliArgs(files, directory);
+  }
+
+  /// Parse a `+<line>` modifier to a 1-based line number.
+  ///
+  /// A bare `+` (go to end of file in vim) and unparseable numbers are
+  /// ignored and return null.
+  static int? _parseLineArg(String arg) {
+    final digits = arg.substring(1);
+    if (digits.isEmpty) return null;
+    return int.tryParse(digits);
   }
 }

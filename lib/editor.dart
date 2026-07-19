@@ -179,9 +179,9 @@ class Editor {
 
   void _applyLineArgs(List<CliFileArg> fileArgs) {
     for (int i = 0; i < fileArgs.length; i++) {
-      final lineArg = fileArgs[i].lineArg;
-      if (lineArg != null) {
-        buffers[i].parseCliArgs([fileArgs[i].path, lineArg]);
+      final line = fileArgs[i].line;
+      if (line != null) {
+        buffers[i].gotoLine(line);
       }
     }
   }

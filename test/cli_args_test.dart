@@ -6,7 +6,7 @@ void main() {
     final args = CliArgs.parse(['foo.txt']);
     expect(args.files.length, 1);
     expect(args.files[0].path, 'foo.txt');
-    expect(args.files[0].lineArg, isNull);
+    expect(args.files[0].line, isNull);
     expect(args.directory, isNull);
   });
 
@@ -19,7 +19,7 @@ void main() {
     final args = CliArgs.parse(['foo.txt', '+42']);
     expect(args.files.length, 1);
     expect(args.files[0].path, 'foo.txt');
-    expect(args.files[0].lineArg, '+42');
+    expect(args.files[0].line, 42);
   });
 
   test('line arg without preceding file is ignored', () {
@@ -31,9 +31,21 @@ void main() {
     final args = CliArgs.parse(['a.txt', '+10', 'b.txt']);
     expect(args.files.length, 2);
     expect(args.files[0].path, 'a.txt');
-    expect(args.files[0].lineArg, '+10');
+    expect(args.files[0].line, 10);
     expect(args.files[1].path, 'b.txt');
-    expect(args.files[1].lineArg, isNull);
+    expect(args.files[1].line, isNull);
+  });
+
+  test('bare + is ignored', () {
+    final args = CliArgs.parse(['foo.txt', '+']);
+    expect(args.files.length, 1);
+    expect(args.files[0].line, isNull);
+  });
+
+  test('unparseable line arg is ignored', () {
+    final args = CliArgs.parse(['foo.txt', '+abc']);
+    expect(args.files.length, 1);
+    expect(args.files[0].line, isNull);
   });
 
   test('directory is reported separately, not as file', () {

@@ -59,17 +59,9 @@ extension FileBufferIo on FileBuffer {
     return ErrorOr.error('File not found: \'$path\'');
   }
 
-  /// parse line number argument if it exists, set cursor to start of that line
-  void parseCliArgs(List<String> args) {
-    if (args.length > 1 && args.last.startsWith('+')) {
-      final lineNo = args.last.substring(1);
-      if (lineNo.isNotEmpty) {
-        int targetLine = (int.tryParse(lineNo) ?? 1) - 1;
-        cursor = lineOffset(targetLine);
-      } else {
-        cursor = 0;
-      }
-    }
+  /// Move cursor to start of [line] (1-based), clamped to the file bounds.
+  void gotoLine(int line) {
+    cursor = lineOffset(line - 1);
   }
 
   /// save file to disk or create new file
