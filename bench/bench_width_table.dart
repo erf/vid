@@ -2,12 +2,12 @@ import 'package:vid/grapheme/unicode.dart';
 
 import 'bench_utils.dart';
 
-// test the performance of looking up emojis
+// test the performance of the 2-stage width table lookup
 void main() {
-  benchmarkEastAsianWidth(genRandomUnicodeChars(numOfChars));
+  benchmarkWidthTable(genRandomUnicodeChars(numOfChars));
 }
 
-void benchmarkEastAsianWidth(List<String> unicodeChars) {
+void benchmarkWidthTable(List<String> unicodeChars) {
   final stopwatch = Stopwatch()..start();
   int num1 = 0;
   int num2 = 0;
@@ -19,7 +19,7 @@ void benchmarkEastAsianWidth(List<String> unicodeChars) {
     }
   }
   stopwatch.stop();
-  print('EastAsianWidth benchmark: ${stopwatch.elapsedMilliseconds}ms');
+  print('WidthTable benchmark: ${stopwatch.elapsedMilliseconds}ms');
   print('contains 1: $num1');
   print('contains 2: $num2');
 }
