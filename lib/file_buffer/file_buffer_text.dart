@@ -10,9 +10,9 @@ import '../range.dart';
 import '../text_op.dart';
 import 'file_buffer.dart';
 
-// text operations on the FileBuffer 'text' field
+/// text operations on the FileBuffer 'text' field
 extension FileBufferText on FileBuffer {
-  // replace text in the buffer, add undo operation
+  /// replace text in the buffer, add undo operation
   void replace(
     int start,
     int end,
@@ -39,7 +39,7 @@ extension FileBufferText on FileBuffer {
     updateText(start, actualEnd, newText);
   }
 
-  // add an undo operation (wraps single TextOp in a list for unified undo)
+  /// add an undo operation (wraps single TextOp in a list for unified undo)
   void addUndo({
     required int start,
     required int end,
@@ -149,7 +149,7 @@ extension FileBufferText on FileBuffer {
     return group.ops.firstOrNull;
   }
 
-  // Insert file contents at cursor position
+  /// Insert file contents at cursor position
   ErrorOr<bool> insertFile(Editor e, String path) {
     final file = File(path);
     if (!file.existsSync()) {
@@ -159,8 +159,8 @@ extension FileBufferText on FileBuffer {
     return ErrorOr.value(true);
   }
 
-  // Insert a chunk of text at cursor position.
-  // Batches the entire insert as a single undo operation.
+  /// Insert a chunk of text at cursor position.
+  /// Batches the entire insert as a single undo operation.
   void insertChunk(Editor e, String str) {
     final int startOffset = cursor;
     // Insert entire string at once

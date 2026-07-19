@@ -62,7 +62,7 @@ class GoTokenizer extends Tokenizer {
     'uintptr',
   };
 
-  // Backtick raw strings can span multiple lines and contain no escapes.
+  /// Backtick raw strings can span multiple lines and contain no escapes.
   static final _rawString = RegExp(r'`[^`]*`', dotAll: true);
   static final _doubleString = RegExp(r'"(?:[^"\\\n]|\\.)*"');
   static final _runeLiteral = RegExp(r"'(?:[^'\\]|\\(?:[^\n]|x[0-9a-fA-F]+))'");

@@ -61,7 +61,7 @@ class CursorPositionFeature extends Feature {
     return '${XdgPaths.appCacheDir}/cursor_positions.csv';
   }
 
-  // load cursors positions from XDG_CACHE_HOME
+  /// load cursors positions from XDG_CACHE_HOME
   Map<String, int> loadCursorPositions() {
     final file = File(cursorPositionsPath);
     if (!file.existsSync()) {

@@ -9,8 +9,6 @@ import 'lsp_protocol.dart';
 import 'rename_popup.dart';
 import 'symbols_popup.dart';
 
-// ===== LSP commands =====
-
 /// Show LSP status or run LSP subcommand (:lsp).
 class CmdLsp extends LineEditAction {
   const CmdLsp();

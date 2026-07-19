@@ -8,13 +8,13 @@ class XdgPaths {
   /// The application directory name.
   static const String appName = 'vid';
 
-  // Environment variable names
+  /// Environment variable names
   static const String _envHome = 'HOME';
   static const String _envXdgConfigHome = 'XDG_CONFIG_HOME';
   static const String _envXdgCacheHome = 'XDG_CACHE_HOME';
   static const String _envXdgDataHome = 'XDG_DATA_HOME';
 
-  // Common environment variable getters
+  /// Common environment variable getters
   static String? get _home => Platform.environment[_envHome];
   static String? get _xdgConfigHome => Platform.environment[_envXdgConfigHome];
   static String? get _xdgCacheHome => Platform.environment[_envXdgCacheHome];

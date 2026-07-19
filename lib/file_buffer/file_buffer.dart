@@ -33,7 +33,6 @@ typedef TextChangeListener =
 /// is enforced by [FileBufferIo.load] on file read and [FileBufferText.replace]
 /// on text modifications.
 class FileBuffer {
-  // create a new file buffer
   FileBuffer({
     String text = Keys.newline,
     this.path,
@@ -44,21 +43,17 @@ class FileBuffer {
     _buildLineIndex();
   }
 
-  // --- Fields ---
-
-  // the text of the file (use setter to rebuild line index)
+  /// the text of the file (use setter to rebuild line index)
   String _text;
 
-  // line metadata: lines[i] contains start/end offsets for line i
+  /// line metadata: lines[i] contains start/end offsets for line i
   final List<LineInfo> lines = [];
 
-  // the path to the file
   String? path;
 
-  // the absolute path to the file
   String? absolutePath;
 
-  // the current working directory (for relativePath calculation)
+  /// the current working directory (for relativePath calculation)
   String? cwd;
 
   /// Get the path relative to current working directory.
@@ -74,11 +69,11 @@ class FileBuffer {
     return abs;
   }
 
-  // list of selections (always at least one; first is "main" selection)
+  /// list of selections (always at least one; first is "main" selection)
   List<Selection> selections = [Selection.collapsed(0)];
 
-  // the cursor position (byte offset, always at grapheme cluster boundary)
-  // This is a convenience getter/setter for the primary cursor.
+  /// the cursor position (byte offset, always at grapheme cluster boundary)
+  /// This is a convenience getter/setter for the primary cursor.
   int get cursor => selections.first.cursor;
   set cursor(int value) {
     // Only update the first selection's cursor position
@@ -87,7 +82,7 @@ class FileBuffer {
         : selections.first.withCursor(value);
   }
 
-  // whether we have multiple cursors (collapsed selections)
+  /// whether we have multiple cursors (collapsed selections)
   bool get hasMultipleCursors =>
       selections.length > 1 && selections.every((s) => s.isCollapsed);
 
@@ -101,32 +96,31 @@ class FileBuffer {
     selections = [Selection.collapsed(selections.first.cursor)];
   }
 
-  // the main selection (first in list)
+  /// the main selection (first in list)
   Selection get selection => selections.first;
   set selection(Selection value) => selections[0] = value;
 
-  // whether any selection is non-collapsed (visual selection)
+  /// whether any selection is non-collapsed (visual selection)
   bool get hasVisualSelection => selections.any((s) => !s.isCollapsed);
 
-  // the viewport position (byte offset of first visible character)
+  /// the viewport position (byte offset of first visible character)
   int viewport = 0;
 
-  // the horizontal viewport position (column offset for horizontal scrolling)
+  /// the horizontal viewport position (column offset for horizontal scrolling)
   int viewportCol = 0;
 
-  // track the last cursor line to reset viewportCol on line changes
+  /// track the last cursor line to reset viewportCol on line changes
   int? lastCursorLine;
 
-  // the current mode
   Mode mode = .normal;
 
-  // the current edit builder (accumulates input)
+  /// the current edit builder (accumulates input)
   EditBuilder edit = EditBuilder();
 
-  // input state for command matching
+  /// input state for command matching
   InputState input = InputState();
 
-  // the previous edit operation (for repeat)
+  /// the previous edit operation (for repeat)
   EditOperation? prevEdit;
 
   /// The desired visual column for vertical cursor movements.
@@ -134,10 +128,9 @@ class FileBuffer {
   /// horizontal position through short lines. null means compute from cursor.
   int? desiredColumn;
 
-  // list of undo operations (each entry is a group of TextOps)
+  /// list of undo operations (each entry is a group of TextOps)
   List<UndoGroup> undoList = [];
 
-  // list of redo operations (same structure as undoList)
   List<UndoGroup> redoList = [];
 
   /// Add an undo group, cap the list to [maxNumUndo], and clear redo history.
@@ -149,15 +142,12 @@ class FileBuffer {
     redoList.clear();
   }
 
-  // the savepoint for undo operations
+  /// the savepoint for undo operations
   int savepoint = 0;
 
-  // listeners for text changes
   final List<TextChangeListener> _listeners = [];
 
   void addListener(TextChangeListener listener) => _listeners.add(listener);
-
-  // --- Getters/Setters ---
 
   String get text => _text;
 
@@ -167,19 +157,16 @@ class FileBuffer {
     _buildLineIndex();
   }
 
-  // total number of lines
   int get totalLines => lines.length;
 
-  // if the file has been modified (not saved)
+  /// if the file has been modified (not saved)
   bool get modified => undoList.length != savepoint;
 
   /// Whether this buffer is untouched (no path, not modified, empty content).
   /// Used to determine if the buffer should be replaced when opening a file.
   bool get isUntouched => path == null && !modified && _text == Keys.newline;
 
-  // --- Methods ---
-
-  // build line index by scanning for newlines - O(n)
+  /// build line index by scanning for newlines - O(n)
   void _buildLineIndex() {
     lines.clear();
     int start = 0;
@@ -195,7 +182,7 @@ class FileBuffer {
     }
   }
 
-  // update text and partially rebuild line index from edit point
+  /// update text and partially rebuild line index from edit point
   void updateText(int start, int end, String newText) {
     // Find line containing start offset before modifying text
     final startLine = lineNumber(start);
@@ -222,7 +209,7 @@ class FileBuffer {
     }
   }
 
-  // get line number for offset using binary search - O(log n)
+  /// get line number for offset using binary search - O(log n)
   int lineNumber(int offset) {
     if (lines.isEmpty) return 0;
     int low = 0;
@@ -238,14 +225,13 @@ class FileBuffer {
     return low;
   }
 
-  // get byte offset for line number - O(1)
+  /// get byte offset for line number - O(1)
   int lineOffset(int lineNum) {
     if (lineNum < 0) return 0;
     if (lineNum >= lines.length) return _text.length;
     return lines[lineNum].start;
   }
 
-  // set if the file has been modified
   void setSavepoint() => savepoint = undoList.length;
 
   /// Load a file from disk.

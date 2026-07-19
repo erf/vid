@@ -93,7 +93,7 @@ class Theme {
     if (foreground != null) buffer.write(foreground);
   }
 
-  // Rosé Pine Dawn (light) - https://rosepinetheme.com/palette/ingredients
+  /// Rosé Pine Dawn (light) - https://rosepinetheme.com/palette/ingredients
   static final Theme _rosePineDawn = Theme._(
     'rosepine-dawn',
     {
@@ -143,7 +143,7 @@ class Theme {
     ), // Iris #907aa9 (muted)
   );
 
-  // Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
+  /// Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
   static final Theme _rosePine = Theme._(
     'rosepine',
     {
@@ -189,7 +189,7 @@ class Theme {
     secondaryCursorBackground: Ansi.bgRgb(110, 106, 134), // Muted #6e6a86
   );
 
-  // Ayu Dark
+  /// Ayu Dark
   static final Theme _ayuDark = Theme._(
     'ayu-dark',
     {
@@ -235,7 +235,7 @@ class Theme {
     secondaryCursorBackground: Ansi.bgRgb(70, 80, 95), // Muted blue-gray
   );
 
-  // Ayu Light
+  /// Ayu Light
   static final Theme _ayuLight = Theme._(
     'ayu-light',
     {
@@ -281,7 +281,7 @@ class Theme {
     secondaryCursorBackground: Ansi.bgRgb(180, 190, 205), // Muted blue-gray
   );
 
-  // Unicorn Dark - soft pastel theme
+  /// Unicorn Dark - soft pastel theme
   static final Theme _unicornDark = Theme._(
     'unicorn-dark',
     {
@@ -327,7 +327,7 @@ class Theme {
     secondaryCursorBackground: Ansi.bgRgb(90, 93, 110), // Muted purple-gray
   );
 
-  // Unicorn Light - soft pastel theme
+  /// Unicorn Light - soft pastel theme
   static final Theme _unicornLight = Theme._(
     'unicorn-light',
     {
@@ -373,7 +373,7 @@ class Theme {
     secondaryCursorBackground: Ansi.bgRgb(200, 180, 210), // Muted lavender
   );
 
-  // Monochrome theme using text attributes (uses terminal default colors)
+  /// Monochrome theme using text attributes (uses terminal default colors)
   static final Theme _mono = Theme._(
     'mono',
     {

@@ -5,8 +5,6 @@ import '../popup/file_browser.dart';
 import '../popup/theme_selector.dart';
 import 'line_edit_base.dart';
 
-// ===== Popup commands =====
-
 /// Open theme selector (:themes, :theme, :th).
 class CmdThemes extends LineEditAction {
   const CmdThemes();

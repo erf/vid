@@ -7,33 +7,33 @@ export '../tokenizer.dart' show Multiline;
 ///
 /// Produces tokens with absolute byte positions for a given text range.
 class CssTokenizer extends Tokenizer {
-  // At-rules (@media, @import, @keyframes, etc.)
+  /// At-rules (@media, @import, @keyframes, etc.)
   static final _atRule = RegExp(r'@[a-zA-Z-]+');
 
-  // Class selector (.class-name)
+  /// Class selector (.class-name)
   static final _classSelector = RegExp(r'\.[a-zA-Z_][a-zA-Z0-9_-]*');
 
-  // ID selector (#id-name)
+  /// ID selector (#id-name)
   static final _idSelector = RegExp(r'#[a-zA-Z_][a-zA-Z0-9_-]*');
 
-  // Pseudo-class and pseudo-element (::before, :hover)
+  /// Pseudo-class and pseudo-element (::before, :hover)
   static final _pseudo = RegExp(r'::?[a-zA-Z-]+(?:\([^)]*\))?');
 
-  // Double-quoted string
+  /// Double-quoted string
   static final _doubleString = RegExp(r'"(?:[^"\\]|\\.)*"');
 
-  // Single-quoted string
+  /// Single-quoted string
   static final _singleString = RegExp(r"'(?:[^'\\]|\\.)*'");
 
-  // Numbers with optional units (10px, 1.5em, 100%, etc.)
+  /// Numbers with optional units (10px, 1.5em, 100%, etc.)
   static final _number = RegExp(
     r'-?(?:\d+\.?\d*|\.\d+)(?:px|em|rem|%|vh|vw|vmin|vmax|ch|ex|cm|mm|in|pt|pc|deg|rad|grad|turn|s|ms|Hz|kHz|dpi|dpcm|dppx|fr)?',
   );
 
-  // Color hex values (#fff, #ffffff, #rrggbbaa)
+  /// Color hex values (#fff, #ffffff, #rrggbbaa)
   static final _hexColor = RegExp(r'#[0-9a-fA-F]{3,8}\b');
 
-  // CSS keywords/values
+  /// CSS keywords/values
   static const _keywords = {
     'important',
     'inherit',
@@ -70,7 +70,7 @@ class CssTokenizer extends Tokenizer {
     'currentColor',
   };
 
-  // Named colors (common ones)
+  /// Named colors (common ones)
   static const _namedColors = {
     'black',
     'white',

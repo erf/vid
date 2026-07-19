@@ -75,7 +75,7 @@ class DartTokenizer extends Tokenizer {
 
   static const _literals = {'true', 'false', 'null'};
 
-  // Built-in types (lowercase)
+  /// Built-in types (lowercase)
   static const _builtinTypes = {
     'int',
     'double',

@@ -18,7 +18,7 @@ class EmojiSequenceTrie {
     }
   }
 
-  // Insert a sequence of code points into the trie
+  /// Insert a sequence of code points into the trie
   void insert(List<int> sequence) {
     TrieNode current = root;
     for (final codePoint in sequence) {
@@ -27,7 +27,7 @@ class EmojiSequenceTrie {
     current.isEndOfSequence = true;
   }
 
-  // Check if a sequence exists in the trie
+  /// Check if a sequence exists in the trie
   bool matches(List<int> sequence) {
     TrieNode? current = root;
     for (final codePoint in sequence) {

@@ -31,7 +31,7 @@ class LuaTokenizer extends Tokenizer {
 
   static const _literals = {'true', 'false', 'nil'};
 
-  // Lua standard library types/globals
+  /// Lua standard library types/globals
   static const _builtinTypes = {
     'string',
     'table',

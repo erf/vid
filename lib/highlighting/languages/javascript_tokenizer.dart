@@ -60,7 +60,7 @@ class JavaScriptTokenizer extends Tokenizer {
     'Infinity',
   };
 
-  // Built-in types and globals
+  /// Built-in types and globals
   static const _builtinTypes = {
     'Array',
     'Boolean',
@@ -106,7 +106,7 @@ class JavaScriptTokenizer extends Tokenizer {
   static final _identifier = RegExp(r'\b[a-zA-Z_$][a-zA-Z0-9_$]*\b');
   static final _typePattern = RegExp(r'^[A-Z][a-zA-Z0-9_$]*$');
 
-  // Characters that can precede a regex literal (not division)
+  /// Characters that can precede a regex literal (not division)
   static const _regexPrecedingChars = {
     '(',
     ',',

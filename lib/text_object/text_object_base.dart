@@ -21,8 +21,6 @@ abstract class TextObjectAction {
   /// (start == end) if the text object is not found.
   Range call(Editor e, FileBuffer f, int offset);
 
-  // ===== Utility methods for text object implementations =====
-
   /// Find matching bracket pair containing offset.
   /// Returns (openPos, closePos) or (-1, -1) if not found.
   (int, int) findMatchingPair(

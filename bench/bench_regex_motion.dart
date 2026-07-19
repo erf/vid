@@ -70,8 +70,6 @@ String _generateText(int lines) {
   return sb.toString();
 }
 
-// === matchCursorWord ===
-
 int matchCursorWordOld(String text, int offset, {required bool forward}) {
   final matches = Regex.word.allMatches(text);
   if (matches.isEmpty) return offset;
@@ -145,8 +143,6 @@ void benchmarkMatchCursorWordNew(String text, int offset, int iterations) {
   print('new (chunked):  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
 }
 
-// === wordEndPrev ===
-
 int wordEndPrevOld(String text, int offset) {
   final matches = Regex.word.allMatches(text);
   if (matches.isEmpty) return offset;
@@ -193,8 +189,6 @@ void benchmarkWordEndPrevNew(String text, int offset, int iterations) {
   stopwatch.stop();
   print('new (chunked):  ${stopwatch.elapsedMilliseconds}ms (result: $result)');
 }
-
-// === regexPrev ===
 
 int regexPrevOld(String text, int offset, RegExp pattern) {
   final matches = pattern.allMatches(text.substring(0, offset));

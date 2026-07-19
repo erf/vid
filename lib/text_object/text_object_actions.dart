@@ -4,8 +4,6 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../range.dart';
 
-// ===== Bracket text objects =====
-
 /// Inside a bracket pair: selects content between matching open/close brackets.
 class InsidePair extends TextObjectAction {
   final String open;
@@ -34,8 +32,6 @@ class AroundPair extends TextObjectAction {
   }
 }
 
-// ===== Quote text objects =====
-
 /// Inside a quote pair: selects content between matching quotes.
 class InsideQuote extends TextObjectAction {
   final String quote;
@@ -61,8 +57,6 @@ class AroundQuote extends TextObjectAction {
     return Range(o, c + 1);
   }
 }
-
-// ===== Word text objects =====
 
 /// Inside word: iw
 /// Selects the word under cursor (no surrounding whitespace)
@@ -194,8 +188,6 @@ class InsideWORD extends TextObjectAction {
     return Range(start, end);
   }
 }
-
-// ===== Sentence/paragraph text objects =====
 
 /// Inside sentence: is
 class InsideSentence extends TextObjectAction {

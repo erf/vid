@@ -25,8 +25,6 @@ abstract class Action {
   /// Execute the action.
   void call(Editor e, FileBuffer f);
 
-  // ===== Utility methods for action implementations =====
-
   /// Get visual column of offset.
   static int visualColumn(FileBuffer f, int offset, int tabWidth) {
     final lineStart = f.lineStart(offset);

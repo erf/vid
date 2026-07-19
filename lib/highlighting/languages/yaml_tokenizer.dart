@@ -5,30 +5,30 @@ import '../tokenizer.dart';
 ///
 /// Produces tokens with absolute byte positions for a given text range.
 class YamlTokenizer extends Tokenizer {
-  // Line comment (# to end of line)
+  /// Line comment (# to end of line)
   static final _lineComment = RegExp(r'#.*');
-  // Quoted strings
+  /// Quoted strings
   static final _doubleString = RegExp(r'"(?:[^"\\]|\\.)*"');
   static final _singleString = RegExp(r"'(?:[^'\\]|\\.)*'");
-  // Numbers (integers, floats, hex, octal, infinity, NaN)
+  /// Numbers (integers, floats, hex, octal, infinity, NaN)
   static final _number = RegExp(
     r'(?<![a-zA-Z_])(?:[-+]?(?:0x[0-9a-fA-F]+|0o[0-7]+|[0-9]+(?:\.[0-9]*)?(?:[eE][+-]?[0-9]+)?)|[-+]?\.(?:inf|Inf|INF)|\.(?:nan|NaN|NAN))(?![a-zA-Z_])',
   );
-  // Boolean and null literals
+  /// Boolean and null literals
   static final _literal = RegExp(
     r'\b(?:true|false|True|False|TRUE|FALSE|yes|no|Yes|No|YES|NO|null|Null|NULL|~)\b',
   );
-  // Anchors (&name) and aliases (*name)
+  /// Anchors (&name) and aliases (*name)
   static final _anchor = RegExp(r'[&*][a-zA-Z_][a-zA-Z0-9_]*');
-  // Tags (!!str, !custom, etc.)
+  /// Tags (!!str, !custom, etc.)
   static final _tag = RegExp(r'!(?:![a-zA-Z]+|[a-zA-Z][a-zA-Z0-9]*)?');
-  // Key pattern (identifier followed by colon, at various positions)
+  /// Key pattern (identifier followed by colon, at various positions)
   static final _key = RegExp(r'[a-zA-Z_][a-zA-Z0-9_]*(?=\s*:)');
-  // List item marker at start of line (with optional leading whitespace)
+  /// List item marker at start of line (with optional leading whitespace)
   static final _listItem = RegExp(r'-\s');
-  // Block scalar indicators (| or >)
+  /// Block scalar indicators (| or >)
   static final _blockScalar = RegExp(r'[|>][+-]?[0-9]*');
-  // Directive (%YAML, %TAG)
+  /// Directive (%YAML, %TAG)
   static final _directive = RegExp(r'%[A-Z]+\s.*');
 
   @override

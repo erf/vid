@@ -10,8 +10,6 @@ import '../selection.dart';
 import 'line_edit_base.dart';
 import '../action/file_actions.dart';
 
-// ===== Basic commands =====
-
 /// No operation - just returns to normal mode.
 class CmdNoop extends LineEditAction {
   const CmdNoop();
@@ -199,8 +197,6 @@ class CmdForceQuit extends LineEditAction {
   }
 }
 
-// ===== Wrap mode commands =====
-
 /// Set wrap mode (:nowrap, :charwrap, :wordwrap).
 class CmdSetWrap extends LineEditAction {
   final WrapMode mode;
@@ -214,8 +210,6 @@ class CmdSetWrap extends LineEditAction {
     e.showMessage(.info('Wrap: $label'));
   }
 }
-
-// ===== Selection commands =====
 
 /// Select all matches of a regex pattern (:sel pattern).
 ///

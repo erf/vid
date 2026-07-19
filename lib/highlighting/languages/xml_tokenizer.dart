@@ -5,17 +5,17 @@ import '../tokenizer.dart';
 ///
 /// Produces tokens with absolute byte positions for a given text range.
 class XmlTokenizer extends Tokenizer {
-  // DOCTYPE <!DOCTYPE ...>
+  /// DOCTYPE <!DOCTYPE ...>
   static final _doctypeStart = RegExp(r'<!DOCTYPE\b', caseSensitive: false);
-  // Tag name after < or </
+  /// Tag name after < or </
   static final _tagStart = RegExp(r'</?');
   static final _tagName = RegExp(r'[a-zA-Z_:][\w:.-]*');
-  // Attribute name
+  /// Attribute name
   static final _attrName = RegExp(r'[a-zA-Z_:][\w:.-]*');
-  // Quoted strings (attribute values)
+  /// Quoted strings (attribute values)
   static final _doubleString = RegExp(r'"[^"]*"');
   static final _singleString = RegExp(r"'[^']*'");
-  // Entity reference &...; or &#...;
+  /// Entity reference &...; or &#...;
   static final _entityRef = RegExp(
     r'&(?:#[xX]?[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]*);',
   );

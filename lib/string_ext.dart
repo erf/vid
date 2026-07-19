@@ -4,13 +4,13 @@ import 'package:termio/termio.dart';
 import 'grapheme/unicode.dart';
 
 extension StringExt on String {
-  // Shorthand for characters (Characters(this))
+  /// Shorthand for characters (Characters(this))
   Characters get ch => characters;
 
-  // replace all tabs with spaces
+  /// replace all tabs with spaces
   String tabsToSpaces(int tabWidth) => replaceAll(Keys.tab, ' ' * tabWidth);
 
-  // Try to determine the rendered width of a single character/grapheme
+  /// Try to determine the rendered width of a single character/grapheme
   int charWidth([int tabWidth = 1]) =>
       Unicode.charWidth(this, tabWidth: tabWidth);
 

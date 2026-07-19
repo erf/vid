@@ -38,7 +38,6 @@ import 'mouse_handler.dart';
 import 'range.dart';
 
 class Editor {
-  // Instance fields
   Config config;
   final TerminalBase terminal;
   final bool redraw;
@@ -78,7 +77,7 @@ class Editor {
   /// Jump list for Ctrl-o / Ctrl-i navigation.
   final JumpList jumpList = JumpList();
 
-  // Buffer accessors — delegated to the BufferManager.
+  /// Buffer accessors — delegated to the BufferManager.
   FileBuffer get file => _bufferManager.current;
 
   set file(FileBuffer buffer) {
@@ -485,7 +484,7 @@ class Editor {
     _mouseHandler.handle(this, mouse);
   }
 
-  // match input against key bindings for executing commands
+  /// match input against key bindings for executing commands
   void _handleInput(String char) {
     InputState input = file.input;
 

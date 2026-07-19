@@ -5,7 +5,7 @@ import '../tokenizer.dart';
 ///
 /// Produces tokens with absolute byte positions for a given text range.
 class BashTokenizer extends Tokenizer {
-  // Shell keywords
+  /// Shell keywords
   static const _keywords = {
     'if',
     'then',
@@ -26,7 +26,7 @@ class BashTokenizer extends Tokenizer {
     'coproc',
   };
 
-  // Shell builtins and common commands
+  /// Shell builtins and common commands
   static const _builtins = {
     // Shell builtins
     'alias',
@@ -127,10 +127,10 @@ class BashTokenizer extends Tokenizer {
     'xargs',
   };
 
-  // Boolean literals
+  /// Boolean literals
   static const _literals = {'true', 'false'};
 
-  // Patterns
+  /// Patterns
   static final _lineComment = RegExp(r'#.*');
   static final _shebang = RegExp(r'^#!.*');
   static final _doubleString = RegExp(r'"(?:[^"\\]|\\.)*"');

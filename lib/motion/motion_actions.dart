@@ -6,8 +6,6 @@ import '../regex.dart';
 import '../regex_ext.dart';
 import 'motion_base.dart';
 
-// ===== Character motions =====
-
 /// Move to next character (l)
 class CharNext extends MotionAction {
   const CharNext();
@@ -30,8 +28,6 @@ class CharPrev extends MotionAction {
     return f.prevGrapheme(offset);
   }
 }
-
-// ===== Line motions =====
 
 /// Move to next line (j) - linewise
 class LineDown extends MotionAction {
@@ -124,8 +120,6 @@ class FirstNonBlank extends MotionAction {
   }
 }
 
-// ===== Word motions =====
-
 /// Move to next word/WORD (w/W)
 class WordNextMotion extends MotionAction {
   final RegExp pattern;
@@ -191,8 +185,6 @@ class WordEndPrevMotion extends MotionAction {
   }
 }
 
-// ===== File motions =====
-
 /// Move to start of file or line number (gg) - linewise
 class FileStart extends MotionAction {
   const FileStart();
@@ -222,8 +214,6 @@ class FileEnd extends MotionAction {
     return const FirstNonBlank().call(e, f, lineStartOff);
   }
 }
-
-// ===== Find char motions =====
 
 /// Find next character (f) - inclusive
 /// Returns the position of the matched character.
@@ -278,8 +268,6 @@ class FindTillPrevChar extends MotionAction {
   }
 }
 
-// ===== Paragraph/sentence motions =====
-
 /// Move to next paragraph (})
 class ParagraphNext extends MotionAction {
   const ParagraphNext();
@@ -320,8 +308,6 @@ class SentencePrev extends MotionAction {
   }
 }
 
-// ===== Same word motions =====
-
 enum SameWordDir { next, prev }
 
 /// Move to next/previous same word (* / #)
@@ -338,8 +324,6 @@ class SameWordMotion extends MotionAction {
     return destOffset;
   }
 }
-
-// ===== Search motions =====
 
 /// Search next (n)
 class SearchNext extends MotionAction {
@@ -362,8 +346,6 @@ class SearchPrev extends MotionAction {
     return regexPrev(f, offset, RegExp(RegExp.escape(pattern)));
   }
 }
-
-// ===== Match bracket =====
 
 /// Match bracket (%) - jump to matching (), {}, []
 /// If cursor is on a bracket, jump to its match.
@@ -452,8 +434,6 @@ class MatchBracket extends MotionAction {
     return offset;
   }
 }
-
-// ===== Special linewise motion =====
 
 /// Linewise motion for same-line operators (dd, yy, cc)
 class Linewise extends MotionAction {

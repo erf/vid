@@ -2,10 +2,10 @@ import 'east_asian_width.dart';
 import 'emoji_sequence_trie.dart';
 import 'emoji_sequences.dart';
 
-// Unicode class to determine the rendered width of a single character
-// based on: https://wcwidth.readthedocs.io/en/latest/specs.html
+/// Unicode class to determine the rendered width of a single character
+/// based on: https://wcwidth.readthedocs.io/en/latest/specs.html
 class Unicode {
-  // Get the rendered width of a single character
+  /// Get the rendered width of a single character
   static int charWidth(String str, {required int tabWidth}) {
     if (str.isEmpty) return 0;
 

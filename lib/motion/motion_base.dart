@@ -28,8 +28,6 @@ abstract class MotionAction {
   /// Sentinel value for desiredColumn meaning "end of line".
   static const int endOfLineColumn = 0x7FFFFFFF;
 
-  // ===== Utility methods for motion implementations =====
-
   /// Compute the visual column for the cursor at the given offset.
   int computeVisualColumn(Editor e, FileBuffer f, int offset, int currentLine) {
     int lineStartOff = f.lines[currentLine].start;

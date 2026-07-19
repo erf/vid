@@ -8,7 +8,7 @@ import '../error_or.dart';
 import 'file_buffer.dart';
 
 extension FileBufferIo on FileBuffer {
-  // load file from disk or create new file, return file name
+  /// load file from disk or create new file, return file name
   static ErrorOr<FileBuffer> load(
     String path, {
     required bool createIfNotExists,
@@ -59,7 +59,7 @@ extension FileBufferIo on FileBuffer {
     return ErrorOr.error('File not found: \'$path\'');
   }
 
-  // parse line number argument if it exists, set cursor to start of that line
+  /// parse line number argument if it exists, set cursor to start of that line
   void parseCliArgs(List<String> args) {
     if (args.length > 1 && args.last.startsWith('+')) {
       final lineNo = args.last.substring(1);
@@ -72,8 +72,8 @@ extension FileBufferIo on FileBuffer {
     }
   }
 
-  // save file to disk or create new file
-  // we pass a path so we can try to save to a new file name before setting the path
+  /// save file to disk or create new file
+  /// we pass a path so we can try to save to a new file name before setting the path
   ErrorOr<bool> save(Editor e, String? path) {
     if (path == null || path.isEmpty) {
       return ErrorOr.error('Path is empty');
@@ -88,7 +88,6 @@ extension FileBufferIo on FileBuffer {
     return ErrorOr.value(true);
   }
 
-  // read a single character from stdin (used by find motions)
   String readNextChar() {
     return utf8.decode([stdin.readByteSync()]);
   }
