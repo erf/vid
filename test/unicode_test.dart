@@ -90,4 +90,25 @@ void main() {
   test('char width of ⑧', () {
     expect('⑧'.charWidth(tabWidth), 1);
   });
+
+  test('tab width', () {
+    expect('\t'.charWidth(tabWidth), tabWidth);
+    expect('\t'.charWidth(8), 8);
+  });
+
+  test('control chars have zero width', () {
+    expect('\x07'.charWidth(tabWidth), 0, reason: 'bell');
+    expect('\x1B'.charWidth(tabWidth), 0, reason: 'escape');
+    expect('\x7F'.charWidth(tabWidth), 0, reason: 'delete');
+    expect('\x85'.charWidth(tabWidth), 0, reason: 'C1 next-line');
+    expect('\x9F'.charWidth(tabWidth), 0, reason: 'C1 end');
+  });
+
+  test('Latin-1 chars have width 1', () {
+    expect('é'.charWidth(tabWidth), 1);
+    expect('ü'.charWidth(tabWidth), 1);
+    expect('°'.charWidth(tabWidth), 1);
+    expect('±'.charWidth(tabWidth), 1);
+    expect('©'.charWidth(tabWidth), 1);
+  });
 }

@@ -1,6 +1,5 @@
 import 'east_asian_width.dart';
 import 'emoji_sequence_trie.dart';
-import 'emoji_sequences.dart';
 
 /// Unicode class to determine the rendered width of a single character
 /// based on: https://wcwidth.readthedocs.io/en/latest/specs.html
@@ -14,8 +13,10 @@ class Unicode {
     if (str.length == 1) {
       final int c = str.codeUnitAt(0);
       if (c == 0x0009) return tabWidth; // tab
-      if (c <= 0x001F || c == 0x007F) return 0; // control chars
+      if (c <= 0x001F || c == 0x007F) return 0; // C0 control chars
       if (c <= 0x007F) return 1; // ASCII
+      if (c <= 0x009F) return 0; // C1 control chars
+      if (c <= 0x00FF) return 1; // Latin-1 (é, ü, °, etc. - never wide)
     }
 
     // TODO handle zero width
@@ -42,8 +43,9 @@ class Unicode {
     //   return 2;
     // }
 
-    // emoji-sequences - only create list when needed for trie lookup
-    if (isEmojiSequenceTrie(str.runes.toList())) {
+    // emoji-sequences - cheap root pre-check, then lazy runes (no list alloc)
+    if (emojiSequenceTrie.mightStart(firstCodePoint) &&
+        isEmojiSequenceTrie(str.runes)) {
       return 2;
     }
 
@@ -54,15 +56,7 @@ class Unicode {
     return eastAsianWidth.contains(codePoint);
   }
 
-  static bool isEmojiSequence(List<int> codePoints) {
-    return emojiSequences.any(
-      (seq) =>
-          seq.length == codePoints.length &&
-          seq.every((cp) => codePoints.contains(cp)),
-    );
-  }
-
-  static bool isEmojiSequenceTrie(List<int> codePoints) {
+  static bool isEmojiSequenceTrie(Iterable<int> codePoints) {
     return emojiSequenceTrie.matches(codePoints);
   }
 

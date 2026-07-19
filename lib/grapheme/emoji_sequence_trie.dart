@@ -28,7 +28,7 @@ class EmojiSequenceTrie {
   }
 
   /// Check if a sequence exists in the trie
-  bool matches(List<int> sequence) {
+  bool matches(Iterable<int> sequence) {
     TrieNode? current = root;
     for (final codePoint in sequence) {
       current = current?.children[codePoint];
@@ -36,6 +36,9 @@ class EmojiSequenceTrie {
     }
     return current?.isEndOfSequence ?? false;
   }
+
+  /// Cheap pre-check: can this code point start any sequence in the trie?
+  bool mightStart(int codePoint) => root.children.containsKey(codePoint);
 }
 
 final emojiSequenceTrie = EmojiSequenceTrie(emojiSequences);

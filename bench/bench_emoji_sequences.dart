@@ -12,7 +12,7 @@ void benchmarkEmojiSequences(List<String> unicodeChars) {
   int num1 = 0;
   int num2 = 0;
   for (final unicodeChar in unicodeChars) {
-    if (Unicode.isEmojiSequence(unicodeChar.runes.toList())) {
+    if (Unicode.isEmojiSequenceTrie(unicodeChar.runes)) {
       num2++;
     } else {
       num1++;
