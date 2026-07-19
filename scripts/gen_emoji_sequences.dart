@@ -7,6 +7,7 @@ class EmojiSequencesParser {
   final url = 'https://unicode.org/Public/emoji/latest/emoji-sequences.txt';
   String filename = '';
   String date = '';
+  String version = '';
 
   Future<void> load() async {
     final response = await http.get(Uri.parse(url));
@@ -19,6 +20,12 @@ class EmojiSequencesParser {
 
     filename = lines.take(1).single.replaceFirst('# ', '');
     date = lines.skip(1).take(1).single.replaceFirst('# ', '');
+    // Version is on a "# Version: 17.0" comment line (not the filename line).
+    final versionLine = lines.firstWhere(
+      (l) => l.startsWith('# Version:'),
+      orElse: () => '',
+    );
+    version = versionLine.replaceFirst('# Version:', '').trim();
 
     for (var line in lines) {
       // Remove comments and trim whitespace
@@ -50,6 +57,7 @@ class EmojiSequencesParser {
 // Source: $url
 // File: $filename
 // $date
+// Unicode Emoji version: $version
 ''');
     buffer.writeln('const emojiSequences = [');
     for (var seq in emojiSequences) {
