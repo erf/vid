@@ -9,6 +9,7 @@ import 'message.dart';
 import 'message_renderer.dart';
 import 'popup/popup.dart';
 import 'popup/popup_renderer.dart';
+import 'selection.dart';
 import 'status_bar.dart';
 import 'string_ext.dart';
 
@@ -60,25 +61,65 @@ import 'string_ext.dart';
   return (byteOffset: byteOffset, slice: buf.toString());
 }
 
-/// Result of layout pass for a line
-class RenderLineResult {
-  final int screenRow;
-  final int? cursorScreenRow;
-  final int cursorWrapCol;
+/// A single planned screen row, produced by the layout pass and drawn
+/// verbatim by the emit pass. Layout is the single source of truth for
+/// chunking (wrap offsets, newline-symbol width reservation), so what is
+/// drawn always matches what [Renderer.screenRowMap] reports.
+class _RowPlan {
+  /// The logical line number (0-based), -1 for past-end-of-file '~' rows.
+  final int lineNum;
 
-  RenderLineResult({
-    required this.screenRow,
-    this.cursorScreenRow,
-    required this.cursorWrapCol,
+  /// Byte offset of the start of the logical line.
+  final int lineStartByte;
+
+  /// Byte length of the logical line (excluding the newline).
+  final int lineLength;
+
+  /// Byte offset within the line where this row's content starts.
+  final int byteOffset;
+
+  /// Display text for this row (tab-expanded); empty for '~' rows and
+  /// empty lines. In no-wrap mode this is the horizontally scrolled window.
+  final String chunk;
+
+  /// Raw (tab-containing) text corresponding to [chunk], used for styling
+  /// so tokens/selections resolve by byte offset.
+  final String raw;
+
+  /// Render column offset of this row within the line (wrap offset, or
+  /// viewportCol in no-wrap mode).
+  final int wrapCol;
+
+  /// Whether this is the first row of a (possibly wrapped) line.
+  final bool isFirstWrap;
+
+  /// Whether to draw the newline symbol after this row.
+  bool drawNewline;
+
+  _RowPlan({
+    required this.lineNum,
+    required this.lineStartByte,
+    this.lineLength = 0,
+    this.byteOffset = 0,
+    this.chunk = '',
+    this.raw = '',
+    this.wrapCol = 0,
+    this.isFirstWrap = true,
+    this.drawNewline = false,
   });
 }
 
-/// Result of rendering all visible lines
-class RenderResult {
+/// Result of the layout pass for all visible lines
+class _RenderResult {
   final int cursorScreenRow;
   final int cursorWrapCol;
+  final List<_RowPlan> rows;
 
-  RenderResult({required this.cursorScreenRow, required this.cursorWrapCol});
+  _RenderResult({
+    required this.cursorScreenRow,
+    required this.cursorWrapCol,
+    required this.rows,
+  });
 }
 
 /// Info about what logical position a screen row maps to
@@ -239,11 +280,16 @@ class Renderer {
     if (theme.foreground != null) buffer.write(theme.foreground);
     buffer.write(Ansi.clearScreen());
 
-    _renderLines(
+    final (selectionRanges, secondaryCursorRanges) = _computeSelectionRanges(
+      file,
+    );
+    _emitRows(
+      layout.rows,
       file: file,
       config: config,
-      viewportCol: viewportCol,
       cursorLine: cursorLine,
+      selectionRanges: selectionRanges,
+      secondaryCursorRanges: secondaryCursorRanges,
       gutterSigns: gutterSigns,
     );
 
@@ -289,7 +335,7 @@ class Renderer {
   /// Pass 1: Calculate screen layout without rendering.
   /// Builds screenRowMap and finds cursor position.
   /// Adjusts file.viewport if cursor would be off-screen in wrap mode.
-  RenderResult _calculateLayout({
+  _RenderResult _calculateLayout({
     required FileBuffer file,
     required Config config,
     required int viewportCol,
@@ -325,11 +371,13 @@ class Renderer {
       }
     }
 
-    return result ?? RenderResult(cursorScreenRow: 1, cursorWrapCol: 0);
+    return result ??
+        _RenderResult(cursorScreenRow: 1, cursorWrapCol: 0, rows: const []);
   }
 
-  /// Calculate layout for visible lines. Returns cursor info if found, null otherwise.
-  RenderResult? _layoutLines({
+  /// Calculate layout for visible lines, producing one [_RowPlan] per screen
+  /// row. Returns null if the cursor is not on screen (wrap mode retry).
+  _RenderResult? _layoutLines({
     required FileBuffer file,
     required Config config,
     required int viewportCol,
@@ -337,130 +385,151 @@ class Renderer {
     required int cursorRenderCol,
     required int numLines,
   }) {
-    int offset = file.viewport;
-    int screenRow = 0;
+    final rows = <_RowPlan>[];
     int? cursorScreenRow;
     int cursorWrapCol = 0;
-    int currentFileLineNum = file.lineNumber(file.viewport);
+    int lineNum = file.lineNumber(file.viewport);
 
     screenRowMap.clear();
 
-    while (screenRow < numLines) {
-      // Past end of file
-      if (offset >= file.text.length) {
-        screenRowMap.add(
-          ScreenRowInfo(
-            lineNum: -1,
-            wrapCol: 0,
-            lineStartByte: file.text.length,
-          ),
-        );
-        screenRow++;
+    while (rows.length < numLines) {
+      // Past end of file: '~' row
+      if (lineNum >= file.lines.length) {
+        rows.add(_RowPlan(lineNum: -1, lineStartByte: file.text.length));
         continue;
       }
 
-      // Find end of this line
-      int lineEnd = file.text.indexOf(Keys.newline, offset);
-      if (lineEnd == -1) lineEnd = file.text.length;
+      final isCursorLine = lineNum == cursorLine;
 
-      // Extract line text and convert tabs
-      String lineText = file.text.substring(offset, lineEnd);
-      String rendered = lineText.tabsToSpaces(config.tabWidth);
-
-      final isCursorLine = currentFileLineNum == cursorLine;
-
-      // Layout line based on wrap mode
       final result = switch (config.wrapMode) {
         .none => _layoutLineNoWrap(
-          lineNum: currentFileLineNum,
-          lineStartByte: offset,
+          file: file,
+          lineNum: lineNum,
           viewportCol: viewportCol,
-          screenRow: screenRow,
-          numLines: numLines,
+          screenRow: rows.length,
           isCursorLine: isCursorLine,
-          cursorRenderCol: cursorRenderCol,
+          tabWidth: config.tabWidth,
+          rows: rows,
         ),
-        .char => _layoutLineWrapped(
-          rendered: rendered,
-          lineNum: currentFileLineNum,
-          lineStartByte: offset,
-          screenRow: screenRow,
+        _ => _layoutLineWrapped(
+          file: file,
+          lineNum: lineNum,
+          screenRow: rows.length,
           numLines: numLines,
           isCursorLine: isCursorLine,
           cursorRenderCol: cursorRenderCol,
           tabWidth: config.tabWidth,
-        ),
-        .word => _layoutLineWrapped(
-          rendered: rendered,
-          lineNum: currentFileLineNum,
-          lineStartByte: offset,
-          screenRow: screenRow,
-          numLines: numLines,
-          isCursorLine: isCursorLine,
-          cursorRenderCol: cursorRenderCol,
-          tabWidth: config.tabWidth,
-          breakat: config.breakat,
+          breakat: config.wrapMode == .word ? config.breakat : null,
+          newlineSymbol: config.newlineSymbol,
+          rows: rows,
         ),
       };
 
-      screenRow = result.screenRow;
       if (result.cursorScreenRow != null) {
         cursorScreenRow = result.cursorScreenRow;
         cursorWrapCol = result.cursorWrapCol;
       }
 
-      offset = lineEnd + 1;
-      currentFileLineNum++;
+      lineNum++;
+    }
+
+    // Populate screenRowMap from the plans (single source of truth).
+    for (final row in rows) {
+      screenRowMap.add(
+        ScreenRowInfo(
+          lineNum: row.lineNum,
+          wrapCol: row.wrapCol,
+          lineStartByte: row.lineStartByte,
+        ),
+      );
     }
 
     if (cursorScreenRow == null) return null;
-    return RenderResult(
+    return _RenderResult(
       cursorScreenRow: cursorScreenRow,
       cursorWrapCol: cursorWrapCol,
+      rows: rows,
     );
   }
 
-  /// Layout a line without wrapping
-  RenderLineResult _layoutLineNoWrap({
+  /// Layout a line without wrapping, appending one row plan.
+  ({int? cursorScreenRow, int cursorWrapCol}) _layoutLineNoWrap({
+    required FileBuffer file,
     required int lineNum,
-    required int lineStartByte,
     required int viewportCol,
     required int screenRow,
-    required int numLines,
     required bool isCursorLine,
-    required int cursorRenderCol,
+    required int tabWidth,
+    required List<_RowPlan> rows,
   }) {
-    screenRowMap.add(
-      ScreenRowInfo(
+    final line = file.lines[lineNum];
+    final original = file.text.substring(line.start, line.end);
+    final rendered = original.tabsToSpaces(tabWidth);
+    final lineStartByte = line.start;
+    final lineLength = line.end - line.start;
+
+    String chunk = '';
+    String raw = '';
+    int byteOffset = 0;
+    if (rendered.isNotEmpty) {
+      chunk = rendered.visibleLine(viewportCol, contentWidth);
+      final endCol = viewportCol + chunk.renderLength(tabWidth);
+      final slice = _renderedToOriginalSlice(
+        original,
+        viewportCol,
+        endCol,
+        tabWidth,
+      );
+      byteOffset = slice.byteOffset;
+      raw = slice.slice;
+    }
+
+    final lineRenderLength = rendered.renderLength(tabWidth);
+    final drawNewline = viewportCol + contentWidth > lineRenderLength;
+
+    rows.add(
+      _RowPlan(
         lineNum: lineNum,
-        wrapCol: viewportCol,
         lineStartByte: lineStartByte,
+        lineLength: lineLength,
+        byteOffset: byteOffset,
+        chunk: chunk,
+        raw: raw,
+        wrapCol: viewportCol,
+        isFirstWrap: true,
+        drawNewline: drawNewline,
       ),
     );
-    return RenderLineResult(
-      screenRow: screenRow + 1,
+
+    return (
       cursorScreenRow: isCursorLine ? screenRow + 1 : null,
       cursorWrapCol: 0,
     );
   }
 
-  /// Layout a wrapped line. When [breakat] is null, uses character wrap
-  /// (chunk == contentWidth columns). When non-null, attempts to break at a
-  /// character in [breakat] within the latter half of the chunk (word wrap).
-  ///
-  /// All wrap positions are tracked in render columns (see [_nextWrapChunk]),
-  /// so cursor-row mapping matches what [_renderLineWrapped] actually draws.
-  RenderLineResult _layoutLineWrapped({
-    required String rendered,
+  /// Layout a wrapped line, appending one row plan per screen row. When
+  /// [breakat] is null, uses character wrap; otherwise attempts to break at
+  /// characters in [breakat] (word wrap). All wrap positions are tracked in
+  /// render columns (see [_nextWrapChunk]); the layout is the single source
+  /// of truth for what [_emitRows] draws.
+  ({int? cursorScreenRow, int cursorWrapCol}) _layoutLineWrapped({
+    required FileBuffer file,
     required int lineNum,
-    required int lineStartByte,
     required int screenRow,
     required int numLines,
     required bool isCursorLine,
     required int cursorRenderCol,
     required int tabWidth,
-    String? breakat,
+    required String? breakat,
+    required String newlineSymbol,
+    required List<_RowPlan> rows,
   }) {
+    final line = file.lines[lineNum];
+    final original = file.text.substring(line.start, line.end);
+    final rendered = original.tabsToSpaces(tabWidth);
+    final lineStartByte = line.start;
+    final lineLength = line.end - line.start;
+
     int? cursorScreenRow;
     int cursorWrapCol = 0;
     int wrapCol = 0;
@@ -468,27 +537,52 @@ class Renderer {
     int lastScreenRow = screenRow;
     int lastWrapCol = 0;
     final totalWidth = rendered.renderLength(tabWidth);
+    final newlineWidth = newlineSymbol.renderLength(tabWidth);
 
+    _RowPlan? lastRow;
     while (wrapCol < totalWidth || firstWrap) {
       if (screenRow >= numLines) break;
 
-      screenRowMap.add(
-        ScreenRowInfo(
-          lineNum: lineNum,
-          wrapCol: wrapCol,
-          lineStartByte: lineStartByte,
-        ),
-      );
+      final isLastChunk = totalWidth - wrapCol <= contentWidth;
+      final budget = isLastChunk ? contentWidth - newlineWidth : contentWidth;
 
       final chunkInfo = _nextWrapChunk(
         rendered,
         wrapCol,
-        contentWidth,
+        budget,
         totalWidth,
         tabWidth,
         breakat,
       );
+      final chunk = chunkInfo.$1;
       final chunkEnd = chunkInfo.end;
+      final chunkWidth = chunkInfo.width;
+
+      int byteOffset = 0;
+      String raw = '';
+      if (chunk.isNotEmpty) {
+        final slice = _renderedToOriginalSlice(
+          original,
+          wrapCol,
+          wrapCol + chunkWidth,
+          tabWidth,
+        );
+        byteOffset = slice.byteOffset;
+        raw = slice.slice;
+      }
+
+      final row = _RowPlan(
+        lineNum: lineNum,
+        lineStartByte: lineStartByte,
+        lineLength: lineLength,
+        byteOffset: byteOffset,
+        chunk: chunk,
+        raw: raw,
+        wrapCol: wrapCol,
+        isFirstWrap: firstWrap,
+      );
+      rows.add(row);
+      lastRow = row;
 
       if (isCursorLine) {
         if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
@@ -506,16 +600,15 @@ class Renderer {
       if (rendered.isEmpty) break;
     }
 
+    // Newline symbol is drawn after the last wrap row of this line.
+    lastRow?.drawNewline = true;
+
     if (isCursorLine && cursorScreenRow == null) {
       cursorScreenRow = lastScreenRow;
       cursorWrapCol = lastWrapCol;
     }
 
-    return RenderLineResult(
-      screenRow: screenRow,
-      cursorScreenRow: cursorScreenRow,
-      cursorWrapCol: cursorWrapCol,
-    );
+    return (cursorScreenRow: cursorScreenRow, cursorWrapCol: cursorWrapCol);
   }
 
   /// Compute the next wrap chunk starting at render column [wrapCol].
@@ -570,26 +663,25 @@ class Renderer {
     return (chunk, end: wrapCol + width, width: width);
   }
 
-  /// Pass 2: Render lines to buffer using pre-calculated screenRowMap
-  void _renderLines({
-    required FileBuffer file,
-    required Config config,
-    required int viewportCol,
-    required int cursorLine,
-    GutterSigns? gutterSigns,
-  }) {
-    int numLines = terminal.height - 1;
-    int offset = file.viewport;
-    int screenRow = 0;
-    int currentLineNum = file.lineNumber(file.viewport);
-    final showSigns = config.showDiagnosticSigns;
+  /// Compute selection and secondary-cursor byte ranges for rendering.
+  /// In visual line mode, selections are expanded to full lines.
+  (List<(int, int)>, List<(int, int)>) _computeSelectionRanges(
+    FileBuffer file,
+  ) {
+    // Extend a cursor-based range end to include the grapheme at [pos].
+    (int, int) cursorRange(Selection s) {
+      var end = s.cursor < file.text.length
+          ? file.nextGrapheme(s.cursor)
+          : s.cursor;
+      // Ensure we always have a visible highlight (at least 1 byte)
+      if (end == s.cursor && s.cursor < file.text.length) {
+        end = s.cursor + 1;
+      }
+      return (s.cursor, end);
+    }
 
-    // Convert selections to (start, end) tuples for rendering
-    // In visual line mode, expand each selection to full lines
-    List<(int, int)> selectionRanges;
-    List<(int, int)> secondaryCursorRanges = const <(int, int)>[];
     if (file.mode == .visualLine) {
-      selectionRanges = file.selections.map((s) {
+      final ranges = file.selections.map((s) {
         final startLineNum = file.lineNumber(s.start);
         final endLineNum = file.lineNumber(s.end);
         final minLine = startLineNum < endLineNum ? startLineNum : endLineNum;
@@ -599,388 +691,104 @@ class Renderer {
         if (end > file.text.length) end = file.text.length;
         return (start, end);
       }).toList();
-      // In visual line mode, show secondary cursors at cursor positions
-      if (file.selections.length > 1) {
-        secondaryCursorRanges = file.selections.skip(1).map((s) {
-          var end = s.cursor < file.text.length
-              ? file.nextGrapheme(s.cursor)
-              : s.cursor;
-          if (end == s.cursor && s.cursor < file.text.length) {
-            end = s.cursor + 1;
-          }
-          return (s.cursor, end);
-        }).toList();
-      }
-    } else if (file.hasVisualSelection) {
-      // Visual mode selections are cursor-based: end is the cursor position (last char)
-      // Extend by 1 to include the cursor character in the visual highlight
-      selectionRanges = file.selections.where((s) => !s.isCollapsed).map((s) {
+      final secondary = file.selections.length > 1
+          ? file.selections.skip(1).map(cursorRange).toList()
+          : <(int, int)>[];
+      return (ranges, secondary);
+    }
+
+    if (file.hasVisualSelection) {
+      // Visual mode selections are cursor-based: end is the cursor position
+      // (last char). Extend by 1 to include the cursor character.
+      final ranges = file.selections.where((s) => !s.isCollapsed).map((s) {
         final end = s.end < file.text.length ? file.nextGrapheme(s.end) : s.end;
         return (s.start, end);
       }).toList();
-      // In visual mode with multiple cursors, show secondary cursors distinctly
-      if (file.selections.length > 1) {
-        secondaryCursorRanges = file.selections.skip(1).map((s) {
-          var end = s.cursor < file.text.length
-              ? file.nextGrapheme(s.cursor)
-              : s.cursor;
-          if (end == s.cursor && s.cursor < file.text.length) {
-            end = s.cursor + 1;
-          }
-          return (s.cursor, end);
-        }).toList();
-      }
-    } else if (file.hasMultipleCursors) {
-      // Show secondary cursors as single-character highlights
-      // Skip first cursor (it's rendered as the actual terminal cursor)
-      selectionRanges = file.selections.skip(1).map((s) {
-        var end = s.cursor < file.text.length
-            ? file.nextGrapheme(s.cursor)
-            : s.cursor;
-        // Ensure we always have a visible highlight (at least 1 byte)
-        if (end == s.cursor && s.cursor < file.text.length) {
-          end = s.cursor + 1;
-        }
-        return (s.cursor, end);
-      }).toList();
-    } else {
-      selectionRanges = const <(int, int)>[];
+      final secondary = file.selections.length > 1
+          ? file.selections.skip(1).map(cursorRange).toList()
+          : <(int, int)>[];
+      return (ranges, secondary);
     }
 
-    while (screenRow < numLines) {
-      // Past end of file - draw '~' with empty gutter
-      if (offset >= file.text.length) {
-        if (screenRow > 0) buffer.write(Keys.newline);
-        gutterRenderer.render(
-          buffer,
-          -1,
-          cursorLine,
-          file.totalLines,
-          showSigns: showSigns,
-          showLineNumbers: config.showLineNumbers,
-        );
-        buffer.write('~');
-        screenRow++;
-        continue;
-      }
-
-      // Find end of this line
-      int lineEnd = file.text.indexOf(Keys.newline, offset);
-      if (lineEnd == -1) lineEnd = file.text.length;
-
-      // Extract line text
-      String lineText = file.text.substring(offset, lineEnd);
-      String rendered = lineText.tabsToSpaces(config.tabWidth);
-
-      // Render line based on wrap mode
-      screenRow = switch (config.wrapMode) {
-        .none => _renderLineNoWrap(
-          original: lineText,
-          rendered: rendered,
-          lineStartByte: offset,
-          viewportCol: viewportCol,
-          screenRow: screenRow,
-          numLines: numLines,
-          syntaxHighlighting: config.syntaxHighlighting,
-          tabWidth: config.tabWidth,
-          selectionRanges: selectionRanges,
-          secondaryCursorRanges: secondaryCursorRanges,
-          lineNum: currentLineNum,
-          cursorLine: cursorLine,
-          totalLines: file.totalLines,
-          sign: gutterSigns?[currentLineNum],
-          showSigns: showSigns,
-          showLineNumbers: config.showLineNumbers,
-          newlineSymbol: config.newlineSymbol,
-        ),
-        .char => _renderLineWrapped(
-          original: lineText,
-          rendered: rendered,
-          lineStartByte: offset,
-          screenRow: screenRow,
-          numLines: numLines,
-          syntaxHighlighting: config.syntaxHighlighting,
-          tabWidth: config.tabWidth,
-          selectionRanges: selectionRanges,
-          secondaryCursorRanges: secondaryCursorRanges,
-          lineNum: currentLineNum,
-          cursorLine: cursorLine,
-          totalLines: file.totalLines,
-          sign: gutterSigns?[currentLineNum],
-          showSigns: showSigns,
-          showLineNumbers: config.showLineNumbers,
-          newlineSymbol: config.newlineSymbol,
-        ),
-        .word => _renderLineWrapped(
-          original: lineText,
-          rendered: rendered,
-          lineStartByte: offset,
-          screenRow: screenRow,
-          numLines: numLines,
-          syntaxHighlighting: config.syntaxHighlighting,
-          breakat: config.breakat,
-          tabWidth: config.tabWidth,
-          selectionRanges: selectionRanges,
-          secondaryCursorRanges: secondaryCursorRanges,
-          lineNum: currentLineNum,
-          cursorLine: cursorLine,
-          totalLines: file.totalLines,
-          sign: gutterSigns?[currentLineNum],
-          showSigns: showSigns,
-          showLineNumbers: config.showLineNumbers,
-          newlineSymbol: config.newlineSymbol,
-        ),
-      };
-
-      offset = lineEnd + 1;
-      currentLineNum++;
-    }
-  }
-
-  /// Calculate available width for wrapping, reserving space for the newline
-  /// symbol on the last chunk. [wrapCol] is a render column offset.
-  int _availableWidthForWrap({
-    required String rendered,
-    required int wrapCol,
-    required int totalWidth,
-    required String newlineSymbol,
-    required int tabWidth,
-  }) {
-    final isLastChunk = totalWidth - wrapCol <= contentWidth;
-    final newlineWidth = newlineSymbol.renderLength(tabWidth);
-    return isLastChunk ? contentWidth - newlineWidth : contentWidth;
-  }
-
-  /// Render line without wrapping
-  int _renderLineNoWrap({
-    required String original,
-    required String rendered,
-    required int lineStartByte,
-    required int viewportCol,
-    required int screenRow,
-    required int numLines,
-    required bool syntaxHighlighting,
-    required int tabWidth,
-    required List<(int, int)> selectionRanges,
-    required List<(int, int)> secondaryCursorRanges,
-    required int lineNum,
-    required int cursorLine,
-    required int totalLines,
-    required String newlineSymbol,
-    GutterSign? sign,
-    bool showSigns = false,
-    bool showLineNumbers = true,
-  }) {
-    if (screenRow > 0) buffer.write(Keys.newline);
-
-    // Render gutter first
-    gutterRenderer.render(
-      buffer,
-      lineNum,
-      cursorLine,
-      totalLines,
-      sign: sign,
-      showSigns: showSigns,
-      showLineNumbers: showLineNumbers,
-    );
-
-    if (rendered.isNotEmpty) {
-      final visible = rendered.visibleLine(viewportCol, contentWidth);
-      // Map the visible render-column window back to the original (raw) text
-      // so the highlighter can resolve tokens/selections by byte offset.
-      final endCol = viewportCol + visible.renderLength(tabWidth);
-      final (:byteOffset, slice: originalSlice) = _renderedToOriginalSlice(
-        original,
-        viewportCol,
-        endCol,
-        tabWidth,
-      );
-      if (syntaxHighlighting) {
-        highlighter.style(
-          buffer,
-          originalSlice,
-          lineStartByte + byteOffset,
-          tabWidth: tabWidth,
-          selectionRanges: selectionRanges,
-          secondaryCursorRanges: secondaryCursorRanges,
-        );
-      } else {
-        // No syntax highlighting but may have selections
-        if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
-          highlighter.style(
-            buffer,
-            originalSlice,
-            lineStartByte + byteOffset,
-            tabWidth: tabWidth,
-            selectionRanges: selectionRanges,
-            secondaryCursorRanges: secondaryCursorRanges,
-          );
-        } else {
-          buffer.write(visible);
-        }
-      }
-    }
-
-    // Render newline symbol if visible in viewport
-    final lineRenderLength = rendered.renderLength(tabWidth);
-    if (viewportCol + contentWidth > lineRenderLength) {
-      gutterRenderer.renderNewlineSymbol(
-        buffer,
-        newlineSymbol: newlineSymbol,
-        lineStartByte: lineStartByte,
-        originalLength: original.length,
-        selectionRanges: selectionRanges,
-        secondaryCursorRanges: secondaryCursorRanges,
+    if (file.hasMultipleCursors) {
+      // Show secondary cursors as single-character highlights.
+      // Skip first cursor (it's rendered as the actual terminal cursor).
+      return (
+        file.selections.skip(1).map(cursorRange).toList(),
+        const <(int, int)>[],
       );
     }
 
-    return screenRow + 1;
+    return (const <(int, int)>[], const <(int, int)>[]);
   }
 
-  /// Render a wrapped line. When [breakat] is null, uses character wrap;
-  /// otherwise attempts to break at characters in [breakat] (word wrap).
-  int _renderLineWrapped({
-    required String original,
-    required String rendered,
-    required int lineStartByte,
-    required int screenRow,
-    required int numLines,
-    required bool syntaxHighlighting,
-    required int tabWidth,
+  /// Pass 2: emit the planned rows to the buffer. This is a dumb emitter —
+  /// all chunking decisions were made by the layout pass.
+  void _emitRows(
+    List<_RowPlan> rows, {
+    required FileBuffer file,
+    required Config config,
+    required int cursorLine,
     required List<(int, int)> selectionRanges,
     required List<(int, int)> secondaryCursorRanges,
-    required int lineNum,
-    required int cursorLine,
-    required int totalLines,
-    required String newlineSymbol,
-    String? breakat,
-    GutterSign? sign,
-    bool showSigns = false,
-    bool showLineNumbers = true,
+    GutterSigns? gutterSigns,
   }) {
-    int wrapCol = 0;
-    bool firstWrap = true;
-    final totalWidth = rendered.renderLength(tabWidth);
+    final showSigns = config.showDiagnosticSigns;
+    final showLineNumbers = config.showLineNumbers;
+    final totalLines = file.totalLines;
+    final needsStyling =
+        config.syntaxHighlighting ||
+        selectionRanges.isNotEmpty ||
+        secondaryCursorRanges.isNotEmpty;
 
-    while (wrapCol < totalWidth || firstWrap) {
-      if (screenRow >= numLines) break;
-      if (screenRow > 0) buffer.write(Keys.newline);
+    for (int i = 0; i < rows.length; i++) {
+      if (i > 0) buffer.write(Keys.newline);
+      final row = rows[i];
 
-      // Render gutter (only show line number on first wrap)
+      final GutterSign? sign = row.lineNum >= 0 && gutterSigns != null
+          ? gutterSigns[row.lineNum]
+          : null;
       gutterRenderer.render(
         buffer,
-        lineNum,
+        row.lineNum,
         cursorLine,
         totalLines,
-        isFirstWrap: firstWrap,
+        isFirstWrap: row.isFirstWrap,
         sign: sign,
         showSigns: showSigns,
         showLineNumbers: showLineNumbers,
       );
 
-      final availableWidth = _availableWidthForWrap(
-        rendered: rendered,
-        wrapCol: wrapCol,
-        totalWidth: totalWidth,
-        newlineSymbol: newlineSymbol,
-        tabWidth: tabWidth,
-      );
+      if (row.lineNum < 0) {
+        buffer.write('~');
+        continue;
+      }
 
-      // Extract the chunk by render width. Positions are render columns, so
-      // this stays in sync with _layoutLineWrapped (which uses contentWidth,
-      // the maximum available width).
-      final (chunk, end: nextWrapCol, width: _) = _nextWrapChunk(
-        rendered,
-        wrapCol,
-        availableWidth,
-        totalWidth,
-        tabWidth,
-        breakat,
-      );
+      if (row.chunk.isNotEmpty) {
+        if (needsStyling) {
+          highlighter.style(
+            buffer,
+            row.raw,
+            row.lineStartByte + row.byteOffset,
+            tabWidth: config.tabWidth,
+            selectionRanges: selectionRanges,
+            secondaryCursorRanges: secondaryCursorRanges,
+          );
+        } else {
+          buffer.write(row.chunk);
+        }
+      }
 
-      if (chunk.isNotEmpty) {
-        _styleChunk(
-          original: original,
-          chunk: chunk,
-          wrapCol: wrapCol,
-          lineStartByte: lineStartByte,
-          tabWidth: tabWidth,
-          syntaxHighlighting: syntaxHighlighting,
+      if (row.drawNewline) {
+        gutterRenderer.renderNewlineSymbol(
+          buffer,
+          newlineSymbol: config.newlineSymbol,
+          lineStartByte: row.lineStartByte,
+          originalLength: row.lineLength,
           selectionRanges: selectionRanges,
           secondaryCursorRanges: secondaryCursorRanges,
         );
       }
-
-      wrapCol = nextWrapCol;
-      screenRow++;
-      firstWrap = false;
-
-      if (rendered.isEmpty) break;
-    }
-
-    // Render newline symbol after all wraps
-    gutterRenderer.renderNewlineSymbol(
-      buffer,
-      newlineSymbol: newlineSymbol,
-      lineStartByte: lineStartByte,
-      originalLength: original.length,
-      selectionRanges: selectionRanges,
-      secondaryCursorRanges: secondaryCursorRanges,
-    );
-
-    return screenRow;
-  }
-
-  /// Style and emit a chunk of a wrapped line, mapping rendered offsets back
-  /// to original byte offsets so highlighting/selections align correctly.
-  /// [wrapCol] is a render column offset into the tab-expanded line.
-  void _styleChunk({
-    required String original,
-    required String chunk,
-    required int wrapCol,
-    required int lineStartByte,
-    required int tabWidth,
-    required bool syntaxHighlighting,
-    required List<(int, int)> selectionRanges,
-    required List<(int, int)> secondaryCursorRanges,
-  }) {
-    if (syntaxHighlighting ||
-        selectionRanges.isNotEmpty ||
-        secondaryCursorRanges.isNotEmpty) {
-      // Map the chunk's render-column window back to the original (raw) text.
-      // The window end is wrapCol + the chunk's rendered width, which covers
-      // exactly the graphemes visibleLine emitted (right-edge straddlers are
-      // dropped identically by both).
-      final chunkWidth = chunk.renderLength(tabWidth);
-      final (:byteOffset, slice: originalSlice) = _renderedToOriginalSlice(
-        original,
-        wrapCol,
-        wrapCol + chunkWidth,
-        tabWidth,
-      );
-
-      if (syntaxHighlighting) {
-        highlighter.style(
-          buffer,
-          originalSlice,
-          lineStartByte + byteOffset,
-          tabWidth: tabWidth,
-          selectionRanges: selectionRanges,
-          secondaryCursorRanges: secondaryCursorRanges,
-        );
-      } else {
-        // No syntax highlighting but may have selections
-        highlighter.style(
-          buffer,
-          originalSlice,
-          lineStartByte + byteOffset,
-          tabWidth: tabWidth,
-          selectionRanges: selectionRanges,
-          secondaryCursorRanges: secondaryCursorRanges,
-        );
-      }
-    } else {
-      buffer.write(chunk);
     }
   }
 
