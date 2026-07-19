@@ -43,17 +43,11 @@ class BufferManager {
     required this.onEmpty,
   });
 
-  // Getters and setters
-  //
-  // Invariant: `_buffers` is never empty during normal operation. The Editor
-  // seeds it with one buffer, and the only path that drains it is `close`
-  // which triggers `onEmpty` (which exits the process) before returning.
-  // Accessing `current` when buffers is empty would be a programming error
-  // and intentionally throws.
+  // Invariant: `_buffers` is never empty during normal operation; the only
+  // path that drains it is `close`, which triggers `onEmpty` before returning.
   FileBuffer get current => _buffers[_currentIndex];
 
-  /// Replace the current buffer without attaching listeners (mirrors the
-  /// historical behavior of the `Editor.file` setter).
+  /// Replace the current buffer without attaching listeners.
   set current(FileBuffer buffer) {
     _buffers[_currentIndex] = buffer;
   }

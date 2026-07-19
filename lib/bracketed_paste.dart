@@ -28,10 +28,9 @@ class BracketedPasteHandler {
   static const _pasteStart = '\x1b[200~';
   static const _pasteEnd = '\x1b[201~';
 
-  /// Whether we're currently receiving bracketed paste input.
   bool _inPaste = false;
 
-  /// Buffer for accumulating bracketed paste content.
+  /// Accumulates paste content until the end marker arrives.
   final StringBuffer _buffer = StringBuffer();
 
   /// Feed a chunk of raw input and return the events it contains.

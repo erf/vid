@@ -79,11 +79,6 @@ class Editor {
   final JumpList jumpList = JumpList();
 
   // Buffer accessors — delegated to the BufferManager.
-  //
-  // Invariant: buffers are never empty during normal operation. The
-  // constructor seeds one buffer, and the only path that drains it is
-  // `closeBuffer` which quits (exits the process) before returning.
-  // Accessing `file` when empty would be a programming error and throws.
   FileBuffer get file => _bufferManager.current;
 
   set file(FileBuffer buffer) {
