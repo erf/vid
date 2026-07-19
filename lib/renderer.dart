@@ -1,3 +1,4 @@
+import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
 import 'config.dart';
 import 'file_buffer/file_buffer.dart';
@@ -339,6 +340,7 @@ class Renderer {
           numLines: numLines,
           isCursorLine: isCursorLine,
           cursorRenderCol: cursorRenderCol,
+          tabWidth: config.tabWidth,
         ),
         .word => _layoutLineWrapped(
           rendered: rendered,
@@ -348,6 +350,7 @@ class Renderer {
           numLines: numLines,
           isCursorLine: isCursorLine,
           cursorRenderCol: cursorRenderCol,
+          tabWidth: config.tabWidth,
           breakat: config.breakat,
         ),
       };
@@ -394,8 +397,11 @@ class Renderer {
   }
 
   /// Layout a wrapped line. When [breakat] is null, uses character wrap
-  /// (chunk == contentWidth). When non-null, attempts to break at a character
-  /// in [breakat] within the latter half of the chunk (word wrap).
+  /// (chunk == contentWidth columns). When non-null, attempts to break at a
+  /// character in [breakat] within the latter half of the chunk (word wrap).
+  ///
+  /// All wrap positions are tracked in render columns (see [_nextWrapChunk]),
+  /// so cursor-row mapping matches what [_renderLineWrapped] actually draws.
   RenderLineResult _layoutLineWrapped({
     required String rendered,
     required int lineNum,
@@ -404,6 +410,7 @@ class Renderer {
     required int numLines,
     required bool isCursorLine,
     required int cursorRenderCol,
+    required int tabWidth,
     String? breakat,
   }) {
     int? cursorScreenRow;
@@ -412,8 +419,9 @@ class Renderer {
     bool firstWrap = true;
     int lastScreenRow = screenRow;
     int lastWrapCol = 0;
+    final totalWidth = rendered.renderLength(tabWidth);
 
-    while (wrapCol < rendered.length || firstWrap) {
+    while (wrapCol < totalWidth || firstWrap) {
       if (screenRow >= numLines) break;
 
       screenRowMap.add(
@@ -424,12 +432,15 @@ class Renderer {
         ),
       );
 
-      // Find chunk end. Char wrap: contentWidth. Word wrap: try break point.
-      int chunkEnd = wrapCol + contentWidth;
-      if (chunkEnd > rendered.length) chunkEnd = rendered.length;
-      if (breakat != null && chunkEnd < rendered.length) {
-        chunkEnd = _findWordBreakPoint(rendered, wrapCol, chunkEnd, breakat);
-      }
+      final chunkInfo = _nextWrapChunk(
+        rendered,
+        wrapCol,
+        contentWidth,
+        totalWidth,
+        tabWidth,
+        breakat,
+      );
+      final chunkEnd = chunkInfo.end;
 
       if (isCursorLine) {
         if (cursorRenderCol >= wrapCol && cursorRenderCol < chunkEnd) {
@@ -440,9 +451,7 @@ class Renderer {
         lastWrapCol = wrapCol;
       }
 
-      // Char wrap advances by contentWidth (matches old behavior); word wrap
-      // advances by the chosen break point.
-      wrapCol = breakat == null ? wrapCol + contentWidth : chunkEnd;
+      wrapCol = chunkEnd;
       screenRow++;
       firstWrap = false;
 
@@ -461,27 +470,56 @@ class Renderer {
     );
   }
 
-  /// Find a word-break point within `[wrapCol, chunkEnd)` by searching
-  /// backward from `chunkEnd - 1` for a character in [breakat]. Returns
-  /// the adjusted chunkEnd if a break was found in the latter half of the
-  /// chunk; otherwise returns the original [chunkEnd] unchanged.
-  int _findWordBreakPoint(
+  /// Compute the next wrap chunk starting at render column [wrapCol].
+  ///
+  /// Returns the chunk string and its rendered width. The chunk never exceeds
+  /// [budget] columns and never splits a grapheme cluster. The returned width
+  /// is always > 0 when [wrapCol] < [totalWidth]: if a wide char cannot fit
+  /// the budget it is emitted anyway (overflowing by one column) to guarantee
+  /// forward progress.
+  ///
+  /// Word wrap ([breakat] non-null): break after the last breakat char in the
+  /// chunk, but only when the pre-break portion is more than half of [budget];
+  /// otherwise the full chunk is used.
+  (String chunk, {int end, int width}) _nextWrapChunk(
     String rendered,
     int wrapCol,
-    int chunkEnd,
-    String breakat,
+    int budget,
+    int totalWidth,
+    int tabWidth,
+    String? breakat,
   ) {
-    int breakAt = chunkEnd;
-    for (int i = chunkEnd - 1; i > wrapCol; i--) {
-      if (breakat.contains(rendered[i])) {
-        breakAt = i + 1;
-        break;
+    String chunk = rendered.visibleLine(wrapCol, budget);
+    int width = chunk.renderLength(tabWidth);
+    if (width == 0 && wrapCol < totalWidth) {
+      // Wide char wider than the budget: emit it alone (overflows the budget
+      // by at most one column) to guarantee forward progress.
+      chunk = rendered
+          .visibleLine(wrapCol, totalWidth - wrapCol)
+          .characters
+          .first;
+      width = chunk.renderLength(tabWidth);
+    }
+
+    if (breakat != null && wrapCol + width < totalWidth) {
+      int breakIndex = -1;
+      for (int i = chunk.length - 1; i > 0; i--) {
+        if (breakat.contains(chunk[i])) {
+          breakIndex = i;
+          break;
+        }
+      }
+      if (breakIndex != -1) {
+        final preBreak = chunk.substring(0, breakIndex + 1);
+        final preBreakWidth = preBreak.renderLength(tabWidth);
+        if (preBreakWidth > budget ~/ 2) {
+          chunk = preBreak;
+          width = preBreakWidth;
+        }
       }
     }
-    if (breakAt > wrapCol + contentWidth ~/ 2) {
-      return breakAt;
-    }
-    return chunkEnd;
+
+    return (chunk, end: wrapCol + width, width: width);
   }
 
   /// Pass 2: Render lines to buffer using pre-calculated screenRowMap
@@ -651,15 +689,16 @@ class Renderer {
     }
   }
 
-  /// Calculate available width for wrapping, reserving space for newline symbol on last chunk.
+  /// Calculate available width for wrapping, reserving space for the newline
+  /// symbol on the last chunk. [wrapCol] is a render column offset.
   int _availableWidthForWrap({
     required String rendered,
     required int wrapCol,
+    required int totalWidth,
     required String newlineSymbol,
     required int tabWidth,
   }) {
-    final remainingChars = rendered.length - wrapCol;
-    final isLastChunk = remainingChars <= contentWidth;
+    final isLastChunk = totalWidth - wrapCol <= contentWidth;
     final newlineWidth = newlineSymbol.renderLength(tabWidth);
     return isLastChunk ? contentWidth - newlineWidth : contentWidth;
   }
@@ -776,8 +815,9 @@ class Renderer {
   }) {
     int wrapCol = 0;
     bool firstWrap = true;
+    final totalWidth = rendered.renderLength(tabWidth);
 
-    while (wrapCol < rendered.length || firstWrap) {
+    while (wrapCol < totalWidth || firstWrap) {
       if (screenRow >= numLines) break;
       if (screenRow > 0) buffer.write(Keys.newline);
 
@@ -796,28 +836,22 @@ class Renderer {
       final availableWidth = _availableWidthForWrap(
         rendered: rendered,
         wrapCol: wrapCol,
+        totalWidth: totalWidth,
         newlineSymbol: newlineSymbol,
         tabWidth: tabWidth,
       );
 
-      // Extract chunk and compute next wrapCol. Char wrap uses grapheme-aware
-      // chunking and advances by contentWidth. Word wrap uses byte substring
-      // with break-point adjustment and advances by the chunk end.
-      String chunk;
-      int nextWrapCol;
-      if (breakat == null) {
-        chunk = rendered.ch.skip(wrapCol).take(availableWidth).string;
-        nextWrapCol = wrapCol + contentWidth;
-      } else {
-        int chunkEnd = wrapCol + availableWidth;
-        if (chunkEnd < rendered.length) {
-          chunkEnd = _findWordBreakPoint(rendered, wrapCol, chunkEnd, breakat);
-        } else {
-          chunkEnd = rendered.length;
-        }
-        chunk = rendered.substring(wrapCol, chunkEnd);
-        nextWrapCol = chunkEnd;
-      }
+      // Extract the chunk by render width. Positions are render columns, so
+      // this stays in sync with _layoutLineWrapped (which uses contentWidth,
+      // the maximum available width).
+      final (chunk, end: nextWrapCol, width: _) = _nextWrapChunk(
+        rendered,
+        wrapCol,
+        availableWidth,
+        totalWidth,
+        tabWidth,
+        breakat,
+      );
 
       if (chunk.isNotEmpty) {
         _styleChunk(
@@ -854,6 +888,7 @@ class Renderer {
 
   /// Style and emit a chunk of a wrapped line, mapping rendered offsets back
   /// to original byte offsets so highlighting/selections align correctly.
+  /// [wrapCol] is a render column offset into the tab-expanded line.
   void _styleChunk({
     required String original,
     required String chunk,
@@ -864,32 +899,62 @@ class Renderer {
     required List<(int, int)> selectionRanges,
     required List<(int, int)> secondaryCursorRanges,
   }) {
-    if (syntaxHighlighting) {
-      final byteOffset = original.renderedToOriginalOffset(wrapCol, tabWidth);
-      final originalSlice = original.originalSlice(
-        wrapCol,
-        chunk.length,
-        tabWidth,
+    if (syntaxHighlighting ||
+        selectionRanges.isNotEmpty ||
+        secondaryCursorRanges.isNotEmpty) {
+      // Locate the chunk in the original string by walking render columns.
+      // Wide chars skipped count fully, except one straddling the wrap
+      // boundary (rendered as a padding space by visibleLine) counts half.
+      int col = 0;
+      int byteOffset = 0;
+      bool straddle = false;
+      for (final char in original.characters) {
+        if (col >= wrapCol) break;
+        final w = char.charWidth(tabWidth);
+        if (col + w > wrapCol) {
+          straddle = true;
+          col = wrapCol;
+        } else {
+          col += w;
+        }
+        byteOffset += char.length;
+      }
+      // The chunk's original text starts at byteOffset. A straddling char is
+      // rendered as a padding space and not part of the chunk; drop the space
+      // from the width to cover.
+      final widthToCover = chunk.renderLength(tabWidth) - (straddle ? 1 : 0);
+      int byteLen = 0;
+      int cols = 0;
+      for (final char in original.substring(byteOffset).characters) {
+        if (cols >= widthToCover) break;
+        cols += char.charWidth(tabWidth);
+        byteLen += char.length;
+      }
+      final originalSlice = original.substring(
+        byteOffset,
+        (byteOffset + byteLen).clamp(0, original.length),
       );
-      highlighter.style(
-        buffer,
-        originalSlice,
-        lineStartByte + byteOffset,
-        tabWidth: tabWidth,
-        selectionRanges: selectionRanges,
-        secondaryCursorRanges: secondaryCursorRanges,
-      );
-    } else if (selectionRanges.isNotEmpty || secondaryCursorRanges.isNotEmpty) {
-      // No syntax highlighting but may have selections
-      final byteOffset = original.renderedToOriginalOffset(wrapCol, tabWidth);
-      highlighter.style(
-        buffer,
-        chunk,
-        lineStartByte + byteOffset,
-        tabWidth: tabWidth,
-        selectionRanges: selectionRanges,
-        secondaryCursorRanges: secondaryCursorRanges,
-      );
+
+      if (syntaxHighlighting) {
+        highlighter.style(
+          buffer,
+          originalSlice,
+          lineStartByte + byteOffset,
+          tabWidth: tabWidth,
+          selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
+        );
+      } else {
+        // No syntax highlighting but may have selections
+        highlighter.style(
+          buffer,
+          chunk,
+          lineStartByte + byteOffset,
+          tabWidth: tabWidth,
+          selectionRanges: selectionRanges,
+          secondaryCursorRanges: secondaryCursorRanges,
+        );
+      }
     } else {
       buffer.write(chunk);
     }
