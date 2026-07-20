@@ -92,7 +92,11 @@ class SemanticTokenTypes {
   static TokenType toTokenType(String lspType) {
     return switch (lspType) {
       namespace => TokenType.namespace,
-      type || class_ || enum_ || interface || struct => TokenType.type,
+      type => TokenType.type,
+      class_ => TokenType.class_,
+      enum_ => TokenType.enum_,
+      interface => TokenType.interface,
+      struct => TokenType.struct,
       typeParameter => TokenType.typeParameter,
       parameter => TokenType.parameter,
       variable => TokenType.variable,

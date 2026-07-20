@@ -1,10 +1,9 @@
-import 'package:characters/characters.dart';
-
 import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
 import '../../line_edit/line_edit_base.dart';
 import 'diagnostics_popup.dart';
+import 'lsp_position.dart';
 import 'lsp_protocol.dart';
 import 'rename_popup.dart';
 import 'symbols_popup.dart';
@@ -172,12 +171,12 @@ Future<FormatResult> formatBuffer(
     // Convert LSP edits to our TextEdit format
     final edits = <TextEdit>[];
     for (final lspEdit in lspEdits) {
-      final startOffset = _lspPositionToOffset(
+      final startOffset = lspPositionToOffset(
         f,
         lspEdit.range.startLine,
         lspEdit.range.startChar,
       );
-      final endOffset = _lspPositionToOffset(
+      final endOffset = lspPositionToOffset(
         f,
         lspEdit.range.endLine,
         lspEdit.range.endChar,
@@ -197,22 +196,6 @@ Future<FormatResult> formatBuffer(
     if (showMessages) e.showMessage(Message.error('Format failed: $err'));
     return FormatResult.error;
   }
-}
-
-/// Convert LSP position (line, character) to byte offset.
-int _lspPositionToOffset(FileBuffer file, int line, int char) {
-  final lineStart = file.lineOffset(line);
-  final lineText = file.lineTextAt(line);
-
-  int offset = 0;
-  int charCount = 0;
-  for (final c in lineText.characters) {
-    if (charCount >= char) break;
-    charCount++;
-    offset += c.length;
-  }
-
-  return lineStart + offset;
 }
 
 /// Check if format-on-save should run for the given file.

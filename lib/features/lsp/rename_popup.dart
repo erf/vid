@@ -1,9 +1,8 @@
-import 'package:characters/characters.dart';
-
 import '../../editor.dart';
 import '../../file_buffer/file_buffer.dart';
 import '../../message.dart';
 import '../../popup/popup.dart';
+import 'lsp_position.dart';
 import 'lsp_protocol.dart';
 
 /// Reference location value for rename preview items.
@@ -75,12 +74,12 @@ class RenamePopup {
         currentName = prepareResult.placeholder!;
       } else if (prepareResult.range != null) {
         final range = prepareResult.range!;
-        final startOffset = _lspPositionToOffset(
+        final startOffset = lspPositionToOffset(
           file,
           range.startLine,
           range.startChar,
         );
-        final endOffset = _lspPositionToOffset(
+        final endOffset = lspPositionToOffset(
           file,
           range.endLine,
           range.endChar,
@@ -314,12 +313,12 @@ class RenamePopup {
       // Convert LSP edits to our TextEdit format
       final edits = <TextEdit>[];
       for (final lspEdit in lspEdits) {
-        final startOffset = _lspPositionToOffset(
+        final startOffset = lspPositionToOffset(
           buffer,
           lspEdit.range.startLine,
           lspEdit.range.startChar,
         );
-        final endOffset = _lspPositionToOffset(
+        final endOffset = lspPositionToOffset(
           buffer,
           lspEdit.range.endLine,
           lspEdit.range.endChar,
@@ -335,22 +334,6 @@ class RenamePopup {
     }
 
     return _ApplyResult.success(totalEdits, filesChanged);
-  }
-
-  /// Convert LSP position (line, character) to byte offset.
-  static int _lspPositionToOffset(FileBuffer file, int line, int char) {
-    final lineStart = file.lineOffset(line);
-    final lineText = file.lineTextAt(line);
-
-    int offset = 0;
-    int charCount = 0;
-    for (final c in lineText.characters) {
-      if (charCount >= char) break;
-      charCount++;
-      offset += c.length;
-    }
-
-    return lineStart + offset;
   }
 
   /// Get word at cursor position.

@@ -1,4 +1,5 @@
 import '../features/lsp/lsp_protocol.dart';
+import '../line_info.dart';
 import 'theme.dart';
 
 import 'languages/bash_tokenizer.dart';
@@ -42,11 +43,9 @@ class Highlighter {
   /// Regex-based tokens for current visible range.
   List<Token> _regexTokens = [];
 
-  /// LSP semantic tokens (if available).
-  List<SemanticToken> _semanticTokens = [];
-
-  /// Line offsets for converting semantic token positions to byte offsets.
-  List<int> _lineOffsets = [];
+  /// Merged tokens (regex + semantic overlay) for the current visible range.
+  /// Precomputed by [tokenizeRange] so [style] is a fast range lookup.
+  List<Token> _mergedTokens = [];
 
   Highlighter({ThemeType themeType = .mono}) : theme = themeType.theme;
 
@@ -87,18 +86,23 @@ class Highlighter {
 
   /// Tokenize a range of the document using regex-based tokenization.
   ///
+  /// [lines] is the buffer's line metadata (used to convert LSP semantic
+  /// token positions to byte offsets). Pass null or omit if no semantic
+  /// tokens are provided.
+  ///
   /// Optionally overlay LSP [semanticTokens] for richer highlighting.
   void tokenizeRange(
     String text,
     int start,
     int end,
     String? path, {
+    List<LineInfo>? lines,
     List<SemanticToken>? semanticTokens,
   }) {
     final lang = detectLanguage(path);
     if (lang == null) {
       _regexTokens = [];
-      _semanticTokens = [];
+      _mergedTokens = [];
       return;
     }
 
@@ -119,30 +123,59 @@ class Highlighter {
       _ => [],
     };
 
-    // Store semantic tokens and build line offset table if provided
-    if (semanticTokens != null && semanticTokens.isNotEmpty) {
-      _semanticTokens = semanticTokens;
-      _buildLineOffsets(text);
-    } else {
-      _semanticTokens = [];
-      _lineOffsets = [];
-    }
+    // Precompute merged tokens: convert LSP semantic tokens (UTF-16
+    // positions) to byte offsets once, then overlay them on regex tokens.
+    final converted = _convertSemanticTokens(
+      text,
+      lines,
+      semanticTokens,
+      start,
+      end,
+    );
+    _mergedTokens = converted.isNotEmpty
+        ? _mergeTokens(_regexTokens, converted, start, end)
+        : _regexTokens;
   }
 
-  /// Build a table of line start offsets for position conversion.
-  void _buildLineOffsets(String text) {
-    _lineOffsets = [0];
-    for (var i = 0; i < text.length; i++) {
-      if (text.codeUnitAt(i) == 0x0A) {
-        _lineOffsets.add(i + 1);
+  /// Convert LSP semantic tokens to text-offset [Token]s for [start, end).
+  ///
+  /// Returns an empty list if [semanticTokens] is null/empty or [lines] is
+  /// unavailable. LSP positions are UTF-16 code units, which match Dart
+  /// String offsets — no conversion needed.
+  List<Token> _convertSemanticTokens(
+    String text,
+    List<LineInfo>? lines,
+    List<SemanticToken>? semanticTokens,
+    int start,
+    int end,
+  ) {
+    if (semanticTokens == null || semanticTokens.isEmpty) {
+      return const [];
+    }
+    if (lines == null || lines.isEmpty) return const [];
+
+    final result = <Token>[];
+
+    for (final st in semanticTokens) {
+      if (st.line < 0 || st.line >= lines.length) continue;
+
+      final lineInfo = lines[st.line];
+      // Skip tokens before the visible range; stop after it (tokens are
+      // sorted by line).
+      if (lineInfo.end < start) continue;
+      if (lineInfo.start > end) break;
+
+      // UTF-16 character offsets match Dart String offsets directly.
+      final tokenStart =
+          lineInfo.start + st.character.clamp(0, lineInfo.length);
+      final tokenEnd =
+          lineInfo.start + (st.character + st.length).clamp(0, lineInfo.length);
+
+      if (tokenStart < end && tokenEnd > start) {
+        result.add(Token(st.type, tokenStart, tokenEnd));
       }
     }
-  }
-
-  /// Convert LSP line/character position to byte offset.
-  int _positionToOffset(int line, int character) {
-    if (line < 0 || line >= _lineOffsets.length) return -1;
-    return _lineOffsets[line] + character;
+    return result;
   }
 
   /// Apply styling to a visible substring.
@@ -388,33 +421,13 @@ class Highlighter {
     return text.replaceAll('\t', ' ' * tabWidth);
   }
 
-  /// Get tokens that overlap a byte range, merging regex and semantic tokens.
+  /// Get tokens that overlap a byte range.
   ///
-  /// LSP semantic tokens take precedence over regex tokens for overlapping
-  /// regions, providing richer context-aware highlighting.
+  /// Uses the merged token list precomputed by [tokenizeRange], where LSP
+  /// semantic tokens have already been overlaid on regex tokens.
   List<Token> _getOverlappingTokens(int start, int end) {
-    // Convert semantic tokens to regular tokens with byte positions
-    final semanticConverted = <Token>[];
-    for (final st in _semanticTokens) {
-      final tokenStart = _positionToOffset(st.line, st.character);
-      if (tokenStart < 0) continue;
-      final tokenEnd = tokenStart + st.length;
-
-      // Only include tokens that overlap our range
-      if (tokenStart < end && tokenEnd > start) {
-        semanticConverted.add(Token(st.type, tokenStart, tokenEnd));
-      }
-    }
-
-    // If we have semantic tokens, merge them with regex tokens
-    // Semantic tokens take precedence
-    if (semanticConverted.isNotEmpty) {
-      return _mergeTokens(_regexTokens, semanticConverted, start, end);
-    }
-
-    // Fall back to regex tokens only
     final overlapping = <Token>[];
-    for (final token in _regexTokens) {
+    for (final token in _mergedTokens) {
       if (token.start >= end) break;
       if (token.overlaps(start, end)) {
         overlapping.add(token);
@@ -435,9 +448,13 @@ class Highlighter {
   ) {
     final result = <Token>[];
 
-    // Sort semantic tokens by start position
+    // Sort semantic tokens by start position (stable: tie-break on end so
+    // shorter tokens sort first and merged output stays strictly ordered).
     final sortedSemantic = List<Token>.from(semanticTokens)
-      ..sort((a, b) => a.start.compareTo(b.start));
+      ..sort((a, b) {
+        final c = a.start.compareTo(b.start);
+        return c != 0 ? c : a.end.compareTo(b.end);
+      });
 
     // Process regex tokens, splitting around semantic tokens
     for (final regex in regexTokens) {
@@ -493,8 +510,12 @@ class Highlighter {
       }
     }
 
-    // Sort by start position
-    result.sort((a, b) => a.start.compareTo(b.start));
+    // Sort by start position, tie-break on end to keep the merged list
+    // strictly ordered even when tokens share a start offset.
+    result.sort((a, b) {
+      final c = a.start.compareTo(b.start);
+      return c != 0 ? c : a.end.compareTo(b.end);
+    });
 
     return result;
   }

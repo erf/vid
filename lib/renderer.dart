@@ -266,6 +266,7 @@ class Renderer {
         startByte,
         endByte,
         file.absolutePath,
+        lines: file.lines,
         semanticTokens: semanticTokens,
       );
     }
