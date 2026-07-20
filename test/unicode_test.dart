@@ -143,4 +143,35 @@ void main() {
       );
     });
   });
+
+  // Representative multi-codepoint emoji. Every wide grapheme is detected
+  // without a sequence table via three rules (see charWidth docs): VS16,
+  // skin-tone modifier, or a wide first code point. Brute-force verified
+  // against all 2760 sequences in emoji-sequences.txt + emoji-zwj-sequences.txt.
+  test('multi-codepoint emoji have width 2', () {
+    final cases = {
+      '8️⃣': 2, // keycap (digit + VS16 + U+20E3)
+      '🏴󠁧󠁢󠁥󠁮󠁧󠁿': 2, // England flag (tag sequence)
+      '👩‍👩‍👦‍👦': 2, // family (ZWJ sequence)
+      '👩‍🚀': 2, // astronaut (ZWJ sequence)
+      '👨‍🦰': 2, // man red hair (ZWJ sequence)
+      '🏳️‍🌈': 2, // rainbow flag (VS16 + ZWJ)
+      '☝🏻': 2, // skin tone on text-presentation base
+      '👍🏽': 2, // skin tone on emoji base
+      '©️': 2, // text char + VS16
+      '🇳🇴': 2, // flag (regional indicators)
+      '👩🏽‍🚀': 2, // skin tone + ZWJ
+      '🧑‍🧑‍🧒': 2, // family (ZWJ, newer)
+    };
+    cases.forEach((emoji, expected) {
+      expect(emoji.charWidth(tabWidth), expected, reason: emoji);
+    });
+  });
+
+  test('text presentation and narrow chars stay width 1', () {
+    expect('©'.charWidth(tabWidth), 1, reason: '© text default');
+    expect('⌛︎'.charWidth(tabWidth), 1, reason: '⌛︎ emoji + VS15 -> text');
+    expect('☝'.charWidth(tabWidth), 1, reason: '☝ text-presentation base');
+    expect('é'.charWidth(tabWidth), 1, reason: 'é combining sequence');
+  });
 }

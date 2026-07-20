@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 /// Shared helpers for scripts that generate Dart tables from the official
 /// Unicode Character Database (https://unicode.org/Public/...).
 ///
-/// Used by gen_width_table.dart and gen_emoji_sequences.dart.
+/// Used by gen_width_table.dart.
 
 /// A remote UCD text file. Fetches once and extracts the standard header
 /// metadata (`# File:`, `# Date:`, optional `# Version:`) alongside the lines.
