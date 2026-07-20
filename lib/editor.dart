@@ -494,7 +494,8 @@ class Editor {
     // check if we match or partial match a key
     switch (keyBindings[file.mode]!.match(input.cmdKey)) {
       case (.none, _):
-        file.setMode(this, .normal);
+        // Unmatched key: cancel pending multi-key sequence and any pending
+        // count/operator, but stay in the current mode (vim-style no-op).
         file.edit.reset();
         file.input.resetCmdKey();
       case (.partial, _):
