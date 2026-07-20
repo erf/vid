@@ -1,7 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
+import 'ucd_common.dart';
 
 /// Generates lib/grapheme/width_table.dart — a 2-stage lookup table mapping
 /// every Unicode code point to its terminal cell width (0, 1, or 2).
@@ -24,35 +23,6 @@ import 'package:http/http.dart' as http;
 const _maxCodePoint = 0x10FFFF;
 const _blockSize = 256; // one byte low-half split
 
-class _Source {
-  final String url;
-  String filename = '';
-  String date = '';
-  _Source(this.url);
-
-  Future<List<String>> fetchLines() async {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to download $url (${response.statusCode})');
-    }
-    final lines = LineSplitter.split(response.body).toList();
-    filename = lines.first.replaceFirst('# ', '');
-    date = lines[1].replaceFirst('# ', '');
-    return lines;
-  }
-}
-
-/// Parse a UCD range field like "1F600..1F64F" or "1F600" into (start, end).
-(int, int) _parseRange(String field) {
-  final range = field.trim();
-  if (range.contains('..')) {
-    final bounds = range.split('..');
-    return (int.parse(bounds[0], radix: 16), int.parse(bounds[1], radix: 16));
-  }
-  final value = int.parse(range, radix: 16);
-  return (value, value);
-}
-
 void _mark(List<int> width, int start, int end, int value) {
   for (int cp = start; cp <= end && cp <= _maxCodePoint; cp++) {
     width[cp] = value;
@@ -67,7 +37,7 @@ Future<void> main() async {
   _mark(width, 0x7F, 0x9F, 0); // DEL + C1
 
   // --- Zero-width: Cf format, Mn/Me combining marks ---
-  final gc = _Source(
+  final gc = UcdSource(
     'https://unicode.org/Public/UCD/latest/ucd/extracted/DerivedGeneralCategory.txt',
   );
   for (final line in await gc.fetchLines()) {
@@ -77,12 +47,12 @@ Future<void> main() async {
     if (parts.length < 2) continue;
     final category = parts[1].trim();
     if (category != 'Cf' && category != 'Mn' && category != 'Me') continue;
-    final (start, end) = _parseRange(parts[0]);
+    final (start, end) = parseCodePointRange(parts[0]);
     _mark(width, start, end, 0);
   }
 
   // --- Wide: East Asian Width W/F ---
-  final eaw = _Source(
+  final eaw = UcdSource(
     'https://unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt',
   );
   for (final line in await eaw.fetchLines()) {
@@ -90,7 +60,7 @@ Future<void> main() async {
     final parts = line.split(';');
     final property = parts[1].split('#')[0].trim();
     if (property != 'W' && property != 'F') continue;
-    final (start, end) = _parseRange(parts[0]);
+    final (start, end) = parseCodePointRange(parts[0]);
     _mark(width, start, end, 2);
   }
   // Unassigned code points defaulting to W (per EastAsianWidth.txt docs):
@@ -101,7 +71,7 @@ Future<void> main() async {
   _mark(width, 0x30000, 0x3FFFD, 2); // Plane 3
 
   // --- Wide: Emoji_Presentation (default-emoji code points) ---
-  final emoji = _Source(
+  final emoji = UcdSource(
     'https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt',
   );
   for (final line in await emoji.fetchLines()) {
@@ -110,7 +80,7 @@ Future<void> main() async {
     final parts = trimmed.split(';');
     if (parts.length < 2) continue;
     if (parts[1].split('#')[0].trim() != 'Emoji_Presentation') continue;
-    final (start, end) = _parseRange(parts[0]);
+    final (start, end) = parseCodePointRange(parts[0]);
     _mark(width, start, end, 2);
   }
 
