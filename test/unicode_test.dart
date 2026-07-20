@@ -144,10 +144,10 @@ void main() {
     });
   });
 
-  // Representative multi-codepoint emoji. Every wide grapheme is detected
-  // without a sequence table via three rules (see charWidth docs): VS16,
-  // skin-tone modifier, or a wide first code point. Brute-force verified
-  // against all 2760 sequences in emoji-sequences.txt + emoji-zwj-sequences.txt.
+  // Representative multi-codepoint emoji. Width = width of the first code
+  // point (base), with VS15/VS16 as the only overrides (see charWidth docs).
+  // Brute-force verified against all 2760 sequences in emoji-sequences.txt +
+  // emoji-zwj-sequences.txt: ZWJ/flag/tag/VS16 sequences are wide.
   test('multi-codepoint emoji have width 2', () {
     final cases = {
       '8️⃣': 2, // keycap (digit + VS16 + U+20E3)
@@ -156,8 +156,7 @@ void main() {
       '👩‍🚀': 2, // astronaut (ZWJ sequence)
       '👨‍🦰': 2, // man red hair (ZWJ sequence)
       '🏳️‍🌈': 2, // rainbow flag (VS16 + ZWJ)
-      '☝🏻': 2, // skin tone on text-presentation base
-      '👍🏽': 2, // skin tone on emoji base
+      '👍🏽': 2, // skin tone on emoji-presentation base
       '©️': 2, // text char + VS16
       '🇳🇴': 2, // flag (regional indicators)
       '👩🏽‍🚀': 2, // skin tone + ZWJ
@@ -173,5 +172,25 @@ void main() {
     expect('⌛︎'.charWidth(tabWidth), 1, reason: '⌛︎ emoji + VS15 -> text');
     expect('☝'.charWidth(tabWidth), 1, reason: '☝ text-presentation base');
     expect('é'.charWidth(tabWidth), 1, reason: 'é combining sequence');
+  });
+
+  // A skin-tone modifier does NOT widen a text-presentation base: Ghostty
+  // (mode 2027) renders ☝🏻 in one cell (no trailing spacer), because the base
+  // ☝ (U+261D) is text-presentation. Only emoji-presentation bases (👍) stay
+  // wide when toned. Width always comes from the base; modifiers add 0.
+  test('skin tone keeps base width (Ghostty mode 2027)', () {
+    expect('☝🏻'.charWidth(tabWidth), 1, reason: '☝🏻 text base + tone -> 1');
+    expect('☝🏿'.charWidth(tabWidth), 1, reason: '☝🏿 text base + tone -> 1');
+    expect('✌🏽'.charWidth(tabWidth), 1, reason: '✌🏽 text base + tone -> 1');
+    expect(
+      '👍🏻'.charWidth(tabWidth),
+      2,
+      reason: '👍🏻 emoji base + tone -> 2',
+    );
+    expect(
+      '👋🏾'.charWidth(tabWidth),
+      2,
+      reason: '👋🏾 emoji base + tone -> 2',
+    );
   });
 }

@@ -11,24 +11,21 @@ class Unicode {
 
   /// Get the rendered width of a single grapheme cluster.
   ///
-  /// The width of a grapheme is normally the width of its FIRST code point
-  /// (the base char); trailing combining marks, ZWJ, and variation selectors
-  /// are zero-width and add no cells. Multi-codepoint emoji are the exception:
-  /// a grapheme like ☝🏻 renders as one wide emoji even though its base ☝ is a
-  /// narrow text char. Rather than matching against the full emoji-sequence
-  /// list, we detect every wide grapheme with three cheap rules:
+  /// The width of a grapheme is the width of its FIRST code point (the base
+  /// char); trailing combining marks, ZWJ, skin-tone modifiers, and variation
+  /// selectors are all zero-width and never change it. Two variation selectors
+  /// are the only override:
   ///
   ///   1. VS15 (U+FE0E) forces text presentation  -> width 1 (⌛︎)
   ///   2. VS16 (U+FE0F) forces emoji presentation -> width 2 (©️)
-  ///   3. a skin-tone modifier (U+1F3FB..U+1F3FF) -> width 2 (☝🏻)
   ///   otherwise -> width of the first code point (👩‍👩‍👦‍👦 -> 👩 = 2)
   ///
-  /// Why this is complete: Unicode only builds wide multi-codepoint emoji
-  /// three ways — a wide base (ZWJ/flag/tag sequences, caught by rule 4), a
-  /// text char + VS16 (rule 2), or a base + skin tone (rule 3). Verified by
-  /// brute force: all 2760 sequences in emoji-sequences.txt and
-  /// emoji-zwj-sequences.txt yield width 2 under these rules. So no sequence
-  /// table / trie is needed.
+  /// This matches Ghostty's grid (mode 2027): a skin-tone modifier keeps the
+  /// base's width — 👍🏻 stays 2 (base 👍 is emoji-presentation) and ☝🏻 stays 1
+  /// (base ☝ is text-presentation). Verified against all 2760 sequences in
+  /// emoji-sequences.txt + emoji-zwj-sequences.txt: every ZWJ/flag/tag/VS16
+  /// sequence yields 2, and the only narrow modifier sequences are exactly the
+  /// 45 text-presentation bases, matching the terminal.
   static int charWidth(String str, {required int tabWidth}) {
     if (str.isEmpty) return 0;
 
@@ -42,21 +39,15 @@ class Unicode {
     }
 
     // Scan the grapheme's code points once: variation selectors override the
-    // base width, a skin-tone modifier forces emoji width, and we remember
-    // the first code point as the fallback base width.
+    // base width, and we remember the first code point as the base width.
     int firstCodePoint = -1;
-    bool hasSkinTone = false;
     for (final cp in str.runes) {
       if (firstCodePoint < 0) firstCodePoint = cp;
       if (cp == 0xFE0E) return 1; // VS15 text presentation
       if (cp == 0xFE0F) return 2; // VS16 emoji presentation
-      if (cp >= 0x1F3FB && cp <= 0x1F3FF) hasSkinTone = true;
     }
 
-    // Emoji modifier (🏻..🏿) makes the base render as a wide emoji.
-    if (hasSkinTone) return 2;
-
-    // Width from the base code point (combining marks add no cells).
+    // Width from the base code point (combining marks, ZWJ, skin tones add 0).
     return codePointWidth(firstCodePoint);
   }
 
