@@ -20,9 +20,11 @@ extension FileBufferText on FileBuffer {
     bool undo = true,
     Config? config,
   }) {
-    assert(start <= end);
+    assert(start <= end, 'start must be <= end');
+    assert(start >= 0, 'start must be non-negative');
+    assert(start <= text.length, 'start must be within text bounds');
 
-    // if insert mode and nothing to insert return
+    // no-op: empty range with empty replacement
     if (start == end && newText.isEmpty) return;
 
     // protect final newline when deleting to end (unless preceded by newline)
@@ -78,12 +80,16 @@ extension FileBufferText on FileBuffer {
     replace(offset, offset, str, undo: undo, config: config);
   }
 
+  /// Replace one grapheme at offset.
+  /// Note: if offset is the trailing newline, this degenerates to an insert
+  /// before the newline (the newline itself is protected by [replace]).
   void replaceAt(int offset, String str, {Config? config}) {
-    // Replace one grapheme at offset
     int nextOffset = nextGrapheme(offset);
     replace(offset, nextOffset, str, config: config);
   }
 
+  /// Delete one grapheme at offset.
+  /// Note: if offset is the trailing newline, this is a no-op.
   void deleteAt(int offset, {Config? config}) {
     int nextOffset = nextGrapheme(offset);
     replace(offset, nextOffset, '', config: config);

@@ -488,9 +488,10 @@ void main() {
     f.text = 'abc\n';
     f.cursor = 0;
     e.input('ye\$p');
-    // ye yanks 'abc' (characterwise), $ goes to newline (offset 3), p pastes after = on next line
-    expect(f.text, 'abc\nabc');
-    expect(f.cursor, 6); // cursor at 'c' of pasted text
+    // ye yanks 'abc' (characterwise), $ goes to newline (offset 3),
+    // p pastes after the newline, clamped before it to preserve trailing '\n'
+    expect(f.text, 'abcabc\n');
+    expect(f.cursor, 5); // cursor at 'c' of pasted text
   });
 
   test('deleteCharNext at end of file', () {

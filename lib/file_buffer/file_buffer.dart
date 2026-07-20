@@ -184,6 +184,10 @@ class FileBuffer {
 
   /// update text and partially rebuild line index from edit point
   void updateText(int start, int end, String newText) {
+    assert(start >= 0, 'start must be non-negative');
+    assert(end >= start, 'end must be >= start');
+    assert(end <= _text.length, 'end must be within text bounds');
+
     // Find line containing start offset before modifying text
     final startLine = lineNumber(start);
 
@@ -191,6 +195,11 @@ class FileBuffer {
     final oldText = _text.substring(start, end);
 
     _text = _text.replaceRange(start, end, newText);
+
+    assert(
+      _text.endsWith(Keys.newline),
+      'Text must end with newline after update',
+    );
 
     // Truncate lines list and rebuild only from edit point
     lines.length = startLine;

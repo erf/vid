@@ -53,9 +53,10 @@ class Paste extends Action {
         } else {
           _pasteAtCursors(e, f, yank, (c) {
             final line = f.lineText(c);
-            return (line.isEmpty || line == ' ')
-                ? f.lineStart(c)
-                : f.nextGrapheme(c);
+            if (line.isEmpty || line == ' ') return f.lineStart(c);
+            // clamp so we never insert after the trailing newline
+            final pos = f.nextGrapheme(c);
+            return pos >= f.text.length ? f.text.length - 1 : pos;
           }, true);
         }
       case .before:
