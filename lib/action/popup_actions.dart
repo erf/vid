@@ -100,6 +100,17 @@ class PopupActions {
     }
   }
 
+  /// Insert pasted text into the filter (e.g. terminals that wrap
+  /// emoji-picker input in bracketed paste).
+  static void pasteFilter(Editor e, String text) {
+    if (e.popup == null) return;
+    final oldItem = e.popup!.selectedItem;
+    e.popup = e.popup!.addFilterText(text);
+    if (e.popup!.selectedItem != oldItem) {
+      e.notifyPopupHighlight();
+    }
+  }
+
   /// Move selection to top (g or gg).
   static void moveToTop(Editor e, FileBuffer f) {
     if (e.popup == null) return;

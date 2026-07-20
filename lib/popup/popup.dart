@@ -1,3 +1,5 @@
+import 'package:characters/characters.dart';
+
 /// A generic popup menu item.
 class PopupItem<T> {
   /// Display text for this item.
@@ -283,6 +285,7 @@ class PopupState<T> {
   }
 
   /// Add character to filter at cursor position.
+  /// Cursor position and input are treated as grapheme clusters.
   PopupState<T> addFilterChar(String char) {
     final newText =
         filterText.substring(0, filterCursor) +
@@ -291,25 +294,55 @@ class PopupState<T> {
     return setFilter(newText, cursor: filterCursor + char.length);
   }
 
-  /// Remove character before cursor from filter.
+  /// Insert [text] (e.g. pasted content) into the filter at cursor position.
+  PopupState<T> addFilterText(String text) {
+    final newText =
+        filterText.substring(0, filterCursor) +
+        text +
+        filterText.substring(filterCursor);
+    return setFilter(newText, cursor: filterCursor + text.length);
+  }
+
+  /// Remove grapheme cluster before cursor from filter.
   PopupState<T> removeFilterChar() {
     if (filterText.isEmpty || filterCursor == 0) return this;
+    final prevCursor = _prevGraphemeOffset(filterText, filterCursor);
     final newText =
-        filterText.substring(0, filterCursor - 1) +
+        filterText.substring(0, prevCursor) +
         filterText.substring(filterCursor);
-    return setFilter(newText, cursor: filterCursor - 1);
+    return setFilter(newText, cursor: prevCursor);
   }
 
-  /// Move filter cursor left.
+  /// Move filter cursor left by one grapheme cluster.
   PopupState<T> moveFilterCursorLeft() {
     if (filterCursor == 0) return this;
-    return copyWith(filterCursor: filterCursor - 1);
+    return copyWith(
+      filterCursor: _prevGraphemeOffset(filterText, filterCursor),
+    );
   }
 
-  /// Move filter cursor right.
+  /// Move filter cursor right by one grapheme cluster.
   PopupState<T> moveFilterCursorRight() {
     if (filterCursor >= filterText.length) return this;
-    return copyWith(filterCursor: filterCursor + 1);
+    return copyWith(
+      filterCursor: _nextGraphemeOffset(filterText, filterCursor),
+    );
+  }
+
+  /// Next grapheme cluster boundary after [offset] in [text].
+  static int _nextGraphemeOffset(String text, int offset) {
+    if (offset >= text.length) return offset;
+    final range = CharacterRange.at(text, offset);
+    if (!range.moveNext()) return offset;
+    return offset + range.current.length;
+  }
+
+  /// Previous grapheme cluster boundary before [offset] in [text].
+  static int _prevGraphemeOffset(String text, int offset) {
+    if (offset <= 0) return 0;
+    final range = CharacterRange.at(text, offset);
+    if (!range.moveBack()) return 0;
+    return range.stringBeforeLength;
   }
 
   /// Move filter cursor to start.

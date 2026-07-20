@@ -20,6 +20,7 @@ import 'popup/file_browser.dart';
 import 'popup/popup.dart';
 import 'renderer.dart';
 import 'selection.dart';
+import 'action/popup_actions.dart';
 import 'operator/operator_actions.dart';
 import 'operator/operator_base.dart';
 import 'yank_buffer.dart';
@@ -457,7 +458,13 @@ class Editor {
         case PasteNormalInput(:final text):
           _processInputEvents(text);
         case PasteContent(:final content):
-          BracketedPasteHandler.insertContent(file, content, config);
+          // With a popup open, paste goes into the popup filter (e.g. some
+          // terminals wrap emoji-picker input in bracketed paste).
+          if (popup != null) {
+            PopupActions.pasteFilter(this, content);
+          } else {
+            BracketedPasteHandler.insertContent(file, content, config);
+          }
       }
     }
 
