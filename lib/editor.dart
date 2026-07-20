@@ -500,7 +500,7 @@ class Editor {
         file.input.resetCmdKey();
       case (.partial, _):
         // wait for more input
-        return;
+        break;
       case (.match, Command command):
         command.execute(this, file, char);
         input.resetCmdKey();
