@@ -20,7 +20,7 @@ extension StringExt on String {
   /// Use [tabWidth] if string may contain tabs (default 1).
   int renderLength([int tabWidth = 1]) {
     // Fast path: for simple ASCII (no tabs, no unicode), render width == length
-    if (Unicode.isSimpleAscii(this)) return length;
+    if (Unicode.isPrintableAscii(this)) return length;
     return characters.fold(0, (prev, curr) => prev + curr.charWidth(tabWidth));
   }
 
@@ -38,7 +38,7 @@ extension StringExt on String {
   /// one substring allocation.
   String visibleLine(int scrollOffset, int viewportWidth) {
     // Fast path: for simple ASCII, render width == string length
-    if (Unicode.isSimpleAscii(this)) {
+    if (Unicode.isPrintableAscii(this)) {
       if (scrollOffset >= length) return '';
       final end = scrollOffset + viewportWidth;
       return end >= length

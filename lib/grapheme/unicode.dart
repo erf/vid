@@ -33,9 +33,8 @@ class Unicode {
     if (str.length == 1) {
       final int c = str.codeUnitAt(0);
       if (c == 0x0009) return tabWidth; // tab
-      return codePointWidth(
-        c,
-      ); // handles controls (0), ASCII (1), zero-width (0)
+      // handles controls (0), ASCII (1), zero-width (0)
+      return codePointWidth(c);
     }
 
     // Scan the grapheme's code points once: variation selectors override the
@@ -54,7 +53,7 @@ class Unicode {
   /// Returns true if string contains only printable ASCII (0x20-0x7E).
   /// This excludes control chars, tabs, newlines, and any extended unicode.
   /// For such strings: render width == grapheme count == string length.
-  static bool isSimpleAscii(String str) {
+  static bool isPrintableAscii(String str) {
     for (int i = 0; i < str.length; i++) {
       final c = str.codeUnitAt(i);
       if (c < 0x20 || c > 0x7E) return false;

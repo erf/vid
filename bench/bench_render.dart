@@ -28,12 +28,12 @@ void main() {
     '  ASCII file: ${asciiFile.length} bytes, ${fileBuffer.lines.length} lines\n',
   );
 
-  // Verify isSimpleAscii works correctly
-  print('isSimpleAscii checks:');
-  print('  ASCII line: ${Unicode.isSimpleAscii(asciiLine)}');
-  print('  Mixed line: ${Unicode.isSimpleAscii(mixedLine)}');
-  print('  With tab: ${Unicode.isSimpleAscii('hello\tworld')}');
-  print('  With newline: ${Unicode.isSimpleAscii('hello\nworld')}\n');
+  // Verify isPrintableAscii works correctly
+  print('isPrintableAscii checks:');
+  print('  ASCII line: ${Unicode.isPrintableAscii(asciiLine)}');
+  print('  Mixed line: ${Unicode.isPrintableAscii(mixedLine)}');
+  print('  With tab: ${Unicode.isPrintableAscii('hello\tworld')}');
+  print('  With newline: ${Unicode.isPrintableAscii('hello\nworld')}\n');
 
   const iterations = 10000;
 
