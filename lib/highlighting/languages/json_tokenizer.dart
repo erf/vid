@@ -7,10 +7,13 @@ import '../tokenizer.dart';
 class JsonTokenizer extends Tokenizer {
   /// Double-quoted strings (JSON only supports double quotes)
   static final _string = RegExp(r'"(?:[^"\\]|\\.)*"');
+
   /// Numbers (integers, floats, negative, exponents)
   static final _number = RegExp(r'-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?');
+
   /// Boolean and null literals
   static final _literal = RegExp(r'\b(?:true|false|null)\b');
+
   /// Key pattern (string followed by colon) - we'll handle this specially
   static final _keyLookahead = RegExp(r'"(?:[^"\\]|\\.)*"\s*:');
 

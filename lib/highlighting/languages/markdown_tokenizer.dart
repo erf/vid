@@ -7,20 +7,27 @@ import '../tokenizer.dart';
 class MarkdownTokenizer extends Tokenizer {
   /// Code fence marker (``` or ~~~)
   static final _codeFence = RegExp(r'(`{3,}|~{3,})');
+
   /// Inline code
   static final _inlineCode = RegExp(r'`[^`\n]+`');
+
   /// Headers at start of line (# to ######)
   static final _header = RegExp(r'#{1,6}\s');
+
   /// Bold **text** or __text__
   static final _bold = RegExp(r'\*\*[^*]+\*\*|__[^_]+__');
+
   /// Italic *text* or _text_ (not inside words for underscore)
   static final _italic = RegExp(
     r'(?<!\*)\*(?!\*)[^*\n]+\*(?!\*)|(?<![a-zA-Z])_(?!_)[^_\n]+_(?![a-zA-Z_])',
   );
+
   /// Links [text](url)
   static final _link = RegExp(r'\[[^\]]+\]\([^)]+\)');
+
   /// Blockquote at start of line
   static final _blockquote = RegExp(r'>\s?');
+
   /// List item at start of line
   static final _listItem = RegExp(r'(\s*[-*+]|\s*\d+\.)\s');
 
