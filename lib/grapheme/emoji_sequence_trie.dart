@@ -36,9 +36,6 @@ class EmojiSequenceTrie {
     }
     return current?.isEndOfSequence ?? false;
   }
-
-  /// Cheap pre-check: can this code point start any sequence in the trie?
-  bool mightStart(int codePoint) => root.children.containsKey(codePoint);
 }
 
 final emojiSequenceTrie = EmojiSequenceTrie(emojiSequences);
