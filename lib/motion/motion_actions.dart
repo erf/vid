@@ -39,26 +39,26 @@ class LineDown extends MotionAction {
     int lastLine = f.totalLines - 1;
     if (currentLine >= lastLine) return offset;
 
+    final tabWidth = e.config.tabWidth;
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
-      int targetCol =
-          f.desiredColumn ?? f.visualColumn(offset, e.config.tabWidth);
+      int targetCol = f.desiredColumn ?? f.visualColumn(offset, tabWidth);
       int newOffset = f.offsetAtVisualColumn(
-        currentLine + 1,
-        targetCol,
-        e.config.tabWidth,
-        clampToLastChar: false,
+        line: currentLine + 1,
+        column: targetCol,
+        tabWidth: tabWidth,
+        clamp: .lineEnd,
       );
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;
       return newOffset;
     }
-    int curVisualCol = f.visualColumn(offset, e.config.tabWidth);
+    int curVisualCol = f.visualColumn(offset, tabWidth);
     return f.offsetAtVisualColumn(
-      currentLine + 1,
-      curVisualCol,
-      e.config.tabWidth,
-      clampToLastChar: false,
+      line: currentLine + 1,
+      column: curVisualCol,
+      tabWidth: tabWidth,
+      clamp: .lineEnd,
     );
   }
 }
@@ -72,26 +72,26 @@ class LineUp extends MotionAction {
     int currentLine = f.lineNumber(offset);
     if (currentLine == 0) return offset;
 
+    final tabWidth = e.config.tabWidth;
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
-      int targetCol =
-          f.desiredColumn ?? f.visualColumn(offset, e.config.tabWidth);
+      int targetCol = f.desiredColumn ?? f.visualColumn(offset, tabWidth);
       int newOffset = f.offsetAtVisualColumn(
-        currentLine - 1,
-        targetCol,
-        e.config.tabWidth,
-        clampToLastChar: false,
+        line: currentLine - 1,
+        column: targetCol,
+        tabWidth: tabWidth,
+        clamp: .lineEnd,
       );
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;
       return newOffset;
     }
-    int curVisualCol = f.visualColumn(offset, e.config.tabWidth);
+    int curVisualCol = f.visualColumn(offset, tabWidth);
     return f.offsetAtVisualColumn(
-      currentLine - 1,
-      curVisualCol,
-      e.config.tabWidth,
-      clampToLastChar: false,
+      line: currentLine - 1,
+      column: curVisualCol,
+      tabWidth: tabWidth,
+      clamp: .lineEnd,
     );
   }
 }

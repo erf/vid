@@ -10,6 +10,17 @@ import '../editor.dart';
 import '../modes.dart';
 import 'file_buffer.dart';
 
+/// How [FileBufferNav.offsetAtVisualColumn] clamps positions past the
+/// last grapheme of a line.
+enum ColumnClamp {
+  /// Clamp to the last grapheme of the line.
+  lastChar,
+
+  /// Allow a position one past the last grapheme (line end). Motions use
+  /// this for "end of line" sticky columns.
+  lineEnd,
+}
+
 /// Navigation helpers for byte-offset based cursor/viewport operations
 extension FileBufferNav on FileBuffer {
   /// Get the text of line n (excluding \n) - O(1)
@@ -64,32 +75,28 @@ extension FileBufferNav on FileBuffer {
     return beforeCursor.renderLength(tabWidth);
   }
 
-  /// Get byte offset at [targetVisualCol] on [targetLine].
-  ///
-  /// When [clampToLastChar] is true (default), the result is clamped to the
-  /// last grapheme of the line. When false, it may return a position one
-  /// past the last grapheme (line end), which motions use for
-  /// "end of line" sticky columns.
-  int offsetAtVisualColumn(
-    int targetLine,
-    int targetVisualCol,
-    int tabWidth, {
-    bool clampToLastChar = true,
+  /// Get byte offset at visual [column] on [line], clamped
+  /// according to [clamp].
+  int offsetAtVisualColumn({
+    required int line,
+    required int column,
+    required int tabWidth,
+    ColumnClamp clamp = .lastChar,
   }) {
-    final targetLineStart = lines[targetLine].start;
-    final targetLineEnd = lines[targetLine].end;
+    final targetLineStart = lines[line].start;
+    final targetLineEnd = lines[line].end;
     final targetLineText = text.substring(targetLineStart, targetLineEnd);
 
     // Find position in target line with similar visual column
     int nextLen = 0;
     final chars = targetLineText.characters.takeWhile((c) {
       nextLen += c.charWidth(tabWidth);
-      return nextLen <= targetVisualCol;
+      return nextLen <= column;
     });
 
     // Clamp to valid position in target line
     final targetCharLen = targetLineText.characters.length;
-    final maxIndex = clampToLastChar
+    final maxIndex = clamp == .lastChar
         ? math.max<int>(0, targetCharLen - 1)
         : targetCharLen;
     final charIndex = chars.length.clamp(0, maxIndex);
