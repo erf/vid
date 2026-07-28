@@ -42,13 +42,24 @@ class LineDown extends MotionAction {
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
       int targetCol =
-          f.desiredColumn ?? computeVisualColumn(e, f, offset, currentLine);
-      int newOffset = moveToLineWithColumn(e, f, currentLine + 1, targetCol);
+          f.desiredColumn ?? f.visualColumn(offset, e.config.tabWidth);
+      int newOffset = f.offsetAtVisualColumn(
+        currentLine + 1,
+        targetCol,
+        e.config.tabWidth,
+        clampToLastChar: false,
+      );
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;
       return newOffset;
     }
-    return moveToLineKeepColumn(e, f, offset, currentLine, currentLine + 1);
+    int curVisualCol = f.visualColumn(offset, e.config.tabWidth);
+    return f.offsetAtVisualColumn(
+      currentLine + 1,
+      curVisualCol,
+      e.config.tabWidth,
+      clampToLastChar: false,
+    );
   }
 }
 
@@ -64,13 +75,24 @@ class LineUp extends MotionAction {
     if (e.config.preserveColumnOnVerticalMove) {
       // Use desired column if set, otherwise compute from current position
       int targetCol =
-          f.desiredColumn ?? computeVisualColumn(e, f, offset, currentLine);
-      int newOffset = moveToLineWithColumn(e, f, currentLine - 1, targetCol);
+          f.desiredColumn ?? f.visualColumn(offset, e.config.tabWidth);
+      int newOffset = f.offsetAtVisualColumn(
+        currentLine - 1,
+        targetCol,
+        e.config.tabWidth,
+        clampToLastChar: false,
+      );
       // Preserve desiredColumn for subsequent vertical moves
       f.desiredColumn = targetCol;
       return newOffset;
     }
-    return moveToLineKeepColumn(e, f, offset, currentLine, currentLine - 1);
+    int curVisualCol = f.visualColumn(offset, e.config.tabWidth);
+    return f.offsetAtVisualColumn(
+      currentLine - 1,
+      curVisualCol,
+      e.config.tabWidth,
+      clampToLastChar: false,
+    );
   }
 }
 

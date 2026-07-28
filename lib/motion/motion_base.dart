@@ -25,43 +25,6 @@ abstract class MotionAction {
   /// Sentinel value for desiredColumn meaning "end of line".
   static const int endOfLineColumn = 0x7FFFFFFF;
 
-  /// Compute the visual column for the cursor at the given offset.
-  int computeVisualColumn(Editor e, FileBuffer f, int offset, int currentLine) {
-    return f.visualColumn(offset, e.config.tabWidth);
-  }
-
-  /// Move to a specific visual column on the target line.
-  /// Returns the byte offset of the resulting cursor position.
-  ///
-  /// Clamps to the line end (not the last character), so [endOfLineColumn]
-  /// places the cursor past the final grapheme.
-  int moveToLineWithColumn(
-    Editor e,
-    FileBuffer f,
-    int targetLine,
-    int targetCol,
-  ) {
-    return f.offsetAtVisualColumn(
-      targetLine,
-      targetCol,
-      e.config.tabWidth,
-      clampToLastChar: false,
-    );
-  }
-
-  /// Move to a different line, maintaining approximate visual column position.
-  /// Legacy helper that computes column from offset (used when sticky column disabled).
-  int moveToLineKeepColumn(
-    Editor e,
-    FileBuffer f,
-    int offset,
-    int currentLine,
-    int targetLine,
-  ) {
-    int curVisualCol = computeVisualColumn(e, f, offset, currentLine);
-    return moveToLineWithColumn(e, f, targetLine, curVisualCol);
-  }
-
   /// Find the first match after the given byte offset.
   int regexNext(FileBuffer f, int offset, RegExp pattern, {int skip = 0}) {
     final matches = pattern.allMatches(f.text, offset + skip);
