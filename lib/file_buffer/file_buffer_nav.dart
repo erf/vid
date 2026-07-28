@@ -56,6 +56,49 @@ extension FileBufferNav on FileBuffer {
     return text.substring(start, offset).characters.length;
   }
 
+  /// Get visual (rendered) column of [offset], accounting for tabs and
+  /// wide graphemes.
+  int visualColumn(int offset, int tabWidth) {
+    final start = lineStart(offset);
+    final beforeCursor = text.substring(start, offset);
+    return beforeCursor.renderLength(tabWidth);
+  }
+
+  /// Get byte offset at [targetVisualCol] on [targetLine].
+  ///
+  /// When [clampToLastChar] is true (default), the result is clamped to the
+  /// last grapheme of the line. When false, it may return a position one
+  /// past the last grapheme (line end), which motions use for
+  /// "end of line" sticky columns.
+  int offsetAtVisualColumn(
+    int targetLine,
+    int targetVisualCol,
+    int tabWidth, {
+    bool clampToLastChar = true,
+  }) {
+    final targetLineStart = lines[targetLine].start;
+    final targetLineEnd = lines[targetLine].end;
+    final targetLineText = text.substring(targetLineStart, targetLineEnd);
+
+    // Find position in target line with similar visual column
+    int nextLen = 0;
+    final chars = targetLineText.characters.takeWhile((c) {
+      nextLen += c.charWidth(tabWidth);
+      return nextLen <= targetVisualCol;
+    });
+
+    // Clamp to valid position in target line
+    final targetCharLen = targetLineText.characters.length;
+    final maxIndex = clampToLastChar
+        ? math.max<int>(0, targetCharLen - 1)
+        : targetCharLen;
+    final charIndex = chars.length.clamp(0, maxIndex);
+
+    // Convert char index to byte offset
+    return targetLineStart +
+        targetLineText.characters.take(charIndex).string.length;
+  }
+
   /// Move to next grapheme cluster, returns new byte offset
   /// Returns same offset if already at end of text
   int nextGrapheme(int offset) {

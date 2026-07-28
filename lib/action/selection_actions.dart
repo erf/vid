@@ -320,15 +320,10 @@ class AddCursor extends Action {
     if (direction == .above && extremeLine <= 0) return;
 
     // Get current visual column position
-    final curVisualCol = Action.visualColumn(
-      f,
-      extremeSel.cursor,
-      e.config.tabWidth,
-    );
+    final curVisualCol = f.visualColumn(extremeSel.cursor, e.config.tabWidth);
 
     // Get position on adjacent line at same visual column
-    final newPos = Action.offsetAtVisualColumn(
-      f,
+    final newPos = f.offsetAtVisualColumn(
       extremeLine + direction.value,
       curVisualCol,
       e.config.tabWidth,

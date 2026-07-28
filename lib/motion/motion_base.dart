@@ -1,12 +1,9 @@
 import 'dart:math';
 
-import 'package:characters/characters.dart';
-
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../regex.dart';
 import '../regex_ext.dart';
-import '../string_ext.dart';
 
 /// Base class for motion actions.
 ///
@@ -30,37 +27,26 @@ abstract class MotionAction {
 
   /// Compute the visual column for the cursor at the given offset.
   int computeVisualColumn(Editor e, FileBuffer f, int offset, int currentLine) {
-    int lineStartOff = f.lines[currentLine].start;
-    String beforeCursor = f.text.substring(lineStartOff, offset);
-    return beforeCursor.renderLength(e.config.tabWidth);
+    return f.visualColumn(offset, e.config.tabWidth);
   }
 
   /// Move to a specific visual column on the target line.
   /// Returns the byte offset of the resulting cursor position.
+  ///
+  /// Clamps to the line end (not the last character), so [endOfLineColumn]
+  /// places the cursor past the final grapheme.
   int moveToLineWithColumn(
     Editor e,
     FileBuffer f,
     int targetLine,
     int targetCol,
   ) {
-    int targetLineStart = f.lines[targetLine].start;
-    int targetLineEnd = f.lines[targetLine].end;
-    String targetLineText = f.text.substring(targetLineStart, targetLineEnd);
-
-    // Find position in target line with similar visual column
-    int nextlen = 0;
-    Characters chars = targetLineText.characters.takeWhile((c) {
-      nextlen += c.charWidth(e.config.tabWidth);
-      return nextlen <= targetCol;
-    });
-
-    // Clamp to valid position in target line
-    int targetCharLen = targetLineText.characters.length;
-    int charIndex = chars.length.clamp(0, max<int>(0, targetCharLen));
-
-    // Convert char index to byte offset
-    return targetLineStart +
-        targetLineText.characters.take(charIndex).string.length;
+    return f.offsetAtVisualColumn(
+      targetLine,
+      targetCol,
+      e.config.tabWidth,
+      clampToLastChar: false,
+    );
   }
 
   /// Move to a different line, maintaining approximate visual column position.

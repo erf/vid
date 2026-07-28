@@ -1,10 +1,5 @@
-import 'dart:math';
-
-import 'package:characters/characters.dart';
-
 import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
-import '../string_ext.dart';
 
 /// Base class for general editor actions (normal mode, insert mode, etc.)
 ///
@@ -24,38 +19,4 @@ abstract class Action {
 
   /// Execute the action.
   void call(Editor e, FileBuffer f);
-
-  /// Get visual column of offset.
-  static int visualColumn(FileBuffer f, int offset, int tabWidth) {
-    final lineStart = f.lineStart(offset);
-    final beforeCursor = f.text.substring(lineStart, offset);
-    return beforeCursor.renderLength(tabWidth);
-  }
-
-  /// Get byte offset at target visual column on a line.
-  static int offsetAtVisualColumn(
-    FileBuffer f,
-    int targetLine,
-    int targetVisualCol,
-    int tabWidth,
-  ) {
-    final targetLineStart = f.lines[targetLine].start;
-    final targetLineEnd = f.lines[targetLine].end;
-    final targetLineText = f.text.substring(targetLineStart, targetLineEnd);
-
-    // Find position in target line with similar visual column
-    int nextLen = 0;
-    final chars = targetLineText.characters.takeWhile((c) {
-      nextLen += c.charWidth(tabWidth);
-      return nextLen <= targetVisualCol;
-    });
-
-    // Clamp to valid position in target line
-    final targetCharLen = targetLineText.characters.length;
-    final charIndex = chars.length.clamp(0, max<int>(0, targetCharLen - 1));
-
-    // Convert char index to byte offset
-    return targetLineStart +
-        targetLineText.characters.take(charIndex).string.length;
-  }
 }
