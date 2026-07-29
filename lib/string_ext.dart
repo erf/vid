@@ -7,6 +7,10 @@ extension StringExt on String {
   /// Shorthand for characters (Characters(this))
   Characters get ch => characters;
 
+  /// A [RegExp] that matches this string literally, with all regex
+  /// metacharacters escaped. Use for user-provided search strings.
+  RegExp get literal => RegExp(RegExp.escape(this));
+
   /// replace all tabs with spaces
   String tabsToSpaces(int tabWidth) => replaceAll(Keys.tab, ' ' * tabWidth);
 

@@ -4,6 +4,7 @@ import '../editor.dart';
 import '../file_buffer/file_buffer.dart';
 import '../regex.dart';
 import '../regex_ext.dart';
+import '../string_ext.dart';
 import 'motion_base.dart';
 
 /// Move to next character (l)
@@ -149,7 +150,7 @@ class WordNextMotion extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexNext(f, offset, pattern);
+    return pattern.nextMatch(f.text, offset);
   }
 }
 
@@ -160,7 +161,7 @@ class WordPrevMotion extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexPrev(f, offset, pattern);
+    return pattern.prevMatch(f.text, offset);
   }
 }
 
@@ -244,8 +245,9 @@ class FindNextChar extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    f.edit.findStr = f.edit.findStr ?? f.readNextChar();
-    return regexNext(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
+    final findStr = f.edit.findStr ?? f.readNextChar();
+    f.edit.findStr = findStr;
+    return findStr.literal.nextMatch(f.text, offset);
   }
 }
 
@@ -255,8 +257,9 @@ class FindPrevChar extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    f.edit.findStr = f.edit.findStr ?? f.readNextChar();
-    return regexPrev(f, offset, RegExp(RegExp.escape(f.edit.findStr!)));
+    final findStr = f.edit.findStr ?? f.readNextChar();
+    f.edit.findStr = findStr;
+    return findStr.literal.prevMatch(f.text, offset);
   }
 }
 
@@ -296,7 +299,7 @@ class ParagraphNext extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexNext(f, offset, Regex.paragraph, skip: 1);
+    return Regex.paragraph.nextMatch(f.text, offset, skip: 1);
   }
 }
 
@@ -306,7 +309,7 @@ class ParagraphPrev extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexPrev(f, offset, Regex.paragraphPrev);
+    return Regex.paragraphPrev.prevMatch(f.text, offset);
   }
 }
 
@@ -316,7 +319,7 @@ class SentenceNext extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexNext(f, offset, Regex.sentence, skip: 1);
+    return Regex.sentence.nextMatch(f.text, offset, skip: 1);
   }
 }
 
@@ -326,24 +329,60 @@ class SentencePrev extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    return regexPrev(f, offset, Regex.sentence);
+    return Regex.sentence.prevMatch(f.text, offset);
   }
 }
 
 enum SameWordDir { next, prev }
 
 /// Move to next/previous same word (* / #)
+///
+/// If the cursor is not on a word, moves to the start of the next word.
+/// If the cursor is on a word, finds the next (or previous) occurrence
+/// of that exact word and stores it in `findStr`.
+///
+/// Note: matching is a plain substring search without word boundaries,
+/// so a word like `cat` also matches inside `concat` (unlike vim's `*`,
+/// which uses `\<word\>` boundaries).
 class SameWordMotion extends MotionAction {
   final SameWordDir direction;
   const SameWordMotion(this.direction);
 
   @override
-  int call(Editor e, FileBuffer f, int offset) {
-    final result = matchCursorWord(f, offset, forward: direction == .next);
-    if (result == null) return offset;
-    final (destOffset, word) = result;
-    f.edit.findStr = word;
-    return destOffset;
+  int call(Editor e, FileBuffer f, int offset, {int chunkSize = 1000}) {
+    final text = f.text;
+    // Find word containing cursor - search backwards in chunks
+    int searchStart = max(0, offset - chunkSize);
+
+    while (true) {
+      final matches = Regex.word.allMatches(text, searchStart);
+      Match? match;
+      for (final m in matches) {
+        if (offset < m.end) {
+          match = m;
+          break;
+        }
+      }
+
+      if (match != null) {
+        final word = text.substring(match.start, match.end);
+        f.edit.findStr = word;
+        // We are not on the word - move to its start
+        if (offset < match.start || offset >= match.end) {
+          return match.start;
+        }
+        // We are on the word - find the next/prev same word
+        final pattern = word.literal;
+        final int index = direction == .next
+            ? text.indexOf(pattern, match.end)
+            : text.lastIndexOf(pattern, max(0, match.start - 1));
+        return index == -1 ? match.start : index;
+      }
+
+      // No match found - expand search or give up
+      if (searchStart == 0) return offset;
+      searchStart = max(0, searchStart - chunkSize);
+    }
   }
 }
 
@@ -354,7 +393,7 @@ class SearchNext extends MotionAction {
   @override
   int call(Editor e, FileBuffer f, int offset) {
     final String pattern = f.edit.findStr ?? '';
-    return regexNext(f, offset, RegExp(RegExp.escape(pattern)), skip: 1);
+    return pattern.literal.nextMatch(f.text, offset, skip: 1);
   }
 }
 
@@ -365,7 +404,7 @@ class SearchPrev extends MotionAction {
   @override
   int call(Editor e, FileBuffer f, int offset) {
     final String pattern = f.edit.findStr ?? '';
-    return regexPrev(f, offset, RegExp(RegExp.escape(pattern)));
+    return pattern.literal.prevMatch(f.text, offset);
   }
 }
 
