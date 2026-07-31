@@ -121,7 +121,7 @@ const countCommands = <String, Command>{
   '9': CountCommand(9),
 };
 
-final motionCommands = <String, Command>{
+const motionCommands = <String, Command>{
   'h': MotionCommand(Motion(.charPrev)),
   'l': MotionCommand(Motion(.charNext)),
   ' ': MotionCommand(Motion(.charNext)),
