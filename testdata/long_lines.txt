@@ -1,0 +1,27 @@
+This is a very long line that keeps going and going and going without any newline breaks for quite a while, testing how the editor handles horizontal scrolling and line wrapping behavior when encountering text that extends well beyond the typical terminal width of 80 or even 120 columns.
+
+Short line.
+
+Another extremely long line with emoji mixed in: The quick brown 🦊 jumped over the lazy 🐶 and then continued running past the 🌲🌳🌴 forest, across the 🏔️ mountain, through the 🌊 ocean, over the 🌈 rainbow, past the ⭐ stars and 🌙 moon, all the way around the 🌍🌎🌏 world and back again without stopping once.
+
+	Indented long line: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+		Double-indented long line with unicode: Héllo wörld — this line contàins various àccented chàracters, some CJK: 你好世界, some Arabic: مرحبا بالعالم, some Hebrew: שלום עולם, some Korean: 안녕하세요, some Japanese: こんにちは世界, mixed all together in one very long line that tests multi-byte rendering.
+
+Line with a mix of widths: ASCII ascii ascii | Wide 你好世界 | Emoji 😀😁😂 | Wide+Emoji 你😀好😁世😂界 | Back to ASCII at the end of this quite long line that tests rendering of mixed-width content in a single line.
+
+abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀
+
+你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界你好世界
+
+Normal width line of exactly 80 characters: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Normal width line of exactly 79 characters: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Normal width line of exactly 81 characters: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

@@ -1,0 +1,61 @@
+# Unicode Edge Cases
+
+## Zero-Width Joiner sequences
+👨‍💻 ← man+ZWJ+laptop (3 codepoints, 1 glyph)
+👩‍❤️‍💋‍👨 ← couple kissing (6 codepoints, 1 glyph)
+🏳️‍🌈 ← rainbow flag (4 codepoints, 1 glyph)
+🧑‍🤝‍🧑 ← people holding hands (3 codepoints, 1 glyph)
+
+## Variation selectors
+❤ ← U+2764 without VS (text presentation, 1 wide)
+❤️ ← U+2764 + U+FE0F (emoji presentation, 2 wide)
+☀ ← U+2600 text
+☀️ ← U+2600 + U+FE0F emoji
+★ ← U+2605 text star
+⭐ ← U+2B50 emoji star
+
+## Combining characters
+e + combining accent: é (precomposed) vs e + ́  (decomposed, 2 codepoints)
+a + combining diaeresis: ä (precomposed) vs a + ̈  (decomposed)
+ñ (precomposed) vs n + ̃ (decomposed)
+
+## Right-to-left text
+Arabic: مرحبا بالعالم هذا نص طويل جداً لاختبار كيفية تعامل المحرر مع النصوص ذات الاتجاه من اليمين إلى اليسار
+Hebrew: שלום עולם זהו טקסט ארוך מאוד כדי לבדוק כיצד העורך מתמודד עם טקסטים מימין לשמאל
+
+## Mixed bidi
+LTR then RTL: Hello مرحبا World שלום!
+Number in RTL: الرقم ١٢٣٤٥ في النص العربي
+RTL in parens: (مرحبا) and [שלום]
+
+## CJK full-width characters
+Fullwidth ASCII: Ａ Ｂ Ｃ １ ２ ３ （ ） ＋ －
+Halfwidth Katakana: ｱ ｲ ｳ ｴ ｵ ｶ ｷ ｸ ｹ ｺ
+CJK Compatibility: ㌀ ㌁ ㌂ ㌃ ㌄ ㌅ ㌆ ㌇ ㌈ ㌉
+CJK Unified: 一二三四五六七八九十百千万億兆
+
+## Symbols that may be ambiguous width
+Ambiguous (East Asian Width = A): § ¶ © ® ™ µ ± × ÷ ¬
+Block elements: █ ▓ ▒ ░ ▀ ▄ ▌ ▐ ■ □ ▪ ▫ ▬ ▲ ▼ ◆ ◇ ○ ●
+Box drawing: ─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼ ═ ║ ╔ ╗ ╚ ╝ ╠ ╣ ╦ ╩ ╬
+
+## Null and control characters
+Line with tab:	tabbed content	more	tabs
+Line with multiple	tabs		between		words
+
+## Very long unicode line
+日本語のとても長い行です。これはエディタがどのように全角文字を含む非常に長い行を処理するかをテストするためのものです。全角文字は通常のASCII文字の2倍の幅を持つため、レンダリングが複雑になる可能性があります。この行はそのような状況をテストするために設計されています。
+
+한국어로 된 매우 긴 줄입니다. 이것은 편집기가 전각 문자를 포함하는 매우 긴 줄을 어떻게 처리하는지 테스트하기 위한 것입니다. 전각 문자는 일반 ASCII 문자의 두 배 너비를 가지므로 렌더링이 복잡해질 수 있습니다.
+
+## Emoji with skin tones in sequence
+👋🏻👋🏼👋🏽👋🏾👋🏿 ← five consecutive skin tone variants
+🤜🏻🤛🏿 ← fist bumps different skin tones
+
+## Keycap sequences
+1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 0️⃣ #️⃣ *️⃣
+
+## Tag sequences (subdivision flags)
+🏴󠁧󠁢󠁥󠁮󠁧󠁿 England
+🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland
+🏴󠁧󠁢󠁷󠁬󠁳󠁿 Wales
