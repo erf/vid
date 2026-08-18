@@ -22,7 +22,7 @@ A minimal vim-like text editor for modern terminals written in [Dart](https://da
 
 ## Building
 
-Requires the [Dart SDK](https://dart.dev/get-dart) (3.12+).
+Requires the [Dart SDK](https://dart.dev/get-dart) (3.13+).
 
 See [build.sh](build.sh).
 
