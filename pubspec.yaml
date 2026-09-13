@@ -9,9 +9,9 @@ environment:
 dependencies:
   characters: ^1.4.1
   termio: ^0.6.0
-  yaml: ^3.1.3
+  yaml: ^3.1.4
 
 dev_dependencies:
   lints: ^6.0.0
-  test: ^1.31.2
+  test: ^1.32.0
   http: ^1.6.0
