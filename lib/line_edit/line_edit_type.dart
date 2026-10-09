@@ -39,4 +39,5 @@ enum LineEditType {
   themes,
   files,
   references,
+  help,
 }

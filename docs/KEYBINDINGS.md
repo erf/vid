@@ -2,6 +2,9 @@
 
 A comprehensive reference of all keybindings in vid, the minimal vim-like text editor.
 
+Inside vid, press `Ctrl+H` or run `:help` for a searchable list generated from the
+actual bindings.
+
 ## Normal Mode
 
 ### Navigation
@@ -153,6 +156,7 @@ Double an operator to apply to the whole line: `dd` (delete line), `cc` (change 
 | `Ctrl+F` | Open buffer selector |
 | `Ctrl+T` | Open theme selector |
 | `Ctrl+E` | Open diagnostics |
+| `Ctrl+H` | Show keybindings help |
 
 ---
 
@@ -314,6 +318,7 @@ Enter command mode with `:`.
 |---------|--------|
 | `:th` / `:theme` / `:themes` | Open theme picker |
 | `:f` / `:files` / `:browse` | Open file browser |
+| `:h` / `:help` / `:keys` | Show keybindings help |
 
 ---
 

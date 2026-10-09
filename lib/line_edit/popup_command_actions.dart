@@ -2,6 +2,7 @@ import '../editor.dart';
 import '../features/lsp/references_popup.dart';
 import '../file_buffer/file_buffer.dart';
 import '../popup/file_browser.dart';
+import '../popup/help_popup.dart';
 import '../popup/theme_selector.dart';
 import 'line_edit_base.dart';
 
@@ -35,5 +36,16 @@ class CmdReferences extends LineEditAction {
   void call(Editor e, FileBuffer f, List<String> args) {
     f.setMode(e, .normal);
     ReferencesPopup.show(e, f);
+  }
+}
+
+/// Open keybindings help (:help, :h, :keys).
+class CmdHelp extends LineEditAction {
+  const CmdHelp();
+
+  @override
+  void call(Editor e, FileBuffer f, List<String> args) {
+    f.setMode(e, .normal);
+    HelpPopup.show(e);
   }
 }

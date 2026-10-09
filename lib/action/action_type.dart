@@ -26,6 +26,7 @@ enum ActionType {
   openBufferSelector,
   openThemeSelector,
   openDiagnostics,
+  openHelp,
   centerView,
   topView,
   bottomView,

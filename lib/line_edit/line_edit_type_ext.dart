@@ -48,5 +48,6 @@ extension LineEditTypeExt on LineEditType {
     .themes => const CmdThemes(),
     .files => const CmdFiles(),
     .references => const CmdReferences(),
+    .help => const CmdHelp(),
   };
 }

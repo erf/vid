@@ -42,6 +42,7 @@ extension ActionTypeExt on ActionType {
     .openBufferSelector => const OpenPopup(.bufferSelector),
     .openThemeSelector => const OpenPopup(.themeSelector),
     .openDiagnostics => const OpenPopup(.diagnostics),
+    .openHelp => const OpenPopup(.help),
     .centerView => const ScrollView(.center),
     .topView => const ScrollView(.top),
     .bottomView => const ScrollView(.bottom),

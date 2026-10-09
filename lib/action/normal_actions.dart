@@ -10,6 +10,7 @@ import '../motion/motion_base.dart';
 import '../operator/operator_actions.dart';
 import '../popup/buffer_selector.dart';
 import '../popup/file_browser.dart';
+import '../popup/help_popup.dart';
 import '../popup/theme_selector.dart';
 import '../regex.dart';
 import '../selection.dart';
@@ -308,7 +309,7 @@ class ToggleSyntax extends Action {
 }
 
 /// Built-in popup that can be opened from normal mode.
-enum PopupKind { filePicker, bufferSelector, themeSelector, diagnostics }
+enum PopupKind { filePicker, bufferSelector, themeSelector, diagnostics, help }
 
 /// Open one of the built-in popups.
 class OpenPopup extends Action {
@@ -326,6 +327,8 @@ class OpenPopup extends Action {
         ThemeSelector.show(e);
       case .diagnostics:
         DiagnosticsPopup.show(e);
+      case .help:
+        HelpPopup.show(e);
     }
   }
 }

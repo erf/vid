@@ -55,6 +55,7 @@ const normalCommands = <String, Command>{
   Keys.ctrlF: ActionCommand(.openBufferSelector),
   Keys.ctrlT: ActionCommand(.openThemeSelector),
   Keys.ctrlE: ActionCommand(.openDiagnostics),
+  Keys.ctrlH: ActionCommand(.openHelp),
   'zz': ActionCommand(.centerView),
   'zt': ActionCommand(.topView),
   'zb': ActionCommand(.bottomView),
@@ -277,6 +278,9 @@ const lineEditCommands = <String, LineEditCommand>{
   'f': LineEditCommand(.files),
   'ref': LineEditCommand(.references),
   'references': LineEditCommand(.references),
+  'help': LineEditCommand(.help),
+  'h': LineEditCommand(.help),
+  'keys': LineEditCommand(.help),
 };
 
 const lineEditInputBindings = <String, Command>{
