@@ -315,9 +315,8 @@ class SwiftTokenizer extends Tokenizer {
 
     // Compiler directives (#if, #else, #endif, #available, etc.)
     if (text.codeUnitAt(pos) == 0x23 /* # */ ) {
-      final directiveMatch = RegExp(
-        r'#[a-zA-Z_][a-zA-Z0-9_]*',
-      ).matchAsPrefix(text, pos);
+      final directiveMatch = RegExp(r'#[a-zA-Z_][a-zA-Z0-9_]*')
+          .matchAsPrefix(text, pos);
       if (directiveMatch != null) {
         return _TokenMatch(
           Token(.keyword, pos, directiveMatch.end),

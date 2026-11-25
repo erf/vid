@@ -981,36 +981,33 @@ void main() {
       expect(f.selections[0].cursor, 7); // End of line (before newline)
     });
 
-    test(
-      'V enters visual line mode with full line selections for multiple cursors',
-      () {
-        final e = Editor(
-          terminal: TestTerminal(width: 80, height: 24),
-          redraw: false,
-        );
-        final f = e.file;
-        f.text = 'line one\nline two\nline three\n';
+    test('V enters visual line mode with full line selections for multiple cursors', () {
+      final e = Editor(
+        terminal: TestTerminal(width: 80, height: 24),
+        redraw: false,
+      );
+      final f = e.file;
+      f.text = 'line one\nline two\nline three\n';
 
-        // Multi-cursor (collapsed selections) across multiple lines.
-        f.selections = [
-          Selection.collapsed(0),
-          Selection.collapsed(9),
-          Selection.collapsed(18),
-        ];
+      // Multi-cursor (collapsed selections) across multiple lines.
+      f.selections = [
+        Selection.collapsed(0),
+        Selection.collapsed(9),
+        Selection.collapsed(18),
+      ];
 
-        e.input('V');
+      e.input('V');
 
-        expect(f.mode, Mode.visualLine);
-        expect(f.selections.length, 3);
-        // Each selection expands to its full line (cursor at last char before newline)
-        expect(f.selections[0].start, 0);
-        expect(f.selections[0].end, 7); // Last char of 'line one'
-        expect(f.selections[1].start, 9);
-        expect(f.selections[1].end, 16); // Last char of 'line two'
-        expect(f.selections[2].start, 18);
-        expect(f.selections[2].end, 27); // Last char of 'line three'
-      },
-    );
+      expect(f.mode, Mode.visualLine);
+      expect(f.selections.length, 3);
+      // Each selection expands to its full line (cursor at last char before newline)
+      expect(f.selections[0].start, 0);
+      expect(f.selections[0].end, 7); // Last char of 'line one'
+      expect(f.selections[1].start, 9);
+      expect(f.selections[1].end, 16); // Last char of 'line two'
+      expect(f.selections[2].start, 18);
+      expect(f.selections[2].end, 27); // Last char of 'line three'
+    });
 
     test('j motion moves cursor to next line', () {
       final e = Editor(

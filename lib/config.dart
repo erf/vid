@@ -1,4 +1,5 @@
 import 'highlighting/theme.dart';
+
 import 'package:yaml/yaml.dart';
 
 /// Text wrapping mode for the editor.

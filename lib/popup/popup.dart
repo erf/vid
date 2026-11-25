@@ -50,8 +50,10 @@ typedef PopupSelectCallback<T> = void Function(PopupItem<T> item);
 typedef PopupCancelCallback = void Function();
 
 /// Callback when filter text changes (for custom filtering).
-typedef PopupFilterCallback<T> =
-    List<PopupItem<T>> Function(List<PopupItem<T>> items, String filter);
+typedef PopupFilterCallback<T> = List<PopupItem<T>> Function(
+  List<PopupItem<T>> items,
+  String filter,
+);
 
 /// A generic popup menu state.
 class PopupState<T> {

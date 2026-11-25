@@ -18,14 +18,13 @@ export 'file_buffer_nav.dart';
 export 'file_buffer_text.dart';
 
 /// Callback for text changes in a [FileBuffer].
-typedef TextChangeListener =
-    void Function(
-      FileBuffer buffer,
-      int start,
-      int end,
-      String newText,
-      String oldText,
-    );
+typedef TextChangeListener = void Function(
+  FileBuffer buffer,
+  int start,
+  int end,
+  String newText,
+  String oldText,
+);
 
 /// A file buffer that maintains text with a trailing newline invariant.
 ///

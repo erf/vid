@@ -5,6 +5,7 @@ import 'config.dart';
 import 'features/lsp/lsp_config_loader.dart';
 import 'features/lsp/lsp_server_config.dart';
 import 'xdg_paths.dart';
+
 import 'package:yaml/yaml.dart';
 
 /// Loads configuration from YAML files at standard paths.
