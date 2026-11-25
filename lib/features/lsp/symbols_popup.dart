@@ -28,7 +28,7 @@ class SymbolsPopup {
     }
 
     editor.showMessage(Message.info('Loading symbols...'));
-    editor.draw();
+    editor.requestDraw();
 
     final symbols = await lsp.getDocumentSymbols(editor, file);
 

@@ -111,7 +111,7 @@ class FileBrowser {
     );
 
     editor.popup = newPopup;
-    editor.draw();
+    editor.requestDraw();
   }
 
   /// Resolve path to an absolute directory path.

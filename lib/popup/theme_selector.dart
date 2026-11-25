@@ -32,11 +32,11 @@ class ThemeSelector {
   static void _onSelect(Editor editor, PopupItem<ThemeType> item) {
     editor.setTheme(item.value);
     editor.closePopup();
-    editor.draw();
+    editor.requestDraw();
   }
 
   static void _onHighlight(Editor editor, PopupItem<ThemeType> item) {
     editor.setTheme(item.value);
-    editor.draw();
+    editor.requestDraw();
   }
 }

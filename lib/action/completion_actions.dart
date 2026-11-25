@@ -60,7 +60,7 @@ class ShowCompletion extends Action {
 
       if (items == null || items.isEmpty) {
         e.showMessage(.info('No completions'));
-        e.draw();
+        e.requestDraw();
         return;
       }
 
@@ -77,11 +77,11 @@ class ShowCompletion extends Action {
     } on TimeoutException {
       if (f.mode != .insert) return;
       e.showMessage(.info('Completion timed out'));
-      e.draw();
+      e.requestDraw();
     } catch (err) {
       if (f.mode != .insert) return;
       e.showMessage(.error('$err'));
-      e.draw();
+      e.requestDraw();
     }
   }
 

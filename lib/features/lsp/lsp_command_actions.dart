@@ -190,7 +190,7 @@ Future<FormatResult> formatBuffer(
     if (showMessages) {
       e.showMessage(Message.info('Formatted (${edits.length} edits)'));
     }
-    if (redraw) e.draw();
+    if (redraw) e.requestDraw();
     return FormatResult.success;
   } catch (err) {
     if (showMessages) e.showMessage(Message.error('Format failed: $err'));

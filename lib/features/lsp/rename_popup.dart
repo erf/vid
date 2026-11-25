@@ -95,7 +95,7 @@ class RenamePopup {
 
       // Find all references to show what will be renamed
       editor.showMessage(Message.info('Finding references...'));
-      editor.draw();
+      editor.requestDraw();
 
       final locations = await lsp.findReferences(editor, file);
 

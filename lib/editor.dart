@@ -73,10 +73,10 @@ class Editor {
   final BracketedPasteHandler _pasteHandler = BracketedPasteHandler();
 
   /// Routes mouse events (clicks and scroll).
-  final MouseHandler _mouseHandler = MouseHandler();
+  final _mouseHandler = MouseHandler();
 
   /// Jump list for Ctrl-o / Ctrl-i navigation.
-  final JumpList jumpList = JumpList();
+  final jumpList = JumpList();
 
   /// Buffer accessors — delegated to the BufferManager.
   FileBuffer get file => _bufferManager.current;
@@ -114,7 +114,7 @@ class Editor {
   /// Called when the active buffer changes: update title and redraw.
   void _onBufferActivated(FileBuffer buffer) {
     terminal.write(Ansi.setTitle('vid ${buffer.path ?? '[No Name]'}'));
-    draw();
+    requestDraw();
   }
 
   void _attachBuffer(FileBuffer buffer) {
@@ -301,7 +301,23 @@ class Editor {
     input(Keys.ctrlC);
   }
 
+  /// Whether a coalesced draw is pending (see [requestDraw]).
+  bool _drawScheduled = false;
+
+  /// Request a redraw. Multiple requests in the same event-loop turn (e.g.
+  /// from LSP notifications, messages and popups) are coalesced into a single
+  /// [draw]. A direct [draw] call satisfies any pending request.
+  void requestDraw() {
+    if (!redraw || _drawScheduled) return;
+    _drawScheduled = true;
+    scheduleMicrotask(() {
+      if (_drawScheduled) draw();
+    });
+  }
+
   void draw() {
+    _drawScheduled = false;
+
     // Get diagnostic count and semantic tokens for current file from LSP
     int diagnosticCount = 0;
     List<SemanticToken>? semanticTokens;
@@ -387,7 +403,7 @@ class Editor {
     _popupPreviousMode = file.mode;
     popup = popupState;
     file.setMode(this, .popup);
-    draw();
+    requestDraw();
   }
 
   /// Close the current popup and restore previous mode.
@@ -395,7 +411,7 @@ class Editor {
     popup = null;
     file.setMode(this, _popupPreviousMode ?? .normal);
     _popupPreviousMode = null;
-    draw();
+    requestDraw();
   }
 
   /// Notify popup that highlighted item changed.
@@ -408,12 +424,12 @@ class Editor {
     _messageTimer?.cancel();
     message = newMessage;
     _messageUntimed = !timed;
-    draw();
+    requestDraw();
 
     if (timed) {
       _messageTimer = Timer(Duration(milliseconds: config.messageTime), () {
         message = null;
-        draw();
+        requestDraw();
       });
     }
   }

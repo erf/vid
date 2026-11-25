@@ -136,7 +136,7 @@ class LspFeature extends Feature {
       }
 
       _semanticTokensCache.setBoth(uri, result.tokens);
-      if (_isCurrentFile(uri)) editor.draw();
+      if (_isCurrentFile(uri)) editor.requestDraw();
     } catch (_) {
       // Ignore errors - semantic tokens are optional enhancement
     }
@@ -354,13 +354,13 @@ class LspFeature extends Feature {
       if (targetPath == file.absolutePath) {
         _jumpToLocation(file, loc.line, loc.character);
         file.centerViewport(editor.terminal);
-        editor.draw();
+        editor.requestDraw();
       } else {
         editor.loadFile(targetPath);
         final targetFile = editor.file;
         _jumpToLocation(targetFile, loc.line, loc.character);
         targetFile.centerViewport(editor.terminal);
-        editor.draw();
+        editor.requestDraw();
       }
     } catch (e) {
       editor.showMessage(Message.error('LSP error: $e'));
@@ -501,7 +501,6 @@ class LspFeature extends Feature {
   /// Restart all LSP servers.
   Future<void> restart(Editor editor) async {
     editor.showMessage(Message.info('Restarting LSP servers...'));
-    editor.draw();
 
     _stopAllLspServers();
     _documents.clear();
@@ -526,7 +525,7 @@ class LspFeature extends Feature {
     } else {
       editor.showMessage(Message.info('No LSP servers started'));
     }
-    editor.draw();
+    editor.requestDraw();
   }
 
   void showStatus(Editor editor) {
@@ -586,7 +585,7 @@ class LspFeature extends Feature {
         onFileOpen(buffer);
       }
 
-      editor.draw();
+      editor.requestDraw();
     }
   }
 
@@ -621,7 +620,6 @@ class LspFeature extends Feature {
     if (success && showMessage) {
       final serverName = config.name;
       editor.showMessage(Message.info('LSP connected ($serverName)'));
-      editor.draw();
     }
     if (!success) {
       // Clean up failed client
@@ -665,13 +663,11 @@ class LspFeature extends Feature {
         editor.showMessage(
           Message.error(notification.params['message'] ?? 'LSP error'),
         );
-        editor.draw();
         break;
       case 'disconnected':
         final client = _clients[serverKey];
         final name = client?.serverConfig?.name ?? serverKey;
         editor.showMessage(Message.error('LSP disconnected ($name)'));
-        editor.draw();
         break;
     }
   }
@@ -688,7 +684,7 @@ class LspFeature extends Feature {
 
     // Redraw to update diagnostic count and gutter signs (only shown for the
     // current file; servers like the Dart analyzer publish for many files).
-    if (_isCurrentFile(uri)) editor.draw();
+    if (_isCurrentFile(uri)) editor.requestDraw();
   }
 
   /// Whether [uri] refers to the file in the active buffer.
@@ -751,7 +747,7 @@ class LspFeature extends Feature {
         }
 
         _codeActionsCache.setLines(uri, linesWithActions);
-        editor.draw();
+        editor.requestDraw();
       }),
     );
   }
@@ -772,7 +768,7 @@ class LspFeature extends Feature {
     } else {
       editor.showMessage(Message.info(message));
     }
-    editor.draw();
+    editor.requestDraw();
   }
 
   String _fileUri(String path) => Uri.file(path).toString();

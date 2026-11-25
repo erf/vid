@@ -156,7 +156,7 @@ class DiagnosticsPopup {
       file.cursor = lineStart + loc.character;
       file.clampCursor();
       file.centerViewport(editor.terminal);
-      editor.draw();
+      editor.requestDraw();
     }
   }
 

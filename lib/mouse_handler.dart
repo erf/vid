@@ -107,7 +107,7 @@ class MouseHandler {
         if (itemIndex < popup.items.length) {
           // Update selection and select the item
           e.popup = popup.copyWith(selectedIndex: itemIndex);
-          e.draw();
+          e.requestDraw();
 
           // Use invokeSelect for type-safe callback invocation
           e.popup!.invokeSelect();

@@ -33,7 +33,7 @@ class ReferencesPopup {
     }
 
     editor.showMessage(Message.info('Finding references...'));
-    editor.draw();
+    editor.requestDraw();
 
     final locations = await lsp.findReferences(editor, file);
 
@@ -166,7 +166,7 @@ class ReferencesPopup {
       file.cursor = lineStart + loc.character;
       file.clampCursor();
       file.centerViewport(editor.terminal);
-      editor.draw();
+      editor.requestDraw();
     }
   }
 
