@@ -25,7 +25,7 @@ void main() {
       List<SemanticToken> tokens,
     ) {
       final c = LspSemanticTokensCache();
-      c.setBoth(uri, tokens);
+      c.set(uri, tokens);
       final f = FileBuffer();
       f.text = before.replaceRange(start, start + oldText.length, newText);
       c.invalidateForEdit(uri, f, start, oldText, newText);
@@ -59,6 +59,45 @@ void main() {
         _tok(1, 0, 3),
       ]);
       expect(spans(t), '0:0+3 2:0+3');
+    });
+  });
+
+  group('applySemanticTokenEdits', () {
+    // Two tokens: [line, char, len, type, mods] x 2
+    const prev = [0, 0, 3, 7, 0, 0, 4, 3, 2, 0];
+
+    test('replaces a range and keeps untouched data verbatim', () {
+      // Change the second token's type (index 8) from 2 to 5.
+      final data = applySemanticTokenEdits(prev, [
+        {
+          'start': 8,
+          'deleteCount': 1,
+          'data': [5],
+        },
+      ]);
+      expect(data, [0, 0, 3, 7, 0, 0, 4, 3, 5, 0]);
+    });
+
+    test('applies multiple edits against original offsets', () {
+      final data = applySemanticTokenEdits(prev, [
+        {'start': 0, 'deleteCount': 5, 'data': <int>[]},
+        {
+          'start': 10,
+          'deleteCount': 0,
+          'data': [1, 0, 2, 1, 0],
+        },
+      ]);
+      expect(data, [0, 4, 3, 2, 0, 1, 0, 2, 1, 0]);
+    });
+
+    test('missing deleteCount inserts at start', () {
+      final data = applySemanticTokenEdits(prev, [
+        {
+          'start': 5,
+          'data': [0, 0, 1, 1, 0],
+        },
+      ]);
+      expect(data, [0, 0, 3, 7, 0, 0, 0, 1, 1, 0, 0, 4, 3, 2, 0]);
     });
   });
 }

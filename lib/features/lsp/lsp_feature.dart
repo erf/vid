@@ -92,7 +92,7 @@ class LspFeature extends Feature {
       _semanticTokensCache.getCurrent(uri);
 
   /// Debounce delay for semantic token requests.
-  static const _semanticTokenDebounce = Duration(milliseconds: 50);
+  static const _semanticTokenDebounce = Duration(milliseconds: 150);
 
   /// Request semantic tokens for the entire document.
   void requestSemanticTokens(String uri, {bool immediate = false}) {
@@ -117,25 +117,16 @@ class LspFeature extends Feature {
       final protocol = getProtocolForPath(path);
       if (protocol == null) return;
 
-      // Pass previous tokens to enable delta updates
-      final previousTokens = _semanticTokensCache.getPrevious(uri);
       final requestVersion = _documents.version(uri);
-      final result = await protocol.semanticTokensFull(
-        uri,
-        previousTokens: previousTokens,
-      );
-      if (result == null) return;
+      final tokens = await protocol.semanticTokensFull(uri);
+      if (tokens == null) return;
 
-      if (_documents.version(uri) != requestVersion) {
-        // The document changed while the request was in flight, so these
-        // tokens are for an older version and would be misplaced. Keep them
-        // as the delta base, but don't display them; a newer request is
-        // already scheduled for the current version.
-        _semanticTokensCache.setPrevious(uri, result.tokens);
-        return;
-      }
+      // The document changed while the request was in flight, so these
+      // tokens are for an older version and would be misplaced. Don't
+      // display them; a newer request is already scheduled.
+      if (_documents.version(uri) != requestVersion) return;
 
-      _semanticTokensCache.setBoth(uri, result.tokens);
+      _semanticTokensCache.set(uri, tokens);
       if (_isCurrentFile(uri)) editor.requestDraw();
     } catch (_) {
       // Ignore errors - semantic tokens are optional enhancement

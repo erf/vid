@@ -23,6 +23,7 @@ class LspProtocol {
 
   /// Notify server that a document was closed.
   void didClose(String uri) {
+    forgetSemanticTokens(uri);
     client.sendNotification('textDocument/didClose', {
       'textDocument': {'uri': uri},
     });
@@ -70,53 +71,28 @@ class LspProtocol {
     });
   }
 
-  /// Request semantic tokens for a range of a document.
-  ///
-  /// Returns a list of [SemanticToken]s with absolute positions.
-  Future<List<SemanticToken>?> semanticTokensRange(
-    String uri,
-    int startLine,
-    int startChar,
-    int endLine,
-    int endChar,
-  ) async {
-    if (!client.supportsSemanticTokens) return null;
-
-    final result = await client.sendRequest(
-      'textDocument/semanticTokens/range',
-      {
-        'textDocument': {'uri': uri},
-        'range': {
-          'start': {'line': startLine, 'character': startChar},
-          'end': {'line': endLine, 'character': endChar},
-        },
-      },
-    );
-
-    if (result == null) return null;
-
-    final data = result['result']?['data'];
-    if (data == null || data is! List) return null;
-
-    return _decodeSemanticTokens(data.cast<int>());
-  }
-
-  /// Stored result IDs for delta requests per file.
+  /// Last raw token data and resultId per file, used as the base for delta
+  /// requests. Kept raw (as sent by the server) because delta edits are
+  /// offsets into this exact integer array.
+  final Map<String, List<int>> _semanticData = {};
   final Map<String, String> _resultIds = {};
 
-  /// Request semantic tokens for a document, using delta if available.
-  ///
-  /// Returns a [SemanticTokensResult] with tokens and optional resultId.
-  Future<SemanticTokensResult?> semanticTokensFull(
-    String uri, {
-    List<SemanticToken>? previousTokens,
-  }) async {
+  /// Forget delta state for [uri] (e.g. when the document is closed).
+  void forgetSemanticTokens(String uri) {
+    _semanticData.remove(uri);
+    _resultIds.remove(uri);
+  }
+
+  /// Request semantic tokens for a whole document, using a delta request
+  /// when the server supports it and we have a previous result.
+  Future<List<SemanticToken>?> semanticTokensFull(String uri) async {
     if (!client.supportsSemanticTokens) return null;
 
     final previousResultId = _resultIds[uri];
-
-    // Try delta request if we have a previous resultId
-    if (previousResultId != null && previousTokens != null) {
+    final previousData = _semanticData[uri];
+    if (client.supportsSemanticTokensDelta &&
+        previousResultId != null &&
+        previousData != null) {
       final result = await client.sendRequest(
         'textDocument/semanticTokens/full/delta',
         {
@@ -124,141 +100,46 @@ class LspProtocol {
           'previousResultId': previousResultId,
         },
       );
-
-      if (result != null) {
-        final resultData = result['result'];
-        if (resultData != null) {
-          // Check if server returned delta edits or full data
-          final edits = resultData['edits'];
-          if (edits != null && edits is List) {
-            // Apply delta edits to previous tokens
-            final newResultId = resultData['resultId'] as String?;
-            if (newResultId != null) _resultIds[uri] = newResultId;
-            final newTokens = _applySemanticEdits(previousTokens, edits);
-            return SemanticTokensResult(newTokens, newResultId);
-          }
-
-          // Server returned full data instead of delta
-          final data = resultData['data'];
-          if (data != null && data is List) {
-            final newResultId = resultData['resultId'] as String?;
-            if (newResultId != null) _resultIds[uri] = newResultId;
-            return SemanticTokensResult(
-              _decodeSemanticTokens(data.cast<int>()),
-              newResultId,
-            );
-          }
+      final resultData = result?['result'];
+      if (resultData is Map) {
+        final edits = resultData['edits'];
+        final data = edits is List
+            ? applySemanticTokenEdits(previousData, edits)
+            : resultData['data'] is List
+            ? (resultData['data'] as List).cast<int>()
+            : null;
+        if (data != null) {
+          return _storeSemanticData(uri, data, resultData['resultId']);
         }
       }
     }
 
-    // Fall back to full request
     final result = await client.sendRequest(
       'textDocument/semanticTokens/full',
       {
         'textDocument': {'uri': uri},
       },
     );
-
-    if (result == null) return null;
-
-    final resultData = result['result'];
-    if (resultData == null) return null;
-
+    final resultData = result?['result'];
+    if (resultData is! Map) return null;
     final data = resultData['data'];
-    if (data == null || data is! List) return null;
-
-    final newResultId = resultData['resultId'] as String?;
-    if (newResultId != null) _resultIds[uri] = newResultId;
-
-    return SemanticTokensResult(
-      _decodeSemanticTokens(data.cast<int>()),
-      newResultId,
-    );
+    if (data is! List) return null;
+    return _storeSemanticData(uri, data.cast<int>(), resultData['resultId']);
   }
 
-  /// Apply semantic token edits to existing token data.
-  List<SemanticToken> _applySemanticEdits(
-    List<SemanticToken> previous,
-    List<dynamic> edits,
+  /// Store [data] as the delta base for [uri] and decode it.
+  List<SemanticToken> _storeSemanticData(
+    String uri,
+    List<int> data,
+    Object? resultId,
   ) {
-    // Convert tokens back to raw data format for editing
-    final data = <int>[];
-    var prevLine = 0;
-    var prevChar = 0;
-
-    for (final token in previous) {
-      final deltaLine = token.line - prevLine;
-      final deltaChar = deltaLine > 0
-          ? token.character
-          : token.character - prevChar;
-      data.addAll([
-        deltaLine,
-        deltaChar,
-        token.length,
-        _tokenTypeToIndex(token.type),
-        token.modifiers,
-      ]);
-      prevLine = token.line;
-      prevChar = token.character;
+    if (resultId is String) {
+      _semanticData[uri] = data;
+      _resultIds[uri] = resultId;
+    } else {
+      forgetSemanticTokens(uri);
     }
-
-    // Apply edits in reverse order to preserve indices
-    final sortedEdits = List<Map<String, dynamic>>.from(
-      edits.map((e) => e as Map<String, dynamic>),
-    )..sort((a, b) => (b['start'] as int).compareTo(a['start'] as int));
-
-    for (final edit in sortedEdits) {
-      final start = edit['deleteCount'] != null ? edit['start'] as int : 0;
-      final deleteCount = edit['deleteCount'] as int? ?? 0;
-      final insertData = edit['data'] as List<dynamic>? ?? [];
-
-      // Remove deleted elements
-      if (deleteCount > 0 && start < data.length) {
-        data.removeRange(start, (start + deleteCount).clamp(0, data.length));
-      }
-
-      // Insert new elements
-      if (insertData.isNotEmpty) {
-        data.insertAll(start.clamp(0, data.length), insertData.cast<int>());
-      }
-    }
-
     return _decodeSemanticTokens(data);
-  }
-
-  /// Map TokenType back to index for delta encoding.
-  int _tokenTypeToIndex(TokenType type) {
-    final legend = client.semanticTokenTypes;
-    // Find matching type in legend
-    final typeName = switch (type) {
-      TokenType.namespace => 'namespace',
-      TokenType.class_ => 'class',
-      TokenType.enum_ => 'enum',
-      TokenType.interface => 'interface',
-      TokenType.struct => 'struct',
-      TokenType.typeParameter => 'typeParameter',
-      TokenType.parameter => 'parameter',
-      TokenType.variable => 'variable',
-      TokenType.property => 'property',
-      TokenType.enumMember => 'enumMember',
-      TokenType.event => 'event',
-      TokenType.function => 'function',
-      TokenType.method => 'method',
-      TokenType.macro => 'macro',
-      TokenType.keyword => 'keyword',
-      TokenType.modifier => 'modifier',
-      TokenType.blockComment || TokenType.lineComment => 'comment',
-      TokenType.string => 'string',
-      TokenType.number => 'number',
-      TokenType.regexp => 'regexp',
-      TokenType.operator => 'operator',
-      TokenType.decorator => 'decorator',
-      TokenType.type => 'type',
-      _ => 'variable',
-    };
-    final index = legend.indexOf(typeName);
-    return index >= 0 ? index : 0;
   }
 
   /// Decode delta-encoded semantic token data into absolute positions.
@@ -770,6 +651,28 @@ List<LspDiagnostic> parseDiagnostics(Map<String, dynamic> params) {
 }
 
 /// Get the URI from a publishDiagnostics notification.
+/// Apply semantic token delta [edits] to the previous raw [data] array.
+///
+/// Edits refer to offsets in the previous array, so they are applied from
+/// the highest start offset down to keep earlier offsets valid.
+List<int> applySemanticTokenEdits(List<int> previous, List<dynamic> edits) {
+  final data = List<int>.of(previous);
+  final sortedEdits = edits.cast<Map<String, dynamic>>().toList()
+    ..sort((a, b) => (b['start'] as int).compareTo(a['start'] as int));
+
+  for (final edit in sortedEdits) {
+    final start = (edit['start'] as int).clamp(0, data.length);
+    final deleteCount = edit['deleteCount'] as int? ?? 0;
+    final insertData = (edit['data'] as List<dynamic>? ?? []).cast<int>();
+    data.replaceRange(
+      start,
+      (start + deleteCount).clamp(start, data.length),
+      insertData,
+    );
+  }
+  return data;
+}
+
 String? getDiagnosticsUri(Map<String, dynamic> params) {
   return params['uri'] as String?;
 }
@@ -807,14 +710,6 @@ class SemanticToken {
   @override
   String toString() =>
       'SemanticToken($type, L$line:$character, len=$length, mod=$modifiers)';
-}
-
-/// Result of a semantic tokens request.
-class SemanticTokensResult {
-  final List<SemanticToken> tokens;
-  final String? resultId;
-
-  SemanticTokensResult(this.tokens, this.resultId);
 }
 
 /// Completion item kind from LSP spec.

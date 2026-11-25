@@ -36,14 +36,11 @@ class LspDiagnosticsCache {
   }
 }
 
-/// Caches semantic tokens per file URI, plus the previous-token snapshot
-/// used for delta requests and pending-request debounce timers.
+/// Caches the semantic tokens displayed per file URI, plus pending-request
+/// debounce timers. (The raw delta base lives in [LspProtocol].)
 class LspSemanticTokensCache {
   /// Current tokens used for rendering.
   final Map<String, List<SemanticToken>> _current = {};
-
-  /// Previous tokens kept for delta requests, even when display is cleared.
-  final Map<String, List<SemanticToken>> _previous = {};
 
   /// Pending semantic-token request debounce timers.
   final Map<String, Timer> _timers = {};
@@ -53,29 +50,14 @@ class LspSemanticTokensCache {
     return _current[uri] ?? const [];
   }
 
-  List<SemanticToken>? getPrevious(String uri) => _previous[uri];
-
-  /// Set both current and previous to [tokens] (used after a successful fetch).
-  void setBoth(String uri, List<SemanticToken> tokens) {
+  /// Replace the displayed tokens for [uri].
+  void set(String uri, List<SemanticToken> tokens) {
     _current[uri] = tokens;
-    _previous[uri] = tokens;
-  }
-
-  /// Replace current tokens (used by edit invalidation).
-  void setCurrent(String uri, List<SemanticToken> tokens) {
-    _current[uri] = tokens;
-  }
-
-  /// Replace only the previous tokens (delta base), keeping what is displayed.
-  /// Used when a response arrives for an outdated document version.
-  void setPrevious(String uri, List<SemanticToken> tokens) {
-    _previous[uri] = tokens;
   }
 
   /// Clear cached tokens for a file (e.g., on close).
   void clear(String uri) {
     _current.remove(uri);
-    _previous.remove(uri);
     _timers[uri]?.cancel();
     _timers.remove(uri);
   }
@@ -83,7 +65,6 @@ class LspSemanticTokensCache {
   /// Clear all cached tokens and cancel all pending timers.
   void clearAll() {
     _current.clear();
-    _previous.clear();
     cancelAllTimers();
   }
 

@@ -23,6 +23,9 @@ class LspClient {
   /// Semantic token modifier legend from server capabilities.
   List<String> _semanticTokenModifiers = [];
 
+  /// Whether the server supports `textDocument/semanticTokens/full/delta`.
+  var _supportsSemanticTokensDelta = false;
+
   /// Whether the server supports incremental text sync.
   var _supportsIncrementalSync = false;
 
@@ -43,6 +46,9 @@ class LspClient {
 
   /// Semantic token modifier legend for decoding responses.
   List<String> get semanticTokenModifiers => _semanticTokenModifiers;
+
+  /// Whether the server supports semantic token delta requests.
+  bool get supportsSemanticTokensDelta => _supportsSemanticTokensDelta;
 
   /// Whether the server supports incremental text document sync.
   bool get supportsIncrementalSync => _supportsIncrementalSync;
@@ -104,6 +110,9 @@ class LspClient {
 
       final semanticProvider = capabilities['semanticTokensProvider'];
       if (semanticProvider == null) return;
+
+      final full = semanticProvider['full'];
+      _supportsSemanticTokensDelta = full is Map && full['delta'] == true;
 
       final legend = semanticProvider['legend'];
       if (legend == null) return;
@@ -264,7 +273,6 @@ class LspClient {
           'semanticTokens': {
             'dynamicRegistration': false,
             'requests': {
-              'range': true,
               'full': {'delta': true},
             },
             'tokenTypes': [
@@ -306,7 +314,7 @@ class LspClient {
             ],
             'formats': ['relative'],
             'overlappingTokenSupport': false,
-            'multilineTokenSupport': true,
+            'multilineTokenSupport': false,
           },
         },
         'workspace': {
