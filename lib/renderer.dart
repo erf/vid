@@ -278,12 +278,14 @@ class Renderer {
     // Rows are overwritten in place (erased per line) instead of clearing the
     // whole screen first, so even terminals without synchronized output don't
     // flash a blank frame.
-    buffer.write(_syncBegin);
+    buffer.write(Ansi.synchronizedOutput(true));
     buffer.write(Ansi.cursorVisible(false));
     final theme = highlighter.theme;
     theme.resetCode(buffer);
-    buffer.write(_home);
-    if (layout.rows.length < terminal.height - 1) buffer.write(_eraseBelow);
+    buffer.write(Ansi.cursorHome());
+    if (layout.rows.length < terminal.height - 1) {
+      buffer.write(Ansi.eraseBelow());
+    }
 
     final (selectionRanges, secondaryCursorRanges) = _computeSelectionRanges(
       file,
@@ -301,7 +303,7 @@ class Renderer {
     // Erase the bottom line before drawing the status bar / line edit.
     buffer.write(Ansi.cursor(x: 1, y: terminal.height));
     theme.resetCode(buffer);
-    buffer.write(_eraseLine);
+    buffer.write(Ansi.eraseLine());
 
     if (file.mode case .command || .search || .searchBackward) {
       statusBar.drawLineEdit(buffer, file);
@@ -337,24 +339,9 @@ class Renderer {
       );
     }
     buffer.write(Ansi.cursorVisible(true));
-    buffer.write(_syncEnd);
+    buffer.write(Ansi.synchronizedOutput(false));
     terminal.write(buffer);
   }
-
-  /// Synchronized output (mode 2026): the terminal buffers everything between
-  /// begin and end and presents it atomically. Ignored by terminals that don't
-  /// support it.
-  static const _syncBegin = '\x1b[?2026h';
-  static const _syncEnd = '\x1b[?2026l';
-
-  /// Move cursor to top-left.
-  static const _home = '\x1b[H';
-
-  /// Erase the entire current line (with current background color).
-  static const _eraseLine = '\x1b[2K';
-
-  /// Erase from cursor to end of screen.
-  static const _eraseBelow = '\x1b[J';
 
   /// Last cursor color sent via OSC 12, to avoid resending it every frame.
   String? _lastCursorColor;
@@ -778,7 +765,7 @@ class Renderer {
       // Erase the row with the theme background before drawing it (replaces
       // a full clear screen, which can flash).
       highlighter.theme.resetCode(buffer);
-      buffer.write(_eraseLine);
+      buffer.write(Ansi.eraseLine());
 
       final GutterSign? sign = row.lineNum >= 0 && gutterSigns != null
           ? gutterSigns[row.lineNum]
