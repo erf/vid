@@ -18,7 +18,7 @@ const _wordConfig = Config(
   showDiagnosticSigns: false,
 );
 
-final _ansi = RegExp(r'\x1b\[[0-9;]*[A-Za-z]');
+final _ansi = RegExp(r'\x1b\[[0-9;?]*[A-Za-z]');
 
 String _strip(String s) => s.replaceAll(_ansi, '');
 

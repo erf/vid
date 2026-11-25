@@ -1,5 +1,6 @@
 import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
+
 import 'config.dart';
 import 'file_buffer/file_buffer.dart';
 import 'gutter.dart';
@@ -274,12 +275,17 @@ class Renderer {
     // Pass 2: Render using the calculated layout
     buffer.clear();
 
-    // Apply theme background and foreground colors if set, then clear screen
-    // (clearing after setting bg fills screen with theme background)
+    // Begin a synchronized update and hide the cursor while drawing, so the
+    // terminal never shows a half-drawn frame or the cursor jumping around.
+    // Rows are overwritten in place (erased per line) instead of clearing the
+    // whole screen first, so even terminals without synchronized output don't
+    // flash a blank frame.
+    buffer.write(_syncBegin);
+    buffer.write(Ansi.cursorVisible(false));
     final theme = highlighter.theme;
-    if (theme.background != null) buffer.write(theme.background);
-    if (theme.foreground != null) buffer.write(theme.foreground);
-    buffer.write(Ansi.clearScreen());
+    theme.resetCode(buffer);
+    buffer.write(_home);
+    if (layout.rows.length < terminal.height - 1) buffer.write(_eraseBelow);
 
     final (selectionRanges, secondaryCursorRanges) = _computeSelectionRanges(
       file,
@@ -293,6 +299,11 @@ class Renderer {
       secondaryCursorRanges: secondaryCursorRanges,
       gutterSigns: gutterSigns,
     );
+
+    // Erase the bottom line before drawing the status bar / line edit.
+    buffer.write(Ansi.cursor(x: 1, y: terminal.height));
+    theme.resetCode(buffer);
+    buffer.write(_eraseLine);
 
     if (file.mode case .command || .search || .searchBackward) {
       statusBar.drawLineEdit(buffer, file);
@@ -327,8 +338,28 @@ class Renderer {
         layout.cursorWrapCol,
       );
     }
+    buffer.write(Ansi.cursorVisible(true));
+    buffer.write(_syncEnd);
     terminal.write(buffer);
   }
+
+  /// Synchronized output (mode 2026): the terminal buffers everything between
+  /// begin and end and presents it atomically. Ignored by terminals that don't
+  /// support it.
+  static const _syncBegin = '\x1b[?2026h';
+  static const _syncEnd = '\x1b[?2026l';
+
+  /// Move cursor to top-left.
+  static const _home = '\x1b[H';
+
+  /// Erase the entire current line (with current background color).
+  static const _eraseLine = '\x1b[2K';
+
+  /// Erase from cursor to end of screen.
+  static const _eraseBelow = '\x1b[J';
+
+  /// Last cursor color sent via OSC 12, to avoid resending it every frame.
+  String? _lastCursorColor;
 
   /// Get the available content width (terminal width minus gutter).
   int get contentWidth => terminal.width - gutterWidth;
@@ -746,6 +777,11 @@ class Renderer {
       if (i > 0) buffer.write(Keys.newline);
       final row = rows[i];
 
+      // Erase the row with the theme background before drawing it (replaces
+      // a full clear screen, which can flash).
+      highlighter.theme.resetCode(buffer);
+      buffer.write(_eraseLine);
+
       final GutterSign? sign = row.lineNum >= 0 && gutterSigns != null
           ? gutterSigns[row.lineNum]
           : null;
@@ -815,8 +851,9 @@ class Renderer {
 
     // Apply theme cursor color via OSC 12 if set
     final theme = highlighter.theme;
-    if (theme.cursorColor != null) {
+    if (theme.cursorColor != null && theme.cursorColor != _lastCursorColor) {
       buffer.write(theme.cursorColor);
+      _lastCursorColor = theme.cursorColor;
     }
 
     buffer.write(Ansi.cursor(x: screenCol, y: cursorScreenRow));

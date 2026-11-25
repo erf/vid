@@ -119,14 +119,24 @@ class LspFeature extends Feature {
 
       // Pass previous tokens to enable delta updates
       final previousTokens = _semanticTokensCache.getPrevious(uri);
+      final requestVersion = _documents.version(uri);
       final result = await protocol.semanticTokensFull(
         uri,
         previousTokens: previousTokens,
       );
-      if (result != null) {
-        _semanticTokensCache.setBoth(uri, result.tokens);
-        editor.draw();
+      if (result == null) return;
+
+      if (_documents.version(uri) != requestVersion) {
+        // The document changed while the request was in flight, so these
+        // tokens are for an older version and would be misplaced. Keep them
+        // as the delta base, but don't display them; a newer request is
+        // already scheduled for the current version.
+        _semanticTokensCache.setPrevious(uri, result.tokens);
+        return;
       }
+
+      _semanticTokensCache.setBoth(uri, result.tokens);
+      if (_isCurrentFile(uri)) editor.draw();
     } catch (_) {
       // Ignore errors - semantic tokens are optional enhancement
     }
@@ -676,8 +686,21 @@ class LspFeature extends Feature {
     // Check for code actions on diagnostic lines (debounced)
     _checkCodeActionsForDiagnostics(uri, diags);
 
-    // Just redraw to update diagnostic count in status bar
-    editor.draw();
+    // Redraw to update diagnostic count and gutter signs (only shown for the
+    // current file; servers like the Dart analyzer publish for many files).
+    if (_isCurrentFile(uri)) editor.draw();
+  }
+
+  /// Whether [uri] refers to the file in the active buffer.
+  bool _isCurrentFile(String uri) {
+    final path = editor.file.absolutePath;
+    if (path == null) return false;
+    if (uri == 'file://$path') return true;
+    try {
+      return Uri.parse(uri).toFilePath() == path;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Check for code actions on lines with diagnostics.

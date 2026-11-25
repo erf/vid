@@ -66,6 +66,12 @@ class LspSemanticTokensCache {
     _current[uri] = tokens;
   }
 
+  /// Replace only the previous tokens (delta base), keeping what is displayed.
+  /// Used when a response arrives for an outdated document version.
+  void setPrevious(String uri, List<SemanticToken> tokens) {
+    _previous[uri] = tokens;
+  }
+
   /// Clear cached tokens for a file (e.g., on close).
   void clear(String uri) {
     _current.remove(uri);
@@ -97,9 +103,14 @@ class LspSemanticTokensCache {
     _timers.clear();
   }
 
-  /// Invalidate only tokens on lines affected by an edit.
+  /// Adjust tokens for an edit until fresh tokens arrive from the server.
+  ///
   /// Tokens on unaffected lines remain valid (avoiding flashes); tokens after
-  /// the edit are shifted by the line delta.
+  /// the edit are shifted by the line delta. On the edited line, tokens
+  /// before the edit are kept, and for single-line edits tokens after it are
+  /// shifted by the column delta. Only tokens touched by the edit are dropped
+  /// (falling back to regex highlighting); an insertion strictly inside a
+  /// token grows that token.
   void invalidateForEdit(
     String uri,
     FileBuffer file,
@@ -117,11 +128,38 @@ class LspSemanticTokensCache {
     final editLine = file.lineNumber(editStart);
     final affectedEndLine = editLine + oldLines;
 
+    // Column of the edit within its line (prefix before the edit is
+    // unchanged, so the current line start is still valid).
+    final editCol = editStart - file.lines[editLine].start;
+    final singleLine = oldLines == 0 && newLines == 0;
+    final oldEndCol = editCol + oldText.length;
+    final colDelta = newText.length - oldText.length;
+
     final adjusted = <SemanticToken>[];
     for (final token in tokens) {
       if (token.line < editLine) {
         // Before edit - keep unchanged
         adjusted.add(token);
+      } else if (token.line == editLine &&
+          token.character + token.length <= editCol) {
+        // Entirely before the edit on the edited line - keep unchanged
+        adjusted.add(token);
+      } else if (singleLine && token.line == editLine) {
+        final tokenEnd = token.character + token.length;
+        if (token.character >= oldEndCol) {
+          // After the edit on the same line - shift column
+          adjusted.add(
+            _withSpan(token, token.character + colDelta, token.length),
+          );
+        } else if (oldText.isEmpty &&
+            token.character < editCol &&
+            tokenEnd > editCol) {
+          // Insertion strictly inside the token - grow it
+          adjusted.add(
+            _withSpan(token, token.character, token.length + colDelta),
+          );
+        }
+        // Otherwise the token overlaps the edit - drop it
       } else if (token.line <= affectedEndLine) {
         // On affected lines - skip (will use regex highlighting)
       } else {
@@ -140,6 +178,15 @@ class LspSemanticTokensCache {
 
     _current[uri] = adjusted;
   }
+
+  static SemanticToken _withSpan(SemanticToken t, int character, int length) =>
+      SemanticToken(
+        line: t.line,
+        character: character,
+        length: length,
+        type: t.type,
+        modifiers: t.modifiers,
+      );
 }
 
 /// Caches the set of lines with available code actions per file URI, plus
@@ -198,6 +245,9 @@ class LspDocumentTracker {
     _openDocuments[uri] = serverKey;
     _versions[uri] = 1;
   }
+
+  /// Current version for [uri], or null if not open.
+  int? version(String uri) => _versions[uri];
 
   /// Increment and return the new version for [uri].
   int incrementVersion(String uri) {
