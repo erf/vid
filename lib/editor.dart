@@ -50,7 +50,7 @@ class Editor {
   Timer? _messageTimer;
 
   /// Whether the current message is untimed (should clear on next input).
-  bool _messageUntimed = false;
+  var _messageUntimed = false;
 
   String? logPath;
   File? logFile;
@@ -61,7 +61,7 @@ class Editor {
 
   late final Highlighter _highlighter;
   late final Renderer renderer;
-  final InputParser _inputParser = InputParser();
+  final _inputParser = InputParser();
 
   /// Current popup state (null if no popup is shown).
   PopupState? popup;
@@ -70,7 +70,7 @@ class Editor {
   Mode? _popupPreviousMode;
 
   /// Bracketed paste state machine (buffers paste content across chunks).
-  final BracketedPasteHandler _pasteHandler = BracketedPasteHandler();
+  final _pasteHandler = BracketedPasteHandler();
 
   /// Routes mouse events (clicks and scroll).
   final _mouseHandler = MouseHandler();
@@ -149,7 +149,7 @@ class Editor {
   }
 
   ErrorOr<void> _loadInitialFiles(List<CliFileArg> fileArgs) {
-    for (int i = 0; i < fileArgs.length; i++) {
+    for (var i = 0; i < fileArgs.length; i++) {
       final result = FileBuffer.load(
         fileArgs[i].path,
         createIfNotExists: true,
@@ -179,7 +179,7 @@ class Editor {
   }
 
   void _applyLineArgs(List<CliFileArg> fileArgs) {
-    for (int i = 0; i < fileArgs.length; i++) {
+    for (var i = 0; i < fileArgs.length; i++) {
       final line = fileArgs[i].line;
       if (line != null) {
         buffers[i].gotoLine(line);
@@ -302,7 +302,7 @@ class Editor {
   }
 
   /// Whether a coalesced draw is pending (see [requestDraw]).
-  bool _drawScheduled = false;
+  var _drawScheduled = false;
 
   /// Request a redraw. Multiple requests in the same event-loop turn (e.g.
   /// from LSP notifications, messages and popups) are coalesced into a single
@@ -319,7 +319,7 @@ class Editor {
     _drawScheduled = false;
 
     // Get diagnostic count and semantic tokens for current file from LSP
-    int diagnosticCount = 0;
+    var diagnosticCount = 0;
     List<SemanticToken>? semanticTokens;
     GutterSigns? gutterSigns;
     final lspFeature = lsp;
@@ -560,7 +560,7 @@ class Editor {
     } else {
       // Single cursor, no operator - just move cursor.
       var pos = file.cursor;
-      for (int i = 0; i < edit.count; i++) {
+      for (var i = 0; i < edit.count; i++) {
         pos = motion.fn(this, file, pos);
       }
       file.cursor = pos;
@@ -594,7 +594,7 @@ class Editor {
 
     for (final sel in file.selections) {
       var newCursor = sel.cursor;
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         newCursor = motion.fn(this, file, newCursor);
       }
 
@@ -634,7 +634,7 @@ class Editor {
     for (final sel in file.selections) {
       final start = sel.cursor;
       var end = start;
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         end = motion.fn(this, file, end);
       }
       if (motion.inclusive && end < file.text.length) {

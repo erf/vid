@@ -36,7 +36,7 @@ void main() {
 
 String _generateAsciiText(int lines) {
   final sb = StringBuffer();
-  for (int i = 0; i < lines; i++) {
+  for (var i = 0; i < lines; i++) {
     sb.write('This is line $i with some text content\n');
   }
   return sb.toString();
@@ -44,7 +44,7 @@ String _generateAsciiText(int lines) {
 
 String _generateJapaneseText(int lines) {
   final sb = StringBuffer();
-  for (int i = 0; i < lines; i++) {
+  for (var i = 0; i < lines; i++) {
     sb.write('これは行番号$iです。日本語のテキストコンテンツ\n');
   }
   return sb.toString();
@@ -54,10 +54,10 @@ String _generateJapaneseText(int lines) {
 void benchmarkSplit(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
   late List<LineInfo> lines;
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     lines = [];
     final parts = text.split(Keys.newline);
-    int offset = 0;
+    var offset = 0;
     for (final part in parts) {
       if (offset + part.length < text.length) {
         lines.add(LineInfo(offset, offset + part.length));
@@ -75,10 +75,10 @@ void benchmarkSplit(String text, int iterations) {
 void benchmarkCharByChar(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
   late List<LineInfo> lines;
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     lines = [];
-    int start = 0;
-    for (int j = 0; j < text.length; j++) {
+    var start = 0;
+    for (var j = 0; j < text.length; j++) {
       if (text[j] == Keys.newline) {
         lines.add(LineInfo(start, j));
         start = j + 1;
@@ -98,9 +98,9 @@ void benchmarkCharByChar(String text, int iterations) {
 void benchmarkIndexOf(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
   late List<LineInfo> lines;
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     lines = [];
-    int start = 0;
+    var start = 0;
     int idx = text.indexOf(Keys.newline);
     while (idx != -1) {
       lines.add(LineInfo(start, idx));
@@ -121,7 +121,7 @@ void benchmarkIndexOf(String text, int iterations) {
 void benchmarkIndexOfStartsOnly(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
   late List<int> lineStarts;
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     lineStarts = [0]; // first line always starts at 0
     int idx = text.indexOf(Keys.newline);
     while (idx != -1) {
@@ -140,11 +140,11 @@ void benchmarkCodeUnits(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
   late List<LineInfo> lines;
   const newlineCodeUnit = 10; // '\n'
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     lines = [];
     final units = text.codeUnits;
-    int start = 0;
-    for (int j = 0; j < units.length; j++) {
+    var start = 0;
+    for (var j = 0; j < units.length; j++) {
       if (units[j] == newlineCodeUnit) {
         lines.add(LineInfo(start, j));
         start = j + 1;
@@ -164,9 +164,9 @@ void benchmarkCodeUnits(String text, int iterations) {
 void benchmarkAllMatches(String text, int iterations) {
   final stopwatch = Stopwatch()..start();
   late List<LineInfo> lines;
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     lines = [];
-    int start = 0;
+    var start = 0;
     for (final match in Keys.newline.allMatches(text)) {
       lines.add(LineInfo(start, match.start));
       start = match.end;

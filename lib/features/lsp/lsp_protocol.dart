@@ -661,8 +661,8 @@ class LspProtocol {
   }
 
   LspLocation _locationFromUriAndRange(String uri, dynamic range) {
-    int line = 0;
-    int char = 0;
+    var line = 0;
+    var char = 0;
     if (range is Map) {
       final start = range['start'];
       if (start is Map) {

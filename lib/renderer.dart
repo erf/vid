@@ -29,9 +29,9 @@ import 'string_ext.dart';
   int endCol,
   int tabWidth,
 ) {
-  int col = 0;
-  int byteOffset = 0;
-  bool straddle = false;
+  var col = 0;
+  var byteOffset = 0;
+  var straddle = false;
 
   // Find the byte offset of the first cluster whose cell range reaches
   // startCol. A wide char straddling the boundary is left out (padding).
@@ -48,7 +48,7 @@ import 'string_ext.dart';
 
   // Collect clusters until endCol is covered, starting at byteOffset.
   final buf = StringBuffer();
-  int cur = straddle ? startCol : col;
+  var cur = straddle ? startCol : col;
   for (final char in original.substring(byteOffset).characters) {
     if (cur >= endCol) break;
     final w = char == '\t' ? tabWidth : char.charWidth(tabWidth);
@@ -152,27 +152,25 @@ class Renderer {
   final List<ScreenRowInfo> screenRowMap = [];
 
   /// Renders the popup overlay; owns its own bounds + row map state.
-  late final PopupRenderer popupRenderer = PopupRenderer(
+  late final popupRenderer = PopupRenderer(
     terminal: terminal,
     highlighter: highlighter,
   );
 
   /// Renders the bottom status bar and command/search input line.
-  late final StatusBar statusBar = StatusBar(
+  late final statusBar = StatusBar(
     terminal: terminal,
     highlighter: highlighter,
   );
 
   /// Renders transient messages above the status bar.
-  late final MessageRenderer messageRenderer = MessageRenderer(
+  late final messageRenderer = MessageRenderer(
     terminal: terminal,
     highlighter: highlighter,
   );
 
   /// Renders gutter (line numbers + signs) and end-of-line newline symbol.
-  late final GutterRenderer gutterRenderer = GutterRenderer(
-    highlighter: highlighter,
-  );
+  late final gutterRenderer = GutterRenderer(highlighter: highlighter);
 
   /// Current gutter width in characters (0 if gutter is disabled).
   /// Updated each draw() call based on total line count.
@@ -419,7 +417,7 @@ class Renderer {
   }) {
     final rows = <_RowPlan>[];
     int? cursorScreenRow;
-    int cursorWrapCol = 0;
+    var cursorWrapCol = 0;
     int lineNum = file.lineNumber(file.viewport);
 
     screenRowMap.clear();
@@ -500,9 +498,9 @@ class Renderer {
     final lineStartByte = line.start;
     final lineLength = line.end - line.start;
 
-    String chunk = '';
-    String raw = '';
-    int byteOffset = 0;
+    var chunk = '';
+    var raw = '';
+    var byteOffset = 0;
     if (rendered.isNotEmpty) {
       chunk = rendered.visibleLine(viewportCol, contentWidth);
       final endCol = viewportCol + chunk.renderLength(tabWidth);
@@ -563,11 +561,11 @@ class Renderer {
     final lineLength = line.end - line.start;
 
     int? cursorScreenRow;
-    int cursorWrapCol = 0;
-    int wrapCol = 0;
-    bool firstWrap = true;
-    int lastScreenRow = screenRow;
-    int lastWrapCol = 0;
+    var cursorWrapCol = 0;
+    var wrapCol = 0;
+    var firstWrap = true;
+    var lastScreenRow = screenRow;
+    var lastWrapCol = 0;
     final totalWidth = rendered.renderLength(tabWidth);
     final newlineWidth = newlineSymbol.renderLength(tabWidth);
 
@@ -590,8 +588,8 @@ class Renderer {
       final chunkEnd = chunkInfo.end;
       final chunkWidth = chunkInfo.width;
 
-      int byteOffset = 0;
-      String raw = '';
+      var byteOffset = 0;
+      var raw = '';
       if (chunk.isNotEmpty) {
         final slice = _renderedToOriginalSlice(
           original,
@@ -675,7 +673,7 @@ class Renderer {
     }
 
     if (breakat != null && wrapCol + width < totalWidth) {
-      int breakIndex = -1;
+      var breakIndex = -1;
       for (int i = chunk.length - 1; i > 0; i--) {
         if (breakat.contains(chunk[i])) {
           breakIndex = i;
@@ -773,7 +771,7 @@ class Renderer {
         selectionRanges.isNotEmpty ||
         secondaryCursorRanges.isNotEmpty;
 
-    for (int i = 0; i < rows.length; i++) {
+    for (var i = 0; i < rows.length; i++) {
       if (i > 0) buffer.write(Keys.newline);
       final row = rows[i];
 

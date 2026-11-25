@@ -17,7 +17,7 @@ void _pasteAtCursors(
   final n = f.selections.length;
   // Build one edit per cursor, tagged with the original index for piece mapping.
   final items = <CursorEdit>[];
-  for (int i = 0; i < n; i++) {
+  for (var i = 0; i < n; i++) {
     final pos = getInsertPos(f.selections[i].cursor);
     final text = yank.textForCursor(i, n);
     final edit = TextEdit.insert(pos, text);
@@ -104,7 +104,7 @@ class VisualPaste extends Action {
     // Get paste text for each selection
     // If yank has same number of pieces as selections, distribute them
     final pasteTexts = <String>[];
-    for (int i = 0; i < numSelections; i++) {
+    for (var i = 0; i < numSelections; i++) {
       pasteTexts.add(yank.textForCursor(i, numSelections));
     }
 
@@ -118,7 +118,7 @@ class VisualPaste extends Action {
     // cursor lands at start of pasted text.
     final mainIndex = findMainIndex(ranges, f.selections.first.cursor);
     final items = <CursorEdit>[];
-    for (int i = 0; i < ranges.length; i++) {
+    for (var i = 0; i < ranges.length; i++) {
       items.add(
         CursorEdit.atStart(
           TextEdit(ranges[i].start, ranges[i].end, pasteTexts[i]),

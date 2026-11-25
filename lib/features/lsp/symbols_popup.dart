@@ -106,10 +106,10 @@ class SymbolsPopup {
     final lineText = file.text.substring(lineStart, lineEnd);
 
     // Convert character offset to byte offset within the line
-    int byteOffset = 0;
-    int charCount = 0;
+    var byteOffset = 0;
+    var charCount = 0;
     final codeUnits = lineText.codeUnits;
-    for (int i = 0; i < codeUnits.length && charCount < loc.character; i++) {
+    for (var i = 0; i < codeUnits.length && charCount < loc.character; i++) {
       byteOffset++;
       // Count UTF-16 code units (what LSP uses as "character")
       charCount++;

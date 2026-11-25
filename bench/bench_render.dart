@@ -70,12 +70,12 @@ void benchmarkRenderLength(String line, String label, int iterations) {
   const tabWidth = 4;
 
   // Warm up
-  for (int i = 0; i < 100; i++) {
+  for (var i = 0; i < 100; i++) {
     line.renderLength(tabWidth);
   }
 
   final sw = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     line.renderLength(tabWidth);
   }
   sw.stop();
@@ -88,12 +88,12 @@ void benchmarkRenderLine(String line, String label, int iterations) {
   const width = 80;
 
   // Warm up
-  for (int i = 0; i < 100; i++) {
+  for (var i = 0; i < 100; i++) {
     line.visibleLine(start, width);
   }
 
   final sw = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     line.visibleLine(start, width);
   }
   sw.stop();
@@ -108,12 +108,12 @@ void benchmarkColumnInLine(
   int iterations,
 ) {
   // Warm up
-  for (int i = 0; i < 100; i++) {
+  for (var i = 0; i < 100; i++) {
     f.columnInLine(offset);
   }
 
   final sw = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     f.columnInLine(offset);
   }
   sw.stop();

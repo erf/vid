@@ -72,8 +72,8 @@ class InsideWord extends TextObjectAction {
 
     // If on whitespace, select the whitespace
     if (isWhitespace(charAtCursor)) {
-      int start = offset;
-      int end = offset;
+      var start = offset;
+      var end = offset;
       while (start > 0 && isWhitespace(text[start - 1])) {
         start--;
       }
@@ -85,8 +85,8 @@ class InsideWord extends TextObjectAction {
 
     // If on word char, select the word
     if (isWordChar(charAtCursor)) {
-      int start = offset;
-      int end = offset;
+      var start = offset;
+      var end = offset;
       while (start > 0 && isWordChar(text[start - 1])) {
         start--;
       }
@@ -97,8 +97,8 @@ class InsideWord extends TextObjectAction {
     }
 
     // On punctuation/symbol - select contiguous non-word, non-whitespace
-    int start = offset;
-    int end = offset;
+    var start = offset;
+    var end = offset;
     while (start > 0 &&
         !isWordChar(text[start - 1]) &&
         !isWhitespace(text[start - 1]) &&
@@ -131,7 +131,7 @@ class AroundWordObj extends TextObjectAction {
     int end = innerRange.end;
 
     // Try to include trailing whitespace first
-    int trailingEnd = end;
+    var trailingEnd = end;
     while (trailingEnd < text.length && isWhitespace(text[trailingEnd])) {
       trailingEnd++;
     }
@@ -141,7 +141,7 @@ class AroundWordObj extends TextObjectAction {
     }
 
     // No trailing whitespace, try leading
-    int leadingStart = start;
+    var leadingStart = start;
     while (leadingStart > 0 && isWhitespace(text[leadingStart - 1])) {
       leadingStart--;
     }
@@ -163,8 +163,8 @@ class InsideWORD extends TextObjectAction {
 
     // If on whitespace, select the whitespace
     if (isWhitespace(charAtCursor) || charAtCursor == '\n') {
-      int start = offset;
-      int end = offset;
+      var start = offset;
+      var end = offset;
       while (start > 0 && isWhitespace(text[start - 1])) {
         start--;
       }
@@ -175,8 +175,8 @@ class InsideWORD extends TextObjectAction {
     }
 
     // Select non-whitespace
-    int start = offset;
-    int end = offset;
+    var start = offset;
+    var end = offset;
     while (start > 0 &&
         !isWhitespace(text[start - 1]) &&
         text[start - 1] != '\n') {
@@ -199,7 +199,7 @@ class InsideSentence extends TextObjectAction {
     if (offset >= text.length) return Range(offset, offset);
 
     // Find sentence start (after . ! ? followed by space, or start of text)
-    int start = offset;
+    var start = offset;
     while (start > 0) {
       final prev = text[start - 1];
       if ((prev == '.' || prev == '!' || prev == '?') &&
@@ -218,7 +218,7 @@ class InsideSentence extends TextObjectAction {
     }
 
     // Find sentence end
-    int end = offset;
+    var end = offset;
     while (end < text.length) {
       final char = text[end];
       if (char == '.' || char == '!' || char == '?') {
@@ -266,7 +266,7 @@ class InsideParagraph extends TextObjectAction {
     if (offset >= text.length) return Range(offset, offset);
 
     // Find paragraph start (blank line or start of file)
-    int start = offset;
+    var start = offset;
     while (start > 0) {
       if (text[start - 1] == '\n' && (start == 1 || text[start - 2] == '\n')) {
         break;
@@ -275,7 +275,7 @@ class InsideParagraph extends TextObjectAction {
     }
 
     // Find paragraph end (blank line or end of file)
-    int end = offset;
+    var end = offset;
     while (end < text.length) {
       if (text[end] == '\n') {
         if (end + 1 >= text.length || text[end + 1] == '\n') {

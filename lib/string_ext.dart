@@ -50,9 +50,9 @@ extension StringExt on String {
           : substring(scrollOffset, end);
     }
 
-    int col = 0;
-    int skipCount = 0;
-    bool needSpace = false;
+    var col = 0;
+    var skipCount = 0;
+    var needSpace = false;
 
     // Phase 1: find start boundary
     if (scrollOffset > 0) {
@@ -73,7 +73,7 @@ extension StringExt on String {
 
     // Phase 2: take chars within the width budget.
     // The padding space (if any) consumes 1 column of the budget.
-    int total = needSpace ? 1 : 0;
+    var total = needSpace ? 1 : 0;
     final taken = rest.takeWhile((char) {
       total += char.charWidth();
       return total <= viewportWidth;

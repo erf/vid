@@ -32,9 +32,9 @@ abstract class TextObjectAction {
     final text = f.text;
 
     // Search backwards for opening bracket, counting nesting
-    int openPos = -1;
-    int depth = 0;
-    int pos = offset;
+    var openPos = -1;
+    var depth = 0;
+    var pos = offset;
 
     // First check if cursor is on a bracket
     if (pos < text.length) {
@@ -112,18 +112,18 @@ abstract class TextObjectAction {
     final text = f.text;
 
     // Find line boundaries
-    int lineStart = offset;
+    var lineStart = offset;
     while (lineStart > 0 && text[lineStart - 1] != '\n') {
       lineStart--;
     }
-    int lineEnd = offset;
+    var lineEnd = offset;
     while (lineEnd < text.length && text[lineEnd] != '\n') {
       lineEnd++;
     }
 
     // Find all quote positions on the line
     final quotePositions = <int>[];
-    for (int i = lineStart; i < lineEnd; i++) {
+    for (var i = lineStart; i < lineEnd; i++) {
       if (text[i] == quote) {
         // Skip escaped quotes (simple check for backslash before)
         if (i > lineStart && text[i - 1] == '\\') continue;
@@ -132,7 +132,7 @@ abstract class TextObjectAction {
     }
 
     // Find pair that contains offset
-    for (int i = 0; i < quotePositions.length - 1; i += 2) {
+    for (var i = 0; i < quotePositions.length - 1; i += 2) {
       final open = quotePositions[i];
       final close = quotePositions[i + 1];
       if (offset >= open && offset <= close) {

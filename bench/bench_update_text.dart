@@ -33,7 +33,7 @@ void main() {
 
 String _generateJapaneseText(int lines) {
   final sb = StringBuffer();
-  for (int i = 0; i < lines; i++) {
+  for (var i = 0; i < lines; i++) {
     sb.write('これは行番号$iです。日本語のテキストコンテンツ\n');
   }
   return sb.toString();
@@ -47,10 +47,10 @@ void benchmarkPartialRebuild(
 ) {
   final stopwatch = Stopwatch()..start();
 
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     // Build initial index
     final lines = <LineInfo>[];
-    int start = 0;
+    var start = 0;
     int idx = originalText.indexOf(Keys.newline);
     while (idx != -1) {
       lines.add(LineInfo(start, idx));
@@ -81,10 +81,10 @@ void benchmarkPartialRebuild(
 void benchmarkFullRebuild(String originalText, int editOffset, int iterations) {
   final stopwatch = Stopwatch()..start();
 
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     // Build initial index
     final lines = <LineInfo>[];
-    int start = 0;
+    var start = 0;
     int idx = originalText.indexOf(Keys.newline);
     while (idx != -1) {
       lines.add(LineInfo(start, idx));
@@ -111,7 +111,7 @@ void benchmarkFullRebuild(String originalText, int editOffset, int iterations) {
 
 int _lineNumberFromOffset(List<LineInfo> lines, int offset) {
   if (lines.isEmpty) return 0;
-  int low = 0;
+  var low = 0;
   int high = lines.length - 1;
   while (low < high) {
     int mid = (low + high + 1) ~/ 2;

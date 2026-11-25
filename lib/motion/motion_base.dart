@@ -19,5 +19,5 @@ abstract class MotionAction {
   int call(Editor e, FileBuffer f, int offset);
 
   /// Sentinel value for desiredColumn meaning "end of line".
-  static const int endOfLineColumn = 0x7FFFFFFF;
+  static const endOfLineColumn = 0x7FFFFFFF;
 }

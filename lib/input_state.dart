@@ -1,7 +1,7 @@
 /// Input state - key matching and line edit
 class InputState {
-  String cmdKey = '';
-  String lineEdit = '';
+  var cmdKey = '';
+  var lineEdit = '';
 
   void resetCmdKey() => cmdKey = '';
 }

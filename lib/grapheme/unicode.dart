@@ -39,7 +39,7 @@ class Unicode {
 
     // Scan the grapheme's code points once: variation selectors override the
     // base width, and we remember the first code point as the base width.
-    int firstCodePoint = -1;
+    var firstCodePoint = -1;
     for (final cp in str.runes) {
       if (firstCodePoint < 0) firstCodePoint = cp;
       if (cp == 0xFE0E) return 1; // VS15 text presentation
@@ -54,7 +54,7 @@ class Unicode {
   /// This excludes control chars, tabs, newlines, and any extended unicode.
   /// For such strings: render width == grapheme count == string length.
   static bool isPrintableAscii(String str) {
-    for (int i = 0; i < str.length; i++) {
+    for (var i = 0; i < str.length; i++) {
       final c = str.codeUnitAt(i);
       if (c < 0x20 || c > 0x7E) return false;
     }

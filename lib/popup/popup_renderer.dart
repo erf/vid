@@ -31,10 +31,10 @@ class PopupRenderer {
   final List<int> popupRowMap = [];
 
   /// Popup bounds for mouse click detection.
-  int popupLeft = 0;
-  int popupTop = 0;
-  int popupRight = 0;
-  int popupBottom = 0;
+  var popupLeft = 0;
+  var popupTop = 0;
+  var popupRight = 0;
+  var popupBottom = 0;
 
   PopupRenderer({required this.terminal, required this.highlighter});
 
@@ -91,7 +91,7 @@ class PopupRenderer {
     final scrollOffset = popup.scrollOffset;
     final selectionBg =
         highlighter.theme.selectionBackground ?? Ansi.bg(Color.brightBlack);
-    for (int i = 0; i < maxVisible; i++) {
+    for (var i = 0; i < maxVisible; i++) {
       final itemIndex = scrollOffset + i;
       final row = top + 2 + i; // +2 for header row
 

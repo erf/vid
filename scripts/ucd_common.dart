@@ -11,9 +11,9 @@ import 'package:http/http.dart' as http;
 /// metadata (`# File:`, `# Date:`, optional `# Version:`) alongside the lines.
 class UcdSource {
   final String url;
-  String filename = '';
-  String date = '';
-  String version = '';
+  var filename = '';
+  var date = '';
+  var version = '';
 
   UcdSource(this.url);
 

@@ -31,16 +31,16 @@ class LspFeature extends Feature {
   final Map<String, StreamSubscription<LspNotification>> _notificationSubs = {};
 
   /// Tracks open documents (uri -> serverKey) and per-uri sync versions.
-  final LspDocumentTracker _documents = LspDocumentTracker();
+  final _documents = LspDocumentTracker();
 
   /// Diagnostics cache, per file URI.
-  final LspDiagnosticsCache _diagnosticsCache = LspDiagnosticsCache();
+  final _diagnosticsCache = LspDiagnosticsCache();
 
   /// Code-action availability cache (lines + pending timers), per file URI.
-  final LspCodeActionsCache _codeActionsCache = LspCodeActionsCache();
+  final _codeActionsCache = LspCodeActionsCache();
 
   /// Semantic-token cache (current + previous + debounce timers), per file URI.
-  final LspSemanticTokensCache _semanticTokensCache = LspSemanticTokensCache();
+  final _semanticTokensCache = LspSemanticTokensCache();
 
   LspFeature(super.editor);
 
@@ -302,8 +302,8 @@ class LspFeature extends Feature {
 
     // End position: start position + walk through oldText
     final oldLines = oldText.split('\n');
-    int endLine = startLine;
-    int endChar = startChar;
+    var endLine = startLine;
+    var endChar = startChar;
 
     if (oldLines.length == 1) {
       // Single line replacement - just add the length
@@ -476,7 +476,7 @@ class LspFeature extends Feature {
     final lines = text.split('\n');
     final result = <String>[];
 
-    bool inCodeBlock = false;
+    var inCodeBlock = false;
     for (final line in lines) {
       // Skip markdown code fence markers
       if (line.startsWith('```')) {

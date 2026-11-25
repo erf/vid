@@ -49,8 +49,8 @@ class StatusBar {
       mode = '$mode[${file.selections.length}]';
     }
     String path = file.relativePath ?? '[No Name]';
-    String modified = file.modified ? '*' : '';
-    String pathWithMod = '$path$modified';
+    var modified = file.modified ? '*' : '';
+    var pathWithMod = '$path$modified';
     String wrap = config.wrapSymbol;
 
     // Build left side with special formatting for buffer indicator and diagnostics
@@ -63,12 +63,12 @@ class StatusBar {
     final theme = highlighter.theme;
     final themeRestore = '${theme.background ?? ''}${theme.foreground ?? ''}';
 
-    String bufferPart = '';
+    var bufferPart = '';
     if (bufferCount > 1) {
       bufferPart =
           ' ${Ansi.dim()}${bufferIndex + 1}/$bufferCount${Ansi.reset()}$themeRestore${Ansi.inverse(true)}';
     }
-    String diagPart = '';
+    var diagPart = '';
     if (diagnosticCount > 0) {
       diagPart =
           ' ${Ansi.fg(Color.red)}!$diagnosticCount${Ansi.reset()}$themeRestore${Ansi.inverse(true)}';
@@ -80,7 +80,7 @@ class StatusBar {
         : 0;
     int diagVisibleLen = diagnosticCount > 0 ? ' !$diagnosticCount'.length : 0;
 
-    String right = ' ${cursorLine + 1}, ${cursorCol + 1} ';
+    var right = ' ${cursorLine + 1}, ${cursorCol + 1} ';
     // Keep the status line one column short of the terminal width: filling
     // the last column triggers auto-wrap in most terminals, which would
     // push the content rows up and hide the top row. If the left side is

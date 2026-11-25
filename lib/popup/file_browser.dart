@@ -30,7 +30,7 @@ class FileBrowser {
   }
 
   /// Flag to cancel ongoing scan.
-  static bool _cancelScan = false;
+  static var _cancelScan = false;
 
   /// Scan files asynchronously and update popup progressively.
   static Future<void> _scanFilesAsync(Editor editor, String rootPath) async {
@@ -182,10 +182,10 @@ class FileBrowser {
       return 50 + pattern.length;
     }
     // Check if all pattern chars exist in order
-    int patternIndex = 0;
-    int score = 0;
-    bool prevMatched = false;
-    for (int i = 0; i < text.length && patternIndex < pattern.length; i++) {
+    var patternIndex = 0;
+    var score = 0;
+    var prevMatched = false;
+    for (var i = 0; i < text.length && patternIndex < pattern.length; i++) {
       if (text[i] == pattern[patternIndex]) {
         patternIndex++;
         score += prevMatched ? 2 : 1;

@@ -42,7 +42,7 @@ List<TextEdit> mergeOverlappingEdits(List<TextEdit> edits) {
   final merged = <TextEdit>[];
   var current = sorted.first;
 
-  for (int i = 1; i < sorted.length; i++) {
+  for (var i = 1; i < sorted.length; i++) {
     final next = sorted[i];
 
     // Check for overlap: next.start < current.end (or equal for adjacent)
@@ -179,7 +179,7 @@ List<Selection> applyEditsWithCursors(
   final selections = <Selection>[];
   var shift = 0;
   int? primarySortedIndex;
-  for (int i = 0; i < sorted.length; i++) {
+  for (var i = 0; i < sorted.length; i++) {
     final item = sorted[i];
     final pos = item.edit.start + shift + item.cursorOffset;
     selections.add(Selection.collapsed(pos));

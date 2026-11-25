@@ -24,7 +24,7 @@ const _maxCodePoint = 0x10FFFF;
 const _blockSize = 256; // one byte low-half split
 
 void _mark(List<int> width, int start, int end, int value) {
-  for (int cp = start; cp <= end && cp <= _maxCodePoint; cp++) {
+  for (var cp = start; cp <= end && cp <= _maxCodePoint; cp++) {
     width[cp] = value;
   }
 }
@@ -90,7 +90,7 @@ Future<void> main() async {
   final blockIndex = <String, int>{}; // block contents -> stage2 offset
 
   for (
-    int blockStart = 0;
+    var blockStart = 0;
     blockStart <= _maxCodePoint;
     blockStart += _blockSize
   ) {
@@ -138,7 +138,7 @@ Future<void> main() async {
 
 void _writeInts(StringBuffer out, List<int> values) {
   const perLine = 16;
-  for (int i = 0; i < values.length; i += perLine) {
+  for (var i = 0; i < values.length; i += perLine) {
     final chunk = values.sublist(
       i,
       i + perLine > values.length ? values.length : i + perLine,

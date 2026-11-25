@@ -75,7 +75,7 @@ class ToggleCaseUnderCursor extends Action {
       final isPrimary = sel.cursor == primaryCursor;
       final start = sel.cursor;
       var end = start;
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if (end >= f.text.length) break;
         if (f.text[end] == '\n') break;
         final next = f.nextGrapheme(end);
@@ -200,7 +200,7 @@ class JoinLines extends Action {
     if (f.hasMultipleCursors) {
       f.collapseToPrimaryCursor();
     }
-    for (int i = 0; i < (f.edit.count ?? 1); i++) {
+    for (var i = 0; i < (f.edit.count ?? 1); i++) {
       int lineEndOffset = f.lineEnd(f.cursor);
       // Check if there's a line below to join
       if (lineEndOffset >= f.text.length - 1) {

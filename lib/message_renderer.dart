@@ -11,7 +11,7 @@ class MessageRenderer {
   MessageRenderer({required this.terminal, required this.highlighter});
 
   /// Maximum number of message lines to display.
-  static const int maxLines = 5;
+  static const maxLines = 5;
 
   /// Draw [message] above the status bar.
   void draw(StringBuffer buffer, Message message) {

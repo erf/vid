@@ -69,7 +69,7 @@ class FileBuffer {
   }
 
   /// list of selections (always at least one; first is "main" selection)
-  List<Selection> selections = [Selection.collapsed(0)];
+  var selections = <Selection>[Selection.collapsed(0)];
 
   /// the cursor position (byte offset, always at grapheme cluster boundary)
   /// This is a convenience getter/setter for the primary cursor.
@@ -103,10 +103,10 @@ class FileBuffer {
   bool get hasVisualSelection => selections.any((s) => !s.isCollapsed);
 
   /// the viewport position (byte offset of first visible character)
-  int viewport = 0;
+  var viewport = 0;
 
   /// the horizontal viewport position (column offset for horizontal scrolling)
-  int viewportCol = 0;
+  var viewportCol = 0;
 
   /// track the last cursor line to reset viewportCol on line changes
   int? lastCursorLine;
@@ -114,10 +114,10 @@ class FileBuffer {
   Mode mode = .normal;
 
   /// the current edit builder (accumulates input)
-  EditBuilder edit = EditBuilder();
+  var edit = EditBuilder();
 
   /// input state for command matching
-  InputState input = InputState();
+  var input = InputState();
 
   /// the previous edit operation (for repeat)
   EditOperation? prevEdit;
@@ -142,7 +142,7 @@ class FileBuffer {
   }
 
   /// the savepoint for undo operations
-  int savepoint = 0;
+  var savepoint = 0;
 
   final List<TextChangeListener> _listeners = [];
 
@@ -168,7 +168,7 @@ class FileBuffer {
   /// build line index by scanning for newlines - O(n)
   void _buildLineIndex() {
     lines.clear();
-    int start = 0;
+    var start = 0;
     int idx = _text.indexOf(Keys.newline);
     while (idx != -1) {
       lines.add(LineInfo(start, idx));
@@ -220,7 +220,7 @@ class FileBuffer {
   /// get line number for offset using binary search - O(log n)
   int lineNumber(int offset) {
     if (lines.isEmpty) return 0;
-    int low = 0;
+    var low = 0;
     int high = lines.length - 1;
     while (low < high) {
       int mid = (low + high + 1) ~/ 2;

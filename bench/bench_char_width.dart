@@ -34,13 +34,13 @@ void main() {
 
 void _benchmark(String name, List<String> chars, int tabWidth) {
   // Warm up
-  for (int i = 0; i < 1000; i++) {
+  for (var i = 0; i < 1000; i++) {
     Unicode.charWidth(chars[i % chars.length], tabWidth: tabWidth);
   }
 
   final stopwatch = Stopwatch()..start();
-  int width1 = 0;
-  int width2 = 0;
+  var width1 = 0;
+  var width2 = 0;
 
   for (final char in chars) {
     final w = Unicode.charWidth(char, tabWidth: tabWidth);

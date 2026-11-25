@@ -64,7 +64,7 @@ void main() {
 
 String _generateText(int lines) {
   final sb = StringBuffer();
-  for (int i = 0; i < lines; i++) {
+  for (var i = 0; i < lines; i++) {
     sb.write('This is line number $i with some words here\n');
   }
   return sb.toString();
@@ -125,8 +125,8 @@ int matchCursorWordNew(
 
 void benchmarkMatchCursorWordOld(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = matchCursorWordOld(text, offset, forward: true);
   }
   stopwatch.stop();
@@ -135,8 +135,8 @@ void benchmarkMatchCursorWordOld(String text, int offset, int iterations) {
 
 void benchmarkMatchCursorWordNew(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = matchCursorWordNew(text, offset, forward: true);
   }
   stopwatch.stop();
@@ -172,8 +172,8 @@ int wordEndPrevNew(String text, int offset, {int chunkSize = 1000}) {
 
 void benchmarkWordEndPrevOld(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = wordEndPrevOld(text, offset);
   }
   stopwatch.stop();
@@ -182,8 +182,8 @@ void benchmarkWordEndPrevOld(String text, int offset, int iterations) {
 
 void benchmarkWordEndPrevNew(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = wordEndPrevNew(text, offset);
   }
   stopwatch.stop();
@@ -220,8 +220,8 @@ int regexPrevNew(
 
 void benchmarkRegexPrevOld(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = regexPrevOld(text, offset, Regex.word);
   }
   stopwatch.stop();
@@ -230,8 +230,8 @@ void benchmarkRegexPrevOld(String text, int offset, int iterations) {
 
 void benchmarkRegexPrevNew(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = regexPrevNew(text, offset, Regex.word);
   }
   stopwatch.stop();

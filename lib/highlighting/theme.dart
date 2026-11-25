@@ -94,7 +94,7 @@ class Theme {
   }
 
   /// Rosé Pine Dawn (light) - https://rosepinetheme.com/palette/ingredients
-  static final Theme _rosePineDawn = Theme._(
+  static final _rosePineDawn = Theme._(
     'rosepine-dawn',
     {
       // Basic token types (regex-based)
@@ -144,7 +144,7 @@ class Theme {
   );
 
   /// Rosé Pine (dark) - https://rosepinetheme.com/palette/ingredients
-  static final Theme _rosePine = Theme._(
+  static final _rosePine = Theme._(
     'rosepine',
     {
       // Basic token types (regex-based)
@@ -190,7 +190,7 @@ class Theme {
   );
 
   /// Ayu Dark
-  static final Theme _ayuDark = Theme._(
+  static final _ayuDark = Theme._(
     'ayu-dark',
     {
       // Basic token types
@@ -236,7 +236,7 @@ class Theme {
   );
 
   /// Ayu Light
-  static final Theme _ayuLight = Theme._(
+  static final _ayuLight = Theme._(
     'ayu-light',
     {
       // Basic token types
@@ -282,7 +282,7 @@ class Theme {
   );
 
   /// Unicorn Dark - soft pastel theme
-  static final Theme _unicornDark = Theme._(
+  static final _unicornDark = Theme._(
     'unicorn-dark',
     {
       // Basic token types
@@ -328,7 +328,7 @@ class Theme {
   );
 
   /// Unicorn Light - soft pastel theme
-  static final Theme _unicornLight = Theme._(
+  static final _unicornLight = Theme._(
     'unicorn-light',
     {
       // Basic token types
@@ -374,7 +374,7 @@ class Theme {
   );
 
   /// Monochrome theme using text attributes (uses terminal default colors)
-  static final Theme _mono = Theme._(
+  static final _mono = Theme._(
     'mono',
     {
       // Basic token types

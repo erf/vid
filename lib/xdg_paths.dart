@@ -6,13 +6,13 @@ import 'dart:io';
 /// following the XDG Base Directory specification.
 class XdgPaths {
   /// The application directory name.
-  static const String appName = 'vid';
+  static const appName = 'vid';
 
   /// Environment variable names
-  static const String _envHome = 'HOME';
-  static const String _envXdgConfigHome = 'XDG_CONFIG_HOME';
-  static const String _envXdgCacheHome = 'XDG_CACHE_HOME';
-  static const String _envXdgDataHome = 'XDG_DATA_HOME';
+  static const _envHome = 'HOME';
+  static const _envXdgConfigHome = 'XDG_CONFIG_HOME';
+  static const _envXdgCacheHome = 'XDG_CACHE_HOME';
+  static const _envXdgDataHome = 'XDG_DATA_HOME';
 
   /// Common environment variable getters
   static String? get _home => Platform.environment[_envHome];

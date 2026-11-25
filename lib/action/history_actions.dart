@@ -8,7 +8,7 @@ class Undo extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.edit.count ?? 1); i++) {
+    for (var i = 0; i < (f.edit.count ?? 1); i++) {
       f.undo(); // Restores selections internally
     }
     f.edit.reset();
@@ -21,7 +21,7 @@ class Redo extends Action {
 
   @override
   void call(Editor e, FileBuffer f) {
-    for (int i = 0; i < (f.edit.count ?? 1); i++) {
+    for (var i = 0; i < (f.edit.count ?? 1); i++) {
       f.redo(); // Positions cursor internally
     }
     f.edit.reset();
@@ -67,7 +67,7 @@ class RepeatFind extends Action {
 
         // Execute the motion count times
         var newPos = f.cursor;
-        for (int i = 0; i < prev.count; i++) {
+        for (var i = 0; i < prev.count; i++) {
           newPos = reversedMotion.fn(e, f, newPos);
         }
         f.cursor = newPos;

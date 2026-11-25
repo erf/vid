@@ -108,7 +108,7 @@ class GutterRenderer {
 
   /// Current gutter width in characters (0 if gutter is disabled).
   /// Updated by [calculateWidth] each draw.
-  int width = 0;
+  var width = 0;
 
   GutterRenderer({required this.highlighter});
 

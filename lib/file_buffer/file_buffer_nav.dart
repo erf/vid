@@ -56,8 +56,8 @@ extension FileBufferNav on FileBuffer {
     if (offset <= start) return 0;
     // Fast path: for simple ASCII, column == byte offset difference
     final len = offset - start;
-    bool isAscii = true;
-    for (int i = start; i < offset; i++) {
+    var isAscii = true;
+    for (var i = start; i < offset; i++) {
       if (text.codeUnitAt(i) < 0x20 || text.codeUnitAt(i) > 0x7E) {
         isAscii = false;
         break;
@@ -88,7 +88,7 @@ extension FileBufferNav on FileBuffer {
     final targetLineText = text.substring(targetLineStart, targetLineEnd);
 
     // Find position in target line with similar visual column
-    int nextLen = 0;
+    var nextLen = 0;
     final chars = targetLineText.characters.takeWhile((c) {
       nextLen += c.charWidth(tabWidth);
       return nextLen <= column;
@@ -170,7 +170,7 @@ extension FileBufferNav on FileBuffer {
     int viewportLine,
   ) {
     // Vertical: ensure cursor line is visible
-    int maxViewLine = cursorLine;
+    var maxViewLine = cursorLine;
     int minViewLine = cursorLine - term.height + 2;
     viewportLine = viewportLine.clamp(minViewLine, maxViewLine);
 
@@ -231,8 +231,8 @@ extension FileBufferNav on FileBuffer {
     final lineStart = lineOffset(lineNum);
     if (lineText.isEmpty) return lineStart;
 
-    int renderCol = 0;
-    int byteOffset = 0;
+    var renderCol = 0;
+    var byteOffset = 0;
 
     for (final char in lineText.characters) {
       if (renderCol >= screenCol) break;

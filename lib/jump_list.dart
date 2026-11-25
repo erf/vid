@@ -16,7 +16,7 @@ class JumpLocation {
 /// Manages navigation history for Ctrl-o / Ctrl-i jumping.
 class JumpList {
   final List<JumpLocation> _list = [];
-  int _index = -1;
+  var _index = -1;
   final int maxSize;
 
   JumpList({this.maxSize = 100});

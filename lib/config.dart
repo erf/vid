@@ -112,7 +112,7 @@ class Config {
   final Set<String> formatOnSaveLanguages;
 
   /// Default directories to exclude from file browser scanning.
-  static const Set<String> defaultExcludeDirs = {
+  static const defaultExcludeDirs = <String>{
     '.git',
     'node_modules',
     '.dart_tool',

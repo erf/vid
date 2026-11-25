@@ -215,9 +215,9 @@ class SplitSelectionIntoLines extends Action {
   @override
   void call(Editor e, FileBuffer f) {
     final newSelections = <Selection>[];
-    int primaryIdx = 0;
+    var primaryIdx = 0;
 
-    for (int si = 0; si < f.selections.length; si++) {
+    for (var si = 0; si < f.selections.length; si++) {
       final sel = f.selections[si];
       final startLine = f.lineNumber(sel.start);
       final endLine = f.lineNumber(sel.end);
@@ -230,7 +230,7 @@ class SplitSelectionIntoLines extends Action {
         continue;
       }
 
-      for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
+      for (var lineNum = startLine; lineNum <= endLine; lineNum++) {
         final line = f.lines[lineNum];
         // Clip start/end to selection boundaries
         final lineStart = lineNum == startLine ? sel.start : line.start;
@@ -278,7 +278,7 @@ class VisualLineInsert extends Action {
       Selection.collapsed(_offset(f, f.lines[cursorLine])),
     ];
 
-    for (int lineNum = startLine; lineNum <= endLine; lineNum++) {
+    for (var lineNum = startLine; lineNum <= endLine; lineNum++) {
       if (lineNum == cursorLine) continue;
       newSelections.add(Selection.collapsed(_offset(f, f.lines[lineNum])));
     }

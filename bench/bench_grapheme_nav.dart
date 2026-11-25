@@ -52,7 +52,7 @@ void main() {
 
 String _generateJapaneseText(int lines) {
   final sb = StringBuffer();
-  for (int i = 0; i < lines; i++) {
+  for (var i = 0; i < lines; i++) {
     sb.write('これは行番号$iです。日本語のテキストコンテンツ\n');
   }
   return sb.toString();
@@ -95,8 +95,8 @@ int prevGraphemeCharacterRange(String text, int offset) {
 
 void benchmarkNextGraphemeSubstring(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = nextGraphemeSubstring(text, offset);
   }
   stopwatch.stop();
@@ -109,8 +109,8 @@ void benchmarkNextGraphemeCharacterRange(
   int iterations,
 ) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = nextGraphemeCharacterRange(text, offset);
   }
   stopwatch.stop();
@@ -119,8 +119,8 @@ void benchmarkNextGraphemeCharacterRange(
 
 void benchmarkPrevGraphemeSubstring(String text, int offset, int iterations) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = prevGraphemeSubstring(text, offset);
   }
   stopwatch.stop();
@@ -133,8 +133,8 @@ void benchmarkPrevGraphemeCharacterRange(
   int iterations,
 ) {
   final stopwatch = Stopwatch()..start();
-  int result = 0;
-  for (int i = 0; i < iterations; i++) {
+  var result = 0;
+  for (var i = 0; i < iterations; i++) {
     result = prevGraphemeCharacterRange(text, offset);
   }
   stopwatch.stop();

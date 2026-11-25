@@ -13,9 +13,9 @@ int renderLengthSlow(String s, int tabWidth) =>
     s.ch.fold(0, (prev, curr) => prev + curr.charWidth(tabWidth));
 
 String visibleLineSlow(String s, int scrollOffset, int viewportWidth) {
-  int col = 0;
-  int skipCount = 0;
-  bool needSpace = false;
+  var col = 0;
+  var skipCount = 0;
+  var needSpace = false;
 
   if (scrollOffset > 0) {
     for (final char in s.ch) {
@@ -30,7 +30,7 @@ String visibleLineSlow(String s, int scrollOffset, int viewportWidth) {
   }
 
   final rest = s.ch.skip(skipCount + (needSpace ? 1 : 0));
-  int total = needSpace ? 1 : 0;
+  var total = needSpace ? 1 : 0;
   final taken = rest.takeWhile((char) {
     total += char.charWidth();
     return total <= viewportWidth;
@@ -98,11 +98,11 @@ void main() {
 
 void _bench(String label, Object? Function() fn, int iterations) {
   // warmup
-  for (int i = 0; i < iterations ~/ 10; i++) {
+  for (var i = 0; i < iterations ~/ 10; i++) {
     fn();
   }
   final sw = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     fn();
   }
   sw.stop();

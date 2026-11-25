@@ -307,8 +307,8 @@ class Highlighter {
 
     // Check if any part of this text is in a selection or secondary cursor
     final textEnd = byteOffset + text.length;
-    bool anySelection = false;
-    bool anySecondaryCursor = false;
+    var anySelection = false;
+    var anySecondaryCursor = false;
     for (final (selStart, selEnd) in selectionRanges) {
       if (selStart < textEnd && selEnd > byteOffset) {
         anySelection = true;
@@ -340,7 +340,7 @@ class Highlighter {
 
     while (pos < text.length) {
       // Check if current byte is in any secondary cursor (takes precedence)
-      bool nowInSecondaryCursor = false;
+      var nowInSecondaryCursor = false;
       for (final (curStart, curEnd) in secondaryCursorRanges) {
         if (currentByte >= curStart && currentByte < curEnd) {
           nowInSecondaryCursor = true;
@@ -349,7 +349,7 @@ class Highlighter {
       }
 
       // Check if current byte is in any selection
-      bool nowInSelection = false;
+      var nowInSelection = false;
       if (!nowInSecondaryCursor) {
         for (final (selStart, selEnd) in selectionRanges) {
           if (currentByte >= selStart && currentByte < selEnd) {
@@ -363,14 +363,14 @@ class Highlighter {
       var runEnd = pos + 1;
       var runByte = currentByte + 1;
       while (runEnd < text.length) {
-        bool nextInSecondaryCursor = false;
+        var nextInSecondaryCursor = false;
         for (final (curStart, curEnd) in secondaryCursorRanges) {
           if (runByte >= curStart && runByte < curEnd) {
             nextInSecondaryCursor = true;
             break;
           }
         }
-        bool nextInSelection = false;
+        var nextInSelection = false;
         if (!nextInSecondaryCursor) {
           for (final (selStart, selEnd) in selectionRanges) {
             if (runByte >= selStart && runByte < selEnd) {
@@ -498,7 +498,7 @@ class Highlighter {
 
       // Check if this semantic token overlaps any regex token
       // If it does, it was already processed in the merge loop
-      bool overlapsRegex = false;
+      var overlapsRegex = false;
       for (final regex in regexTokens) {
         if (semantic.overlaps(regex.start, regex.end)) {
           overlapsRegex = true;

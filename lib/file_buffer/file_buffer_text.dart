@@ -29,7 +29,7 @@ extension FileBufferText on FileBuffer {
 
     // protect final newline when deleting to end (unless preceded by newline)
     final len = text.length;
-    int actualEnd = end;
+    var actualEnd = end;
     if (end >= len && (start == 0 || text[start - 1] != '\n')) {
       actualEnd = len - 1;
     }

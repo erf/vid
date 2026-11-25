@@ -94,7 +94,7 @@ class LspServerDefaults {
   };
 
   /// Fallback language ID mappings for extensions without LSP config.
-  static const Map<String, String> fallbackLanguageIds = {
+  static const fallbackLanguageIds = <String, String>{
     'js': 'javascript',
     'jsx': 'javascriptreact',
     'mjs': 'javascript',

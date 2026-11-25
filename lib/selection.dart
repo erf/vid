@@ -134,14 +134,14 @@ List<Selection> mergeSelections(List<Selection> selections) {
 void promoteByCursor(List<Selection> list, int cursorPos) {
   if (list.length <= 1) return;
   // Pass 1: exact cursor match.
-  for (int i = 0; i < list.length; i++) {
+  for (var i = 0; i < list.length; i++) {
     if (list[i].cursor == cursorPos) {
       promoteIndex(list, i);
       return;
     }
   }
   // Pass 2: containment.
-  for (int i = 0; i < list.length; i++) {
+  for (var i = 0; i < list.length; i++) {
     final sel = list[i];
     if (sel.start <= cursorPos && cursorPos <= sel.end) {
       promoteIndex(list, i);
@@ -163,7 +163,7 @@ void promoteIndex(List<Selection> list, int index) {
 
 /// Move the selection with cursor at [cursorPos] to front of list.
 void moveToFront(List<Selection> selections, int cursorPos) {
-  for (int i = 0; i < selections.length; i++) {
+  for (var i = 0; i < selections.length; i++) {
     if (selections[i].cursor == cursorPos) {
       promoteIndex(selections, i);
       return;
@@ -174,9 +174,9 @@ void moveToFront(List<Selection> selections, int cursorPos) {
 /// Promote the selection closest to [offset] to front of list.
 void promoteClosest(List<Selection> selections, int offset) {
   if (selections.length <= 1) return;
-  int bestIdx = 0;
+  var bestIdx = 0;
   int bestDist = (selections[0].cursor - offset).abs();
-  for (int i = 1; i < selections.length; i++) {
+  for (var i = 1; i < selections.length; i++) {
     final dist = (selections[i].cursor - offset).abs();
     if (dist < bestDist) {
       bestDist = dist;
@@ -204,7 +204,7 @@ List<Selection> _collapseRanges(
   int mainIndex,
   int Function(Selection r) deltaFor,
 ) {
-  int offset = 0;
+  var offset = 0;
   final newSelections = <Selection>[];
   for (final r in sortedRanges) {
     newSelections.add(Selection.collapsed(r.start - offset));
@@ -246,7 +246,7 @@ List<Selection> collapseAfterLinewiseReplace(
 /// Find the index of the range containing [cursorPos] in a sorted list.
 /// Returns 0 if no range contains the cursor.
 int findMainIndex(List<Selection> sortedRanges, int cursorPos) {
-  for (int i = 0; i < sortedRanges.length; i++) {
+  for (var i = 0; i < sortedRanges.length; i++) {
     if (sortedRanges[i].start <= cursorPos &&
         cursorPos <= sortedRanges[i].end) {
       return i;

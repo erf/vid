@@ -69,7 +69,7 @@ class RenamePopup {
       }
 
       // Get current symbol name
-      String currentName = '';
+      var currentName = '';
       if (prepareResult.placeholder != null) {
         currentName = prepareResult.placeholder!;
       } else if (prepareResult.range != null) {
@@ -290,8 +290,8 @@ class RenamePopup {
     Editor editor,
     WorkspaceEdit workspaceEdit,
   ) async {
-    int totalEdits = 0;
-    int filesChanged = 0;
+    var totalEdits = 0;
+    var filesChanged = 0;
 
     for (final entry in workspaceEdit.changes.entries) {
       final fileUri = entry.key;
@@ -343,8 +343,8 @@ class RenamePopup {
 
     if (cursor >= text.length) return '';
 
-    int start = cursor;
-    int end = cursor;
+    var start = cursor;
+    var end = cursor;
 
     while (start > 0 && _isWordChar(text[start - 1])) {
       start--;

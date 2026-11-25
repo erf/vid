@@ -183,8 +183,8 @@ class CodeActionsPopup {
     Editor editor,
     WorkspaceEdit workspaceEdit,
   ) async {
-    int totalEdits = 0;
-    int filesChanged = 0;
+    var totalEdits = 0;
+    var filesChanged = 0;
 
     for (final entry in workspaceEdit.changes.entries) {
       final fileUri = entry.key;

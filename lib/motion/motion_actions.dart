@@ -214,7 +214,7 @@ class FileStart extends MotionAction {
 
   @override
   int call(Editor e, FileBuffer f, int offset) {
-    int targetLine = 0;
+    var targetLine = 0;
     if (f.edit.count != null) {
       targetLine = min(f.edit.count! - 1, f.totalLines - 1);
     }
@@ -432,11 +432,11 @@ class MatchBracket extends MotionAction {
 
     // Check if cursor is on a bracket
     String charAtCursor = text[offset];
-    int searchPos = offset;
+    var searchPos = offset;
 
     // If not on a bracket, search forward on current line
     if (!brackets.containsKey(charAtCursor)) {
-      int lineEnd = offset;
+      var lineEnd = offset;
       while (lineEnd < text.length && text[lineEnd] != '\n') {
         lineEnd++;
       }
@@ -459,7 +459,7 @@ class MatchBracket extends MotionAction {
 
     if (isOpen) {
       // Search forward for matching close bracket
-      int depth = 1;
+      var depth = 1;
       int pos = searchPos + 1;
       while (pos < text.length) {
         final c = text[pos];
@@ -475,7 +475,7 @@ class MatchBracket extends MotionAction {
       }
     } else {
       // Search backward for matching open bracket
-      int depth = 1;
+      var depth = 1;
       int pos = searchPos - 1;
       while (pos >= 0) {
         final c = text[pos];

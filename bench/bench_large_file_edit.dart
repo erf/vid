@@ -91,7 +91,7 @@ String _loadFile(String path) {
 
 String _generateJapaneseText(int lines) {
   final sb = StringBuffer();
-  for (int i = 0; i < lines; i++) {
+  for (var i = 0; i < lines; i++) {
     sb.write('これは行番号$iです。日本語のテキストコンテンツ。聖書のテストデータ。\n');
   }
   return sb.toString();
@@ -106,7 +106,7 @@ void _benchmarkInsertChar(
   final stopwatch = Stopwatch()..start();
   final config = Config();
 
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     final buffer = FileBuffer(text: text);
     buffer.cursor = offset.clamp(0, text.length - 1);
     buffer.insertAt(buffer.cursor, 'X', config: config);
@@ -127,7 +127,7 @@ void _benchmarkInsertLine(
   final config = Config();
   const newLine = 'This is a new line of text inserted for benchmarking.\n';
 
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     final buffer = FileBuffer(text: text);
     buffer.cursor = offset.clamp(0, text.length - 1);
     buffer.insertAt(buffer.cursor, newLine, config: config);
@@ -147,7 +147,7 @@ void _benchmarkDeleteChar(
   final stopwatch = Stopwatch()..start();
   final config = Config();
 
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     final buffer = FileBuffer(text: text);
     buffer.cursor = offset.clamp(0, text.length - 2);
     buffer.deleteAt(buffer.cursor, config: config);
@@ -167,7 +167,7 @@ void _benchmarkDeleteLine(
   final stopwatch = Stopwatch()..start();
   final config = Config();
 
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     final buffer = FileBuffer(text: text);
     if (lineIndex >= buffer.lines.length) continue;
 
@@ -192,20 +192,20 @@ void _benchmarkUndoRedo(String text, int iterations) {
   final middleOffset = text.length ~/ 2;
 
   // Make 10 edits to have something to undo
-  for (int i = 0; i < 10; i++) {
+  for (var i = 0; i < 10; i++) {
     buffer.insertAt(middleOffset, 'X', config: config);
   }
 
   // Benchmark undo
   var stopwatch = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     // Reset buffer
     final testBuffer = FileBuffer(text: text);
-    for (int j = 0; j < 10; j++) {
+    for (var j = 0; j < 10; j++) {
       testBuffer.insertAt(middleOffset, 'X', config: config);
     }
     // Undo all edits
-    for (int j = 0; j < 10; j++) {
+    for (var j = 0; j < 10; j++) {
       testBuffer.undo();
     }
   }
@@ -215,18 +215,18 @@ void _benchmarkUndoRedo(String text, int iterations) {
 
   // Benchmark redo
   stopwatch = Stopwatch()..start();
-  for (int i = 0; i < iterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     // Reset buffer
     final testBuffer = FileBuffer(text: text);
-    for (int j = 0; j < 10; j++) {
+    for (var j = 0; j < 10; j++) {
       testBuffer.insertAt(middleOffset, 'X', config: config);
     }
     // Undo all edits
-    for (int j = 0; j < 10; j++) {
+    for (var j = 0; j < 10; j++) {
       testBuffer.undo();
     }
     // Redo all edits
-    for (int j = 0; j < 10; j++) {
+    for (var j = 0; j < 10; j++) {
       testBuffer.redo();
     }
   }
@@ -248,7 +248,7 @@ void _benchmarkRapidEdits(
   buffer.cursor = startOffset.clamp(0, text.length - 1);
 
   // Simulate typing characters rapidly
-  for (int i = 0; i < numEdits; i++) {
+  for (var i = 0; i < numEdits; i++) {
     buffer.insertAt(buffer.cursor, 'a', config: config);
     buffer.cursor++;
   }

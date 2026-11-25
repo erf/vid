@@ -10,10 +10,10 @@ class LspClient {
   Process? _process;
   final _pendingRequests = <int, Completer<Map<String, dynamic>>>{};
   final _notificationController = StreamController<LspNotification>.broadcast();
-  int _nextId = 1;
-  StringBuffer _buffer = StringBuffer();
+  var _nextId = 1;
+  var _buffer = StringBuffer();
   int? _contentLength;
-  bool _initialized = false;
+  var _initialized = false;
   String? _rootPath;
   LspServerConfig? _serverConfig;
 
@@ -24,7 +24,7 @@ class LspClient {
   List<String> _semanticTokenModifiers = [];
 
   /// Whether the server supports incremental text sync.
-  bool _supportsIncrementalSync = false;
+  var _supportsIncrementalSync = false;
 
   /// Stream of notifications from the server (diagnostics, log messages, etc.)
   Stream<LspNotification> get notifications => _notificationController.stream;

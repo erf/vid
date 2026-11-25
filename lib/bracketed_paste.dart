@@ -28,10 +28,10 @@ class BracketedPasteHandler {
   static const _pasteStart = '\x1b[200~';
   static const _pasteEnd = '\x1b[201~';
 
-  bool _inPaste = false;
+  var _inPaste = false;
 
   /// Accumulates paste content until the end marker arrives.
-  final StringBuffer _buffer = StringBuffer();
+  final _buffer = StringBuffer();
 
   /// Feed a chunk of raw input and return the events it contains.
   List<PasteInputEvent> feed(String str) {
@@ -97,7 +97,7 @@ class BracketedPasteHandler {
 
     // Update cursor positions to after the inserted content.
     final newSelections = <Selection>[];
-    int offset = 0;
+    var offset = 0;
     for (final sel in sorted) {
       newSelections.add(
         Selection.collapsed(sel.cursor + offset + content.length),

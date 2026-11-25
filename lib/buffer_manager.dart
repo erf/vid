@@ -31,7 +31,7 @@ class BufferManager {
   final String workingDirectory;
 
   final List<FileBuffer> _buffers = [];
-  int _currentIndex = 0;
+  var _currentIndex = 0;
 
   BufferManager({
     required this.workingDirectory,

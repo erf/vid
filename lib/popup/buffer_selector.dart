@@ -32,7 +32,7 @@ class BufferSelector {
   static List<PopupItem<int>> _listBuffers(Editor editor) {
     final items = <PopupItem<int>>[];
 
-    for (int i = 0; i < editor.bufferCount; i++) {
+    for (var i = 0; i < editor.bufferCount; i++) {
       final buffer = editor.buffers[i];
       final isCurrent = i == editor.currentBufferIndex;
       final isModified = buffer.modified;

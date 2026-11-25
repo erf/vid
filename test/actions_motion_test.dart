@@ -247,7 +247,7 @@ void main() {
     expect(WordPrevMotion(Regex.word)(e, f, 0), 0); // at start, stay
     // Note: emoji sequence has length 14 bytes
     // 'abc d❤️‍🔥f ghi\n' = 'abc ' (4) + 'd' (1) + emoji (14) + 'f ghi\n' (6)
-    int emojiStart = 5;
+    var emojiStart = 5;
     expect(WordPrevMotion(Regex.word)(e, f, 4), 0); // space -> abc
     expect(WordPrevMotion(Regex.word)(e, f, emojiStart), 4); // d -> space/abc
   });
@@ -414,7 +414,7 @@ void main() {
       // Create text with many lines - word at start, then many empty-ish lines
       final sb = StringBuffer();
       sb.write('firstword\n');
-      for (int i = 0; i < 50; i++) {
+      for (var i = 0; i < 50; i++) {
         sb.write('line $i with words here\n');
       }
       f.text = sb.toString();
@@ -429,7 +429,7 @@ void main() {
 
       // Should eventually be able to reach the first word
       var pos = f.text.length - 2;
-      for (int i = 0; i < 500 && pos > 0; i++) {
+      for (var i = 0; i < 500 && pos > 0; i++) {
         final newPos = WordPrevMotion(Regex.word)(e, f, pos);
         if (newPos == pos) break; // stuck
         pos = newPos;
@@ -607,7 +607,7 @@ void main() {
       f.text = 'One. Two. Three.\n';
       // 'O' at 0, 'T' at 5, 'T' at 10
 
-      int pos = 0;
+      var pos = 0;
       pos = const SentenceNext()(e, f, pos);
       expect(pos, 5); // -> Two
       pos = const SentenceNext()(e, f, pos);

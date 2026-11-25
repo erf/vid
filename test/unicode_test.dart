@@ -3,7 +3,7 @@ import 'package:vid/grapheme/unicode.dart';
 import 'package:vid/string_ext.dart';
 
 void main() {
-  const int tabWidth = 4;
+  const tabWidth = 4;
 
   test('Emoji render width', () {
     expect(''.charWidth(tabWidth), 0);
@@ -57,7 +57,7 @@ void main() {
   });
 
   test('codePoint value of a', () {
-    String char = 'a';
+    var char = 'a';
     int len = char.codeUnits.length;
     int val = char.codeUnitAt(0);
     expect(len, 1);
@@ -65,7 +65,7 @@ void main() {
   });
 
   test('codePoint value of ❤️', () {
-    String char = '❤️';
+    var char = '❤️';
     int len = char.codeUnits.length;
     int val = char.codeUnitAt(0);
     expect(len, 2);
@@ -73,7 +73,7 @@ void main() {
   });
 
   test('codePoint value of ❤️‍🔥', () {
-    String char = '❤️‍🔥';
+    var char = '❤️‍🔥';
     int len = char.codeUnits.length;
     int val = char.codeUnitAt(0);
     expect(len, 5);
